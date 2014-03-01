@@ -1,0 +1,10 @@
+---
+layout: toc
+category: "9"
+date: "2014-02-07 12:00:00"
+tags: toc
+---
+
+Issue #9 is all about strings. Strings are everywhere in all apps. We use them all the time. Localization of strings and the complexity of Unicode are all but trivial, and we hope to shed some light on these topics. We give you an overview of Unicode itself, cover best practices, discuss string localization, explain string parsing, and touch upon string drawing. These topics are relevant to every iOS and OS X developer, and hopefully we can provide you with a few small gems that'll ease your day-to-day work.
+
+

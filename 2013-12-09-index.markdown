@@ -1,0 +1,9 @@
+---
+layout: toc
+category: "7"
+date: "2013-12-09 12:00:00"
+tags: toc
+---
+
+
+In issue #7 we take an in-depth look at selected classes and patterns of the Foundation framework. The roots of the Foundation framework go all the way back to the era of NeXTSTEP, which has been around for 25 years and covers a lot of ground. Now, we're taking a stab at some of it in the issue. We picked a few topics that are relevant to all Objective-C developers: collection classes, key-value coding and key-value observing, value objects, and value formatters. We have also included a more general article about communication patterns; it goes beyond the patterns found in Foundation to cover a somewhat more exotic topic: `NSLinguisticTagger`
