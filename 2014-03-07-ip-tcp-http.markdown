@@ -42,7 +42,7 @@ Each host in an IP network has an address -- the so-called *IP address*. Each pa
 
 Today, most packages are still IPv4 (Internet Protocol version 4), where each IPv4 address is 32 bits long. They're most often written in [dotted-decimal](https://en.wikipedia.org/wiki/Dotted_decimal) notation, like so: 198.51.100.42
 
-The newer IPv6 standard is slowly gaining traction. It has an address space: its addresses are 128 bits long. This allows for easier routing as the packets travel through the network. And since there are more available addresses, tricks such as [network address translation](https://en.wikipedia.org/wiki/Network_address_translation) are no longer necessary. IPv6 addresses are represented in the hexadecimal system and divided into eight groups separated by colons, e.g. 2001:0db8:85a3:0042:1000:8a2e:0370:7334
+The newer IPv6 standard is slowly gaining traction. It has an address space: its addresses are 128 bits long. This allows for easier routing as the packets travel through the network. And since there are more available addresses, tricks such as [network address translation](https://en.wikipedia.org/wiki/Network_address_translation) are no longer necessary. IPv6 addresses are represented in the hexadecimal system and divided into eight groups separated by colons, e.g. `2001:0db8:85a3:0042:1000:8a2e:0370:7334`.
 
 ### The IP Header
 
