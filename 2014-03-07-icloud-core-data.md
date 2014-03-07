@@ -95,6 +95,11 @@ While Apple hasn’t released official sample code for iCloud Core Data in iOS 7
                 [context save:&error];
             }
             
+            if (error) {
+                // perform error handling
+                NSLog(@"%@",[error localizedDescription]);
+            }
+            
             [context reset];
         }];
     
