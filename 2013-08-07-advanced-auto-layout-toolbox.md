@@ -127,8 +127,8 @@ You could also decide to change the constraints after the first layout pass. For
     
     - updateConstraints
     {
-        [super updateConstraints];
         // add constraints depended on self.layoutRows...
+        [super updateConstraints];
     }
 
 
