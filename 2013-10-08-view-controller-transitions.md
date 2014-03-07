@@ -57,7 +57,7 @@ might also create a new object for each operation. There's a lot of flexibility
 here.
 
 To perform the animation, we create a custom object that implements the
-`UIViewControllerContextTransitioning` protocol:
+`UIViewControllerAnimatedTransitioning` protocol:
 
     @interface Animator : NSObject <UIViewControllerAnimatedTransitioning>
     
