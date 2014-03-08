@@ -240,11 +240,11 @@ Since the Core Data data model includes a special entity that stores the revisio
 
 ### Compression
 
-Since JSON is a pretty verbose data format, it is important to enable gzip compression for the requests to the server. This is done by adding the `Content-Encoding: gzip` header to the request. However, this only enables compression from the server to the client, but not the other way around. 
+Since JSON is a pretty verbose data format, it is important to enable gzip compression for the requests to the server. Adding the `Accept-Encoding: gzip` header to the request allows the server to gzip its response. However, this only enables compression from the server to the client, but not the other way around. 
 
-The client including this content-encoding header only signals to the server that it supports gzip compression and that the server should send the response compressed if the server supports it too. The client doesn't know at the time of the request if the server supports gzip or not, therefore it cannot send the request body in a compressed form.
+The client including the `Accept-Encoding` header only signals to the server that it supports gzip compression and that the server should send the response compressed if the server supports it too. Usually the client doesn't know at the time of the request if the server supports gzip or not, therefore it cannot send the request body in a compressed form by default.
 
-Since we control the server, we can make sure that it supports gzip compression and rely on it when sending requests from the clients. We simply gzip the data that should be sent to the server ourselves, since we know that the server will be able to handle it. See [this `NSData` category](https://github.com/nicklockwood/GZIP) for an example of gzip compression.
+In our case though we control the server and we can make sure that it supports gzip compression. Then we can simply gzip the data that should be sent to the server ourselves and add the `Content-Encoding: gzip` header, since we know that the server will be able to handle it. See [this `NSData` category](https://github.com/nicklockwood/GZIP) for an example of gzip compression.
 
 
 ### Temporary and Permanent IDs
