@@ -92,7 +92,12 @@ While Apple hasn’t released official sample code for iCloud Core Data in iOS 7
             NSError *error;
     		
             if ([context hasChanges]) {
-                [context save:&error];
+                BOOL success = [context save:&error];
+                
+                if (!success && error) {
+                    // perform error handling
+                    NSLog(@"%@",[error localizedDescription]);
+                }
             }
             
             [context reset];
