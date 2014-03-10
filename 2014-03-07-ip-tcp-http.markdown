@@ -120,7 +120,7 @@ TCP runs unmodified on top of both IPv4 and IPv6. The *Protocol* (IPv4) or *Next
 
 ### TCP Segments
 
-The data stream that flows between hosts is cut up into chunks, which are turned into TCP segments. The TPC segment then becomes the payload of an IP packet.
+The data stream that flows between hosts is cut up into chunks, which are turned into TCP segments. The TCP segment then becomes the payload of an IP packet.
 
 Each TCP segment has a header and a payload. The payload is the actual data chunk to be transmitted. The TCP segment header first and foremost contains the source and destination port number -- the source and destination addresses are already present in the IP header.
 
