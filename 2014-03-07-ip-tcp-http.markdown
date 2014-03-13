@@ -42,7 +42,7 @@ Each host in an IP network has an address -- the so-called *IP address*. Each pa
 
 Today, most packages are still IPv4 (Internet Protocol version 4), where each IPv4 address is 32 bits long. They're most often written in [dotted-decimal](https://en.wikipedia.org/wiki/Dotted_decimal) notation, like so: 198.51.100.42
 
-The newer IPv6 standard is slowly gaining traction. It has an address space: its addresses are 128 bits long. This allows for easier routing as the packets travel through the network. And since there are more available addresses, tricks such as [network address translation](https://en.wikipedia.org/wiki/Network_address_translation) are no longer necessary. IPv6 addresses are represented in the hexadecimal system and divided into eight groups separated by colons, e.g. `2001:0db8:85a3:0042:1000:8a2e:0370:7334`.
+The newer IPv6 standard is slowly gaining traction. It has a larger address space: its addresses are 128 bits long. This allows for easier routing as the packets travel through the network. And since there are more available addresses, tricks such as [network address translation](https://en.wikipedia.org/wiki/Network_address_translation) are no longer necessary. IPv6 addresses are represented in the hexadecimal system and divided into eight groups separated by colons, e.g. `2001:0db8:85a3:0042:1000:8a2e:0370:7334`.
 
 ### The IP Header
 
@@ -96,9 +96,9 @@ Again: Wikipedia's [article on IPv6 packets](https://en.wikipedia.org/wiki/IPv6_
 
 ### Fragmentation
 
-In IPv4, packets (datagrams) can get [fragmented](https://en.wikipedia.org/wiki/IP_fragmentation). The underlying transport layer will have an upper limit to the length of packet it can support. In IPv4, a router may fragment a packet if it gets routed onto an underlying data link for which the packet would otherwise be too big. These packets will then get reassembled at the destination host. 
+In IPv4, packets (datagrams) can get [fragmented](https://en.wikipedia.org/wiki/IP_fragmentation). The underlying transport layer will have an upper limit to the length of packet it can support. In IPv4, a router may fragment a packet if it gets routed onto an underlying data link for which the packet would otherwise be too big. These packets will then get reassembled at the destination host. The sender can decide to disallow routers to fragment packets, in which turn they'll send a *Packet Too Big* [ICMP](https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol) back to the sender.
 
-In IPv6, a router will drop the packet and send back a *Packet Too Big* message to the sender. The end points use this to figure out what the so-called maximum transfer unit (MTU) is. Only when the minimum payload size is too big for that MTU will IPv6 use [fragmentation](https://en.wikipedia.org/wiki/IPv6_packet#Fragmentation).
+In IPv6, a router will always drop the packet and send back a *Packet Too Big* [ICMP6](https://en.wikipedia.org/wiki/ICMPv6) message to the sender. The end points use this to do a [path MTU discovery](https://en.wikipedia.org/wiki/Path_MTU) to figure out what the optimal so-called *maximum transfer unit* (MTU) along the path between the two hosts is. Only when the upper-layer has a has minimum payload size that is too big for this MTU will IPv6 use [fragmentation](https://en.wikipedia.org/wiki/IPv6_packet#Fragmentation). With TCP over IPv6 this is not the case.
 
 ## TCP — Transmission Control Protocol
 
@@ -183,22 +183,22 @@ and on the second line, the server is sending:
 
 The `TS val` / `ecr` are used by TCP to estimate the round-trip time (RTT). The `TS val` part is the *time stamp* of the sender, and the (`ecr`) is the timestamp *echo reply*, which is (generally) the last timestamp that the sender has received so far. TCP uses the round-trip time for its congestion-control algorithms.
 
-Both ends are sending `sackOK`. This will enable *Selective Acknowledgement*. It switches the sequence numbers and acknowledgment number to use byte range instead of TCP segment numbers. And it then allows both ends to acknowledge receipt by byte range. This is outlined in [section 3 of RFC 2018](http://tools.ietf.org/html/rfc2018#section-3).
+Both ends are sending `sackOK`. This will enable *Selective Acknowledgement*. It allows both ends to acknowledge receipt of byte ranges. Normally the acknowledgement mechanism only allows acknowledging that the receiver has all data up to a specific byte count. SACK is outlined in [section 3 of RFC 2018](http://tools.ietf.org/html/rfc2018#section-3).
 
 The `mss` option specified the *Maximum Segment Size*, which is the maximum number of bytes that this end is willing to receive in a single segment. `wscale` is the *window scale factor* that we'll talk about in a bit.
 
 #### Connection Data Flow
 
-When the connection is created, both ends can send data to the other end. Each segment that is sent has a sequence number one larger than the previous segment. The receiving end will acknowledge packets as they are received by sending back segments with the corresponding **ACK**.
+When the connection is created, both ends can send data to the other end. Each segment that is sent has a sequence number corresponding to the number of bytes sent so far. The receiving end will acknowledge packets as they are received by sending back segments with the corresponding **ACK** in the header.
 
-In theory this may looks like:
+If we were transmitting 10 bytes per segment and 5 bytes in the last segment, this may looks like:
 
-    host A sends segment with seq 0
-    host A sends segment with seq 1
-    host A sends segment with seq 2     host B sends segment with ack 0
-    host A sends segment with seq 3     host B sends segment with ack 1
-                                        host B sends segment with ack 2
-                                        host B sends segment with ack 3
+    host A sends segment with seq 10
+    host A sends segment with seq 20
+    host A sends segment with seq 30    host B sends segment with ack 10
+    host A sends segment with seq 35    host B sends segment with ack 20
+                                        host B sends segment with ack 30
+                                        host B sends segment with ack 35
 
 This mechanism happens in both directions. Host A will keep sending packets. As they arrive at host B, host B will send acknowledgements for these packets back to host A. But host A will keep sending packets without waiting for host B to acknowledge them.
 
@@ -221,9 +221,9 @@ Above, we saw the first three segments between the client and the server. If we 
 
 The client at `10.0.1.6` sends the first segment with data `length 85` (the HTTP request, 85 bytes). The **ACK** number is left at the same value, because no data has been received from the other end since the last segment.
 
-The server at `23.63.125.15` then acknowledges the receipt of that data (but doesn't send any data): `length 0`. Since the connection is using *Selective acknowledgments*, the sequence number and acknowledgment numbers are byte ranges: 1721092980 to 1721093065 is 85 bytes. When the other end sends `ack 1721093065`, that means: I have everything up to byte 1721093065.
+The server at `23.63.125.15` then acknowledges the receipt of that data (but doesn't send any data): `length 0`. Since the connection is using *Selective acknowledgments*, the sequence number and acknowledgment numbers are byte ranges: 1721092980 to 1721093065 is 85 bytes. When the other end sends `ack 1721093065`, that means: I have everything up to byte 1721093065. The reason for these numbers being so large is because we're starting out at a random number. The byte ranges are relative to that initial number.
 
-This continues until all data has been sent:
+This pattern continues until all data has been sent:
 
     18:31:29.189335 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673593778:673595226, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
     18:31:29.190280 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673595226:673596674, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
@@ -371,7 +371,7 @@ Apple's server also tells us that the response's media type is `text/html; chars
 
 Simply using HTTPS instead of HTTP will give you a huge improvement in security. There are some additional steps that you may want to take, though, both of which will additionally improve the security of your communication.
 
-### TSL 1.2
+### TLS 1.2
 
 You should set the `TLSMinimumSupportedProtocol` to `kTLSProtocol12` to require [TLS version 1.2](https://en.wikipedia.org/wiki/Transport_Layer_Security#TLS_1.2) if your server supports that. This will make [man-in-the-middle attacks](https://en.wikipedia.org/wiki/Man-in-the-middle_attack) more difficult.
 
@@ -461,6 +461,8 @@ Or look at it another way: If we're on a slow network, the request-response roun
 There's a misconception that restarting the (HTTP) request will fix the problem. That is not the case. Again, TCP will resend those packets that need resending on its own.
 
 The right approach is this: When we send off a URL request, we set a timer for 10 seconds. Once we get the response back, we invalidate the timer. If the timer fires before we get the response back, we'll show some UI: "Please be patient, the network appears to be slow right now." Depending on the app, we might want to give the user an option to cancel the action. But we shouldn't make that decision for the user.
+
+As long as both sides have the same IP address the connection stays “alive”. On an iPhone you will loose connection when you switch from WiFi to 3G because the other end can no longer route its packets to the IP address that was used to create the connection.
 
 ### Caching
 
