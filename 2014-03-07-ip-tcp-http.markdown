@@ -26,7 +26,7 @@ We will only look at the application, transport, and Internet layers, and in fac
 
 We hope that this will give you a more detailed understanding of how HTTP works under the hood, as well as what some common problems are, and how you can avoid them.
 
-There are other ways than HTTP to send data through the Internet. One reason that HTTP has become so popular is that it will almost always work, even when the machine is behind a firewall.
+There are ways to send data through the Internet other than HTTP. One reason that HTTP has become so popular is that it will almost always work, even when the machine is behind a firewall.
 
 Let's start out at the lowest layer and take a look at IP, the Internet Protocol.
 
@@ -34,11 +34,11 @@ Let's start out at the lowest layer and take a look at IP, the Internet Protocol
 
 The **IP** in TCP/IP is short for [Internet Protocol](https://en.wikipedia.org/wiki/Internet_Protocol). As the name suggests, it is one of the fundamental protocols of the Internet.
 
-IP implements [packet-switched networking](https://en.wikipedia.org/wiki/Packet_switching). It has a concept of *hosts* which are machines. The IP protocol specifies how *datagrams* (packets) are sent between these hosts.
+IP implements [packet-switched networking](https://en.wikipedia.org/wiki/Packet_switching). It has a concept of *hosts*, which are machines. The IP protocol specifies how *datagrams* (packets) are sent between these hosts.
 
 A packet is a chunk of binary data that has a source host and a destination host. An IP network will then simply transmit the packet from the source to the destination. One important aspect of IP is that packets are delivered using *best effort*. A packet may be lost along the way and never reach the destination. Or it may get duplicated and arrive multiple times at the destination.
 
-Each host in an IP network has an address -- the so-called *IP address*. Each packet contains the source and destination hosts' addresses. The IP is responsible for routing datagrams: as the IP packet travels through the network, each node (host) that it travels through looks at the destination address in the packet to figure out in which direction the packet should be forwarded.
+Each host in an IP network has an address -- the so-called *IP address*. Each packet contains the source and destination hosts' addresses. The IP is responsible for routing datagrams -- as the IP packet travels through the network, each node (host) that it travels through looks at the destination address in the packet to figure out in which direction the packet should be forwarded.
 
 Today, most packages are still IPv4 (Internet Protocol version 4), where each IPv4 address is 32 bits long. They're most often written in [dotted-decimal](https://en.wikipedia.org/wiki/Dotted_decimal) notation, like so: 198.51.100.42
 
@@ -66,7 +66,7 @@ An IPv4 header looks like this:
 
 The header is 20 bytes long (without options, which are rarely used).
 
-The most interesting parts of the header are the source and destination IP addresses. Aside from that, the version field will be set to 4 -- it's IPv4. And the *protocol* field specified which protocol the payload is using. TCP's protocol number is 6. The total length field specified is the length of the entire packet -- header plus payload.
+The most interesting parts of the header are the source and destination IP addresses. Aside from that, the version field will be set to 4 -- it's IPv4. And the *protocol* field specifies which protocol the payload is using. TCP's protocol number is 6. The total length field specified is the length of the entire packet -- header plus payload.
 
 Check Wikipedia's [article on IPv4](https://en.wikipedia.org/wiki/IPv4_header) for all the details about the header and its fields.
 
@@ -90,15 +90,15 @@ IPv6 uses addresses that are 128 bits long. The IPv6 header looks like this:
 
 The IPv6 header has a fixed length of 40 bytes. It's a lot simpler than IPv4 -- a few lessons were learned in the years that have passed since IPv4.
 
-The source and destination addresses are again the most interesting fields. In IPv6 the *next header* field specifies what data follows the header. IPv6 allows chaining of headers inside the packet. Each subsequent IPv6 header will also have a *next header* field until the actual payload is reached. When the *next header* field, for example, is 6 (TCP's protocol number), the rest of the packet will be TCP data.
+The source and destination addresses are again the most interesting fields. In IPv6, the *next header* field specifies what data follows the header. IPv6 allows chaining of headers inside the packet. Each subsequent IPv6 header will also have a *next header* field until the actual payload is reached. When the *next header* field, for example, is 6 (TCP's protocol number), the rest of the packet will be TCP data.
 
 Again: Wikipedia's [article on IPv6 packets](https://en.wikipedia.org/wiki/IPv6_packet) has a lot more detail.
 
 ### Fragmentation
 
-In IPv4, packets (datagrams) can get [fragmented](https://en.wikipedia.org/wiki/IP_fragmentation). The underlying transport layer will have an upper limit to the length of packet it can support. In IPv4, a router may fragment a packet if it gets routed onto an underlying data link for which the packet would otherwise be too big. These packets will then get reassembled at the destination host. The sender can decide to disallow routers to fragment packets, in which turn they'll send a *Packet Too Big* [ICMP](https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol) back to the sender.
+In IPv4, packets (datagrams) can get [fragmented](https://en.wikipedia.org/wiki/IP_fragmentation). The underlying transport layer will have an upper limit to the length of packet it can support. In IPv4, a router may fragment a packet if it gets routed onto an underlying data link for which the packet would otherwise be too big. These packets will then get reassembled at the destination host. The sender can decide to disallow routers to fragment packets, in which case they'll send a *Packet Too Big* [ICMP](https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol) back to the sender.
 
-In IPv6, a router will always drop the packet and send back a *Packet Too Big* [ICMP6](https://en.wikipedia.org/wiki/ICMPv6) message to the sender. The end points use this to do a [path MTU discovery](https://en.wikipedia.org/wiki/Path_MTU) to figure out what the optimal so-called *maximum transfer unit* (MTU) along the path between the two hosts is. Only when the upper-layer has a has minimum payload size that is too big for this MTU will IPv6 use [fragmentation](https://en.wikipedia.org/wiki/IPv6_packet#Fragmentation). With TCP over IPv6 this is not the case.
+In IPv6, a router will always drop the packet and send back a *Packet Too Big* [ICMP6](https://en.wikipedia.org/wiki/ICMPv6) message to the sender. The end points use this to do a [path MTU discovery](https://en.wikipedia.org/wiki/Path_MTU) to figure out what the optimal so-called *maximum transfer unit* (MTU) along the path between the two hosts is. Only when the upper layer has a minimum payload size that is too big for this MTU will IPv6 use [fragmentation](https://en.wikipedia.org/wiki/IPv6_packet#Fragmentation). With TCP over IPv6, this is not the case.
 
 ## TCP — Transmission Control Protocol
 
@@ -181,9 +181,9 @@ and on the second line, the server is sending:
 
     [mss 1460,sackOK,TS val 1433256622 ecr 743929763,nop,wscale 1]
 
-The `TS val` / `ecr` are used by TCP to estimate the round-trip time (RTT). The `TS val` part is the *time stamp* of the sender, and the (`ecr`) is the timestamp *echo reply*, which is (generally) the last timestamp that the sender has received so far. TCP uses the round-trip time for its congestion-control algorithms.
+The `TS val` / `ecr` are used by TCP to estimate the round-trip time (RTT). The `TS val` part is the *time stamp* of the sender, and the (`ecr`) is the timestamp *echo reply*, which is (generally) the last timestamp that the sender has received. TCP uses the round-trip time for its congestion-control algorithms.
 
-Both ends are sending `sackOK`. This will enable *Selective Acknowledgement*. It allows both ends to acknowledge receipt of byte ranges. Normally the acknowledgement mechanism only allows acknowledging that the receiver has all data up to a specific byte count. SACK is outlined in [section 3 of RFC 2018](http://tools.ietf.org/html/rfc2018#section-3).
+Both ends are sending `sackOK`. This will enable *Selective Acknowledgement*. It allows both ends to acknowledge receipt of byte ranges. Normally, the acknowledgement mechanism only allows acknowledging that the receiver has all data up to a specific byte count. SACK is outlined in [section 3 of RFC 2018](http://tools.ietf.org/html/rfc2018#section-3).
 
 The `mss` option specified the *Maximum Segment Size*, which is the maximum number of bytes that this end is willing to receive in a single segment. `wscale` is the *window scale factor* that we'll talk about in a bit.
 
@@ -204,7 +204,7 @@ This mechanism happens in both directions. Host A will keep sending packets. As 
 
 TCP incorporates flow control and a lot of sophisticated mechanisms for congestion control. These are all about figuring out (A) if segments got lost and need to be retransmitted, and (B) if the rate at which segments are sent needs to be adjusted.
 
-Flow control is about making sure that the sending side doesn't send data faster than the receiver (at either end) can process it. The receiver sends a so-called *receive window*, which tells the sender how much more data the receiver can buffer. There are some subtle details we'll skip, but in the above `tcpdump` output, we see a `win 65535` and a `wscale 4`. The first is the window size, the latter a scale factor. As a result, the host at `10.0.1.6` says it has a receive window of 4·64 kB = 256 kB and the the host at `23.63.125.15` advertises `win 14480` and `wscale 1` i.e. roughly 14 kB. As either side receives data, it will send an updated receive window to the other end.
+Flow control is about making sure that the sending side doesn't send data faster than the receiver (at either end) can process it. The receiver sends a so-called *receive window*, which tells the sender how much more data the receiver can buffer. There are some subtle details we'll skip, but in the above `tcpdump` output, we see a `win 65535` and a `wscale 4`. The first is the window size, the latter a scale factor. As a result, the host at `10.0.1.6` says it has a receive window of 4·64 kB = 256 kB and the host at `23.63.125.15` advertises `win 14480` and `wscale 1`, i.e. roughly 14 kB. As either side receives data, it will send an updated receive window to the other end.
 
 Congestion control is quite complex. The various mechanisms are all about figuring out at which rate data can be sent through the network. It's a very delicate balance. On one hand, there's the obvious desire to send data as fast as possible, but on the other hand, the performance will collapse dramatically when sending too much data. This is called [congestive collapse](https://en.wikipedia.org/wiki/Congestive_collapse#Congestive_collapse) and it's a property inherent to packet-switched networks. When too many packets are sent, packets will collide with other packets and the packet loss rate will climb dramatically.
 
@@ -260,7 +260,7 @@ The [World Wide Web](https://en.wikipedia.org/wiki/World_Wide_Web) of interlinke
 
 ### Request and Response
 
-HTTP uses a simple request and response mechanism. When we enter http://www.apple.com/ into Safari, it send an HTTP request to the server at `www.apple.com`. The server in turn sends back a (single) response which contains the document that was requested.
+HTTP uses a simple request and response mechanism. When we enter http://www.apple.com/ into Safari, it sends an HTTP request to the server at `www.apple.com`. The server in turn sends back a (single) response which contains the document that was requested.
 
 There's always a single request and a single response. And both requests and responses follow the same format. The first line is the *request line* (request) or *status line* (response). This line is followed by headers. The headers end with an empty line. After that, an empty line follows the optional message body.
 
@@ -281,7 +281,9 @@ When [Safari](https://en.wikipedia.org/wiki/Safari_%28web_browser%29) loads the 
     Accept-Language: en-us
 
 
-The first line is the **request line**. It specifies the desired action: `GET`. This is called the [HTTP method](https://en.wikipedia.org/wiki/HTTP_method#Request_methods). Next up the path of the resources that this action is supposed to be made on: `/about.html`, and finally the HTTP version. In this case, we want to *get* the document.
+The first line is the **request line**. It has three parts: the action, the resource, and the HTTP version. 
+
+In our example, the action is `GET`. The action is also often referred to as the [HTTP method](https://en.wikipedia.org/wiki/HTTP_method#Request_methods). The resources specify which resource the given action should be applied to. In our case it is `/about.html`, which tells the server that we want to *get* the document at `/about.html`. The HTTP version will be `HTTP/1.1`.
 
 Next, we have 10 lines with 10 HTTP headers. These are followed by an empty line. There's no message body in this request.
 
@@ -339,7 +341,7 @@ Let's do another request with `curl`:
     Host: www.apple.com
     Accept: */*
 
-This is quite similar to what Safari was requesting. This time, there's no `If-None-Match` header and the server will have to send the document.
+This is quite similar to what Safari was requesting. This time, there's no `If-None-Match` header, and the server will have to send the document.
 
 Note how `curl` announces that it will accept any kind of media format: (`Accept: */*`).
 
@@ -416,7 +418,7 @@ The problem with this is at the end of the data transmission. When the sender st
 
 #### Keep-Alive and Pipelining
 
-HTTP has two strategies to counter these problems. The simplest is called [HTTP persistent connection](https://en.wikipedia.org/wiki/HTTP_persistent_connection), sometimes also known as *keep-alive*. HTTP will simply reuse the same TCP connection once a single request-response pair is done. In case of HTTPS, the same TLS connection will be re-used:
+HTTP has two strategies to counter these problems. The simplest is called [HTTP persistent connection](https://en.wikipedia.org/wiki/HTTP_persistent_connection), sometimes also known as *keep-alive*. HTTP will simply reuse the same TCP connection once a single request-response pair is done. In the case of HTTPS, the same TLS connection will be reused:
 
     open connection
     client sends HTTP request 1 ->
@@ -448,7 +450,7 @@ With this, we're able to use TCP in a more efficient way. We're now only doing t
 
 The improvements of using HTTP pipelining can be quite dramatic over high-latency connections -- which is what you have when your iPhone is not on Wi-Fi. In fact, there's been some [research](http://research.microsoft.com/pubs/170059/A%20comparison%20of%20SPDY%20and%20HTTP%20performance.pdf) that suggests that there's no additional performance benefit to using [SPDY](https://en.wikipedia.org/wiki/SPDY) over HTTP pipelining on mobile networks.
 
-When communication with a server, [RFC 2616](https://tools.ietf.org/html/rfc2616) recommends using two connections when HTTP pipelining is enabled. According to these guidelines, this will result in the best response times and avoid congestion. There's no performance benefit to additional connections.
+When communicating with a server, [RFC 2616](https://tools.ietf.org/html/rfc2616) recommends using two connections when HTTP pipelining is enabled. According to these guidelines, this will result in the best response times and avoid congestion. There's no performance benefit to additional connections.
 
 Sadly, there are still some servers that don't support pipelining. You should try to enable it, however, and check if your particular server does support it. Chances are, it does. But because some servers don't, HTTP pipelining is turned off by default for `NSURLSession`. Make sure to set `HTTPShouldUsePipelining` to `YES` on the `NSURLSessionConfiguration` if you're able to use pipelining.
 
@@ -460,9 +462,9 @@ Or look at it another way: If we're on a slow network, the request-response roun
 
 There's a misconception that restarting the (HTTP) request will fix the problem. That is not the case. Again, TCP will resend those packets that need resending on its own.
 
-The right approach is this: When we send off a URL request, we set a timer for 10 seconds. Once we get the response back, we invalidate the timer. If the timer fires before we get the response back, we'll show some UI: "Please be patient, the network appears to be slow right now." Depending on the app, we might want to give the user an option to cancel the action. But we shouldn't make that decision for the user.
+The correct approach is this: When we send off a URL request, we set a timer for 10 seconds. Once we get the response back, we invalidate the timer. If the timer fires before we get the response back, we'll show some UI: "Please be patient, the network appears to be slow right now." Depending on the app, we might want to give the user an option to cancel the action. But we shouldn't make that decision for the user.
 
-As long as both sides have the same IP address the connection stays “alive”. On an iPhone you will loose connection when you switch from WiFi to 3G because the other end can no longer route its packets to the IP address that was used to create the connection.
+As long as both sides have the same IP address, the connection stays 'alive.' On an iPhone, you will lose connection when you switch from Wi-Fi to 3G because the other end can no longer route its packets to the IP address that was used to create the connection.
 
 ### Caching
 
