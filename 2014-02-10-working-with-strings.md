@@ -300,7 +300,7 @@ The former is easier on the eye. Just be sure not to insert a semicolon or comma
 
 We can also do things like
 
-    NSString *@"The man " @"who knows everything " @"learns nothing" @".";
+    NSString string = *@"The man " @"who knows everything " @"learns nothing" @".";
 
 The pieces are concatenated at compile time. It's merely a convenience provided by our friend, the compiler.
 
