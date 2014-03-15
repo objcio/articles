@@ -169,7 +169,7 @@ Next we see `10.0.1.6.52181 > 23.63.125.15.80`. This is the source and destinati
 
 The `Flags` are flags in the TCP segment header: `S` for **SYN**, `.` for **ACK**, `P` for **PUSH**, and `F` for **FIN**. There are a few more we won't see here. Note how these three lines have **SYN**, then **SYN-ACK**, then **ACK**: this is the three-way handshake.
 
-The first line shows the client sending the random sequence number 1721092979 (A) to the server. The second line shows the server sending an acknowledgement for 1721092980 (A+1) and its random sequence number 673593777 (B). Finally, the third line shows the client acknowledging 673593778 (B+1).
+The first line shows the client sending the random sequence number 1721092979 (A) to the server. The second line shows the server sending an acknowledgement for 1721092980 (A+1) and its random sequence number 673593777 (B). Finally, the third line shows the client acknowledging 673593778 (B+1) with its sequence number 1721092980 (A+1).
 
 #### Options
 
