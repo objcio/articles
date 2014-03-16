@@ -77,7 +77,7 @@ While Apple hasn’t released official sample code for iCloud Core Data in iOS 7
         return @{NSPersistentStoreUbiquitousContentNameKey: @"MyAppStore"};
     }
     
-    - (void) persistentStoreDidImportUbiquitousContentChanges:(NSNotification *)notification {
+    - (void) persistentStoreDidImportUbiquitousContentChanges:(NSNotification *)changeNotification {
         NSManagedObjectContext *context = self.managedObjectContext;
     	
         [context performBlock:^{
