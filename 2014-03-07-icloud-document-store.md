@@ -103,7 +103,7 @@ Above all, *never* perform any file coordination while inside a presentation que
 
 ### Defective Notifications
 
-Drawing the correct conclusions from notifications is not always easy. There are bugs inside file presentation causing some notification handlers to *never be called*. Here is a short glimpse off known misbehaving notifications:
+Drawing the correct conclusions from notifications is not always easy. There are bugs inside file presentation causing some notification handlers to *never be called*. Here is a short glimpse of known misbehaving notifications:
 
 1. Aside from `presentedSubitemDidChangeAtURL:` and `presentedSubitemAtURL:didMoveToURL:`, all subitem notifications are either never called or called in a very unpredictable way. Don’t rely on them at all — in particular, `presentedSubitemDidAppearAtURL:` and `accommodatePresentedSubitemDeletionAtURL:completionHandler:` will never be called.
 2. `accommodatePresentedItemDeletionWithCompletionHandler:` will only work if the deletion was performed through a file coordination that used the `NSFileCoordinatorWritingForDeleting` flag. Otherwise, you may not even receive a change notification.
