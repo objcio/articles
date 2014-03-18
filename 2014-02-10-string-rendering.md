@@ -190,7 +190,7 @@ For the above example, we're simply doing:
     NSCharacterSet *decimalTerminator = [NSCharacterSet 
       characterSetWithCharactersInString:decimalFormatter.decimalSeparator];
     NSTextTab *decimalTab = [[NSTextTab alloc] 
-       initWithTextAlignment:NSTextAlignmentCenter
+       initWithTextAlignment:NSTextAlignmentRight
                     location:100
                      options:@{NSTabColumnTerminatorsAttributeName:decimalTerminator}];
     NSTextTab *percentTab = [[NSTextTab alloc] initWithTextAlignment:NSTextAlignmentRight
