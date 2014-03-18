@@ -107,8 +107,8 @@ Drawing the correct conclusions from notifications is not always easy. There are
 
 1. Aside from `presentedSubitemDidChangeAtURL:` and `presentedSubitemAtURL:didMoveToURL:`, all subitem notifications are either never called or called in a very unpredictable way. Don’t rely on them at all — in particular, `presentedSubitemDidAppearAtURL:` and `accommodatePresentedSubitemDeletionAtURL:completionHandler:` will never be called.
 2. `accommodatePresentedItemDeletionWithCompletionHandler:` will only work if the deletion was performed through a file coordination that used the `NSFileCoordinatorWritingForDeleting` flag. Otherwise, you may not even receive a change notification.
-3. `presentedItemDidMoveToURL:` and `presentedSubitemAtURL:didMoveToURL` will only be sent if `itemAtURL:didMoveToURL:` was called by the moving file coordinator. If not, items will not receive any useful notifications. Subitems may still receive two separate `presentedSubitemDidChange` notifications for the old and new URLs.
-4. Even if files have been moved correctly and a `presentedSubitemAtURL:didMoveToURL` notification was sent, you will still receive two additional `presentedSubitemDidChangeAtURL:` notifications for the old and new URL. Be prepared for that.
+3. `presentedItemDidMoveToURL:` and `presentedSubitemAtURL:didMoveToURL:` will only be sent if `itemAtURL:didMoveToURL:` was called by the moving file coordinator. If not, items will not receive any useful notifications. Subitems may still receive two separate `presentedSubitemDidChange` notifications for the old and new URLs.
+4. Even if files have been moved correctly and a `presentedSubitemAtURL:didMoveToURL:` notification was sent, you will still receive two additional `presentedSubitemDidChangeAtURL:` notifications for the old and new URL. Be prepared for that.
 
 Generally, you have to be aware that notifications may be outdated. You should also not rely on any specific ordering of notifications. For example, when presenting a directory tree, you may not expect that notifications regarding a parent folder will appear before or after notifications on one of its subitems.
 
@@ -119,7 +119,7 @@ There are several situations where you need to be prepared in case file coordina
 Beyond that, there are also several issues on case-insensitive file systems. You should always make sure that you perform a case-insensitive comparison of filenames *if* the file system requires it. File coordination blocks and presenter notifications may deliver variants of the same URL using different casings. In particular, this an important issue when renaming files using file coordinators. To understand this issue, you need to recall how files are actually renamed:
 
 	[coordinator coordinateWritingItemAtURL:sourceURL 
-	                                options:NSF 
+	                                options:NSFileCoordinatorWritingOption...?
 	                       writingItemAtURL:destURL 
 	                                options:0 
 	                                  error:NULL 
