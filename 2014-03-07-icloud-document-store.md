@@ -95,7 +95,7 @@ Reading the documentation of `NSFileCoordinator`, you may notice that many metho
 
 Implementing notification handlers of `NSFilePresenter` requires special attention. Some notifications, such as `relinquishPresentedItemToReader:`, must be confirmed to signal to other processes that a file is ready for access. Typically, this is done by executing a confirmation block passed as an argument to the notification handler. It is important to know that, until the confirmation block is called, the other process has to wait. If the confirmation is delayed due to slow notification processing, the coordinating process may stall. If it is never executed, it will probably hang forever.
 
-Unfortunately, notifications that need to be confirmed can also be slowed done by other, completely independent notifications. To ensure notifications are being processed in the correct order, the `presentedItemOperationQueue` is usually configured as a sequential queue. However, using a sequential queue means that slowly processed notifications will delay their succeeding notifications. In particular, they may slow down succeeding notifications that require a confirmation, and by that, any process waiting for them.
+Unfortunately, notifications that need to be confirmed can also be slowed down by other, completely independent notifications. To ensure notifications are being processed in the correct order, the `presentedItemOperationQueue` is usually configured as a sequential queue. However, using a sequential queue means that slowly processed notifications will delay their succeeding notifications. In particular, they may slow down succeeding notifications that require a confirmation, and by that, any process waiting for them.
 
 For example, assume a notification like `presentedItemDidChange` has been enqueued first. A lengthy processing of this callback may stall other notifications, like `relinquishPresentedItemToReader:`, that have been enqueued shortly after. As a consequence, the confirmation of this notification will also be delayed, which in turn stalls the process waiting for it.
 
@@ -103,12 +103,12 @@ Above all, *never* perform any file coordination while inside a presentation que
 
 ### Defective Notifications
 
-Drawing the correct conclusions from notifications is not always easy. There are bugs inside file presentation causing some notification handlers to *never be called*. Here is a short glimpse off known misbehaving notifications:
+Drawing the correct conclusions from notifications is not always easy. There are bugs inside file presentation causing some notification handlers to *never be called*. Here is a short glimpse of known misbehaving notifications:
 
 1. Aside from `presentedSubitemDidChangeAtURL:` and `presentedSubitemAtURL:didMoveToURL:`, all subitem notifications are either never called or called in a very unpredictable way. Don’t rely on them at all — in particular, `presentedSubitemDidAppearAtURL:` and `accommodatePresentedSubitemDeletionAtURL:completionHandler:` will never be called.
 2. `accommodatePresentedItemDeletionWithCompletionHandler:` will only work if the deletion was performed through a file coordination that used the `NSFileCoordinatorWritingForDeleting` flag. Otherwise, you may not even receive a change notification.
-3. `presentedItemDidMoveToURL:` and `presentedSubitemAtURL:didMoveToURL` will only be sent if `itemAtURL:didMoveToURL:` was called by the moving file coordinator. If not, items will not receive any useful notifications. Subitems may still receive two separate `presentedSubitemDidChange` notifications for the old and new URLs.
-4. Even if files have been moved correctly and a `presentedSubitemAtURL:didMoveToURL` notification was sent, you will still receive two additional `presentedSubitemDidChangeAtURL:` notifications for the old and new URL. Be prepared for that.
+3. `presentedItemDidMoveToURL:` and `presentedSubitemAtURL:didMoveToURL:` will only be sent if `itemAtURL:didMoveToURL:` was called by the moving file coordinator. If not, items will not receive any useful notifications. Subitems may still receive two separate `presentedSubitemDidChange` notifications for the old and new URLs.
+4. Even if files have been moved correctly and a `presentedSubitemAtURL:didMoveToURL:` notification was sent, you will still receive two additional `presentedSubitemDidChangeAtURL:` notifications for the old and new URL. Be prepared for that.
 
 Generally, you have to be aware that notifications may be outdated. You should also not rely on any specific ordering of notifications. For example, when presenting a directory tree, you may not expect that notifications regarding a parent folder will appear before or after notifications on one of its subitems.
 
