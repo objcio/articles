@@ -112,7 +112,7 @@ Download requests take a request as well, but differ in their `completionHandler
 
 ### NSURLSession & NSURLConnection Delegate Methods
 
-Overall, the delegate methods of `NSURLSession` are a marked improvement over the rather ad-hoc pattern that emerged over the decade of `NSURLConnection`'s evolution. For a complete overview, check out this [mapping table](https://gist.github.com/dkduck/6870499).
+Overall, the delegate methods of `NSURLSession` are a marked improvement over the rather ad-hoc pattern that emerged over the decade of `NSURLConnection`'s evolution. For a complete overview, check out this [mapping table](https://gist.github.com/floriankugler/6870499).
 
 A few specific observations:
 
