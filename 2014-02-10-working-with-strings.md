@@ -271,8 +271,8 @@ Passing `NSStringEnumerationByComposedCharacterSequences` as the option will all
                   firstLetter = letter;
                   *stop2 = YES;
               }];
-              if (letter != nil) {
-                  [result appendString:letter];
+              if (firstLetter != nil) {
+                  [result appendString:firstLetter];
             };
         }];
         return result;
