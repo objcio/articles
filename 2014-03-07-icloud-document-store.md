@@ -119,7 +119,7 @@ There are several situations where you need to be prepared in case file coordina
 Beyond that, there are also several issues on case-insensitive file systems. You should always make sure that you perform a case-insensitive comparison of filenames *if* the file system requires it. File coordination blocks and presenter notifications may deliver variants of the same URL using different casings. In particular, this an important issue when renaming files using file coordinators. To understand this issue, you need to recall how files are actually renamed:
 
 	[coordinator coordinateWritingItemAtURL:sourceURL 
-	                                options:NSF 
+	                                options:NSFileCoordinatorWritingOption...?
 	                       writingItemAtURL:destURL 
 	                                options:0 
 	                                  error:NULL 
