@@ -69,7 +69,7 @@ Once a peer is found, we get a delegate callback and can invite the peer into ou
 
     - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info
     {
-        self.session = [[MCSession alloc] initWithPeer:peerId];
+        self.session = [[MCSession alloc] initWithPeer:self.peerId];
         self.session.delegate = self;
         [browser invitePeer:peerID toSession:self.session withContext:nil timeout:0];
     }
@@ -121,8 +121,8 @@ Next up, we'll add methods to encode an instance of this object and package it i
         [coder encodeDouble:self.coordinate.latitude forKey:@"coordinate.latitude"];
         [coder encodeDouble:self.coordinate.longitude forKey:@"coordinate.longitude"];
         [coder encodeBool:self.stop forKey:@"stop"];
-        [coder encodeBool:self.stop forKey:@"takeoff"];
-        [coder encodeBool:self.stop forKey:@"reset"];
+        [coder encodeBool:self.takeoff forKey:@"takeoff"];
+        [coder encodeBool:self.reset forKey:@"reset"];
     }
 
 Now we can easily send a control command with a few lines of code:
