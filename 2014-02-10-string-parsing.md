@@ -27,7 +27,7 @@ The languages that can be described using these kinds of grammars are called *co
 
 Some examples of things that can be parsed using regular languages are numbers, strings, and dates. This means that you can use a regular expression (or a similar technique) to parse them. 
 
-Some things that cannot be parsed using regular languages, are [e-mail][3] addresses [3][4], JSON, XML, or most programming languages. To parse these, we need an actual parser. Often times, these parsers are already written for us. Apple provides parsers for XML and JSON, so if we want to parse those, it's easiest to just use Apple's format.
+Some things that cannot be parsed using regular languages, are e-mail addresses [3][4], JSON, XML, or most programming languages. To parse these, we need an actual parser. Often times, these parsers are already written for us. Apple provides parsers for XML and JSON, so if we want to parse those, it's easiest to just use Apple's format.
 
 [3]: http://www.ex-parrot.com/~pdw/Mail-RFC822-Address.html
 [4]: http://haacked.com/archive/2007/08/21/i-knew-how-to-validate-an-email-address-until-i.aspx/
