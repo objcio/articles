@@ -120,7 +120,7 @@ navigation controller delegate method:
 Note that, in a non-interactive animation, this will return nil.
 
 The interaction controller is an instance of
-`UIPercentDrivenInteractionTransition`. No further configuration or setup is
+`UIPercentDrivenInteractiveTransition`. No further configuration or setup is
 necessary. We create a pan recognizer, and here's the code that handles
 the panning:
 
