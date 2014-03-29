@@ -19,7 +19,7 @@ If we consider expressions like "1 + 2 * 3", parsing becomes a bit more difficul
 1. If `x` is a member of the language, and `y` is a member, then `x + y` is also a member
 1. If `x` is a member of the language, and `y` is a member, then `x * y` is also a member
 
-The languages that can be described using these kinds of grammars are called *context-free* grammars, or CFG [1]. Note that they cannot be parsed using regular expressions (although some regular expression implementations, such as PCRE, can express more than regular grammars). The classical example of languages that can be parsed with CFG but not with regular expressions is that of matching parentheses [2].
+The languages that can be described using these kinds of grammars are called *context-free* grammars, or [CFG][1]. Note that they cannot be parsed using regular expressions (although some regular expression implementations, such as PCRE, can express more than regular grammars). The classical example of languages that can be parsed with CFG but not with regular expressions is that of matching [parentheses][2].
 
 [1]: http://en.wikipedia.org/wiki/Chomsky_hierarchy
 [2]: http://en.wikipedia.org/wiki/Context-free_grammar#Well-formed_parentheses
@@ -27,7 +27,7 @@ The languages that can be described using these kinds of grammars are called *co
 
 Some examples of things that can be parsed using regular languages are numbers, strings, and dates. This means that you can use a regular expression (or a similar technique) to parse them. 
 
-Some things that cannot be parsed using regular languages, are e-mail addresses [2][3], JSON, XML, or most programming languages. To parse these, we need an actual parser. Often times, these parsers are already written for us. Apple provides parsers for XML and JSON, so if we want to parse those, it's easiest to just use Apple's format.
+Some things that cannot be parsed using regular languages, are [e-mail][3] [addresses][4], JSON, XML, or most programming languages. To parse these, we need an actual parser. Often times, these parsers are already written for us. Apple provides parsers for XML and JSON, so if we want to parse those, it's easiest to just use Apple's format.
 
 [3]: http://www.ex-parrot.com/~pdw/Mail-RFC822-Address.html
 [4]: http://haacked.com/archive/2007/08/21/i-knew-how-to-validate-an-email-address-until-i.aspx/
