@@ -64,7 +64,7 @@ What the code looks like run on Android 1.6:
 
 ![Notifications in Donut 1.6]({{ site.images_path }}/issue-11/gb/donut.png) 
 
-What the code looks like run on Android 4.4:
+What the code looks like run on Android 2.3:
 
 ![Notifications in Gingerbread 2.3]({{ site.images_path }}/issue-11/gb/gingerbread_resized.png)
 
