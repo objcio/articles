@@ -4,11 +4,11 @@ title: "Dependency Injection, Annotations, and why Java is Better Than you Think
 category: "11"
 date: "2014-04-01 06:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/billjings\">Bill Philips</a>"
+author: "<a href=\"http://twitter.com/billjings\">Bill Phillips</a>"
 ---
 
 
-I have a confession to make: I like Java.
+I have a confession to make\: I like Java.
 
 Really! I do!
 

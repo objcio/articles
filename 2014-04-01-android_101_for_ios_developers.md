@@ -112,7 +112,7 @@ Let's look at a sample `UITableViewController` and a sample `ListFragment` that 
 
 &nbsp;
 
-<img alt="TripDetailsTableViewController" src="{{ site.images_path }}/issue-11//IMG_0095.PNG" width="50%">
+<img alt="TripDetailsTableViewController" src="{{ site.images_path }}/issue-11/IMG_0095.PNG" width="50%">
 
 &nbsp;
 
