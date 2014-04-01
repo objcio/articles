@@ -189,7 +189,7 @@ While some tools may achieve similar effects with annotations, Java allows them 
 
 This has a few important benefits. It means that errors in your annotation semantics can be detected early. Dagger can tell you at compile time when you have a circular dependency; RoboGuice cannot.
 
-It can also improve performance. Generated code can reduce startup time and eliminate the need to read annotations at runtime. Reading annotation requires the use of Java’s reflection APIs, which can be expensive on some Android devices. 
+It can also improve performance. Generated code can reduce startup time and eliminate the need to read annotations at runtime. Reading annotations requires the use of Java’s reflection APIs, which can be expensive on some Android devices. 
 
 ### An Example of Runtime Annotation Processing
 
@@ -238,6 +238,7 @@ Finally, we add the annotation to our code, and call our magic method:
     
         static {
             ServiceUtils.populateConstants(CrimeActivity.class);
+        }
     }
 
 ## Conclusion
