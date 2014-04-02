@@ -38,7 +38,8 @@ Android applications are primarily broken into two sections, the first of which 
 
 The second major section is the `res` folder, short for 'resource' folder. The `res` folder is a collection of images, XML layout files, and XML value files that make up the bulk of the non-code assets. On iOS, images are either `@2x` or not, but on Android there are a number of screen density folders to consider.[^2] Android uses folders to arrange images, strings, and other values for screen density. The `res` folder also contains XML layout files that can be thought of as `xib` files. Lastly, there are other XML files that store resources for string, integer, and style resources.
 
-One last correlation in project structure is the `AndroidManifest.xml` file. This file is the equivalent of the `Project-Info.plist` file on iOS, and it stores information for activities, application names, and set Intents[^3] (system-level events) that the application can handle. For more information about Intents, keep on reading, or head over to the [Intents](/issue-11/android-intents.html) article.
+One last correlation in project structure is the `AndroidManifest.xml` file. This file is the equivalent of the `Project-Info.plist` file on iOS, and it stores information for activities, application names, and set Intents[^3] (system-level events) that the application can handle.
+ For more information about Intents, keep on reading, or head over to the [Intents](/issue-11/android-intents.html) article.
 
 ## Activities
 
@@ -251,7 +252,7 @@ In the next section, let's decipher some of the unique Android components.
 
 ### List Views and Adapters
 
-`ListViews` are the closest approximation to `UITableView` on Android, and they are one of the most common components that you will use. Just like `UITableView` has a helper view controller, `UITableViewController`, ListView also has a helper activity, `ListActivity`, and a helper fragment, `ListFragment`. Similar to `UITableViewController`, these helpers take care of the layout (similar to the xib) for you and provide convenience methods for managing adapters, which we'll discuss below. Our example above uses a `ListFragment` to display data from a list of `Prediction` model objects, similar to how the table view's datasource uses an array of `Prediction` model objects to populate the `ListView`.
+`ListViews` are the closest approximation to `UITableView` on Android, and they are one of the most common components that you will use. Just like `UITableView` has a helper view controller, `UITableViewController`, ListView also has a helper activity, `ListActivity`, and a helper fragment, `ListFragment`. Similar to `UITableViewController`, these helpers take care of the layout (similar to the xib) for you and provide convenience methods for managing adapters, which we'll discuss below. Our example above uses a `ListFragment` to display data from a list of `Prediction` model objects, similar to how the table view's datasource uses an array of `Prediction` model objects to populate the `UITableView`.
 
 Speaking of datasources, on Android we don't have datasources and delegates for `ListView`. Instead, we have adapters. Adapters come in many forms, but their primary goal is similar to a datasource and table view delegate all in one. Adapters take data and adapt it to populate a `ListView` by instantiating views the `ListView` will display. Let's have a look at the array adapter used above:
      
@@ -290,7 +291,7 @@ Speaking of datasources, on Android we don't have datasources and delegates for 
         }
     }
 
-You'll note that the adapter has an important method named `getView`, which is very similar to `cellForRowAtIndexPath:`. Another similarity you'll notice is a pattern for reusing views, similar to iOS 6. Reusing views are just as important as on iOS, and this substantially helps performance! This adapter is rather simple, because it uses a built-in superclass, `ArrayAdapter<T>`, for adapters working with array data, but it illustrates how to populate a `ListView` from a dataset.
+You'll note that the adapter has an important method named `getView`, which is very similar to `cellForRowAtIndexPath:`. Another similarity you'll notice is a pattern for reusing views, similar to iOS. Reusing views are just as important as on iOS, and this substantially helps performance! This adapter is rather simple, because it uses a built-in superclass, `ArrayAdapter<T>`, for adapters working with array data, but it illustrates how to populate a `ListView` from a dataset.
      
 ### AsyncTasks
 
@@ -438,7 +439,7 @@ Lastly, to link layouts to fragments or activities, simply use that layout's res
 
 - Always work in dp ([density-independent pixels](http://developer.android.com/training/multiscreen/screendensities.html)) instead of pixels directly.
 - Don't bother nudging items for layouts in the visual editor -- often the visual editor will put individual points of spacing on objects instead of adjusting the height and width as you might like. Your best bet is to adjust the XML directly.
-- If you ever see the `fill_parent` value for a layout height or width, this value was depreciated years ago in API 8 and replaced with `match_parent`.
+- If you ever see the `fill_parent` value for a layout height or width, this value was deprecated years ago in API 8 and replaced with `match_parent`.
 
 See the the [responsive android applications](/issue-11/Responsive-Android-Applications.html) article for more tips on this.
  
