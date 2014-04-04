@@ -98,7 +98,7 @@ Since Intents can also be used to pass certain data between activities, we could
     Intent i = new Intent(this, ImageActivity.class);
     i.putExtra("A_BOOLEAN_EXTRA", true); //boolean extra
     i.putExtra("AN_INTEGER_EXTRA", 3); //integer extra
-    i.putExtra("A_STRING_EXTRA", "three"); //integer extra
+    i.putExtra("A_STRING_EXTRA", "three"); //string extra
     startActivity(i);
 
 Behind the scenes, the *extras* are stored in an Android `Bundle`,[^3] which is pretty much a glorified serializable container. 
