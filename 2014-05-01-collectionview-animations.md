@@ -7,4 +7,8 @@ tags: article
 author: "<a href=\"https://twitter.com/ekurutepe\">Engin Kurutepe</a>"
 ---
 
-TODO: outline here
+- Intro to collection view layout animations
+- Basic animations like inserting/removing objects
+- Animating layout changes
+- Basic layout to layout navigation transitions
+- Custom layout to layout transitions for complex viewcontroller hierarchies
