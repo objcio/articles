@@ -235,7 +235,7 @@ That's your basic receiver. Notice how we added an `IntentFilter` with the `Acti
 
 Since we use Java and Android has some conventions, we'd call this:
 
-`private ServiceReceiver mServiceReceiver;` as a field *member* of our `Activity`. In our `onCreate()` method we instantiate it with: `mServiceReceiver = new ServiceReciver();`
+`private ServiceReceiver mServiceReceiver;` as a field *member* of our `Activity`. In our `onCreate()` method we instantiate it with: `mServiceReceiver = new ServiceReceiver();`
 
 But creating this object is not enough. We also need to register it somewhere. Initially, you may think that a good place to do it would be the `onStart()` method of our `Activity`. When the `onStart()` method is executed, that means our `Activity` is visible to the user.
 
