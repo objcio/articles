@@ -203,7 +203,7 @@ Custom battery notification:
 
 Custom notifications are limited to a subset of view components that are supported by [Remote Views](http://developer.android.com/reference/android/widget/RemoteViews.html), and those view components themselves cannot be extended or overridden too heavily. Regardless of this slight limitation, you can see that you can still create sophisticated notifications using these basic components.
 
-Creating these custom views takes a bit more work however. Custom notification views are created using Android's XML layout system, and you are responsible for making sure your notifications look decent on all the different versions of Android. It’s a pain, but when you see see some of these beautiful notifications, you can instantly understand their value:
+Creating these custom views takes a bit more work however. Custom notification views are created using Android's XML layout system, and you are responsible for making sure your notifications look decent on all the different versions of Android. It’s a pain, but when you see some of these beautiful notifications, you can instantly understand their value:
 
     <?xml version="1.0" encoding="utf-8"?>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
