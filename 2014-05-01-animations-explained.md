@@ -9,13 +9,14 @@ author: "<a href=\"https://twitter.com/ceterum_censeo\">Robert Böhnke</a>"
 
 # Animations Explained
 
-The apps we write are rarely a static experience, they adapt to the users needs and change state to perform a multitude of tasks.
+The applications we write are rarely a static experience, they adapt to the users needs and change state to perform a multitude of tasks.
 
-When transitioning between these states, it is important to explain to our users what is going on. Rather jumping from screen to screen, animations help us explain where the user is coming from and where they are going.
+When transitioning between these states, it is important to communicate what is going on. Rather than jumping between screens, animations help us explain where the user is coming from and where they are going.
 
-The keyboard slides in and out of view to give the illusion that it is a natural part of the phone that was just hidden below the screen. View controller transitions reinforce the navigational structure of our apps and give the user hints which direction they are going. Subtle bounces and collisions make our interfaces life-like and evoke physical qualities in an otherwise felt-free environment.
+The keyboard slides in and out of view to give the illusion that it is a natural part of the phone that was just hidden below the screen. View controller transitions reinforce the navigational structure of our apps and give the user hints which in direction they are moving. Subtle bounces and collisions make interfaces life-like and evoke physical qualities in what is otherwise a felt-free environment.
 
-Animations are a great way to tell the story of your application and by understanding basic the basic principles behind animation, we'll have a better time designing them.
+Animations are a great way to tell the story of your application and by understanding basic the basic principles behind animation, designing them will be a lot easier.
+
 ## First thing's first
 
 In this article (and for most of the rest of issue), we will look at Core Animation specifically. While a lot of what you will see can also be accomplished using higher level UIKit methods, Core Animation will give you a better understanding what is going on. It also allows for a more explicit way of describing animations, which is useful for readers of this article as well as readers of your code.
