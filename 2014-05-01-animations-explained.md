@@ -63,3 +63,42 @@ animation.duration = 1;
 
 [rectangle.layer addAnimation:animation forKey:@"basic"];
 ```
+
+However, when we run this code, we realize that our rectangle jumps back to its initial position as soon as the animation is complete. This is because, by default, the animation will not modify the presentation layer beyond its duration, it will even be removed completely at this point.
+
+Once the animation is removed, the presentation layer will fall back to the values of the model layer and since we've never modified that layer's `position`, the rectangle jumps back to its starting point.
+
+There are two ways to deal with this issue:
+
+The first approach is to update the property directly on the layer. This usually the best approach since it makes the animation completely optional.
+
+```objc
+CABasicAnimation *animation = [CABasicAnimation animation];
+animation.keyPath = @"position.x";
+animation.fromValue = @50;
+animation.toValue = @150;
+animation.duration = 1;
+
+[rectangle.layer addAnimation:animation forKey:@"basic"];
+
+rectangle.layer.position = CGPointMake(150, 0);
+```
+
+Alternatively, you can the animation to remain in its final state by setting its `fillMode` property to ` kCAFillModeForward` and prevent it from being automaticaly removed by setting `removedOnCompletion` to `NO`.
+
+```objc
+CABasicAnimation *animation = [CABasicAnimation animation];
+animation.keyPath = @"position.x";
+animation.fromValue = @50;
+animation.toValue = @150;
+animation.duration = 1;
+
+animation.fillMode = kCAFillModeForward;
+animation.removedOnCompletion = NO;
+
+[rectangle.layer addAnimation:animation forKey:@"basic"];
+```
+
+Check out David's [excellent article on animation timing](http://ronnqvi.st/controlling-animation-timing/) to learn more about fine-grained control of your
+animations.
+
