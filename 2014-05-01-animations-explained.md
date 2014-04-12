@@ -40,17 +40,17 @@ By using `-[CALayer presentationLayer]` and `-[CALayer modelLayer]`, you can swi
 
 ## A basic animation
 
-The probably most common case is to animate a views property from one value to another. Consider this example:
+The probably most common case is to animate a view's property from one value to another. Consider this example:
 
 [ Animation of a rectangle moving from left to right ]
 
-Here, we animate our little red rectangle from `50,0` to `150,0`. In order to fill in all the steps along the way, we need to determine where our rectange needs to be at a given point in time. This is commonly done using linear interpolation:
+Here, we animate our little red rectangle from `50,0` to `150,0`. In order to fill in all the steps along the way, we need to determine where our rectangle is going to be at a given point in time. This is commonly done using linear interpolation:
 
 ```
 x(t) = x_0 + t * ∆x
 ```
 
-That is, for a given fraction of the animation `t`, the x-coordinate of the rectangle is the x-coordinate of the starting point `50` plus the distance to the end point `∆x = 100` multiplied with said fraction.
+That is, for a given fraction of the animation `t`, the x-coordinate of the rectangle is the x-coordinate of the starting point `50`, plus the distance to the end point `∆x = 100` multiplied with said fraction.
 
 Using `CABasicAnimation`, we can implement this animation as follows:
 
@@ -60,5 +60,5 @@ animation.keyPath = @"position.x";
 animation.fromValue = @50;
 animation.toValue = @150;
 
-[self.layer addAnimation:animation forKey:@"basic"];
+[rectangle.layer addAnimation:animation forKey:@"basic"];
 ```
