@@ -102,3 +102,6 @@ animation.removedOnCompletion = NO;
 Check out David's [excellent article on animation timing](http://ronnqvi.st/controlling-animation-timing/) to learn more about fine-grained control of your
 animations.
 
+## Further Reading
+
+- [Core Animation Programming Guide](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/Introduction/Introduction.html)
