@@ -59,6 +59,7 @@ CABasicAnimation *animation = [CABasicAnimation animation];
 animation.keyPath = @"position.x";
 animation.fromValue = @50;
 animation.toValue = @150;
+animation.duration = 1;
 
 [rectangle.layer addAnimation:animation forKey:@"basic"];
 ```
