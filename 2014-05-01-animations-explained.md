@@ -42,7 +42,7 @@ By using `-[CALayer presentationLayer]` and `-[CALayer modelLayer]`, you can swi
 
 The probably most common case is to animate a view's property from one value to another. Consider this example:
 
-[ Animation of a rectangle moving from left to right ]
+> [ Animation of a rectangle moving from left to right ]
 
 Here, we animate our little red rectangle from `50,0` to `150,0`. In order to fill in all the steps along the way, we need to determine where our rectangle is going to be at a given point in time. This is commonly done using linear interpolation:
 
