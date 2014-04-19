@@ -103,6 +103,38 @@ animation.removedOnCompletion = NO;
 
 Check out David's [excellent article on animation timing](http://ronnqvi.st/controlling-animation-timing/) to learn how to get fine-grained control over your animations.
 
+## A multi-stage animation
+
+It's easy to imagine a situation in which you would want to define more than two steps for your animation, yet instead of chaining multiple `CABasicAnimation` instances, we can use `CAKeyframeAnimation`.
+
+Key frames allow us to only define the important parts of the animation, and let Core Animation fill in the blanks, or inbetweens, as they are called.
+
+Let's say we are working on a log-in form for our next iPhone application and want to shake the form, whenever the user entered their password incorrectly. Using key-frame animations, this could look a little like so:
+
+> [ Animation of a form element shaking ]
+
+```objc
+CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
+animation.keyPath = @"position.x";
+animation.values = @[ @0, @10, @-10, @10, @0 ];
+animation.keyTimes = @[ @0, @(1 / 6.0), @(3 / 6.0), @(5 / 6.0), @1 ];
+animation.duration = 0.2;
+
+animation.additive = YES;
+
+[form.layer addAnimation:animation forKey:@"shake"];
+```
+
+The `values` array defines which positions the form should have.
+
+Setting the `keyTimes` property let's us specify, at which point in time the keyframes occur. They are specified as fractions of the total duration of the keyframe animation[^2].
+
+[^2] Note how I chose different values for transitions from 0 to 30 and from 30 to -30 to maintain a constant velocity.
+
+Setting the`additive` property to `YES` tells Core Animation to add the values of the animation to the value of the model layer, before updating the
+presentation layer. This allows us to reuse the same animation for all form elements that need updating without having to know their position in advance.
+Since this property is inherited from `CAPropertyAnimation`, you can also make use of it when employing `CABasicAnimation`.
+
 ## Further Reading
 
 - [Core Animation Programming Guide](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/Introduction/Introduction.html)
