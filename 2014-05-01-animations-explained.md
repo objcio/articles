@@ -72,6 +72,8 @@ There are two ways to deal with this issue:
 
 The first approach is to update the property directly on the layer. This usually the best approach since it makes the animation completely optional.
 
+Once the animation completes and is removed from the layer, the presentation layer will fall through to value set on the model, which matches the last step of animation.
+
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
 animation.keyPath = @"position.x";
@@ -84,7 +86,7 @@ animation.duration = 1;
 rectangle.layer.position = CGPointMake(150, 0);
 ```
 
-Alternatively, you can the animation to remain in its final state by setting its `fillMode` property to ` kCAFillModeForward` and prevent it from being automaticaly removed by setting `removedOnCompletion` to `NO`.
+Alternatively, you can the animation to remain in its final state by setting its `fillMode` property to ` kCAFillModeForward` and prevent it from being automatically removed by setting `removedOnCompletion` to `NO`.
 
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
@@ -99,8 +101,7 @@ animation.removedOnCompletion = NO;
 [rectangle.layer addAnimation:animation forKey:@"basic"];
 ```
 
-Check out David's [excellent article on animation timing](http://ronnqvi.st/controlling-animation-timing/) to learn more about fine-grained control of your
-animations.
+Check out David's [excellent article on animation timing](http://ronnqvi.st/controlling-animation-timing/) to learn how to get fine-grained control over your animations.
 
 ## Further Reading
 
