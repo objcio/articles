@@ -105,11 +105,11 @@ Check out David's [excellent article on animation timing](http://ronnqvi.st/cont
 
 ## A multi-stage animation
 
-It's easy to imagine a situation in which you would want to define more than two steps for your animation, yet instead of chaining multiple `CABasicAnimation` instances, we can use `CAKeyframeAnimation`.
+It's easy to imagine a situation in which you would want to define more than two steps for your animation, yet instead of chaining multiple `CABasicAnimation` instances, we can use the more generic `CAKeyframeAnimation`.
 
-Key frames allow us to only define the important parts of the animation, and let Core Animation fill in the blanks, or inbetweens, as they are called.
+Key frames allow us to define an arbitrary number of points during the animation, and let Core Animation fill in the so called inbetweens.
 
-Let's say we are working on a log-in form for our next iPhone application and want to shake the form, whenever the user entered their password incorrectly. Using key-frame animations, this could look a little like so:
+Let's say we are working on a log-in form for our next iPhone application and want to shake the form whenever the user entered their password incorrectly. Using key-frame animations, this could look a little like so:
 
 > [ Animation of a form element shaking ]
 
