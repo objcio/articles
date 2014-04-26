@@ -69,7 +69,7 @@ You may ask yourself a question or two at this point, so let me answer them for 
 
 **Why not just subclass `UINavigationController` or `UITabBarController` and get the support for free?**
 
-Well, sometimes that’s just not what you want. Maybe you want a a very specific appearance or behavior, far from what these classes offer, and therefore would have to resort to tricky hacking, risking it to break with any new version of the framework. Or maybe you just want to be in total control of your containment, let alone having to support their specialized functionality.
+Well, sometimes that’s just not what you want. Maybe you want a very specific appearance or behavior, far from what these classes offer, and therefore would have to resort to tricky hacking, risking it to break with any new version of the framework. Or maybe you just want to be in total control of your containment, let alone avoid having to support their specialized functionality.
 
 **OK, but then why not just use `transitionFromViewController:toViewController:duration:options:animations:completion:` and be over with it?**
 
@@ -87,13 +87,11 @@ The components of the iOS 7 custom view controller transition API are mostly pro
 
 3. **Transitioning Delegates** conveniently vending the animation and interaction controllers, depending on the kind of transition to be performed. [Note to self: when writing our custom code, talk about their conformance to `UIViewControllerTransitioningDelegate`, `UINavigationControllerDelegate` or `UITabBarControllerDelegate`, depending on the parent container view controller class.]
 
-4. **Transitioning Contexts** defining meta data about the transition, such as properties of the view controllers and views participating in the transition. These conform to the `UIViewControllerContextTransitioning` protocol – *and are provided by the system*.
+4. **Transitioning Contexts** defining meta data about the transition, such as properties of the view controllers and views participating in the transition. These conform to the `UIViewControllerContextTransitioning` protocol – *and are created and provided by the system*.
 
 5. **Transition Coordinators** providing methods to run other animations in parallel to the transition animations. They conform to the `UIViewControllerTransitionCoordinator` protocol.
 
-As you know, from otherwise reading this publication, there are interactive and non-interactive transitions. In this chapter, we will concentrate non-interactive. These are the simplest, so it’s a great place to start.
-
-This means that we will be dealing with *animation controllers*, *transitioning delegates*, and *transitioning contexts* from the list above.
+As you know, from otherwise reading this publication, there are interactive and non-interactive transitions. In this chapter, we will concentrate on non-interactive. These are the simplest, so it’s a great place to start. This means that we will be dealing with *animation controllers*, *transitioning delegates*, and *transitioning contexts* from the list above.
 
 Enough talk, let’s get our hands dirty…
 
