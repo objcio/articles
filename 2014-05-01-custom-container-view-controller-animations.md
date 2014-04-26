@@ -10,35 +10,35 @@ author: "<a href=\"https://twitter.com/osteslag\">Joachim Bondo</a>"
 **Custom Container View Controller Animations, iOS 7 style**  
 (Too long working title)
 
+## Outline
+
+Because of View Controller Transitions in issue #5, I can skip a bunch of introduction, [previously outlined](https://github.com/objcio/articles-private/commit/91a6ab25560126fb30d37bfa7542b18f16baee22). The outline is therefore now something along these lines:
+
 1. Introduction of custom view controller transition animations
-	- Pre-iOS 7: `animated:YES` only
-	- iOS 7: new transition API, interactive and non-interactive
-	- Mainly (exclusively?) protocols
-	- Offers custom animations of:
+	- In issue 5 we talked about these transitions using a `UINavigationController`.
+	- In this issue we will take it a step further and implement it for our own, custom container view controller.
+	- Don’t remember what containment is? Go look in issue #1.
+	- So, only the following transitions are readily supported:
 		1. Navigation controller pushes, pops
 		2. Tab bar controller selection changes (a first!)
 		3. Modal presentations, dismissals
-
-2. Components of the new API
-	- Animation controllers
-	- Interaction controllers
-	- Transitioning delegates
-	- Transitioning contexts
-	- Transition coordinators
-
-3. How to implement a custom transition animation
-	- Implement on stock `UITabBarController` – yay, finally alive without unsupported trickery!
-	- Non-interactive only, possibly explain what would be needed to make interactive. Refer to other chapter(s) in current issue?
-
-4. How about support for custom containment view controller?
-	- Refer to [Containment View Controller](https://github.com/objcio/articles-private/blob/master/2013-06-07-containment-view-controller.md), issue 1, for an explanation of containment. (use the project of Ricki Gregersen as a starting point?)
-	- Framework support for custom container view controllers glaringly missing?
-	- Why would we want to support it in our own controllers?
-		- Your containment view controller does not descend from `UITabBarController` or `UINavigationController`, so the new API is not available.
+	- Framework support for custom container view controllers glaringly missing.
+	- Why go through hoops to support the API for our custom container view controller in the first place?
+		- Can’t/don’t want to subclass `UINavigationController` or `UINavigationController`.
 		- Support third-party transition animations.
-		- Use a familiar, well-proven design pattern.
-	- Implement a custom container view controller with default transition animation, prepared for third-party animation controllers.
-	- Plug in custom animation controller from bullet 3 above. Works without any modifications!
+		- Use a established, well-proven design pattern.
+	- Introduce the five components of the new API:
+		- Animation controllers
+		- Interaction controllers
+		- Transitioning delegates
+		- Transitioning contexts
+		- Transition coordinators
+	- We will only be doing non-interactive. To begin with. Refer to other chapter(s) in current issue for more on interactivity?
 
-5. Final Words
+2. The code: a simple custom container view controller (the containment is not our focus point)
+	- Implement a custom container view controller with default transition animation, prepared for third-party animation controllers.
+	- Plug in custom animation controller.
+	- Heck, why not take the `Animator` class from issue #5, unmodified, and plug that in!?
+
+3. Final Words
 	- Can we do this with interactive transitions? If so, how?
