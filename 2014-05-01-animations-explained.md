@@ -166,7 +166,7 @@ The setting the `rotationMode` property to `kCAAnimationRotateAuto` ensures that
 
 ![](planets-incorrect.gif)
 
-Fellow objc.io author [Ole Begemann wrote a short little post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
+Fellow objc.io author [Ole Begemann wrote a greatg post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
 
 ## Further Reading
 
