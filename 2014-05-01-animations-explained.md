@@ -133,6 +133,41 @@ Setting the `keyTimes` property let's us specify, at which point in time the key
 
 Setting the`additive` property to `YES` tells Core Animation to add the values of the animation to the value of the model layer, before updating the presentation layer. This allows us to reuse the same animation for all form elements that need updating without having to know their position in advance. Since this property is inherited from `CAPropertyAnimation`, you can also make use of it when employing `CABasicAnimation`.
 
+## Animation along a path
+
+While a simple horizontal shake is not hard to specify in code, animations along complex paths would require us to store a large amount of boxed `CGPoint`s in the keyframe animation's `values` array.  
+Thankfully, `CAKeyframeAnimation` offers the more convenient `path` property as an alternative.
+
+For instance, this is how we would animate a view in a circle:
+
+![](planets.gif)
+
+```objc
+CGRect boundingRect = CGRectMake(-150, -150, 300, 300);
+
+CAKeyframeAnimation *orbit = [CAKeyframeAnimation animation];
+orbit.keyPath = @"position";
+orbit.path = CFAutorelease(CGPathCreateWithEllipseInRect(boundingRect, NULL));
+orbit.duration = 4;
+orbit.additive = YES;
+orbit.repeatCount = HUGE_VALF;
+orbit.calculationMode = kCAAnimationPaced;
+orbit.rotationMode = kCAAnimationRotateAuto;
+
+[satellite.layer addAnimation:orbit forKey:@"orbit"];
+```
+
+Using `CGPathCreateWithEllipseInRect()`, we create a circular `CGPath` that we use as the `path` of our keyframe animation. 
+
+`calculationMode` is another way to control the timing of keyframe animations. By setting it to `kCAAnimationPaced`, we let Core Animation apply a constant velocity to the animated object, regardless of how long the individual line segments of our path are.  
+Setting it to `kCAAnimationPaced` also disregards any `keyTimes` we would've set.
+
+The setting the `rotationMode` property to `kCAAnimationRotateAuto` ensures that the satellite follows the rotation along the path. This is what the animation would look like had we left the property `nil`:
+
+![](planets-incorrect.gif)
+
+Fellow objc.io author [Ole Begemann wrote a short little post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
+
 ## Further Reading
 
 - [Core Animation Programming Guide](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/Introduction/Introduction.html)
