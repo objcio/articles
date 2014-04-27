@@ -168,6 +168,95 @@ The setting the `rotationMode` property to `kCAAnimationRotateAuto` ensures that
 
 Fellow objc.io author [Ole Begemann wrote a greatg post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
 
+## Timing functions
+
+Let's look at our first example again:
+
+> [ Animation of a rectangle moving from left to right ]
+
+You'll notice that there is something very artificial about the movement of our rectangle. That is because it moves without any visible acceleration or deceleration and unless you're [dancing the robot](https://www.youtube.com/watch?v=o8HkEprSaAs&t=1m2s), that's rarely a desired effect.
+
+In order to give our animation an illusion of inertia, we could factor this into our interpolation function that we saw above. However, we then would have to create a new interpolation function for every desired acceleration or deceleration behavior, an approach that would hardly scale.
+
+Instead, it's common to decouple the interpolation of the animated properties from the speed of the animation. Speeding up the animation will give us an effect of an accelerating rectangle without affecting our interpolation function.
+
+We can achieve this by introducing a _timing function_ (also sometimes referred to as an easing function). This function controls the speed of the animation by modifying the fraction of the duration:
+
+```
+x(t) = x_0 + e(t) * ∆x
+```
+
+The simplest easing function is _linear_, it maintains a constant speed throughout the animation and is effectively what we see above.
+In Core Animation, this function is represented by the `CAMediaTimingFunction`
+class:
+
+```objc
+CABasicAnimation *animation = [CABasicAnimation animation];
+animation.keyPath = @"position.x";
+animation.fromValue = @50;
+animation.toValue = @150;
+animation.duration = 1;
+
+animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+
+[rectangle.layer addAnimation:animation forKey:@"basic"];
+
+rectangle.layer.position = CGPointMake(150, 0);
+```
+
+Core Animation comes with a number of built-in easing functions beyond linear, such as:
+
+> [ Lots of rectangles animating with different easing functions ]
+
+It's also possible, within limits, to create your own easing function using `+functionWithControlPoints::::`[^3]. By passing in the _x_ and _y_ components of two control points of a cubic Bézier function, you can easily create custom easing functions, such as:
+
+[^3]: This method is infamous for having three nameless parameters. Not something that we recommend you make use of in your APIs.
+
+> [ Rectangle ]
+
+```objc
+CABasicAnimation *animation = [CABasicAnimation animation];
+animation.keyPath = @"position.x";
+animation.fromValue = @50;
+animation.toValue = @150;
+animation.duration = 1;
+
+animation.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.2:03:0.8:0.8];
+
+[rectangle.layer addAnimation:animation forKey:@"basic"];
+
+rectangle.layer.position = CGPointMake(150, 0);
+```
+
+Unfortunately, since the components are clamped to the range of [0–1], it is not possible to have the rectangle overshoot its target to "take a step back".
+It's also not possible to create bouncing effects.
+
+I wrote a small library called [RBBAnimation](https://github.com/robb/RBBAnimation) that contains a custom `CAKeyframeAnimation` subclass which allows you to use [more complex easing functions](https://github.com/robb/RBBAnimation#rbbtweenanimation), including bounces or cubic Bézier functions with negative components:
+
+> [ Rectangle with negative component ]
+
+```objc
+RBBTweenAnimation *animation = [RBBTweenAnimation animation];
+animation.keyPath = @"position.x";
+animation.fromValue = @50;
+animation.toValue = @150;
+animation.duration = 1;
+
+animation.easing = RBBCubicBezier(0.68, -0.55, 0.265, 1.55);
+```
+
+> [ Rectangle with bounce ]
+
+```objc
+RBBTweenAnimation *animation = [RBBTweenAnimation animation];
+animation.keyPath = @"position.x";
+animation.fromValue = @50;
+animation.toValue = @150;
+animation.duration = 1;
+
+animation.easing = RBBEasingFunctionEaseOutBounce;
+```
+
 ## Further Reading
 
 - [Core Animation Programming Guide](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/Introduction/Introduction.html)
