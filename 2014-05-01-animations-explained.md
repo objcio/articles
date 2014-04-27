@@ -19,11 +19,11 @@ Animations are a great way to tell the story of your application and by understa
 
 ## First thing's first
 
-In this article (and for most of the rest of issue), we will look at Core Animation specifically. While a lot of what you will see can also be accomplished using higher level UIKit methods, Core Animation will give you a better understanding what is going on. It also allows for a more explicit way of describing animations, which is useful for readers of this article as well as readers of your code.
+In this article (and for most of the rest of this issue), we will look at Core Animation specifically. While a lot of what you will see can also be accomplished using higher level UIKit methods, Core Animation will give you a better understanding of what is going on. It also allows for a more explicit way of describing animations, which is useful for readers of this article as well as readers of your code.
 
 Before we can have a look at how animations interact with what we see on screen, we need to take a quick look at Core Animation's `CALayer`, which is what the animations operate on.
 
-You probably know that `UIView` instances, as well as layer-backed `NSView`s,modify their `layer` to delegate rendering to the powerful Core Graphics framework. However, it is important to understand that animations, when added to a layer, don't modify its properties directly.
+You probably know that `UIView` instances, as well as layer-backed `NSView`s, modify their `layer` to delegate rendering to the powerful Core Graphics framework. However, it is important to understand that animations, when added to a layer, don't modify its properties directly.
 
 Instead, Core Animation maintains two parallel layer hierarchies: the _model layer tree_ and the _presentation layer tree_[^1]. Layers in the former reflect the well-known state of the layers wheres only layers in the latter approximate the in-flight values of animations.
 
@@ -70,9 +70,9 @@ Once the animation is removed, the presentation layer will fall back to the valu
 
 There are two ways to deal with this issue:
 
-The first approach is to update the property directly on the layer. This usually the best approach since it makes the animation completely optional.
+The first approach is to update the property directly on the model layer. This usually the best approach since it makes the animation completely optional.
 
-Once the animation completes and is removed from the layer, the presentation layer will fall through to value set on the model, which matches the last step of animation.
+Once the animation completes and is removed from the layer, the presentation layer will fall through to value set on the model, which matches the last step of the animation.
 
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
@@ -129,9 +129,9 @@ The `values` array defines which positions the form should have.
 
 Setting the `keyTimes` property let's us specify, at which point in time the keyframes occur. They are specified as fractions of the total duration of the keyframe animation[^2].
 
-[^2] Note how I chose different values for transitions from 0 to 30 and from 30 to -30 to maintain a constant velocity.
+[^2]: Note how I chose different values for transitions from 0 to 30 and from 30 to -30 to maintain a constant velocity.
 
-Setting the`additive` property to `YES` tells Core Animation to add the values of the animation to the value of the model layer, before updating the presentation layer. This allows us to reuse the same animation for all form elements that need updating without having to know their position in advance. Since this property is inherited from `CAPropertyAnimation`, you can also make use of it when employing `CABasicAnimation`.
+Setting the `additive` property to `YES` tells Core Animation to add the values of the animation to the value of the model layer, before updating the presentation layer. This allows us to reuse the same animation for all form elements that need updating without having to know their position in advance. Since this property is inherited from `CAPropertyAnimation`, you can also make use of it when employing `CABasicAnimation`.
 
 ## Animation along a path
 
