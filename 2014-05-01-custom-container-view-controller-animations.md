@@ -97,4 +97,83 @@ Enough talk, let’s get our hands dirty…
 
 ## The Exercise/Project/Code…
 
-To be written.
+The central class in our sample app is `ContainerViewController`  which hosts an array of `UIViewController` instances, `ChildViewController` objects in our case. The container view controller sets up a subview containing tappable icons representing each child view controller:
+
+[image]
+
+To switch between child view controllers, tap the icons.
+
+The code for our sample app is put in a [repository on GitHub](https://github.com/.../). To see the code at this stage, check out the [stage-1](http://github.com/.../tree/stage-1) tag. At this stage there is no transition animation when switching child view controllers.
+
+[Note to self: use dynamic type properties in the code?]
+
+### Stage 2: Animating the Transition
+
+When adding a transition animation, we want to support *animation controllers* conforming to `UIViewControllerAnimatedTransitioning`. The protocol defines these three methods, of which the first two are required:
+
+```objc
+- (NSTimeInterval)transitionDuration:(id<UIViewControllerContextTransitioning>)transitionContext;
+- (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext;
+- (void)animationEnded:(BOOL)transitionCompleted;
+```
+
+This tells us everything we need to know: when our container view controller is about to perform the animation, we will query the delegate for the duration and ask it to perform the actual animation. When it’s done, we can call `animationEnded:` on the animator, if it implements that optional method.
+
+However, there is one thing we need to figure out first. As you noticed, the two required methods take a *transitioning context* parameter, i.e., an object conforming to `UIViewControllerContextTransitioning`. Normally, when using the built-in classes, the framework creates and passes on this context to our animator for us. But in our case we are acting as the framework, se *we* need to create that object.
+
+Luckily, this is fairly easy because the protocol is [documented](https://developer.apple.com/library/ios/documentation/uikit/reference/UIViewControllerContextTransitioning_protocol/Reference/Reference.html). There is a lot of methods, though, and they are all required. We can ignore some of them for now, though, because we are currently only supporting non-interactive transitions.
+
+TODO: Show the code to make our own, private `_TransitionContext` object.
+
+With the transition context available to us now, we can perform our animation by implementing an *animation controller*.
+
+Remember, that’s what we did in [View Controller Transitions](http://www.objc.io/issue-5/view-controller-transitions.html), [issue #5]((http://www.objc.io/issue-5/). So why not just use that? In fact, because the extensive use of protocols, we can use it without any modifications. The transition now looks like this:
+
+[can we display gifs, and do we want to? this would loop the animated transition from VC 1 to VC 2 to VC 1 etc.]
+
+This is reflected in the code with the [stage-2](https://github.com/.../tree/stage-2) tag. To see everything that was added for stage 2, check [the diff against stage 1](https://github.com/...).
+
+### Scrap
+
+```objc
+if (self.delegate != nil) {
+    NSTimeInterval duration = [delegate transitionDuration:transitionContext];
+    
+    [CATransaction begin];
+    [CATransaction setAnimationDuration:duration];
+    
+    // TODO: Instead of setting the completion block, just call animationEnded: when our completeTransition: is called
+    if (delegate respondsToSelector:@selector (animationEnded:)]) {
+        [CATransaction setCompletionBlock:^{
+            [delegate animationEnded:YES/NO];
+        }];
+    }
+    
+    [delegate animateTransition:transitionContext];
+    [CATransaction commit];
+}
+```
+
+### Stage 3: Wrapping Up
+
+One last thing I think we should do…
+
+- add, encapsulate and use own, private `UIViewControllerAnimatedTransitioning` animator (sporting an alternative, horizontal sliding animation)
+- support external delegate (although we’ll comment out that line in `stage-3` to keep the new, default animation active).
+
+[show the animated gif?]
+
+Check out [stage-3](https://github.com/.../tree/stage-2) to see the project at this stage. The [full diff against stage-2 is here](https://github.com/...).
+
+Now third-party developers can use our `ContainerViewController` class with their own, custom animation (`UIViewControllerAnimatedTransitioning`) objects – even without access to the source code. Just like we use UIKit.
+
+## Conclusion
+
+What did we just do? Our custom container view controller behaves like a UIKit class in that you can apply your custom non-interactive transition animation. We saw that because we could take an existing transition class, from seven issues ago, and plug it right in.
+
+Next step is supporting interactive transitions. Somewhat more complex because we are basically mimicking the framework behavior which is all guesswork, really.
+
+## Further Reading
+
+- iOS 7 Tech Talks Videos, 2014: [“Architecting Modern Apps, Part 1”](https://developer.apple.com/tech-talks/videos/index.php?id=3#3) (07:23-31:27)
+- Link to the repository on GitHub
