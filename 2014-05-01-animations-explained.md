@@ -162,11 +162,12 @@ Using `CGPathCreateWithEllipseInRect()`, we create a circular `CGPath` that we u
 `calculationMode` is another way to control the timing of keyframe animations. By setting it to `kCAAnimationPaced`, we let Core Animation apply a constant velocity to the animated object, regardless of how long the individual line segments of our path are.  
 Setting it to `kCAAnimationPaced` also disregards any `keyTimes` we would've set.
 
-The setting the `rotationMode` property to `kCAAnimationRotateAuto` ensures that the satellite follows the rotation along the path. This is what the animation would look like had we left the property `nil`:
+Setting the `rotationMode` property to `kCAAnimationRotateAuto` ensures that the satellite follows the rotation along the path. By contrast, this is what the animation would look like had we left the property `nil`:
 
 ![](planets-incorrect.gif)
 
-Fellow objc.io author [Ole Begemann wrote a greatg post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
+You can achieve a couple of interesting effects using animations with paths,
+fellow objc.io author [Ole Begemann](https://twitter.com/oleb) wrote [a great post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
 
 ## Timing functions
 
