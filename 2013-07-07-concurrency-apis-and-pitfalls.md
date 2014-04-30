@@ -145,7 +145,7 @@ To start new threads, we need to create new thread objects and call their `start
     NSUInteger numberCount = self.numbers.count;
     NSUInteger threadCount = 4;
     for (NSUInteger i = 0; i < threadCount; i++) {
-        NSUInteger offset = (count / threadCount) * i;
+        NSUInteger offset = (numberCount / threadCount) * i;
         NSUInteger count = MIN(numberCount - offset, numberCount / threadCount);
         NSRange range = NSMakeRange(offset, count);
         NSArray *subset = [self.numbers subarrayWithRange:range];
