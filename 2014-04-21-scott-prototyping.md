@@ -24,6 +24,31 @@ Framer.js works by creating an HTML document of your design. It takes the layer 
 *<p data-height="268" data-theme-id="0" data-slug-hash="KAznE" data-default-tab="result" class='codepen'>See the Pen <a href='http://codepen.io/ScottSavarie/pen/KAznE/'>Framer Starter File</a> by Scott Savarie (<a href='http://codepen.io/ScottSavarie'>@ScottSavarie</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
 <script async src="//codepen.io/assets/embed/ei.js"></script>*
 
+#### Here’s a snippet of the code used to create the drag behavior:
+
+```
+// Function to take current value of something and map it to another range of values.
+map_range = function(value, low1, high1, low2, high2) {
+ if (value < low1) { return low2; }
+ else if (value > high1) { return high2; }
+ else return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+}
+
+// Drag function
+
+var draggable = new ui.Draggable(photo);
+draggable.speed.x = 0; // will only be able to drag vertically
+
+photo.on(Events.DragMove, function() {
+   bg.opacity = map_range(photo.properties.y, 0 , 300, 1, 0)
+   photo.scale = map_range(photo.properties.y, 0 , 300, 1.2, 1)
+   
+   if (photo.y >= window.innerHeight / 2 - 120) {
+     defaults();
+   }
+});
+
+```
 
 What I love about using Framer is that it uses web technology. This means that anytime something isn’t working the way you want, or you can’t figure out how to get an animation working exactly as you in-vision, you’re only ever a StackOverflow article away from a solution. On top of that, the library itself is very well documented and has a lot of helpers which make preforming common animations quick to write and easy to understand. Additionally, sharing your prototypes is incredibly simple as any modern browser can run them. Browsers such as [Clear Browser](www.aliceturtle.com/clear-browser "Clear Browser") even allow you to view your iOS prototypes on your device, sans chrome. 
 
