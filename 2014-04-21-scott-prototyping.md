@@ -10,7 +10,7 @@ So how do we change this? Well, for starters we need to use new tools. Luckily t
 ## Framer.js
 Framer.js works by creating an HTML document of your design. It takes the layer groups in your Photoshop / Sketch file, creates images out of them, takes those images and wraps them in divs with name attributes that match the layer groups in your design file, and lastly positions them with CSS 3D transforms. Any time you make changes in your design file and re-run Framer, it updates the HTML file. It’s pretty magical. For those of us who are used to working with web technology, this whole set up feels super familiar. Once you have your project set up, all you you have to do is open up the app.js file in your favorite text editor and start writing Javascript to define how these elements should behave. From here it’s very easy to simultaneously explore visual design and animation / interaction behavior.
 
-[![Framer Code Pen Photo](framer-pic.png "Framer Code Pen Photo")](http://codepen.io/ScottSavarie/pen/KAznE/)
+[![Framer Code Pen Photo](framer.gif "Framer Code Pen Photo")](http://codepen.io/ScottSavarie/pen/KAznE/)
 
 *<p data-height="268" data-theme-id="0" data-slug-hash="KAznE" data-default-tab="result" class='codepen'>See the Pen <a href='http://codepen.io/ScottSavarie/pen/KAznE/'>Framer Starter File</a> by Scott Savarie (<a href='http://codepen.io/ScottSavarie'>@ScottSavarie</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
 <script async src="//codepen.io/assets/embed/ei.js"></script>*
@@ -21,7 +21,7 @@ What I love about using Framer is that it uses web technology. This means that a
 ## Quartz Composer / Origami
 So that’s Framer, what about Quartz Composer? Well, Quartz Composer is a little harder to explain, but I'll give it a shot. It is a Visual Programming application from Apple which is free as a part of Xcode. Basically you can imagine it as this thing which creates individual abstractions of code that each preform certain tasks. The application was originally used for creating screen savers and doing crazy graphic manipulation, but at some point along the way, people started using it for Interaction Design. 
 
-[![QC Photo](qc.gif)](http://www.youtube.com/watch?v=g_Dfb9GRxw0)
+[![QC Photo](qc-alt.gif)](http://www.youtube.com/watch?v=SGb_tMKTd1k)
 
 As a side note, I’d like to break up my paragraph here for a moment to acknowledge the awkward vagueness that is Quartz Composer. I don’t entirely know how to explain it to people, but my best advice would be to simply embrace it. The fact that you don’t need to understand every detail of what’s going on is actually what makes it such a powerful tool.
 
