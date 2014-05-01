@@ -39,26 +39,26 @@ By using `-[CALayer presentationLayer]` and `-[CALayer modelLayer]`, you can swi
 
 Probably the most common case is to animate a view's property from one value to another. Consider this example:
 
-> [ Animation of a rectangle moving from left to right ]
+![](rocket-linear.gif)
 
-Here, we animate our little red rectangle from `50,0` to `150,0`. In order to fill in all the steps along the way, we need to determine where our rectangle is going to be at a given point in time. This is commonly done using linear interpolation:
+Here, we animate our little red rocket from an x-position of `77.0` to one of `455.0`, which is just beyond the edge of its parent view. In order to fill in all the steps along the way, we need to determine where our rocket is going to be at any given point in time. This is commonly done using linear interpolation:
 
 ```
 x(t) = x_0 + t * ∆x
 ```
 
-That is, for a given fraction of the animation `t`, the x-coordinate of the rectangle is the x-coordinate of the starting point `50`, plus the distance to the end point `∆x = 100` multiplied with said fraction.
+That is, for a given fraction of the animation `t`, the x-coordinate of the rocket is the x-coordinate of the starting point `77`, plus the distance to the end point `∆x = 378` multiplied with said fraction.
 
 Using `CABasicAnimation`, we can implement this animation as follows:
 
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
 animation.keyPath = @"position.x";
-animation.fromValue = @50;
-animation.toValue = @150;
+animation.fromValue = @77;
+animation.toValue = @455;
 animation.duration = 1;
 
-[rectangle.layer addAnimation:animation forKey:@"basic"];
+[rocket.layer addAnimation:animation forKey:@"basic"];
 ```
 
 Note that the key path we animate, `position.x` actually contains a member of the `CGPoint` struct stored in the `position` property. This is a very convenient feature of Core Animation, make sure to check [the complete list of supported key paths](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/Key-ValueCodingExtensions/Key-ValueCodingExtensions.html).
@@ -76,13 +76,13 @@ Once the animation completes and is removed from the layer, the presentation lay
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
 animation.keyPath = @"position.x";
-animation.fromValue = @50;
-animation.toValue = @150;
+animation.fromValue = @77;
+animation.toValue = @455;
 animation.duration = 1;
 
-[rectangle.layer addAnimation:animation forKey:@"basic"];
+[rocket.layer addAnimation:animation forKey:@"basic"];
 
-rectangle.layer.position = CGPointMake(150, 0);
+rocket.layer.position = CGPointMake(455, 61);
 ```
 
 Alternatively, you can tell the animation to remain in its final state by setting its `fillMode` property to ` kCAFillModeForward` and prevent it from being automatically removed by setting `removedOnCompletion` to `NO`.
@@ -90,8 +90,8 @@ Alternatively, you can tell the animation to remain in its final state by settin
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
 animation.keyPath = @"position.x";
-animation.fromValue = @50;
-animation.toValue = @150;
+animation.fromValue = @77;
+animation.toValue = @455;
 animation.duration = 1;
 
 animation.fillMode = kCAFillModeForward;
@@ -172,13 +172,13 @@ fellow objc.io author [Ole Begemann](https://twitter.com/oleb) wrote [a great po
 
 Let's look at our first example again:
 
-> [ Animation of a rectangle moving from left to right ]
+![](rocket-linear.gif)
 
-You'll notice that there is something very artificial about the animation of our rectangle. That is because most movements we see in the real world take time to accelerate or decelerate. Objects that instantly reach their top speed and then stop immediately tend to look very unnatural. Unless you're [dancing the robot](https://www.youtube.com/watch?v=o8HkEprSaAs&t=1m2s), that's rarely a desired effect.
+You'll notice that there is something very artificial about the animation of our rocket. That is because most movements we see in the real world take time to accelerate or decelerate. Objects that instantly reach their top speed and then stop immediately tend to look very unnatural. Unless you're [dancing the robot](https://www.youtube.com/watch?v=o8HkEprSaAs&t=1m2s), that's rarely a desired effect.
 
 In order to give our animation an illusion of inertia, we could factor this into our interpolation function that we saw above. However, we then would have to create a new interpolation function for every desired acceleration or deceleration behavior, an approach that would hardly scale.
 
-Instead, it's common practice to decouple the interpolation of the animated properties from the speed of the animation. Thus, speeding up the animation will give us an effect of an accelerating rectangle without affecting our interpolation function.
+Instead, it's common practice to decouple the interpolation of the animated properties from the speed of the animation. Thus, speeding up the animation will give us an effect of an accelerating rocket without affecting our interpolation function.
 
 We can achieve this by introducing a _timing function_ (also sometimes referred to as an easing function). This function controls the speed of the animation by modifying the fraction of the duration:
 
@@ -208,24 +208,24 @@ Core Animation comes with a number of built-in easing functions beyond linear, s
 
 > [ Lots of rectangles animating with different easing functions ]
 
-It's also possible, within limits, to create your own easing function using `+functionWithControlPoints::::`[^3]. By passing in the _x_ and _y_ components of two control points of a cubic Bézier curve, you can easily create custom easing functions, such as:
+It's also possible, within limits, to create your own easing function using `+functionWithControlPoints::::`[^3]. By passing in the _x_ and _y_ components of two control points of a cubic Bézier curve, you can easily create custom easing functions, such as the one I chose for our little red rocket:
 
 [^3]: This method is infamous for having three nameless parameters. Not something that we recommend you make use of in your APIs.
 
-> [ Rectangle ]
+![](rocket-custom.gif)
 
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
 animation.keyPath = @"position.x";
-animation.fromValue = @50;
-animation.toValue = @150;
+animation.fromValue = @77;
+animation.toValue = @455;
 animation.duration = 1;
 
-animation.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.2:03:0.8:0.8];
+animation.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.5:0:0.9:0.7];
 
-[rectangle.layer addAnimation:animation forKey:@"basic"];
+[rocket.layer addAnimation:animation forKey:@"basic"];
 
-rectangle.layer.position = CGPointMake(150, 0);
+rocket.layer.position = CGPointMake(150, 0);
 ```
 
 Without going into too much detail on Bézier curves, they are a common technique to create smooth curves in computer graphics. You've probably seen them in vector-based drawing tools such as Sketch or Adobe Illustrator.
