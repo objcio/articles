@@ -85,7 +85,7 @@ animation.duration = 1;
 rectangle.layer.position = CGPointMake(150, 0);
 ```
 
-Alternatively, you can the animation to remain in its final state by setting its `fillMode` property to ` kCAFillModeForward` and prevent it from being automatically removed by setting `removedOnCompletion` to `NO`.
+Alternatively, you can tell the animation to remain in its final state by setting its `fillMode` property to ` kCAFillModeForward` and prevent it from being automatically removed by setting `removedOnCompletion` to `NO`.
 
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
