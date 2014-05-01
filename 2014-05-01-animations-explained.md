@@ -13,9 +13,9 @@ The applications we write are rarely a static experience, they adapt to the user
 
 When transitioning between these states, it is important to communicate what is going on. Rather than jumping between screens, animations help us explain where the user is coming from and where they are going.
 
-The keyboard slides in and out of view to give the illusion that it is a natural part of the phone that was just hidden below the screen. View controller transitions reinforce the navigational structure of our apps and give the user hints which in direction they are moving. Subtle bounces and collisions make interfaces life-like and evoke physical qualities in what is otherwise a felt-free environment.
+The keyboard slides in and out of view to give the illusion that it is a natural part of the phone that was just hidden below the screen. View controller transitions reinforce the navigational structure of our apps and give the user hints in which direction they are moving. Subtle bounces and collisions make interfaces life-like and evoke physical qualities in what is otherwise a felt-free environment.
 
-Animations are a great way to tell the story of your application and by understanding basic the basic principles behind animation, designing them will be a lot easier.
+Animations are a great way to tell the story of your application and by understanding the basic principles behind animation, designing them will be a lot easier.
 
 ## First thing's first
 
@@ -29,18 +29,15 @@ Instead, Core Animation maintains two parallel layer hierarchies: the _model lay
 
 [^1]: There is actually a third layer tree called the _rendering tree_. Since it's private to Core Animation, we won't cover it here.
 
-Consider adding a fade-out animation to a view. If you, at any point during the animation inspect the layer's `opacity` value, you most likely won't get an opacity that corresponds to what is on screen. Instead, you need to need to
-inspect the presentation layer to get the correct result.
+Consider adding a fade-out animation to a view. If you, at any point during the animation inspect the layer's `opacity` value, you most likely won't get an opacity that corresponds to what is on screen. Instead, you need to need to inspect the presentation layer to get the correct result.
 
-While you may not set properties of the presentation layer directly, it can be
-useful to use its current values to create new animations or to interact with
-layers while an animation is taking place.
+While you may not set properties of the presentation layer directly, it can be useful to use its current values to create new animations or to interact with layers while an animation is taking place.
 
 By using `-[CALayer presentationLayer]` and `-[CALayer modelLayer]`, you can switch between the two layer hierarchies with ease.
 
 ## A basic animation
 
-The probably most common case is to animate a view's property from one value to another. Consider this example:
+Probably the most common case is to animate a view's property from one value to another. Consider this example:
 
 > [ Animation of a rectangle moving from left to right ]
 
