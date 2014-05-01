@@ -10,6 +10,8 @@ So how do we change this? Well, for starters we need to use new tools. Luckily t
 ## Framer.js
 Framer.js works by creating an HTML document of your design. It takes the layer groups in your Photoshop / Sketch file, creates images out of them, takes those images and wraps them in divs with name attributes that match the layer groups in your design file, and lastly positions them with CSS 3D transforms. Any time you make changes in your design file and re-run Framer, it updates the HTML file. It’s pretty magical. For those of us who are used to working with web technology, this whole set up feels super familiar. Once you have your project set up, all you you have to do is open up the app.js file in your favorite text editor and start writing Javascript to define how these elements should behave. From here it’s very easy to simultaneously explore visual design and animation / interaction behavior.
 
+![alt text](framer-pic.png "Framer Code Pen Photo")
+
 <p data-height="268" data-theme-id="0" data-slug-hash="KAznE" data-default-tab="result" class='codepen'>See the Pen <a href='http://codepen.io/ScottSavarie/pen/KAznE/'>Framer Starter File</a> by Scott Savarie (<a href='http://codepen.io/ScottSavarie'>@ScottSavarie</a>) on <a href='http://codepen.io'>CodePen</a>.</p>
 <script async src="//codepen.io/assets/embed/ei.js"></script>
 
