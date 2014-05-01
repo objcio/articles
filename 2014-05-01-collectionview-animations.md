@@ -293,7 +293,9 @@ The basic idea is that both the source and the destination collection views have
      delay:0
      options:UIViewAnimationOptionBeginFromCurrentState
      animations:^{
+       //animate to the final frame
          toView.frame = finalRect;
+         //set the final layout inside performUpdates
          [_toCollectionView
           performBatchUpdates:^{
               [_toCollectionView setCollectionViewLayout:toLayout animated:NO];
@@ -310,4 +312,4 @@ The basic idea is that both the source and the destination collection views have
      }];
 ````
 
-These lines of code from the animation controller make sure that the destination collection view starts with the exact same frame and layout as the original. First assign the layout of the source collection view to the destination collection view, making sure that it does not get invalidated. At the same the layout is 'copied' into a new layout object which gets assigned to the original collection view. We also so force a large bottom content inset on the destination collection view to make sure that the layout stays single line before the animations start.
+These lines of code from the animation controller make sure that the destination collection view starts with the exact same frame and layout as the original. First assign the layout of the source collection view to the destination collection view, making sure that it does not get invalidated. At the same the layout is 'copied' into a new layout object which gets assigned to the original collection view. We also so force a large bottom content inset on the destination collection view to make sure that the layout stays single line before the animations start. Then the convoluted animation block does it magic by first setting the frame of the destination collection view to its final position and performing an non-animated layout change to the final layout inside the updates block of `performBatchUpdates:completion:` which is followed by the resetting of the content insets to the original values in the completion block.
