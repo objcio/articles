@@ -61,9 +61,11 @@ animation.duration = 1;
 [rectangle.layer addAnimation:animation forKey:@"basic"];
 ```
 
-However, when we run this code, we realize that our rectangle jumps back to its initial position as soon as the animation is complete. This is because, by default, the animation will not modify the presentation layer beyond its duration, it will even be removed completely at this point.
+Note that the key path we animate, `position.x` actually contains a member of the `CGPoint` struct stored in the `position` property. This is a very convenient feature of Core Animation, make sure to check [the complete list of supported key paths](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/Key-ValueCodingExtensions/Key-ValueCodingExtensions.html).
 
-Once the animation is removed, the presentation layer will fall back to the values of the model layer and since we've never modified that layer's `position`, the rectangle jumps back to its starting point.
+However, when we run this code, we realize that our rocket jumps back to its initial position as soon as the animation is complete. This is because, by default, the animation will not modify the presentation layer beyond its duration, it will even be removed completely at this point.
+
+Once the animation is removed, the presentation layer will fall back to the values of the model layer and since we've never modified that layer's `position`, our space ship reappears right where it started.
 
 There are two ways to deal with this issue:
 
