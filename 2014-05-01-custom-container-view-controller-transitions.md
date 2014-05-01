@@ -69,7 +69,7 @@ The Xcode project, in its three stages, is put in a [repository on GitHub](https
 
 The central class in our app is `ContainerViewController` which hosts an array of `UIViewController` instances, trivial `ChildViewController` objects in our case. The container view controller sets up a private subview with tappable icons representing each child view controller:
 
-[stage-1]
+![Stage 1: no animation](2014-05-01-custom-container-view-controller-transitions-stage-1.gif)
 
 To switch between child view controllers, tap the icons. At this stage there is no transition animation when switching child view controllers.
 
@@ -154,7 +154,7 @@ Most of this is the required container view controller song and dance, and findi
 
 With that, the transition now looks like this:
 
-[stage-2]
+![Stage 2: third-party animation](2014-05-01-custom-container-view-controller-transitions-stage-2.gif)
 
 Pretty cool. We haven’t even written any animation code ourselves!
 
@@ -245,7 +245,7 @@ Note that even if the view frames haven’t been set to reflect the positional r
 
 The transition animation now looks like this:
 
-[stage-3]
+![Stage 3: third-party animation](2014-05-01-custom-container-view-controller-transitions-stage-3.gif)
 
 In the code with the [stage-3](https://github.com/.../tree/stage-3) tag, setting the delegate in the app delegate has been [commented out](https://github.com/.../) in order to see the default animation in action. Set it back in to use `Animator` again. You may want to check out the [full diff against stage-2](https://github.com/...).
 
