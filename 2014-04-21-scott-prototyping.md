@@ -21,7 +21,7 @@ What I love about using Framer is that it uses web technology. This means that a
 ## Quartz Composer / Origami
 So that’s Framer, what about Quartz Composer? Well, Quartz Composer is a little harder to explain, but I'll give it a shot. It is a Visual Programming application from Apple which is free as a part of Xcode. Basically you can imagine it as this thing which creates individual abstractions of code that each preform certain tasks. The application was originally used for creating screen savers and doing crazy graphic manipulation, but at some point along the way, people started using it for Interaction Design. 
 
-[![QC Photo](qc-pic.gif)](http://www.youtube.com/watch?v=g_Dfb9GRxw0)
+[![QC Photo](qc.gif)](http://www.youtube.com/watch?v=g_Dfb9GRxw0)
 
 As a side note, I’d like to break up my paragraph here for a moment to acknowledge the awkward vagueness that is Quartz Composer. I don’t entirely know how to explain it to people, but my best advice would be to simply embrace it. The fact that you don’t need to understand every detail of what’s going on is actually what makes it such a powerful tool.
 
