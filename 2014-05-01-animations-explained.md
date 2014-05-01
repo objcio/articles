@@ -100,7 +100,30 @@ animation.removedOnCompletion = NO;
 [rectangle.layer addAnimation:animation forKey:@"basic"];
 ```
 
-Check out David's [excellent article on animation timing](http://ronnqvi.st/controlling-animation-timing/) to learn how to get fine-grained control over your animations.
+It's worth pointing out that the animation object we create is actually copied as soon as it is added to the layer. This is useful to keep in mind when resuing animations for multiple views. Let's say we have a second rocket that we want to take off slightly after the first one:
+
+```objc
+CABasicAnimation *animation = [CABasicAnimation animation];
+animation.keyPath = @"position.x";
+animation.byValue = @378;
+animation.duration = 1;
+
+[rocket1.layer addAnimation:animation forKey:@"basic"];
+rocket1.layer.position = CGPointMake(455, 61);
+
+animation.beginTime = CACurrentMediaTime() + 0.5;
+
+[rocket2.layer addAnimation:animation forKey:@"basic"];
+rocket2.layer.position = CGPointMake(455, 111);
+```
+
+Setting the `beginTime` of the animation 0.5 seconds into the future will only affect `rocket2` since the animation was copied by `[rocket1.layer addAnimation:animation forKey:@"basic"];` and further changes to the animation object are not taken into account by `rocket1`.
+
+Check out David's [excellent article on animation timing](http://ronnqvi.st/controlling-animation-timing/) to learn how to get even more fine-grained control over your animations.
+
+I've also changed decided to us `CABasicAnimation`'s `byValue` property, which creates an animation that starts from the current value of the presentation layer and ends at that value plus `byValue`. This makes the animation easier to reuse since you don't need to specify the precise `from-` and `toValue` that you may not know ahead of time.
+
+Different combininations of `fromValue`, `byValue` and `toValue` can be used to achieve different effects and it's worth [consulting the documentation](https://developer.apple.com/library/ios/documentation/GraphicsImaging/Reference/CABasicAnimation_class/Introduction/Introduction.html#//apple_ref/doc/uid/TP40004496-CH1-SW4) if you need to create animation that can be reused across your app.
 
 ## A multi-stage animation
 
