@@ -285,6 +285,43 @@ animation.duration = 1;
 animation.easing = RBBEasingFunctionEaseOutBounce;
 ```
 
+## Animation groups
+
+For certain complex effects, it may be necessary to animate multiple properties at once. For instance, in the following card shuffle animation, we will animate the position, rotation at z-position of the card at once.
+
+> [ Card shuffling animation ]
+
+Here's the code that makes it happen:
+
+```objc
+CABasicAnimation *zPosition = [CABasicAnimation animation];
+zPosition.keyPath = @"zPosition";
+zPosition.fromValue = @-1;
+zPosition.toValue = @1;
+
+CAKeyframeAnimation *rotation = [CAKeyframeAnimation animation];
+rotation.keyPath = @"transform.rotation";
+rotation.values = @[ @0, @30, @0 ];
+
+CAKeyframeAnimation *position = [CAKeyframeAnimation animation];
+position.keyPath = @"position";
+position.values = @[ 
+    [NSValue valueWithCGPoint:CGPointZero],
+    [NSValue valueWithCGPoint:CGPointMake(40, 40)],
+    [NSValue valueWithCGPoint:CGPointZero]
+];
+position.additive = YES;
+
+CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
+group.animations = @[ zPosition, rotation, position ];
+
+[card.layer addAnimationGroup:group forKey:shuffle];
+```
+
+One benefit we get form the animation group is being able to expose all animations as a single object. This is useful if you have a factory object that creates animations to be reused at multiple points in your application.
+
+You can also use the animation group to control the timing of all components at the same time.
+
 ## Further Reading
 
 - [Core Animation Programming Guide](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/Introduction/Introduction.html)
