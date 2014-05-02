@@ -7,6 +7,10 @@ tags: article
 author: "<a href=\"https://twitter.com/osteslag\">Joachim Bondo</a>"
 ---
 
+## NOTE
+
+While I clean up the Xcode project and create a fresh repository, I have linked to a [temporary repository](https://github.com/osteslag/temporary).
+
 ## TODO
 
 - [x] Write article
@@ -72,7 +76,7 @@ Enough talk, let’s get our hands dirty…
 
 We will be creating a sample app, featuring a custom container view controller which implements support for custom child view controller transition animations.
 
-The Xcode project, in its three stages, is put in a [repository on GitHub](https://github.com/…/).
+The Xcode project, in its three stages, is put in a [repository on GitHub](https://github.com/osteslag/temporary).
 
 ### Stage 1: the Basics
 
@@ -82,7 +86,7 @@ The central class in our app is `ContainerViewController` which hosts an array o
 
 To switch between child view controllers, tap the icons. At this stage there is no transition animation when switching child view controllers.
 
-Check out the [stage-1](http://github.com/.../tree/stage-1) tag to see the code for the basic app.
+Check out the [stage-1](https://github.com/osteslag/temporary/tree/stage-1) tag to see the code for the basic app.
 
 ### Stage 2: Animating the Transition
 
@@ -167,7 +171,7 @@ With that, the transition now looks like this:
 
 Pretty cool. We haven’t even written any animation code ourselves!
 
-This is reflected in the code with the [stage-2](https://github.com/.../tree/stage-2) tag. To see the full extend of the stage 2 changes, check the [diff against stage 1](https://github.com/...).
+This is reflected in the code with the [stage-2](https://github.com/osteslag/temporary/tree/stage-2) tag. To see the full extend of the stage 2 changes, check the [diff against stage 1](https://github.com/osteslag/temporary/compare/stage-1...stage-2).
 
 ### Stage 3: Shrink-Wrapping
 
@@ -256,7 +260,7 @@ The transition animation now looks like this:
 
 ![Stage 3: third-party animation](2014-05-01-custom-container-view-controller-transitions-stage-3.gif)
 
-In the code with the [stage-3](https://github.com/.../tree/stage-3) tag, setting the delegate in the app delegate has been [commented out](https://github.com/.../) in order to see the default animation in action. Set it back in to use `Animator` again. You may want to check out the [full diff against stage-2](https://github.com/...).
+In the code with the [stage-3](https://github.com/osteslag/temporary/tree/stage-3) tag, setting the delegate in the app delegate has been [commented out](https://github.com/osteslag/temporary/blob/stage-3/Container%20Transitions/AppDelegate.m#L41) in order to see the default animation in action. Set it back in to use `Animator` again. You may want to check out the [full diff against stage-2](https://github.com/osteslag/temporary/compare/stage-2...stage-3).
 
 We now have a self-contained `ContainerViewController` with a nicely animated default transition which developers can override with their own, iOS 7 custom animation controller (`UIViewControllerAnimatedTransitioning`) objects – even without needing access to our source code.
 
@@ -275,4 +279,4 @@ I will leave that as an exercise for you. It is somewhat more complex because we
 ## Further Indulgence
 
 - iOS 7 Tech Talks Videos, 2014: [“Architecting Modern Apps, Part 1”](https://developer.apple.com/tech-talks/videos/index.php?id=3#3) (07:23-31:27)
-- Link to the repository on GitHub
+- Full code on [GitHub](https://github.com/osteslag/temporary).
