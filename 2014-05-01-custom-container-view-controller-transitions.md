@@ -74,7 +74,7 @@ Enough talk, let’s get our hands dirty…
 
 ## The Project
 
-We will be creating a sample app, featuring a custom container view controller which implements support for custom child view controller transition animations.
+In three stages we will be creating a sample app featuring a custom container view controller which implements support for custom child view controller transition animations.
 
 The Xcode project, in its three stages, is put in a [repository on GitHub](https://github.com/osteslag/temporary).
 
