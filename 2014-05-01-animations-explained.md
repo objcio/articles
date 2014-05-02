@@ -322,6 +322,13 @@ One benefit we get form the animation group is being able to expose all animatio
 
 You can also use the animation group to control the timing of all components at the same time.
 
+## Beyond Core Animation
+
+By now, you've probably heard of UIKit Dynamics, a physics simulation framework introduced in iOS 7 that allows you to animate views by applying constraints and forces to them. Unlike Core Animation, the interaction with what you see on screen is more indirect but its dynamic nature allows you to create animations whose outcome you don't know beforehand.
+
+Facebook recently open-sourced [pop](https://github.com/facebook/pop), the animation engine that powers Paper. Conceptually, it sits somewhere between Core Animation and UIKit Dynamics, it makes prominent use of spring animations and target values can be manipulated while the animation is running, without having to replace it.
+It's also available on OS X and allows to animate arbitrary properties on every `NSObject` subclass.
+
 ## Further Reading
 
 - [Core Animation Programming Guide](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/Introduction/Introduction.html)
