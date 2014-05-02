@@ -209,7 +209,7 @@ One of the big improvements in iOS 7 was the custom view controller transitions 
 
 Let's look at how we can achieve a similar effect using the same sample project from the previous section:
 
-//TODO: insert GIF layout2layout transitions
+![Layout to Layout Navigation Transitions](2014-05-01-collectionview-animations-4-layout2layout.gif)
 
 In order for the layout to layout transitions to work the root view controller in the navigation controller must be a collection view controller where `useLayoutToLayoutNavigationTransitions` is set to `NO`. When another `UICollectionViewController` instance with `useLayoutToLayoutNavigationTransitions` set to `YES` is pushed on top of this root view controller, navigation controller replaces the standard push animation with a layout transition animation. One important detail to note here is that the same collection view instance from the root view controller is recycled for the collection view controller instances pushed on the navigation stack, i.e. these collection view controllers don't have their own collection views, if you try to set any collection view properties in methods like `viewDidLoad` they will not have any effect.
 
