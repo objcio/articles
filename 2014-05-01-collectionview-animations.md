@@ -45,7 +45,7 @@ In the general case, layout attributes are linearly interpolated from the initia
 
 Which results in this:
 
-//TODO: insert GIF with insertion deletion animations
+![Insertion and Deletion](2014-05-01-collectionview-animations-1-insertion.gif)
 
 ###Responding to Device Rotations
 
@@ -66,7 +66,7 @@ In order to animate the bounds change the collection view acts as if the current
 
 If you implemented fancy animations for the insertion and deletion of items in the collection view, by now you should be seeing why Apple went with simple fade animations:
 
-//TODO: insert GIF with wrong animations
+![Wrong reaction to device rotation](2014-05-01-collectionview-animations-2-wrong-rotation.gif)
 
 Oops…
 
@@ -118,7 +118,7 @@ And modify our item insertion animation to only shoot the item if it is being in
 
 If the item is not being inserted the normal attributes as reported by `layoutAttributesForItemAtIndexPath` will be returned, canceling any special appearance animations. Combined with the corresponding logic inside `finalLayoutAttributesForAppearingItemAtIndexPath:`, this will result in the items smoothly animating from their initial position to their final position in the case of a bounds change, creating a simple but cool animation:
 
-//TODO: insert GIF with correct animations
+![Wrong reaction to device rotation](2014-05-01-collectionview-animations-3-correct-rotation.gif)
 
 ###Interactive Layout Animations
 
