@@ -7,6 +7,15 @@ tags: article
 author: "<a href=\"https://twitter.com/osteslag\">Joachim Bondo</a>"
 ---
 
+## TODO
+
+- [x] Write article
+- [ ] Clean up Xcode project (add documentation, comments, commit tags)
+- [ ] Create repository on GitHub 
+- [ ] Update GitHub links in article
+- [ ] Improve quality of animated GIFs?
+- [ ] Come up with a better, shorter title?
+
 # Custom Container View Controller Transitions, iOS 7 Style
 
 In [issue #5](http://www.objc.io/issue-5/index.html), [Chris Eidhof](http://twitter.com/chriseidhof) took us through the new custom [View Controller Transitions](http://www.objc.io/issue-5/view-controller-transitions.html) in iOS 7. He [concluded](http://www.objc.io/issue-5/view-controller-transitions.html#conclusion) (emphasis mine):
@@ -267,11 +276,3 @@ I will leave that as an exercise for you. It is somewhat more complex because we
 
 - iOS 7 Tech Talks Videos, 2014: [“Architecting Modern Apps, Part 1”](https://developer.apple.com/tech-talks/videos/index.php?id=3#3) (07:23-31:27)
 - Link to the repository on GitHub
-
-## TODO
-
-- [ ] Clean up Xcode project (add documentation, comments, commit tags)
-- [ ] Create repository on GitHub 
-- [ ] Update GitHub links in article
-- [ ] Improve quality of animated GIFs somehow?
-- [ ] Come up with a better, shorter title?
