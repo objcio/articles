@@ -9,7 +9,7 @@ author: "<a href=\"https://twitter.com/ceterum_censeo\">Robert Böhnke</a>"
 
 # Animations Explained
 
-The applications we write are rarely a static experience, they adapt to the users needs and change state to perform a multitude of tasks.
+The applications we write are rarely a static experience, they adapt to the user's needs and change state to perform a multitude of tasks.
 
 When transitioning between these states, it is important to communicate what is going on. Rather than jumping between screens, animations help us explain where the user is coming from and where they are going.
 
@@ -43,9 +43,7 @@ Probably the most common case is to animate a view's property from one value to 
 
 Here, we animate our little red rocket from an x-position of `77.0` to one of `455.0`, which is just beyond the edge of its parent view. In order to fill in all the steps along the way, we need to determine where our rocket is going to be at any given point in time. This is commonly done using linear interpolation:
 
-```
-x(t) = x_0 + t * ∆x
-```
+![](lerp.png)
 
 That is, for a given fraction of the animation `t`, the x-coordinate of the rocket is the x-coordinate of the starting point `77`, plus the distance to the end point `∆x = 378` multiplied with said fraction.
 
