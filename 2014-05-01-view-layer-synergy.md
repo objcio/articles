@@ -169,6 +169,10 @@ Once you know about the `actionForKey:` mechanism, UIView animations are a lot l
 	                             animations:^{
 	                                 myView.transform = CGAffineTransformMakeRotation(M_PI_2);
 	                                }];
+
+When we are done, it is going to look like this (animating the position, size, color and rotation of four different views):
+
+![The custom block animation API, used to animate the position, size, color and rotation of four different views](2014-05-01-view-layer-synergy-custom-block-animations.gif) 
       
 To start with, we need to get the delegate callback when a layer property changes. Since we can't know what layers are going to change before hand, I have chosen to swizzle `actionForLayer:forKey:` in a category on UIView:
 
@@ -313,8 +317,7 @@ Note that the old model value was set on the layer so that the model and the pre
 
 [actionForKeyDocs]: https://developer.apple.com/library/mac/documentation/graphicsimaging/reference/CALayer_class/Introduction/Introduction.html#//apple_ref/occ/instm/CALayer/actionForKey: "actionForKey: documentation"
 
-![The custom block animation API, used to animate the size, rotation, position and color of four different views](2014-05-01-view-layer-synergy-custom-block-animations.gif)
 [^animatable]: Almost all layer properties are implicitly animatable. You will see that their brief description in the documentation end with "Animatable.". This applies to pretty much any numeric property, such as the position, size, color, opacity, and even for boolean properties like isHidden, doubleSided. Properties that are paths are animatable but do not support implicit animations.
 
-Creating your own API like this is not going to be a good fit for every case but if you are doing the same animation in many places throughout your app, it can help clean up your code and reduce duplication. Even if you never end up using it, having walked through it once demystifies the UIView block animation APIs.
+[basicAnimation]: https://developer.apple.com/library/ios/documentation/GraphicsImaging/Reference/CABasicAnimation_class/Introduction/Introduction.html "CABasicAnimation documentation"
 
