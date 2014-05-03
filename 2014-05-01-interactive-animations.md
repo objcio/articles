@@ -7,6 +7,9 @@ tags: article
 author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a> and <a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
 ---
 
+TODO: Add credits to Loren for his advice on the topic.
+TODO: add MathJAX (`<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>`)
+
 
 When Steve Jobs introduced the first iPhone in 2007 the touch screen interaction had a certain kind of magic to it. A prime example of this was his [first demonstration of scrolling a table view](http://www.youtube.com/watch?v=t4OEsI0Sc_s&t=16m9s). You can hear in the reaction of the audience how impressive was back then what seems the most normal thing to us today. A little bit later in the presentation he underlined this point by quoting somebody he had given a demo to before: ["You got me at scrolling"](https://www.youtube.com/watch?v=t4OEsI0Sc_s&t=22m10s). 
 
@@ -48,10 +51,17 @@ What we want to have though is a nice smooth deceleration and acceleration.
 
 This only becomes feasible once you start controlling animations *indirectly*, i.e. through simulated forces acting on the view. The new animation needs to take the layer's current velocity *vector* as input in order to produce a smooth result.
 
-Looking at the `UIView` animation API for spring animations (`animateWithDuration:delay:usingSpringWithDamping:initialSpringVelocity:options:animations:completion:`) you'll notice that the velocity is a `CGFloat`. So while you can give the animation an initial velocity in the direction the animation moves the view, you cannot tell the animation that the view is for example currently moving at a certain velocity perpendicular to the new animation direction. In order to enable this, the velocity needs to expressed as a vector
+Looking at the `UIView` animation API for spring animations (`animateWithDuration:delay:usingSpringWithDamping:initialSpringVelocity:options:animations:completion:`) you'll notice that the velocity is a `CGFloat`. So while you can give the animation an initial velocity in the direction the animation moves the view, you cannot tell the animation that the view is for example currently moving at a certain velocity perpendicular to the new animation direction. In order to enable this, the velocity needs to expressed as a vector.
 
 
 ## Solutions
+
+So let's take a look at how we can implement interactive and interruptable animations correctly. To do this, we're going to build something like the Control Center panel:
+
+TODO: animation.gif
+
+The panel has two states: opened and closed. You can toggle the states by tapping it, or dragging it up and down. The challenge is to make everything interactive, even while animating. For example, if you tap the panel while it's animating to the opened stated, it should animate back to the closed state from it's current position. In a lot of apps that use default animation APIs, you'll have to wait before the animation is finished before you can do anything. Or, if you don't have to wait, the animation exhibits a discontinuous velocity curve. We want to work around this.
+
 
 ### UIKit Dynamics
 
@@ -160,76 +170,68 @@ To reiterate the crucial point: UIKit Dynamics allows us to drive the animation 
 Now that we have implemented this interaction with UIKit Dynamics, we'll take a look behind the scenes. Animations like the in our example only use a tiny fraction of UIKit Dynamic's capabilities, and it's surprisingly simple to implement them yourself. That's a good exercise to understand what's going on, but it can also be necessary if you either don't have UIKit Dynamics available (e.g. on the Mac) or it's not a good abstraction for your use case.
 
 
-### The Physics
+
+### Driving Animations Yourself
+
+For the animations you'll use most of the time in your apps, e.g. simple spring animations, it's actually surprisingly simple to drive those yourself. It's a good exercise to lift the lid of the huge black box of UIKit Dynamics and to see what it takes to implement simple interactive animations "manually". The idea is quite simple: we make sure to change the view's frame 60 times per second. Each frame, we adjust the view's frame based on the current velocity and the forces acting on the view. 
+
+
+#### The Physics
 
 Let's first take a look at some basic physics necessary to drive a spring animation like we created before using UIKit Dynamics. To simplify things, we'll look at a purely one dimensional case (as it is the case in our example), although introducing the second dimension is straightforward.
 
 The objective is to calculate the new position of the panel based on its current position and the time that has elapsed since the last animation tick. This can be expressed as
 
-    y = y0 + deltaY
-    
-The position delta is a function of the velocity and the time:
+$$y = y_{0} + \Delta y$$
 
-    deltaY = v * deltaT
-    
+The position delta is a function of the velocity and the time:
+ 
+$$\Delta y = v \cdot \Delta t$$
+
 The velocity can be calculated as the previous velocity plus the velocity delta caused by the force acting on the view:
 
-    v = v0 + deltaV
+$$v = v_{0} + \Delta v$$
 
 The change in velocity can be calculated by the impulse applied to the view:
 
-    deltaV = F * deltaT / m
+$$\Delta v = \frac{F \cdot \Delta t}{m}$$
 
 Now let's take a look at the force acting on the view. In order to get the spring effect, we have to combine a spring force with friction force:
 
-    F = fSpring + fFriction
-    
+$$F = F_{spring} + F_{friction}$$
+
 The spring force comes straight from the text book:
 
-    fSpring = k * x
-    
-where `k` is the spring constant and `x` is the distance of the view to its target end point (the length of the spring). Therefore we can also write this as
+$$F_{spring} = k \cdot x$$
 
-    fSpring = k * abs(yTarget - y0)
+where $k$ is the spring constant and $x$ is the distance of the view to its target end point (the length of the spring). Therefore we can also write this as
+
+$$F_{spring} = k \cdot abs(y_{target} - y_{0})$$
 
 We calculate friction as being proportional to the view's velocity:
 
-    fFriction = mu * v
-    
-`mu` again is a simple friction constant. You could come up with other ways to calculate the friction force, but this works well to create the animation we want to have.
+$$F_{friction} = \mu \cdot v$$
+
+$\mu$ again is a simple friction constant. You could come up with other ways to calculate the friction force, but this works well to create the animation we want to have.
 
 Putting this together the force on the view is calculated as
 
-    F = k * abs(yTarget - y0) + mu * v
-    
-To simplify things a bit more we'll simply set the view's mass to `1` so that we can calculate the change in position as
+$$F = k \cdot abs(y_{target} - y_{0}) + \mu \cdot v$$
 
-    deltaY = (v0 + (k * abs(yTarget - y0) + mu * v) * deltaT) * deltaT
+To simplify things a bit more we'll simply set the view's mass to $1$ so that we can calculate the change in position as
 
-
-We're going to build something like the Control Center panel:
-
-TODO: animation.gif
-
-The panel has two states: opened and closed. You can toggle the states by tapping it, or dragging it up and down. The challenge is to make everything interactive, even while animating. For example, if you tap the panel while it's animating to the opened stated, it should animate back to the closed state from it's current position. In a lot of apps that use default animation APIs, you'll have to wait before the animation is finished before you can do anything. We want to work around this.
+$$\Delta y = \left(v_0 + \left(k \cdot abs\left(y_{target} - y_0\right) + \mu \cdot v\right) \cdot \Delta t\right) \cdot \Delta t$$
 
 
-### Driving Animations Yourself
+#### Implementing the Animation
 
-For the animations you'll use most of the time in your apps, e.g. simple spring animations, it's actually surprisingly simple to drive those yourself.
-It's a good exercise to lift the lid of the huge black box of UIKit Dynamics and to see what it takes to implement simple interactive animations "manually". The idea is quite simple: we make sure to change the view's frame 60 times per second. We use a simplified physical model that has velocity. Each frame, we adjust the view's frame based on the current velocity. To do this, we create our own `Animator` class, which drives the animations. This class uses a `CADisplayLink`, which is a timer made specifically for drawing synchronously with the display's refresh rate.
-
-#### Implementing the animation
-
-We're going to cheat on the math of the spring animation a bit to make it more simple, which is perfectly fine for our purposes. We don't need to have a real world physics simulation. First, to work together with our `Animator`, we implement a protocol `Animation`. This protocol has only one method, `animationTick:finished:`. This method gets called every time the screen is updated, and gets two parameters: the first parameter is the time that the previous frame was displayed, and the second parameter is a pointer to a `BOOL`. By setting the value to `YES`, we can communicate back to the `Animator` that we're done animating.
+To implement this we first create our own `Animator` class, which drives the animations. This class uses a `CADisplayLink`, which is a timer made specifically for drawing synchronously with the display's refresh rate. Next, we implement a protocol `Animation` that works together with our `Animator`. This protocol has only one method, `animationTick:finished:`. This method gets called every time the screen is updated, and gets two parameters: the first parameter is the time that the previous frame was displayed, and the second parameter is a pointer to a `BOOL`. By setting the value to `YES`, we can communicate back to the `Animator` that we're done animating.
 
    @protocol Animation <NSObject>
    - (void)animationTick:(CFTimeInterval)dt finished:(BOOL *)finished;
    @end
 
-TODO: explain the physics.
-
-The method is implemented below. First, based on the time interval, we calculate a force, which is a combination of the spring force and the velocity. Then we update the velocity with this force, and adjust the view's center accordingly. Finally, if the speed gets low and the view is at it's goal, we stop the animation.
+The method is implemented below. First, based on the time interval, we calculate a force, which is a combination of the spring force and the friction force. Then we update the velocity with this force, and adjust the view's center accordingly. Finally, if the speed gets low and the view is at it's goal, we stop the animation.
 
     - (void)animationTick:(CFTimeInterval)dt finished:(BOOL *)finished
     {
