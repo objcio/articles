@@ -207,18 +207,134 @@ To simplify things a bit more we'll simply set the view's mass to `1` so that we
     deltaY = (v0 + (k * abs(yTarget - y0) + mu * v) * deltaT) * deltaT
 
 
+We're going to build something like the Control Center panel:
+
+TODO: animation.gif
+
+The panel has two states: opened and closed. You can toggle the states by tapping it, or dragging it up and down. The challenge is to make everything interactive, even while animating. For example, if you tap the panel while it's animating to the opened stated, it should animate back to the closed state from it's current position. In a lot of apps that use default animation APIs, you'll have to wait before the animation is finished before you can do anything. We want to work around this.
 
 
 ### Driving Animations Yourself
 
 For the animations you'll use most of the time in your apps, e.g. simple spring animations, it's actually surprisingly simple to drive those yourself.
-It's a good exercise to lift the lid of the huge black box of UIKit Dynamics and to see what it takes to implement simple interactive animations "manually".
+It's a good exercise to lift the lid of the huge black box of UIKit Dynamics and to see what it takes to implement simple interactive animations "manually". The idea is quite simple: we make sure to change the view's frame 60 times per second. We use a simplified physical model that has velocity. Each frame, we adjust the view's frame based on the current velocity. To do this, we create our own `Animator` class, which drives the animations. This class uses a `CADisplayLink`, which is a timer made specifically for drawing synchronously with the display's refresh rate.
 
-We're going to cheat on the math of the spring animation a bit to make it more simple, which is perfectly fine for our purposes. We don't need to have a real world physics simulation.
-Explain the calculation of an animation tick with the layer's position and velocity as input.
+#### Implementing the animation
 
-Show the same control center style example from before with a manually driven animation.
+We're going to cheat on the math of the spring animation a bit to make it more simple, which is perfectly fine for our purposes. We don't need to have a real world physics simulation. First, to work together with our `Animator`, we implement a protocol `Animation`. This protocol has only one method, `animationTick:finished:`. This method gets called every time the screen is updated, and gets two parameters: the first parameter is the time that the previous frame was displayed, and the second parameter is a pointer to a `BOOL`. By setting the value to `YES`, we can communicate back to the `Animator` that we're done animating.
 
+   @protocol Animation <NSObject>
+   - (void)animationTick:(CFTimeInterval)dt finished:(BOOL *)finished;
+   @end
+
+TODO: explain the physics.
+
+The method is implemented below. First, based on the time interval, we calculate a force, which is a combination of the spring force and the velocity. Then we update the velocity with this force, and adjust the view's center accordingly. Finally, if the speed gets low and the view is at it's goal, we stop the animation.
+
+    - (void)animationTick:(CFTimeInterval)dt finished:(BOOL *)finished
+    {
+        static const float frictionConstant = 20;
+        static const float springConstant = 300;
+        CGFloat time = (CGFloat) dt;
+    
+        // friction force = velocity * friction constant
+        CGPoint frictionForce = CGPointMultiply(self.velocity, frictionConstant);
+        // spring force = (target point - current position) * spring constant
+        CGPoint springForce = CGPointMultiply(CGPointSubtract(self.targetPoint, self.view.center), springConstant);
+        // force = spring force - friction force
+        CGPoint force = CGPointSubtract(springForce, frictionForce);
+
+        // velocity = current velocity + force * time / mass
+        self.velocity = CGPointAdd(self.velocity, CGPointMultiply(force, time));
+        // position = current position + velocity * time
+        self.view.center = CGPointAdd(self.view.center, CGPointMultiply(self.velocity, time));
+    
+        CGFloat speed = CGPointLength(self.velocity);
+        CGFloat distanceToGoal = CGPointLength(CGPointSubtract(self.targetPoint, self.view.center));
+        if (speed < 0.05 && distanceToGoal < 1) {
+            self.view.center = self.targetPoint;
+            *finished = YES;
+        }
+    }
+
+That's all there is to it. We capsulated this method in a `SpringAnimation` object. The only other method in this object is the initializer, which takes the view to animate, the target point for the view's center (in our case, it's either the center point for the opened state, or the closed state), and the initial velocity.
+
+#### Adding the animation to the view
+
+Our view class is exactly the same as in the UIDynamics example: it has a pan recognizer, and updates it's center based on the pan gestures. It sends out the same two delegate methods, which we will implement to initialize our animation. First of all, when the user starts dragging, we cancel all animations:
+
+    - (void)draggableViewBeganDragging:(DraggableView *)view
+    {
+        [self cancelSpringAnimation];
+    }
+
+After the dragging ended, we just start our animation with the velocity we got back. The target point is calculated from the `paneState`:
+
+    - (void)draggableView:(DraggableView *)view draggingEndedWithVelocity:(CGPoint)velocity
+    {
+        PaneState targetState = velocity.y >= 0 ? PaneStateClosed : PaneStateOpen;
+        self.paneState = targetState;
+        [self startAnimatingView:view initialVelocity:velocity];
+    }
+
+    - (void)startAnimatingView:(DraggableView *)view initialVelocity:(CGPoint)velocity
+    {
+        [self cancelSpringAnimation];
+        self.springAnimation = [UINTSpringAnimation animationWithView:view target:self.targetPoint velocity:velocity];
+        [view.animator addAnimation:self.springAnimation];
+    }
+
+The only thing left to do is adding the tap animation. That is quite easy. We toggle the state, and start animating. You might be surprised that the initial velocity is zero. To understand why it still animates, look at the `animationTick:finished:` code. When the initial velocity is zero, the spring force will slowly keep increasing the velocity until the pane arrived at the target center point.
+
+    - (void)didTap:(UITapGestureRecognizer *)tapRecognizer
+    {
+        PaneState targetState = self.paneState == PaneStateOpen ? PaneStateClosed : PaneStateOpen;
+        self.paneState = targetState;
+        [self startAnimatingView:self.pane initialVelocity:CGPointZero];
+    }
+
+#### The animation driver
+
+Finally, the last part we need is the driver of the animations. The animator is a wrapper around the display link. Because each display link is coupled to a specific `UIScreen`, we initialize our animator with a specific screen:
+
+    - (instancetype)initWithScreen:(UIScreen *)screen
+    {
+        self = [super init];
+        if (self) {
+            self.displayLink = [screen displayLinkWithTarget:self selector:@selector(animationTick:)];
+            self.displayLink.paused = YES;
+            [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+            self.animations = [NSMutableSet new];
+        }
+        return self;
+    }
+
+We set up a display link, and add it to the run loop. Because there are no animations yet, we start in a paused state. Once we add the animation, we make sure that the display link is not paused anymore:
+
+    - (void)addAnimation:(id<Animation>)animation
+    {
+        [self.animations addObject:animation];
+        if (self.animations.count == 1) {
+            self.displayLink.paused = NO;
+        }
+    }
+
+We setup the display link to call `animationTick:`, and on each tick we iterate over the animations, send them a message and that's it. If there are no animations left, we pause the display link.
+
+     - (void)animationTick:(CADisplayLink *)displayLink
+     {
+         CFTimeInterval dt = displayLink.duration;
+         for (id<Animation> a in [self.animations copy]) {
+             BOOL finished = NO;
+             [a animationTick:dt finished:&finished];
+             if (finished) {
+                 [self.animations removeObject:a];
+             }
+         }
+         if (self.animations.count == 0) {
+             self.displayLink.paused = YES;
+         }
+     }
 
 ### Back to the Mac
 
@@ -226,6 +342,8 @@ There's nothing like UIKit Dynamics available on Mac at this time. If you want t
 Now that we've already shown how to implement this on iOS, it's very simple to make the same example work on OS X.
 
 Show the example from before running on OS X.
+
+LINK: http://jwilling.com/osx-animations
 
 
 ## POP ?
