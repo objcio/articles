@@ -306,7 +306,7 @@ After the animation block has executed, all the properties have been changed and
 
 Note that the old model value was set on the layer so that the model and the presentation matches when the animation finishes and is removed. We can use this animation API to draw attention in a number of ways, animating everything from positions, transforms, colors, etc:
 
->     TODO: ADD AN ANIMATED GIF THAT DEMOS WHAT WAS BUILT
+![The custom block animation API, used to animate the size, rotation, position and color of four different views](2014-05-01-view-layer-synergy-custom-block-animations.gif)
 
 Creating your own API like this is not going to be a good fit for every case but if you are doing the same animation in many places throughout your app, it can help clean up your code and reduce duplication. Even if you never end up using it, having walked through it once demystifies the UIView block animation APIs.
 
