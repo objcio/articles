@@ -50,7 +50,7 @@ For backing layers, the search for an action doesn't go further than the first s
 
 [^neverSeen]: At least I have never seen a case where the view returns `nil` so that the search for an action continues.
 
-# Digging deeper
+# Learning from UIKit
 
 I'm sure that we can all agree that UIView animations is a really nice API with it's concise, declarative style. And the fact that it's using Core Animation to perform these animations gives us an opportunity to dig deep and see how it UIKit uses Core Animation. There may even be some good practices and neat tricks to pick up along the way :)
 
@@ -110,7 +110,7 @@ I find it to be very clean and you don't have to do anything extra when the anim
 
 You may have seen the animation delegate and wondered what that class is for. Looking at a [class dump][animationState], we can see that it's mostly meant for maintaining state about the animations (duration, delay, repeat count, etc.). We can also see that it pushes and pops to a stack to be able to get the correct state when nesting one animation block inside of another. All of that is mostly an implementation detail and not very interesting unless you are trying to write your own block based animation API (which is actually quite a fun idea). 
 
-However, it _is_ interesting to see that the delegate implements `animationDidStart:` and `animationDidStop:finished:` and passes that information on to its own delegate. We can log the delegate's delegate to see that it is of another private class: UIViewAnimationBlockDelegate. Looking at [its class dump][blockDelegate], we can see that it is a very small class with a single responsibility: responding to the animation delegate callbacks and executing the corresponding blocks. This is something that we can easily add to our own Core Animations code if we prefer blocks over delegate callbacks:
+However, it _is_ interesting to see that the delegate implements `animationDidStart:` and `animationDidStop:finished:` and passes that information on to its own delegate. We can log the delegate's delegate to see that it is of another private class: UIViewAnimationBlockDelegate. Looking at [its class dump][blockDelegate], we can see that it is a very small class with a single responsibility: responding to the animation delegate callbacks and executing the corresponding blocks. This is something that we can easily add to our own Core Animation code if we prefer blocks over delegate callbacks:
 
 	@interface DRAnimationBlockDelegate : NSObject
 	
@@ -156,12 +156,12 @@ Depending on personal preference, a block based callback style, like this, may f
     fadeIn.delegate = [DRAnimationBlockDelegate animationDelegateWithBeginning:^{
         NSLog(@"beginning to fade in");
     } completion:^(BOOL finished) {
-        NSLog(@"did fade %@", finished ? @"to the end" : @"but was aborted");
+        NSLog(@"did fade %@", finished ? @"to the end" : @"but was cancelled");
     }];
 
 # Custom block based animation APIs
 
-Once you know about the `actionForKey:` mechanism, UIView animations are a lot less magical than they might first seem. In fact, there isn't really anything stopping us from writing our own block based animation APIs that are tailored to our needs. The one I'm designing will be used to draw attention to a view by animating the change inside of the block with a very aggressive timing curve and then slowly animate back to the original value. You could say that it makes the view "pop"[^pop]. Unlike a regular animation block with the `UIViewAnimationOptionAutoreverse` option, I'm also changing the model value back to what it was before, since that how the animation looks. Using the custom animation API will look like this:
+Once you know about the `actionForKey:` mechanism, UIView animations are a lot less magical than they might first seem. In fact, there isn't really anything stopping us from writing our own block based animation APIs that are tailored to our needs. The one I'm designing will be used to draw attention to a view by animating the change inside of the block with a very aggressive timing curve and then slowly animate back to the original value. You could say that it makes the view "pop"[^pop]. Unlike a regular animation block with the `UIViewAnimationOptionAutoreverse` option, I'm also changing the model value back to what it was before, since that's what the animation conceptually does. Using the custom animation API will look like this:
 
 [^pop]: not to be confused with Facebook's new framework.
 
@@ -174,7 +174,7 @@ When we are done, it is going to look like this (animating the position, size, c
 
 ![The custom block animation API, used to animate the position, size, color and rotation of four different views](2014-05-01-view-layer-synergy-custom-block-animations.gif) 
       
-To start with, we need to get the delegate callback when a layer property changes. Since we can't know what layers are going to change before hand, I have chosen to swizzle `actionForLayer:forKey:` in a category on UIView:
+To start with, we need to get the delegate callback when a layer property changes. Since we can't know what layers are going to change beforehand, I have chosen to swizzle `actionForLayer:forKey:` in a category on UIView:
 
 	@implementation UIView (DR_CustomBlockAnimations)
 	
@@ -196,7 +196,7 @@ To start with, we need to get the delegate callback when a layer property change
 	    }
 	}
 
-To make sure that we don't break any other code that relies on the `actionForLayer:forKey:` callback, we use a static variable to determine if this is our custom animation context or not:
+To make sure that we don't break any other code that relies on the `actionForLayer:forKey:` callback, we use a static variable to determine if this is our custom animation context or not. It could have been just a BOOL for this single use but a context is more flexible if we would like to write more code like this in the future:
 
 	static void *DR_currentAnimationContext = NULL;
 	static void *DR_popAnimationContext     = &DR_popAnimationContext;
@@ -217,8 +217,9 @@ In our implementation we will make sure to set the animation context before exec
 	                         animations:(void (^)(void))animations
 	{
 	    DR_currentAnimationContext = DR_popAnimationContext;
-	    // execute the animations (which will trigger callbacks to the swizzled delegate method
+	    // execute the animations (which will trigger callbacks to the swizzled delegate method)
 	    animations();
+	    /* more code to come */
 	    DR_currentAnimationContext = NULL;
 	}
 
@@ -226,7 +227,7 @@ If, all we wanted to do was to add a basic animation from the old value to the n
 
 iOS 7 added a block based animation API that encounters the same obstacle. Using the same inspection technique as above, we can see how it overcomes that obstacle. For each keyframe, the view returns `nil` when the property is changed but saves the necessary state so that the CAKeyframeAnimation object can be created after all the keyframe blocks have executed. 
 
-Inspired by that approach we can create a small little class that stores what layer was modified, what key path was changed, and what the old value was:
+Inspired by that approach we can create a small class that stores the information that we need to create the animation: what layer was modified, what key path was changed, and what the old value was:
 
 	@interface DRSavedPopAnimationState : NSObject
 	
@@ -263,14 +264,14 @@ Then, in our swizzled delegate callback, we simply store the state for the prope
         return (id<CAAction>)[NSNull null];
     }
 
-After the animation block has executed, all the properties have been changed and their state have been saved. Now, can enumerate over the saved state and create the keyframe animations:
+After the animation block has executed, all the properties have been changed and their state have been saved. Now, we can enumerate over the saved state and create the keyframe animations:
 
 	+ (void)DR_popAnimationWithDuration:(NSTimeInterval)duration
 	                         animations:(void (^)(void))animations
 	{
 	    DR_currentAnimationContext = DR_popAnimationContext;
 	    
-	    // do the animation (which will trigger callbacks to the swizzled delegate method
+	    // do the animation (which will trigger callbacks to the swizzled delegate method)
 	    animations();
 	    
 	    [[self DR_savedPopAnimationStates] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -308,7 +309,9 @@ After the animation block has executed, all the properties have been changed and
 	    DR_currentAnimationContext = nil;
 	}
 
-Note that the old model value was set on the layer so that the model and the presentation matches when the animation finishes and is removed. We can use this animation API to draw attention in a number of ways, animating everything from positions, transforms, colors, etc:
+Note that the old model value was set on the layer so that the model and the presentation matches when the animation finishes and is removed. 
+
+Creating your own API like this is not going to be a good fit for every case but if you are doing the same animation in many places throughout your app, it can help clean up your code and reduce duplication. Even if you never end up using it, having walked through it once demystifies the UIView block animation APIs, especially if you are comfortable with Core Animation.
 [blockDelegate]: https://github.com/EthanArbuckle/IOS-7-Headers/blob/master/Frameworks/UIKit.framework/UIViewAnimationBlockDelegate.h "UIViewAnimationBlockDelegate class dump"
 
 [animationState]: https://github.com/rpetrich/iphoneheaders/blob/master/UIKit/UIViewAnimationState.h "UIViewAnimationState class dump"
