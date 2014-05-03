@@ -305,8 +305,16 @@ After the animation block has executed, all the properties have been changed and
 	}
 
 Note that the old model value was set on the layer so that the model and the presentation matches when the animation finishes and is removed. We can use this animation API to draw attention in a number of ways, animating everything from positions, transforms, colors, etc:
+[blockDelegate]: https://github.com/EthanArbuckle/IOS-7-Headers/blob/master/Frameworks/UIKit.framework/UIViewAnimationBlockDelegate.h "UIViewAnimationBlockDelegate class dump"
+
+[animationState]: https://github.com/rpetrich/iphoneheaders/blob/master/UIKit/UIViewAnimationState.h "UIViewAnimationState class dump"
+
+[keyframeState]: https://github.com/limneos/classdump-dyld/blob/master/iphoneheaders/iOS7.0.3/System/Library/Frameworks/UIKit.framework/UIViewKeyframeAnimationState.h "UIViewKeyframeAnimationState class dump"
+
+[actionForKeyDocs]: https://developer.apple.com/library/mac/documentation/graphicsimaging/reference/CALayer_class/Introduction/Introduction.html#//apple_ref/occ/instm/CALayer/actionForKey: "actionForKey: documentation"
 
 ![The custom block animation API, used to animate the size, rotation, position and color of four different views](2014-05-01-view-layer-synergy-custom-block-animations.gif)
+[^animatable]: Almost all layer properties are implicitly animatable. You will see that their brief description in the documentation end with "Animatable.". This applies to pretty much any numeric property, such as the position, size, color, opacity, and even for boolean properties like isHidden, doubleSided. Properties that are paths are animatable but do not support implicit animations.
 
 Creating your own API like this is not going to be a good fit for every case but if you are doing the same animation in many places throughout your app, it can help clean up your code and reduce duplication. Even if you never end up using it, having walked through it once demystifies the UIView block animation APIs.
 
