@@ -312,6 +312,27 @@ After the animation block has executed, all the properties have been changed and
 Note that the old model value was set on the layer so that the model and the presentation matches when the animation finishes and is removed. 
 
 Creating your own API like this is not going to be a good fit for every case but if you are doing the same animation in many places throughout your app, it can help clean up your code and reduce duplication. Even if you never end up using it, having walked through it once demystifies the UIView block animation APIs, especially if you are comfortable with Core Animation.
+
+# Other animation inspiration
+
+I'd like to leave you with a completely different approach to a higher level animation API: the UIImageView animations. On the surface it barely resembles a traditional animation API. All that you are doing it specifying an array of images, a duration, and telling the image view to start animating. Behind that abstraction, it results in a discrete keyframe animation of the contents property being added to the image view's layer:
+
+	<CAKeyframeAnimation:0x8e5b020; 
+		removedOnCompletion = 0; 
+		delegate = <_UIImageViewExtendedStorage: 0x8e49230>; 
+		duration = 2.5; 
+		repeatCount = 2.14748e+09; 
+		calculationMode = discrete; 
+		values = (
+		    "<CGImage 0x8d6ce80>",
+		    "<CGImage 0x8d6d2d0>",
+		    "<CGImage 0x8d5cd30>"
+		); 
+		keyPath = contents
+	>
+
+Animation APIs can come in many different forms, and the same applies to the animation APIs you write yourself.
+
 [blockDelegate]: https://github.com/EthanArbuckle/IOS-7-Headers/blob/master/Frameworks/UIKit.framework/UIViewAnimationBlockDelegate.h "UIViewAnimationBlockDelegate class dump"
 
 [animationState]: https://github.com/rpetrich/iphoneheaders/blob/master/UIKit/UIViewAnimationState.h "UIViewAnimationState class dump"
