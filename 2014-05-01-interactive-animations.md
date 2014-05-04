@@ -225,11 +225,11 @@ $$\Delta y = \left(v_0 + \left(k \cdot abs\left(y_{target} - y_0\right) + \mu \c
 
 #### Implementing the Animation
 
-To implement this we first create our own `Animator` class, which drives the animations. This class uses a `CADisplayLink`, which is a timer made specifically for drawing synchronously with the display's refresh rate. Next, we implement a protocol `Animation` that works together with our `Animator`. This protocol has only one method, `animationTick:finished:`. This method gets called every time the screen is updated, and gets two parameters: the first parameter is the time that the previous frame was displayed, and the second parameter is a pointer to a `BOOL`. By setting the value to `YES`, we can communicate back to the `Animator` that we're done animating.
+To implement this we first create our own `Animator` class, which drives the animations. This class uses a `CADisplayLink`, which is a timer made specifically for drawing synchronously with the display's refresh rate. In other words, if your animation is smooth, the timer calls your methods sixty times per second. Next, we implement a protocol `Animation` that works together with our `Animator`. This protocol has only one method, `animationTick:finished:`. This method gets called every time the screen is updated, and gets two parameters: the first parameter is the duration of the previous frame, the second parameter is a pointer to a `BOOL`. By setting the value of the pointer to `YES`, we can communicate back to the `Animator` that we're done animating.
 
-   @protocol Animation <NSObject>
-   - (void)animationTick:(CFTimeInterval)dt finished:(BOOL *)finished;
-   @end
+    @protocol Animation <NSObject>
+    - (void)animationTick:(CFTimeInterval)dt finished:(BOOL *)finished;
+    @end
 
 The method is implemented below. First, based on the time interval, we calculate a force, which is a combination of the spring force and the friction force. Then we update the velocity with this force, and adjust the view's center accordingly. Finally, if the speed gets low and the view is at it's goal, we stop the animation.
 
@@ -297,7 +297,7 @@ The only thing left to do is adding the tap animation. That is quite easy. We to
 
 #### The animation driver
 
-Finally, the last part we need is the driver of the animations. The animator is a wrapper around the display link. Because each display link is coupled to a specific `UIScreen`, we initialize our animator with a specific screen:
+Finally, the last part we need is the `Animator`, which is the driver of the animations. The animator is a wrapper around the display link. Because each display link is coupled to a specific `UIScreen`, we initialize our animator with a specific screen. We set up a display link, and add it to the run loop. Because there are no animations yet, we start in a paused state. 
 
     - (instancetype)initWithScreen:(UIScreen *)screen
     {
@@ -311,7 +311,7 @@ Finally, the last part we need is the driver of the animations. The animator is 
         return self;
     }
 
-We set up a display link, and add it to the run loop. Because there are no animations yet, we start in a paused state. Once we add the animation, we make sure that the display link is not paused anymore:
+Once we add the animation, we make sure that the display link is not paused anymore:
 
     - (void)addAnimation:(id<Animation>)animation
     {
