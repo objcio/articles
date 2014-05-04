@@ -93,7 +93,7 @@ This is where the convenience of the heavy use of protocols comes in. Instead of
 
 There are a [lot of methods](https://developer.apple.com/library/ios/documentation/uikit/reference/UIViewControllerContextTransitioning_protocol/Reference/Reference.html), though, and they are all required. But we can ignore some of them for now, because we are currently only supporting non-interactive transitions.
 
-Just like the framework does, we define a private `NSObject <UIViewControllerContextTransitioning>` class. In our specialized case, we create a private `_TransitionContext` class and implement the initializer like this:
+Just like UIKit, we define a private `NSObject <UIViewControllerContextTransitioning>` class. In our specialized case, it is the `PrivateTransitionContext` class, and the initializer is implemented like this:
 
 ```objc
 - (instancetype)initWithFromViewController:(UIViewController *)fromViewController toViewController:(UIViewController *)toViewController goingRight:(BOOL)goingRight {
@@ -137,7 +137,7 @@ Animator *animator = [[Animator alloc] init];
 
 NSUInteger fromIndex = [self.viewControllers indexOfObject:fromViewController];
 NSUInteger toIndex = [self.viewControllers indexOfObject:toViewController];
-_TransitionContext *transitionContext = [[_TransitionContext alloc] initWithFromViewController:fromViewController toViewController:toViewController goingRight:toIndex > fromIndex];
+PrivateTransitionContext *transitionContext = [[PrivateTransitionContext alloc] initWithFromViewController:fromViewController toViewController:toViewController goingRight:toIndex > fromIndex];
 
 transitionContext.animated = YES;
 transitionContext.interactive = NO;
@@ -195,15 +195,15 @@ id<UIViewControllerAnimatedTransitioning>animator = nil;
 if ([self.delegate respondsToSelector:@selector (containerViewController:animationControllerForTransitionFromViewController:toViewController:)]) {
     animator = [self.delegate containerViewController:self animationControllerForTransitionFromViewController:fromViewController toViewController:toViewController];
 }
-animator = (animator ?: [[_AnimatedTransition alloc] init]);
+animator = (animator ?: [[PrivateAnimatedTransition alloc] init]);
 ```
 
-If we have a delegate, and it returns an animator, we will use that. Otherwise we will create our own, private default animator of class `_AnimatedTransition`. We will implement this next.
+If we have a delegate, and it returns an animator, we will use that. Otherwise we will create our own, private default animator of class `PrivateAnimatedTransition`. We will implement this next.
 
 Although the default animation is somewhat different from that of `Animator`, the code looks surprisingly similar. Here is the full implementation:
 
 ```objc
-@implementation _AnimatedTransition
+@implementation PrivateAnimatedTransition
 
 static CGFloat const kChildViewPadding = 16;
 static CGFloat const kDamping = 0.75f;
