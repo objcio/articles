@@ -18,9 +18,9 @@ The first section of this article will concentrate on how exactly different clas
 The two example projects for this article are available on Github:
 
 
-//TODO: upload the projects to github and insert links below
-- [Layout Animations]()
-- [Custom Collection View Transitions]()
+
+- [Layout Animations](https://github.com/ekurutepe/CollectionViewAnimations)
+- [Custom Collection View Transitions](https://github.com/ekurutepe/CustomCollectionViewTransition)
 
 
 ##Collection View Layout Animations
