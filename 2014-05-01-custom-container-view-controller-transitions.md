@@ -65,7 +65,7 @@ In three stages we will be creating a sample app featuring a custom container vi
 
 The Xcode project, in its three stages, is put in a [repository on GitHub](https://github.com/osteslag/custom-container-transitions).
 
-### Stage 1: the Basics
+### Stage 1: The Basics
 
 The central class in our app is `ContainerViewController` which hosts an array of `UIViewController` instances, trivial `ChildViewController` objects in our case. The container view controller sets up a private subview with tappable icons representing each child view controller:
 
@@ -150,7 +150,7 @@ transitionContext.completionBlock = ^(BOOL didComplete) {
 [animator animateTransition:transitionContext];
 ```
 
-Most of this is the required container view controller song and dance, and finding out whether we going left or right. Doing the animation is basically three lines of code: 1) creating the transition context, 2) creating the animator, and 3) triggering the animation.
+Most of this is the required container view controller song and dance, and finding out whether we going left or right. Doing the animation is basically three lines of code: 1) creating the animator, 2) creating the transition context, and 3) triggering the animation.
 
 With that, the transition now looks like this:
 
