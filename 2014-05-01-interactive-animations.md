@@ -286,13 +286,13 @@ After the dragging ended, we just start our animation with the velocity we got b
         [view.animator addAnimation:self.springAnimation];
     }
 
-The only thing left to do is adding the tap animation. That is quite easy. We toggle the state, and start animating. You might be surprised that the initial velocity is zero. To understand why it still animates, look at the `animationTick:finished:` code. When the initial velocity is zero, the spring force will slowly keep increasing the velocity until the pane arrived at the target center point.
+The only thing left to do is adding the tap animation. That is quite easy. We toggle the state, and start animating. If there is a spring animation, we start with that velocity. If the spring animation is nil, the initial velocity will be CGPointZero. To understand why it still animates, look at the `animationTick:finished:` code. When the initial velocity is zero, the spring force will slowly keep increasing the velocity until the pane arrived at the target center point.
 
     - (void)didTap:(UITapGestureRecognizer *)tapRecognizer
     {
         PaneState targetState = self.paneState == PaneStateOpen ? PaneStateClosed : PaneStateOpen;
         self.paneState = targetState;
-        [self startAnimatingView:self.pane initialVelocity:CGPointZero];
+        [self startAnimatingView:self.pane initialVelocity:self.springAnimation.velocity];
     }
 
 #### The animation driver
