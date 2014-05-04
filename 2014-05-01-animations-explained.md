@@ -211,6 +211,8 @@ The simplest easing function is _linear_, it maintains a constant speed througho
 In Core Animation, this function is represented by the `CAMediaTimingFunction`
 class:
 
+![](rect-linear.gif)
+
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
 animation.keyPath = @"position.x";
@@ -227,7 +229,15 @@ rectangle.layer.position = CGPointMake(150, 0);
 
 Core Animation comes with a number of built-in easing functions beyond linear, such as:
 
-> [ Lots of rectangles animating with different easing functions ]
+* Ease in (`kCAMediaTimingFunctionEaseIn`):  
+  ![](rect-easein.gif)
+* Ease out (`kCAMediaTimingFunctionEaseOut`):  
+  ![](rect-easeout.gif)
+* Ease in ease out (`kCAMediaTimingFunctionEaseInEaseOut`):  
+  ![](rect-easeineaseout.gif)
+* Default (`kCAMediaTimingFunctionDefault`):  
+  ![](rect-default.gif)
+
 
 It's also possible, within limits, to create your own easing function using `+functionWithControlPoints::::`[^3]. By passing in the _x_ and _y_ components of two control points of a cubic Bézier curve, you can easily create custom easing functions, such as the one I chose for our little red rocket:
 
