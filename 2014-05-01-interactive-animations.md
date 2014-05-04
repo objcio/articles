@@ -33,10 +33,11 @@ Using `UIView` or `CAAnimation` animations has two big problems when it comes to
 
 ### Separation of Model and Presentation
 
-Core Animation is designed in a way that it decouples the layer's model properties from what you see on the screen (the presentation layer). This makes it more differenceicult to create animations you can interact with at any time, because those two representations do not match. It's up to you to do the manual work to get them in sync before you change the animation:
+Core Animation is designed in a way that it decouples the layer's model properties from what you see on the screen (the presentation layer). This makes it more difficult to create animations you can interact with at any time, because those two representations do not match. It's up to you to do the manual work to get them in sync before you change the animation:
 
     view.layer.center = view.layer.presentationLayer.center;
     [view.layer removeAnimationForKey:@"animation"];
+    // add new animation...
 
 
 ### Direct vs. Indirect Control
@@ -351,9 +352,27 @@ implement this on iOS, it's very simple to make the same example work on OS X, c
 
 These are the only changes we need to make to port our animation code to the Mac. For a simple view like this, it works really well. For more complex things, you might not want to animate the frame, but use `transform` instead, which is the topic of a blogpost on [OS X Animations](http://jwilling.com/osx-animations) by Jonathan Willing.
 
-## POP ?
+### Facebook's POP Framework
 
-Would be cool if we could say a few words about Facebook's POP framework. I've contacted Kimon Tsinteris about this, let's see if we can get something done here in time.
+There has been quite some buzz in the last weeks around Facebook's [POP framework](https://github.com/facebook/pop). This is the animation engine that powers their Paper app. It operates very similar to the example above of driving your own animations, but it comes in a neat package which a lot more flexibility. 
+
+So let's try to make our own manually driven animation work with POP instead. Since we already had our own spring animation packaged into its own class, the change is pretty trivial. All we have to do is to instantiate a POP animation instead of our own one and add this to the view:
+
+- (void)animatePaneWithInitialVelocity:(CGPoint)initialVelocity
+{
+    [self.pane pop_removeAllAnimations];
+    POPSpringAnimation *animation = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
+    animation.velocity = [NSValue valueWithCGPoint:initialVelocity];
+    animation.toValue = [NSValue valueWithCGPoint:self.targetPoint];
+    animation.springSpeed = 15;
+    animation.springBounciness = 6;
+    [self.pane pop_addAnimation:animation forKey:@"animation"];
+    self.animation = animation;
+}
+
+You can find the full working example using POP on [GitHub](TODO).
+
+It's super easy to get it to work, and it's pretty straightforward to create more complex animations. But the real power of it lies in the fact that it enables you to create truly interactive and interruptible animations as we have talked about before, because the animations it supports out of the box take the velocity as input. If you plan your interactions from the get go to be interruptible at any time, a framework like POP helps you to implement this in a way that animations always stay smooth.
 
 
 ## The Road Ahead
