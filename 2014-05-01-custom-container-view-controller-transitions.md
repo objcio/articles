@@ -102,15 +102,15 @@ Just like the framework does, we define a private `NSObject <UIViewControllerCon
     if ((self = [super init])) {
         self.presentationStyle = UIModalPresentationCustom;
         self.containerView = fromViewController.view.superview;
-        self._viewControllers = @{
+        self.viewControllers = @{
             UITransitionContextFromViewControllerKey:fromViewController,
             UITransitionContextToViewControllerKey:toViewController,
         };
         
         CGFloat travelDistance = (goingRight ? -self.containerView.bounds.size.width : self.containerView.bounds.size.width);
-        self._disappearingFromRect = self._appearingToRect = self.containerView.bounds;
-        self._disappearingToRect = CGRectOffset (self.containerView.bounds, travelDistance, 0);
-        self._appearingFromRect = CGRectOffset (self.containerView.bounds, -travelDistance, 0);
+        self.disappearingFromRect = self.appearingToRect = self.containerView.bounds;
+        self.disappearingToRect = CGRectOffset (self.containerView.bounds, travelDistance, 0);
+        self.appearingFromRect = CGRectOffset (self.containerView.bounds, -travelDistance, 0);
     }
     
     return self;
