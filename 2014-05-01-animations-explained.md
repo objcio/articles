@@ -43,7 +43,9 @@ Probably the most common case is to animate a view's property from one value to 
 
 Here, we animate our little red rocket from an x-position of `77.0` to one of `455.0`, which is just beyond the edge of its parent view. In order to fill in all the steps along the way, we need to determine where our rocket is going to be at any given point in time. This is commonly done using linear interpolation:
 
-![](lerp.png)
+<center>
+    <img src="lerp.png" height="32px">
+</center>
 
 That is, for a given fraction of the animation `t`, the x-coordinate of the rocket is the x-coordinate of the starting point `77`, plus the distance to the end point `∆x = 378` multiplied with said fraction.
 
@@ -203,9 +205,9 @@ Instead, it's common practice to decouple the interpolation of the animated prop
 
 We can achieve this by introducing a _timing function_ (also sometimes referred to as an easing function). This function controls the speed of the animation by modifying the fraction of the duration:
 
-```
-x(t) = x_0 + e(t) * ∆x
-```
+<center>
+    <img src="lerp-with-easing.png" height="32px">
+</center>
 
 The simplest easing function is _linear_, it maintains a constant speed throughout the animation and is effectively what we see above.
 In Core Animation, this function is represented by the `CAMediaTimingFunction`
