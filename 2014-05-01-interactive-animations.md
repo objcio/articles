@@ -340,13 +340,16 @@ We setup the display link to call `animationTick:`, and on each tick we iterate 
 
 ### Back to the Mac
 
-There's nothing like UIKit Dynamics available on Mac at this time. If you want to create truly interactive animations here, you have to take the route of driving those animations yourself.
-Now that we've already shown how to implement this on iOS, it's very simple to make the same example work on OS X.
+There's nothing like UIKit Dynamics available on Mac at this time. If you want
+to create truly interactive animations here, you have to take the route of
+driving those animations yourself.  Now that we've already shown how to
+implement this on iOS, it's very simple to make the same example work on OS X, check out the [full project](TODO) on github. These are the things that need to be changed:
 
-Show the example from before running on OS X.
+* The first thing to change is the `Animator`. On the Mac, there is no `CADisplayLink`, but instead, a `CVDisplayLink`, which has a C-based API. Setting it up is a bit more work, but just as straightforward.
+* Our spring animation on iOS adjusts the center of the view. An `NSView` doesn't have a center property, so instead we animate the frame's origin.
+* On the Mac, there are no gesture recognizers. Instead, we have to implement `mouseDown:`, `mouseUp:` and `mouseDragged:` in our custom view subclass
 
-LINK: http://jwilling.com/osx-animations
-
+These are the only changes we need to make to port our animation code to the Mac. For a simple view like this, it works really well. For more complex things, you might not want to animate the frame, but use `transform` instead, which is the topic of a blogpost on [OS X Animations](http://jwilling.com/osx-animations) by Jonathan Willing.
 
 ## POP ?
 
