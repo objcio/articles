@@ -105,9 +105,9 @@ Just like the framework does, we define a private `NSObject <UIViewControllerCon
         self._viewControllers = @{
             UITransitionContextFromViewControllerKey:fromViewController,
             UITransitionContextToViewControllerKey:toViewController,
-		};
-		
-    CGFloat travelDistance = (goingRight ? -self.containerView.bounds.size.width : self.containerView.bounds.size.width);
+        };
+        
+        CGFloat travelDistance = (goingRight ? -self.containerView.bounds.size.width : self.containerView.bounds.size.width);
         self._disappearingFromRect = self._appearingToRect = self.containerView.bounds;
         self._disappearingToRect = CGRectOffset (self.containerView.bounds, travelDistance, 0);
         self._appearingFromRect = CGRectOffset (self.containerView.bounds, -travelDistance, 0);
@@ -176,6 +176,7 @@ We define our protocol as:
 @optional
 - (void)containerViewController:(ContainerViewController *)containerViewController didSelectViewController:(UIViewController *)viewController;
 - (id <UIViewControllerAnimatedTransitioning>)containerViewController:(ContainerViewController *)containerViewController animationControllerForTransitionFromViewController:(UIViewController *)fromViewController toViewController:(UIViewController *)toViewController;
+@end
 ```
 
 The `containerViewController:didSelectViewController:` method just makes it easier to integrate `ContainerViewController` into more feature complete apps. 
