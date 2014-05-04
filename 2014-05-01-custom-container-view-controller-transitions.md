@@ -91,7 +91,7 @@ However, there is one thing we need to figure out first. As you can see from the
 
 This is where the convenience of the heavy use of protocols comes in. Instead of having to override a private class, which obviously is a no-go, we can make our own and just have it conform to the documented protocol.
 
-There is a [lot of methods](https://developer.apple.com/library/ios/documentation/uikit/reference/UIViewControllerContextTransitioning_protocol/Reference/Reference.html), though, and they are all required. But we can ignore some of them for now, because we are currently only supporting non-interactive transitions.
+There are a [lot of methods](https://developer.apple.com/library/ios/documentation/uikit/reference/UIViewControllerContextTransitioning_protocol/Reference/Reference.html), though, and they are all required. But we can ignore some of them for now, because we are currently only supporting non-interactive transitions.
 
 Just like the framework does, we define a private `NSObject <UIViewControllerContextTransitioning>` class. In our specialized case, we create a private `_TransitionContext` class and implement the initializer like this:
 
