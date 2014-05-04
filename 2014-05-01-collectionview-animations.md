@@ -13,7 +13,7 @@ author: "<a href=\"https://twitter.com/ekurutepe\">Engin Kurutepe</a>"
 
 So much deeper in fact, that [Ole Begeman](http://oleb.net) and [Ash Furrow](https://twitter.com/ashfurrow) have written about [Custom Collection View Layouts](http://www.objc.io/issue-3/collection-view-layouts.html) and [Collection Views with UIKit Dynamics](http://www.objc.io/issue-5/collection-views-and-uidynamics.html) in objc.io previously, and I still have something to write about that they have not covered. In this post, I will assume that you're familiar with the basics of collection view layouts and have read at least Apple's excellent [programming guide](https://developer.apple.com/library/ios/documentation/WindowsViews/Conceptual/CollectionViewPGforIOS/Introduction/Introduction.html#//apple_ref/doc/uid/TP40012334) and Ole's [post](http://www.objc.io/issue-3/collection-view-layouts.html).
 
-In the first section of this article, I will try to show how exactly different classes and methods work together to animate of a collection view layout using a few common examples. In the second section, I will show how to build a custom view controller transition for cases where the useful but limited `useLayoutToLayoutNavigationTransitions` does not cut it.
+The first section of this article will concentrate on how exactly different classes and methods work together to animate a collection view layout with the help of a few common examples. In the second section, we will look at view controller transitions with collection views and see how to use `useLayoutToLayoutNavigationTransitions` for the cases where it works and implement a custom transitions for the cases when it does not.
 
 The two example projects for this article are available on Github:
 
@@ -25,11 +25,11 @@ The two example projects for this article are available on Github:
 
 ##Collection View Layout Animations
 
-Even though the standard `UICollectionViewFlowLayout` is very customizable, Apple opted for the safe approach and implemented a simple fade animation as default for all layout animations. If you would like to have custom animations the best way is to subclass the `UICollectionViewFlowLayout` and implement your animations at the appropriate locations. Let's go through a few examples to understand how various methods in your `UICollectionViewFlowLayout` subclasses should work with each other to deliver custom animations.
+The standard `UICollectionViewFlowLayout` is very customizable except for its animations: Apple opted for the safe approach and implemented a simple fade animation as default for all layout animations. If you would like to have custom animations the best way is to subclass the `UICollectionViewFlowLayout` and implement your animations at the appropriate locations. Let's go through a few examples to understand how various methods in your `UICollectionViewFlowLayout` subclasses should work together to deliver custom animations.
 
 ###Inserting and Removing Items
 
-In the general case, layout attributes are linearly interpolated from the initial state to the final state to compute the collection view animations. However, for the newly inserted or removed items there are no initial and final attributes respectively to interpolate from. To compute the animations for such cells the collection view will ask your layout object to provide the initial and final attributes through the `initialLayoutAttributesForAppearingItemAtIndexPath:` and `finalLayoutAttributesForAppearingItemAtIndexPath:` methods. The default Apple implementation returns the layout attributes corresponding to the normal layout at the specific index path but with an `alpha` value of 0.0, resulting in a fade-in or fade-out animation. If you would like to have something fancier like your new cells to shoot up from the bottom of the screen and rotate while flying into place you could implement something like this in your layout subclass:
+In the general case, layout attributes are linearly interpolated from the initial state to the final state to compute the collection view animations. However, for the newly inserted or removed items there are no initial and final attributes respectively to interpolate from. To compute the animations for such cells the collection view will ask its layout object to provide the initial and final attributes through the `initialLayoutAttributesForAppearingItemAtIndexPath:` and `finalLayoutAttributesForAppearingItemAtIndexPath:` methods. The default Apple implementation returns the layout attributes corresponding to the normal position at the specific index path but with an `alpha` value of 0.0, resulting in a fade-in or fade-out animation. If you would like to have something fancier like your new cells to shoot up from the bottom of the screen and rotate while flying into place you could implement something like this in your layout subclass:
 
 ````objc
 - (UICollectionViewLayoutAttributes*)initialLayoutAttributesForAppearingItemAtIndexPath:(NSIndexPath *)itemIndexPath
@@ -47,6 +47,8 @@ Which results in this:
 
 ![Insertion and Deletion](2014-05-01-collectionview-animations-1-insertion.gif)
 
+The corresponding `finalLayoutAttributesForAppearingItemAtIndexPath:` method for shown animation is very similar except that it assigns a different transform.
+
 ###Responding to Device Rotations
 
 A device orientation change usually results in a bounds change for a collection view. The layout object is asked if the layout should be invalidated and recomputed with the method `shouldInvalidateLayoutForBoundsChange:`. The default implementation in `UICollectionViewFlowLayout` does the correct thing but if you are subclassing `UICollectionViewLayout` instead you should return `YES` on a bounds change:
@@ -62,17 +64,17 @@ A device orientation change usually results in a bounds change for a collection 
 }
 ````
 
-In order to animate the bounds change the collection view acts as if the currently displayed items are removed and inserted again resulting in a series of `finalLayoutAttributesForAppearingItemAtIndexPath:` and `initialLayoutAttributesForAppearingItemAtIndexPath:` calls for each index path.
+During the animation of the bounds change, the collection view acts as if the currently displayed items are removed and inserted again in the new bounds, resulting in a series of `finalLayoutAttributesForAppearingItemAtIndexPath:` and `initialLayoutAttributesForAppearingItemAtIndexPath:` calls for each index path.
 
-If you implemented fancy animations for the insertion and deletion of items in the collection view, by now you should be seeing why Apple went with simple fade animations:
+If you implemented some fancy animations for the insertion and deletion of items in the collection view, by now you should be seeing why Apple went with simple fade animations as a sensible default:
 
 ![Wrong reaction to device rotation](2014-05-01-collectionview-animations-2-wrong-rotation.gif)
 
 Oops…
 
-To prevent such unwanted animations, for each item in the collection view the sequence of initial position -> removal animation -> insertion animation -> final position must be matched to result in one smooth animation from the initial attributes to the final attributes. In other words, the `finalLayoutAttributesForAppearingItemAtIndexPath:` and `initialLayoutAttributesForAppearingItemAtIndexPath:` should be able to return different attributes depending on if the item in question is really disappearing or appearing or the collection view is going through a bounds change animation.
+To prevent such unwanted animations, the sequence of initial position -> removal animation -> insertion animation -> final position must be matched for each item in the collection view, such that they result in a smooth animation. In other words, the `finalLayoutAttributesForAppearingItemAtIndexPath:` and `initialLayoutAttributesForAppearingItemAtIndexPath:` should be able to return different attributes depending on if the item in question is really disappearing or appearing or the collection view is going through a bounds change animation.
 
-Luckily, the collection view tells the layout object which kind of animation is about to be performed by invoking the `prepareForAnimatedBoundsChange:` or `prepareForCollectionViewUpdates:` for bounds changes and item updates respectively. We can use `prepareForCollectionViewUpdates:` to keep track of updated objects:
+Luckily, the collection view tells the layout object which kind of animation is about to be performed by invoking the `prepareForAnimatedBoundsChange:` or `prepareForCollectionViewUpdates:` for bounds changes and item updates respectively. For the purposes of this example, we can use `prepareForCollectionViewUpdates:` to keep track of updated objects:
 
 ````objc
 - (void)prepareForCollectionViewUpdates:(NSArray *)updateItems
@@ -99,7 +101,7 @@ Luckily, the collection view tells the layout object which kind of animation is 
     self.indexPathsToAnimate = indexPaths;
 }
 ````
-And modify our item insertion animation to only shoot the item if it is being inserted into the collection view:
+And modify our item insertion animation to only shoot the item if it is currently being inserted into the collection view:
 
 ````objc
 - (UICollectionViewLayoutAttributes*)initialLayoutAttributesForAppearingItemAtIndexPath:(NSIndexPath *)itemIndexPath
@@ -190,7 +192,7 @@ Our layout on the other hand, keeps track of the pinched item and the desired si
 
 ###Summary
 
-Using a few examples we looked at how to build custom animations in collection view layout. Even though the `UICollectionViewFlowLayout` does not directly allow customization of its animations, it is clear that Apple architected the class to be subclassed to implement various custom behavior. Essentially boundless custom layout and animations can be achieved by correctly reacting to signaling methods such as
+Using a few examples we looked at how to build custom animations in collection view layout. Even though the `UICollectionViewFlowLayout` does not directly allow customization of its animations, it is clearly architected by Apple engineers to be subclassed to implement various custom behavior. Essentially boundless custom layout and animations can be achieved by correctly reacting to signaling methods such as
 
 - `prepareLayout`
 - `prepareForCollectionViewUpdates:`
@@ -199,11 +201,11 @@ Using a few examples we looked at how to build custom animations in collection v
 - `finalizeAnimatedBoundsChange`
 - `shouldInvalidateLayoutForBoundsChange:`
 
-in your `UICollectionViewLayout` subclass and returning the appropriate attributes from methods which return `UICollectionViewLayoutAttributes`.
+in your `UICollectionViewLayout` subclass and returning the appropriate attributes from methods which return `UICollectionViewLayoutAttributes`. Even more engaging animations can be achieved by combining these techniques with UIKit Dynamics as introduced in objc.io [issue #5](http://www.objc.io/issue-5/collection-views-and-uidynamics.html).
 
 ## View Controller Transitions with Collection Views
 
-One of the big improvements in iOS 7 was the custom view controller transitions as [Chris](https://twitter.com/chriseidhof) [wrote about](http://www.objc.io/issue-5/view-controller-transitions.html) back then in objc.io [issue #5](http://www.objc.io/issue-5/index.html). In parallel to the custom transitions, Apple also added the `useLayoutToLayoutNavigationTransitions` flag to `UICollectionViewController` to enable navigation transitions which re-use a single collection view. Apple's own Photos and Calendar apps on iOS show a great example of what can be achieved using such transitions.
+One of the big improvements in iOS 7 was the custom view controller transitions as [Chris](https://twitter.com/chriseidhof) [wrote about](http://www.objc.io/issue-5/view-controller-transitions.html) in objc.io [issue #5](http://www.objc.io/issue-5/index.html). In parallel to the custom transitions, Apple also added the `useLayoutToLayoutNavigationTransitions` flag to `UICollectionViewController` to enable navigation transitions which re-use a single collection view. Apple's own Photos and Calendar apps on iOS represent a great example of what is possible using such transitions.
 
 ### Transitions between UICollectionViewController Instances
 
@@ -211,11 +213,11 @@ Let's look at how we can achieve a similar effect using the same sample project 
 
 ![Layout to Layout Navigation Transitions](2014-05-01-collectionview-animations-4-layout2layout.gif)
 
-In order for the layout to layout transitions to work the root view controller in the navigation controller must be a collection view controller where `useLayoutToLayoutNavigationTransitions` is set to `NO`. When another `UICollectionViewController` instance with `useLayoutToLayoutNavigationTransitions` set to `YES` is pushed on top of this root view controller, navigation controller replaces the standard push animation with a layout transition animation. One important detail to note here is that the same collection view instance from the root view controller is recycled for the collection view controller instances pushed on the navigation stack, i.e. these collection view controllers don't have their own collection views, if you try to set any collection view properties in methods like `viewDidLoad` they will not have any effect.
+In order for the layout to layout transitions to work, the root view controller in the navigation controller must be a collection view controller where `useLayoutToLayoutNavigationTransitions` is set to `NO`. When another `UICollectionViewController` instance with `useLayoutToLayoutNavigationTransitions` set to `YES` is pushed on top of this root view controller, navigation controller replaces the standard push animation with a layout transition animation. One important detail to note here is that the root view controller's collection view instance is recycled for the collection view controller instances pushed on the navigation stack, i.e. these collection view controllers don't have their own collection views, if you try to set any collection view properties in methods like `viewDidLoad` they will not have any effect and you will not get any warnings.
 
-Probably the most common gotcha is to expect that the recycled collection view updates its data source and delegate to reflect the top collection view controller. It does not: the root collection view controller stays the data source and delegate unless we do something about it.
+Probably the most common gotcha of this behavior is to expect the recycled collection view to update its data source and delegate to reflect the top collection view controller. It does not: the root collection view controller stays the data source and delegate unless we do something about it.
 
-One approach to change this implement the navigation controller delegate method and correctly set the data source and delegate of the collection view as needed by the current view controller at the top of the navigation stack. In our simple example this can be achieved by:
+The workaround for this problem is to implement the navigation controller delegate methods and correctly set the data source and the delegate of the collection view as needed by the current view controller at the top of the navigation stack. In our simple example this can be achieved by:
 
 ````objc
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
@@ -233,25 +235,27 @@ One approach to change this implement the navigation controller delegate method 
 }
 ````
 
-When the detail collection view is push onto the stack, we set the collection view's data source to the detail view controller, which makes sure that only the selected color of cells is shown in the detail collection view. If we were not to do this, the layout would correctly transition but the collection would still be showing all cells.
+When the detail collection view is pushed onto the stack, we set the collection view's data source to the detail view controller, which makes sure that only the selected color of cells is shown in the detail collection view. If we were not to do this, the layout would correctly transition but the collection would still be showing all cells. In a real world app, the detail data source would usually be responsible for showing more detail about the data in such a transition.
 
 ### Collection View Layout Animations for General Transitions
 
-The layout to layout navigation animations using the `useLayoutToLayoutNavigationTransitions` flag are quite useful but only limited to transitions where both view controllers are `UICollectionViewController` instances. We need a custom view controller transition in order to achieve a similar transition between a collection view in the initial view controller and a collection view in the final view controller for the general case.
+The layout to layout navigation transitions using the `useLayoutToLayoutNavigationTransitions` flag are quite useful but limited to transitions where both view controllers are `UICollectionViewController` instances  only and the transition takes place between their top-level collection views. We need a custom view controller transition in order to achieve a similar transition between an arbitrary collection views in arbitrary view controllers.
 
-One approach to design the animation controller for our custom transition follow along the following steps:
+![Custom Collection View Transition](2014-05-01-collectionview-animations-5-custom-transitions.gif)
+
+An animation controller for such a custom transition could be designed along the following steps:
 
 - make snapshots of all visible items in the initial collection view
 - add the snapshots to the transitioning context container view
-- compute where the final positions using the layout of the target collection view
-- animate to the correct positions
+- compute the final positions using the layout of the target collection view
+- animate the snapshots to the correct positions
 - remove the snapshots while making the target collection view visible
 
-The downside of such an animator design is two-fold: it can only animate the items visible in the initial collection view since the [snapshot APIs](https://developer.apple.com/library/ios/documentation/uikit/reference/uiview_class/UIView/UIView.html#//apple_ref/doc/uid/TP40006816-CH3-SW198) only work for views already visible on the screen and depending on the number of visible items there could be a lot of views to correctly keep track of and to animate. But hey, that's why the computers are for right? On the other hand the big advantage of this design would be that it would work for all kinds of `UICollectionViewLayout` combinations. The implementation of such a system is left as an exercise for the reader.
+The downside of such an animator design is two-fold: it can only animate the items visible in the initial collection view since the [snapshot APIs](https://developer.apple.com/library/ios/documentation/uikit/reference/uiview_class/UIView/UIView.html#//apple_ref/doc/uid/TP40006816-CH3-SW198) only work for views already visible on the screen and depending on the number of visible items there could be a lot of views to correctly keep track of and to animate. On the other hand the big advantage of this design would be that it would work for all kinds of `UICollectionViewLayout` combinations. The implementation of such a system is left as an exercise for the reader.
 
-Another approach, which we will discuss deeper in this post, relies on a few quirks of the `UICollectionViewFlowLayout` and is therefore only applicable to transitions between collection views with flow layouts it its current form.
+Another approach, which is implemented in the accompanying demo project, relies on a few quirks of the `UICollectionViewFlowLayout` and is therefore only applicable to transitions between collection views with flow layouts it its current form.
 
-The basic idea is that both the source and the destination collection views have valid flow layouts, if we could only use the layout attributes of the source layout as the initial layout attributes of the destination collection view to drive the transition animation, then the collection view machinery would take care of keeping track of all items and animate them for us. Even if they're not initially visible on the screen. Easier said than done…
+The basic idea is that both the source and the destination collection views have valid flow layouts and the layout attributes of the source layout could act as the initial layout attributes for the items in the the destination collection view to drive the transition animation. Once this is setup, the collection view machinery would take care of keeping track of all items and animate them for us. Even if they're not initially visible on the screen. Here is the core of the `animateTransition:` method of our animation controller:
 
 ````objc
     CGRect initialRect = [inView.window convertRect:_fromCollectionView.frame fromView:_fromCollectionView.superview];
@@ -312,4 +316,8 @@ The basic idea is that both the source and the destination collection views have
      }];
 ````
 
-These lines of code from the animation controller make sure that the destination collection view starts with the exact same frame and layout as the original. First assign the layout of the source collection view to the destination collection view, making sure that it does not get invalidated. At the same the layout is 'copied' into a new layout object which gets assigned to the original collection view. We also so force a large bottom content inset on the destination collection view to make sure that the layout stays single line before the animations start. Then the convoluted animation block does it magic by first setting the frame of the destination collection view to its final position and performing an non-animated layout change to the final layout inside the updates block of `performBatchUpdates:completion:` which is followed by the resetting of the content insets to the original values in the completion block.
+First, the animation controller makes sure that the destination collection view starts with the exact same frame and layout as the original. Then it assigns the layout of the source collection view to the destination collection view, making sure that it does not get invalidated. At the same the layout is 'copied' into a new layout object which gets assigned to the original collection view to prevent strange layout bugs when navigate back to the original view controller. We also so force a large bottom content inset on the destination collection view to make sure that the layout stays single line for the initial positions for the animation. If you look at the logs you will see the collection view complaining about this temporary condition because the item size plus the insets are larger than the non-scrolling dimension of the collection view. In this state the benaviour of the collection view is not defined and we are only using this instable state as the initial state for our transition animation. Finally, the convoluted animation block does it magic by first setting the frame of the destination collection view to its final position and then performing a non-animated layout change to the final layout inside the updates block of `performBatchUpdates:completion:` which is followed by the resetting of the content insets to the original values in the completion block.
+
+###In Conclusion
+
+We looked at two different approaches to achieve layout transitions between collection views. The first method with the help of the built-in `useLayoutToLayoutNavigationTransitions` looks quite impressive and is very easy to implement but is limited in which cases it can be used. For the cases where `useLayoutToLayoutNavigationTransitions` is not applicable, a custom animator is required to drive the transition animation. In this post, we have seen an example of how such an animator could be implemented, however since your app will almost certainly require a completely different animation between two different view hierarchies as in this example, don't be reluctant to trying out a different approach and see if it works.
