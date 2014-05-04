@@ -117,7 +117,7 @@ Just like the framework does, we define a private `NSObject <UIViewControllerCon
 }
 ```
 
-We basically capture state, including initial and final frames for the appearing and disappearing views. Properties starting with an underscore are private and don’t expose their accessors.
+We basically capture state, including initial and final frames for the appearing and disappearing views.
 
 Notice, our initializer requires information about whether we are going right or not. In our specialized `ContainerViewController` context, where buttons are arranged horizontally next to each other, the transition context is recording information about their positional relationship by setting the respective frames. The animation controller, or *animator*, can choose to use this when composing the animation. 
 
