@@ -1,13 +1,13 @@
 ---
 layout: post
-title:  "Custom Container View Controller Animations"
+title:  "Custom Container View Controller Transitions"
 category: "12"
 date: "2014-05-01 10:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/osteslag\">Joachim Bondo</a>"
 ---
 
-# Custom Container View Controller Transitions, iOS 7 Style
+# Custom Container View Controller Transitions
 
 In [issue #5](http://www.objc.io/issue-5/index.html), [Chris Eidhof](http://twitter.com/chriseidhof) took us through the new custom [View Controller Transitions](http://www.objc.io/issue-5/view-controller-transitions.html) in iOS 7. He [concluded](http://www.objc.io/issue-5/view-controller-transitions.html#conclusion) (emphasis mine):
 
