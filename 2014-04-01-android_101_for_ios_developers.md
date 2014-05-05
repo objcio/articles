@@ -440,7 +440,7 @@ Lastly, to link layouts to fragments or activities, simply use that layout's res
 - Don't bother nudging items for layouts in the visual editor -- often the visual editor will put individual points of spacing on objects instead of adjusting the height and width as you might like. Your best bet is to adjust the XML directly.
 - If you ever see the `fill_parent` value for a layout height or width, this value was depreciated years ago in API 8 and replaced with `match_parent`.
 
-See the the [responsive android applications](/issue-11/Responsive-Android-Applications.html) article for more tips on this.
+See the the [responsive android applications](/issue-11/responsive-android-applications.html) article for more tips on this.
  
 
 ## Data

@@ -77,14 +77,14 @@ Notice that we're first deleting the previous database files. This is not as str
 
 However, we also need a way to make sure that we only do this once. An obvious solution would be to delete the seed database from the bundle. However, while this works on the simulator, it will fail as soon as you try this on a real device because of restricted permissions. There are many options to solve this problem though, like setting a key in the user defaults which contains information about the latest seed data version imported:
 
+    NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
     NSString* bundleVersion = [infoDictionary objectForKey:(NSString *)kCFBundleVersionKey];
-    NSString *seedVersion = [[NSUserDefaults standardUserDefaults] objectForKey@"SeedVersion"];
+    NSString *seedVersion = [[NSUserDefaults standardUserDefaults] objectForKey:@"SeedVersion"];
     if (![seedVersion isEqualToString:bundleVersion]) {
         // Copy the seed database
     }
 
     // ... after the import succeeded
-    NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
     [[NSUserDefaults standardUserDefaults] setObject:bundleVersion forKey:@"SeedVersion"];
 
 Alternatively for example, we could also copy the existing database file to a path including the seed version and detect its presence to avoid doing the same import twice. There are many practicable solutions which you can choose from, dependent on what makes the most sense for your case.
