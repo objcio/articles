@@ -39,7 +39,7 @@ By using `-[CALayer presentationLayer]` and `-[CALayer modelLayer]`, you can swi
 
 Probably the most common case is to animate a view's property from one value to another. Consider this example:
 
-![](rocket-linear.gif)
+<center><img src="rocket-linear@2x.gif" width="400px"></center>
 
 Here, we animate our little red rocket from an x-position of `77.0` to one of `455.0`, which is just beyond the edge of its parent view. In order to fill in all the steps along the way, we need to determine where our rocket is going to be at any given point in time. This is commonly done using linear interpolation:
 
@@ -162,7 +162,7 @@ Thankfully, `CAKeyframeAnimation` offers the more convenient `path` property as 
 
 For instance, this is how we would animate a view in a circle:
 
-![](planets.gif)
+<center><img src="planets@2x.gif" width="400px"></center>
 
 ```objc
 CGRect boundingRect = CGRectMake(-150, -150, 300, 300);
@@ -186,7 +186,7 @@ Setting it to `kCAAnimationPaced` also disregards any `keyTimes` we would've set
 
 Setting the `rotationMode` property to `kCAAnimationRotateAuto` ensures that the satellite follows the rotation along the path. By contrast, this is what the animation would look like had we left the property `nil`:
 
-![](planets-incorrect.gif)
+<center><img src="planets-incorrect@2x.gif" width="400px"></center>
 
 You can achieve a couple of interesting effects using animations with paths,
 fellow objc.io author [Ole Begemann](https://twitter.com/oleb) wrote [a great post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
@@ -195,7 +195,7 @@ fellow objc.io author [Ole Begemann](https://twitter.com/oleb) wrote [a great po
 
 Let's look at our first example again:
 
-![](rocket-linear.gif)
+<center><img src="rocket-linear@2x.gif" width="400px"></center>
 
 You'll notice that there is something very artificial about the animation of our rocket. That is because most movements we see in the real world take time to accelerate or decelerate. Objects that instantly reach their top speed and then stop immediately tend to look very unnatural. Unless you're [dancing the robot](https://www.youtube.com/watch?v=o8HkEprSaAs&t=1m2s), that's rarely a desired effect.
 
@@ -213,7 +213,7 @@ The simplest easing function is _linear_, it maintains a constant speed througho
 In Core Animation, this function is represented by the `CAMediaTimingFunction`
 class:
 
-![](rect-linear.gif)
+<img src="rect-linear@2x.gif" width="540px">
 
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
@@ -232,20 +232,20 @@ rectangle.layer.position = CGPointMake(150, 0);
 Core Animation comes with a number of built-in easing functions beyond linear, such as:
 
 * Ease in (`kCAMediaTimingFunctionEaseIn`):  
-  ![](rect-easein.gif)
+  <center><img src="rect-easein@2x.gif" width="540px"></center>
 * Ease out (`kCAMediaTimingFunctionEaseOut`):  
-  ![](rect-easeout.gif)
+  <center><img src="rect-easeout@2x.gif" width="540px"></center>
 * Ease in ease out (`kCAMediaTimingFunctionEaseInEaseOut`):  
-  ![](rect-easeineaseout.gif)
+  <center><img src="rect-easeineaseout@2x.gif" width="540px"></center>
 * Default (`kCAMediaTimingFunctionDefault`):  
-  ![](rect-default.gif)
+  <center><img src="rect-default@2x.gif" width="540px"></center>
 
 
 It's also possible, within limits, to create your own easing function using `+functionWithControlPoints::::`[^3]. By passing in the _x_ and _y_ components of two control points of a cubic Bézier curve, you can easily create custom easing functions, such as the one I chose for our little red rocket:
 
 [^3]: This method is infamous for having three nameless parameters. Not something that we recommend you make use of in your APIs.
 
-![](rocket-custom.gif)
+<center><img src="rocket-custom@2x.gif" width="400px"></center>
 
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
@@ -263,7 +263,7 @@ rocket.layer.position = CGPointMake(150, 0);
 
 Without going into too much detail on Bézier curves, they are a common technique to create smooth curves in computer graphics. You've probably seen them in vector-based drawing tools such as Sketch or Adobe Illustrator.
 
-![](bezier.png)
+<center><img src="bezier.png"></center>
 
 The values passed to `+functionWithControlPoints::::` effectively control the position of the handles, the resulting timing function will then adjust the speed of the animation based on the resulting path: the x-axis represents the fraction of the duration, the y axis is the input value of to the interpolation function.
 
