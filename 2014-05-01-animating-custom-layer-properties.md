@@ -128,7 +128,7 @@ Now we just need to implement the setter method for our `time` property. This me
     
 The result looks like this:
 
-![](clock1.gif)
+![](clock1.gif =320x)
 
 You can check out the project for yourself [on GitHub](https://github.com/objcio/issue-12-custom-layer-property-animations).
 
@@ -342,7 +342,7 @@ So now all we have to do is draw our clock. We do this by using ordinary Core Gr
     
 The result looks like this:
 
-![](clock2.gif)
+![](clock2.gif =320x)
 
 As you can see, unlike the first clock animation, the minute hand actually cycles through a full revolution for each hour that the hour hand moves (like a real clock would), instead of just moving to its final position via the shortest path. That's an advantage of animating in this way; because we are animating the `time` value itself instead of just the positions of the hands, the contextual information is preserved. 
 
