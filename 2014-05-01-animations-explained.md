@@ -297,38 +297,55 @@ animation.easing = RBBEasingFunctionEaseOutBounce;
 
 ## Animation groups
 
-For certain complex effects, it may be necessary to animate multiple properties at once. For instance, in the following card shuffle animation, we will animate the position, rotation at z-position of the card at once.
+For certain complex effects, it may be necessary to animate multiple properties at once. Imagine we were to implement a shuffle animation when advancing to a random track in a media player app, it could look like this:
 
-> [ Card shuffling animation ]
+<center>
+    <img src="covers@2x.gif" width="440px">
+</center>
 
-Here's the code that makes it happen:
+Here, have to animate the position, rotation at z-position of the artworks at once. Using `CAAnimationGroup`, the code to animate one of the covers could look a little something like this:
 
 ```objc
 CABasicAnimation *zPosition = [CABasicAnimation animation];
 zPosition.keyPath = @"zPosition";
 zPosition.fromValue = @-1;
 zPosition.toValue = @1;
+zPosition.duration = 1.2;
 
 CAKeyframeAnimation *rotation = [CAKeyframeAnimation animation];
 rotation.keyPath = @"transform.rotation";
-rotation.values = @[ @0, @30, @0 ];
+rotation.values = @[ @0, @0.14, @0 ];
+rotation.duration = 1.2;
+rotation.timingFunctions = @[
+    [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
+    [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
+];
 
 CAKeyframeAnimation *position = [CAKeyframeAnimation animation];
 position.keyPath = @"position";
-position.values = @[ 
+position.values = @[
     [NSValue valueWithCGPoint:CGPointZero],
-    [NSValue valueWithCGPoint:CGPointMake(40, 40)],
+    [NSValue valueWithCGPoint:CGPointMake(110, -20)],
     [NSValue valueWithCGPoint:CGPointZero]
 ];
+position.timingFunctions = @[
+    [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
+    [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
+];
 position.additive = YES;
+position.duration = 1.2;
 
 CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
 group.animations = @[ zPosition, rotation, position ];
+group.duration = 1.2;
+group.beginTime = 0.5;
 
-[card.layer addAnimationGroup:group forKey:shuffle];
+[card.layer addAnimation:group forKey:@"shuffle"];
+
+card.layer.zPosition = 1;
 ```
 
-One benefit we get form the animation group is being able to expose all animations as a single object. This is useful if you have a factory object that creates animations to be reused at multiple points in your application.
+One benefit we get from using `CAAnimationGroup` is being able to expose all animations as a single object. This is useful if you have a factory object that creates animations to be reused at multiple points in your application.
 
 You can also use the animation group to control the timing of all components at the same time.
 
