@@ -271,7 +271,7 @@ Unfortunately, since the components are clamped to the range of [0–1], it is n
 
 I wrote a small library called [RBBAnimation](https://github.com/robb/RBBAnimation) that contains a custom `CAKeyframeAnimation` subclass which allows you to use [more complex easing functions](https://github.com/robb/RBBAnimation#rbbtweenanimation), including bounces or cubic Bézier functions with negative components:
 
-> [ Rectangle with negative component ]
+<center><img src="anticipate@2x.gif" width="140px"></center>
 
 ```objc
 RBBTweenAnimation *animation = [RBBTweenAnimation animation];
@@ -280,10 +280,10 @@ animation.fromValue = @50;
 animation.toValue = @150;
 animation.duration = 1;
 
-animation.easing = RBBCubicBezier(0.68, -0.55, 0.265, 1.55);
+animation.easing = RBBCubicBezier(0.68, -0.55, 0.735, 1.55);
 ```
 
-> [ Rectangle with bounce ]
+<center><img src="bounce@2x.gif" width="140px"></center>
 
 ```objc
 RBBTweenAnimation *animation = [RBBTweenAnimation animation];
