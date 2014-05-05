@@ -359,3 +359,8 @@ It's also available on OS X and allows to animate arbitrary properties on every 
 ## Further Reading
 
 - [Core Animation Programming Guide](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/Introduction/Introduction.html)
+- [12 basic principles of animation](https://en.wikipedia.org/wiki/12_basic_principles_of_animation)
+- [Animating drawing of CGPath with CAShapeLayer](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer)
+- [Controlling animation timing](http://ronnqvi.st/controlling-animation-timing/)
+- [pop](https://github.com/facebook/pop)
+- [RBBAnimation](https://github.com/robb/RBBAnimation)
