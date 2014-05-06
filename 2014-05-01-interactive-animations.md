@@ -339,6 +339,7 @@ We setup the display link to call `animationTick:`, and on each tick we iterate 
          }
      }
 
+
 ### Back to the Mac
 
 There's nothing like UIKit Dynamics available on Mac at this time. If you want
@@ -351,6 +352,7 @@ implement this on iOS, it's very simple to make the same example work on OS X, c
 * On the Mac, there are no gesture recognizers. Instead, we have to implement `mouseDown:`, `mouseUp:` and `mouseDragged:` in our custom view subclass
 
 These are the only changes we need to make to port our animation code to the Mac. For a simple view like this, it works really well. For more complex things, you might not want to animate the frame, but use `transform` instead, which is the topic of a blogpost on [OS X Animations](http://jwilling.com/osx-animations) by Jonathan Willing.
+
 
 ### Facebook's POP Framework
 
@@ -374,10 +376,10 @@ You can find the full working example using POP on [GitHub](TODO).
 
 It's super easy to get it to work, and it's pretty straightforward to create more complex animations. But the real power of it lies in the fact that it enables you to create truly interactive and interruptible animations as we have talked about before, because the animations it supports out of the box take the velocity as input. If you plan your interactions from the get go to be interruptible at any time, a framework like POP helps you to implement this in a way that animations always stay smooth.
 
+If you need more than what `POPSpringAnimation` and `POPDecayAnimation` can do out of the box, POP also comes with a `POPCustomAnimation` class, that basically is a convenient wrapper around display link to drive your own animation in a callback block that gets called on each animation tick.
+
 
 ## The Road Ahead
 
-With iOS 7's shift away from visual imitation of real world objects towards a stronger focus on the UI's behaviour, truly interactive animations are a great way to stand out.
-It's a way to extend the magic of the original iPhone's scrolling behaviour into every aspect of the interaction.
-Interactive animations are fulfilling the promise and increasingly the expectations of users that comes with touchscreen devices. 
+With iOS 7's shift away from visual imitation of real world objects towards a stronger focus on the UI's behaviour, truly interactive animations are a great way to stand out. It's a way to extend the magic of the original iPhone's scrolling behaviour into every aspect of the interaction. To make this work it's important to consider those interactions early on in the design instead of just bolting on animations late in the development process.
 
