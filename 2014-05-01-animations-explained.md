@@ -303,7 +303,7 @@ For certain complex effects, it may be necessary to animate multiple properties 
     <img src="covers@2x.gif" width="440px">
 </center>
 
-Here, have to animate the position, rotation at z-position of the artworks at once. Using `CAAnimationGroup`, the code to animate one of the covers could look a little something like this:
+You can see that we have to animate the position, rotation and z-position of the artworks at once. Using `CAAnimationGroup`, the code to animate one of the covers could look a little something like this:
 
 ```objc
 CABasicAnimation *zPosition = [CABasicAnimation animation];
