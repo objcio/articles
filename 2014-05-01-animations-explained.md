@@ -9,33 +9,33 @@ author: "<a href=\"https://twitter.com/ceterum_censeo\">Robert Böhnke</a>"
 
 # Animations Explained
 
-The applications we write are rarely a static experience, they adapt to the user's needs and change state to perform a multitude of tasks.
+The applications we write are rarely a static experience, as they adapt to the user's needs and change states to perform a multitude of tasks.
 
-When transitioning between these states, it is important to communicate what is going on. Rather than jumping between screens, animations help us explain where the user is coming from and where they are going.
+When transitioning between these states, it is important to communicate what is going on. Rather than jumping between screens, animations help us explain where the user is coming from and where he or she going.
 
-The keyboard slides in and out of view to give the illusion that it is a natural part of the phone that was just hidden below the screen. View controller transitions reinforce the navigational structure of our apps and give the user hints in which direction they are moving. Subtle bounces and collisions make interfaces life-like and evoke physical qualities in what is otherwise a felt-free environment.
+The keyboard slides in and out of view to give the illusion that it is a natural part of the phone that was simply hidden below the screen. View controller transitions reinforce the navigational structure of our apps and give the user hints in which direction he or she is moving. Subtle bounces and collisions make interfaces life-like and evoke physical qualities in what is otherwise an environment without visual embellishments.
 
-Animations are a great way to tell the story of your application and by understanding the basic principles behind animation, designing them will be a lot easier.
+Animations are a great way to tell the story of your application, and by understanding the basic principles behind animation, designing them will be a lot easier.
 
-## First thing's first
+## First Things First
 
-In this article (and for most of the rest of this issue), we will look at Core Animation specifically. While a lot of what you will see can also be accomplished using higher level UIKit methods, Core Animation will give you a better understanding of what is going on. It also allows for a more explicit way of describing animations, which is useful for readers of this article as well as readers of your code.
+In this article (and for most of the rest of this issue), we will look at Core Animation specifically. While a lot of what you will see can also be accomplished using higher-level UIKit methods, Core Animation will give you a better understanding of what is going on. It also allows for a more explicit way of describing animations, which is useful for readers of this article, as well as readers of your code.
 
-Before we can have a look at how animations interact with what we see on screen, we need to take a quick look at Core Animation's `CALayer`, which is what the animations operate on.
+Before we can have a look at how animations interact with what we see on the screen, we need to take a quick look at Core Animation's `CALayer`, which is what the animations operate on.
 
 You probably know that `UIView` instances, as well as layer-backed `NSView`s, modify their `layer` to delegate rendering to the powerful Core Graphics framework. However, it is important to understand that animations, when added to a layer, don't modify its properties directly.
 
-Instead, Core Animation maintains two parallel layer hierarchies: the _model layer tree_ and the _presentation layer tree_[^1]. Layers in the former reflect the well-known state of the layers wheres only layers in the latter approximate the in-flight values of animations.
+Instead, Core Animation maintains two parallel layer hierarchies: the _model layer tree_ and the _presentation layer tree_.[^1] Layers in the former reflect the well-known state of the layers, wheres only layers in the latter approximate the in-flight values of animations.
 
 [^1]: There is actually a third layer tree called the _rendering tree_. Since it's private to Core Animation, we won't cover it here.
 
-Consider adding a fade-out animation to a view. If you, at any point during the animation inspect the layer's `opacity` value, you most likely won't get an opacity that corresponds to what is on screen. Instead, you need to need to inspect the presentation layer to get the correct result.
+Consider adding a fade-out animation to a view. If you, at any point during the animation, inspect the layer's `opacity` value, you most likely won't get an opacity that corresponds to what is onscreen. Instead, you need to need to inspect the presentation layer to get the correct result.
 
 While you may not set properties of the presentation layer directly, it can be useful to use its current values to create new animations or to interact with layers while an animation is taking place.
 
 By using `-[CALayer presentationLayer]` and `-[CALayer modelLayer]`, you can switch between the two layer hierarchies with ease.
 
-## A basic animation
+## A Basic Animation
 
 Probably the most common case is to animate a view's property from one value to another. Consider this example:
 
@@ -47,7 +47,7 @@ Here, we animate our little red rocket from an x-position of `77.0` to one of `4
     <img src="lerp.png" height="32px">
 </center>
 
-That is, for a given fraction of the animation `t`, the x-coordinate of the rocket is the x-coordinate of the starting point `77`, plus the distance to the end point `∆x = 378` multiplied with said fraction.
+That is, for a given fraction of the animation `t`, the x-coordinate of the rocket is the x-coordinate of the starting point `77`, plus the distance to the end point `∆x = 378`, multiplied with said fraction.
 
 Using `CABasicAnimation`, we can implement this animation as follows:
 
@@ -61,17 +61,17 @@ animation.duration = 1;
 [rocket.layer addAnimation:animation forKey:@"basic"];
 ```
 
-Note that the key path we animate, `position.x` actually contains a member of the `CGPoint` struct stored in the `position` property. This is a very convenient feature of Core Animation, make sure to check [the complete list of supported key paths](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/Key-ValueCodingExtensions/Key-ValueCodingExtensions.html).
+Note that the key path we animate, `position.x`, actually contains a member of the `CGPoint` struct stored in the `position` property. This is a very convenient feature of Core Animation. Make sure to check [the complete list of supported key paths](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/Key-ValueCodingExtensions/Key-ValueCodingExtensions.html).
 
-However, when we run this code, we realize that our rocket jumps back to its initial position as soon as the animation is complete. This is because, by default, the animation will not modify the presentation layer beyond its duration, it will even be removed completely at this point.
+However, when we run this code, we realize that our rocket jumps back to its initial position as soon as the animation is complete. This is because, by default, the animation will not modify the presentation layer beyond its duration. In fact, it will even be removed completely at this point.
 
-Once the animation is removed, the presentation layer will fall back to the values of the model layer and since we've never modified that layer's `position`, our space ship reappears right where it started.
+Once the animation is removed, the presentation layer will fall back to the values of the model layer, and since we've never modified that layer's `position`, our spaceship reappears right where it started.
 
 There are two ways to deal with this issue:
 
-The first approach is to update the property directly on the model layer. This usually the best approach since it makes the animation completely optional.
+The first approach is to update the property directly on the model layer. This is usually the best approach, since it makes the animation completely optional.
 
-Once the animation completes and is removed from the layer, the presentation layer will fall through to value set on the model, which matches the last step of the animation.
+Once the animation completes and is removed from the layer, the presentation layer will fall through to the value that is set on the model, which matches the last step of the animation:
 
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
@@ -85,7 +85,7 @@ animation.duration = 1;
 rocket.layer.position = CGPointMake(455, 61);
 ```
 
-Alternatively, you can tell the animation to remain in its final state by setting its `fillMode` property to ` kCAFillModeForward` and prevent it from being automatically removed by setting `removedOnCompletion` to `NO`.
+Alternatively, you can tell the animation to remain in its final state by setting its `fillMode` property to ` kCAFillModeForward` and prevent it from being automatically removed by setting `removedOnCompletion` to `NO`:
 
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
@@ -100,7 +100,7 @@ animation.removedOnCompletion = NO;
 [rectangle.layer addAnimation:animation forKey:@"basic"];
 ```
 
-It's worth pointing out that the animation object we create is actually copied as soon as it is added to the layer. This is useful to keep in mind when resuing animations for multiple views. Let's say we have a second rocket that we want to take off slightly after the first one:
+It's worth pointing out that the animation object we create is actually copied as soon as it is added to the layer. This is useful to keep in mind when reusing animations for multiple views. Let's say we have a second rocket that we want to take off shortly after the first one:
 
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
@@ -117,21 +117,21 @@ animation.beginTime = CACurrentMediaTime() + 0.5;
 rocket2.layer.position = CGPointMake(455, 111);
 ```
 
-Setting the `beginTime` of the animation 0.5 seconds into the future will only affect `rocket2` since the animation was copied by `[rocket1.layer addAnimation:animation forKey:@"basic"];` and further changes to the animation object are not taken into account by `rocket1`.
+Setting the `beginTime` of the animation 0.5 seconds into the future will only affect `rocket2`, since the animation was copied by `[rocket1.layer addAnimation:animation forKey:@"basic"];`, and further changes to the animation object are not taken into account by `rocket1`.
 
-Check out David's [excellent article on animation timing](http://ronnqvi.st/controlling-animation-timing/) to learn how to get even more fine-grained control over your animations.
+Check out David's [excellent article on animation timing](http://ronnqvi.st/controlling-animation-timing/) to learn how to have even more fine-grained control over your animations.
 
-I've also changed decided to us `CABasicAnimation`'s `byValue` property, which creates an animation that starts from the current value of the presentation layer and ends at that value plus `byValue`. This makes the animation easier to reuse since you don't need to specify the precise `from-` and `toValue` that you may not know ahead of time.
+I've also decided to use `CABasicAnimation`'s `byValue` property, which creates an animation that starts from the current value of the presentation layer and ends at that value plus `byValue`. This makes the animation easier to reuse, since you don't need to specify the precise `from-` and `toValue` that you may not know ahead of time.
 
-Different combininations of `fromValue`, `byValue` and `toValue` can be used to achieve different effects and it's worth [consulting the documentation](https://developer.apple.com/library/ios/documentation/GraphicsImaging/Reference/CABasicAnimation_class/Introduction/Introduction.html#//apple_ref/doc/uid/TP40004496-CH1-SW4) if you need to create animation that can be reused across your app.
+Different combinations of `fromValue`, `byValue`, and `toValue` can be used to achieve different effects, and it's worth [consulting the documentation](https://developer.apple.com/library/ios/documentation/GraphicsImaging/Reference/CABasicAnimation_class/Introduction/Introduction.html#//apple_ref/doc/uid/TP40004496-CH1-SW4) if you need to create animations that can be reused across your app.
 
-## A multi-stage animation
+## A Multi-Stage Animation
 
 It's easy to imagine a situation in which you would want to define more than two steps for your animation, yet instead of chaining multiple `CABasicAnimation` instances, we can use the more generic `CAKeyframeAnimation`.
 
-Key frames allow us to define an arbitrary number of points during the animation, and let Core Animation fill in the so called inbetweens.
+Keyframes allow us to define an arbitrary number of points during the animation, and then let Core Animation fill in the so-called in-betweens.
 
-Let's say we are working on a log-in form for our next iPhone application and want to shake the form whenever the user entered their password incorrectly. Using key-frame animations, this could look a little like so:
+Let's say we are working on a log-in form for our next iPhone application and want to shake the form whenever the user enters his or her password incorrectly. Using keyframe animations, this could look a little like so:
 
 > [ Animation of a form element shaking ]
 
@@ -149,13 +149,13 @@ animation.additive = YES;
 
 The `values` array defines which positions the form should have.
 
-Setting the `keyTimes` property let's us specify, at which point in time the keyframes occur. They are specified as fractions of the total duration of the keyframe animation[^2].
+Setting the `keyTimes` property allows us to specify at which point in time the keyframes occur. They are specified as fractions of the total duration of the keyframe animation.[^2]
 
 [^2]: Note how I chose different values for transitions from 0 to 30 and from 30 to -30 to maintain a constant velocity.
 
-Setting the `additive` property to `YES` tells Core Animation to add the values of the animation to the value of the model layer, before updating the presentation layer. This allows us to reuse the same animation for all form elements that need updating without having to know their position in advance. Since this property is inherited from `CAPropertyAnimation`, you can also make use of it when employing `CABasicAnimation`.
+Setting the `additive` property to `YES` tells Core Animation to add the values of the animation to the value of the model layer, before updating the presentation layer. This allows us to reuse the same animation for all form elements that need updating without having to know their positions in advance. Since this property is inherited from `CAPropertyAnimation`, you can also make use of it when employing `CABasicAnimation`.
 
-## Animation along a path
+## Animation Along a Path
 
 While a simple horizontal shake is not hard to specify in code, animations along complex paths would require us to store a large amount of boxed `CGPoint`s in the keyframe animation's `values` array.  
 Thankfully, `CAKeyframeAnimation` offers the more convenient `path` property as an alternative.
@@ -181,17 +181,17 @@ orbit.rotationMode = kCAAnimationRotateAuto;
 
 Using `CGPathCreateWithEllipseInRect()`, we create a circular `CGPath` that we use as the `path` of our keyframe animation. 
 
-`calculationMode` is another way to control the timing of keyframe animations. By setting it to `kCAAnimationPaced`, we let Core Animation apply a constant velocity to the animated object, regardless of how long the individual line segments of our path are.  
+Using `calculationMode` is another way to control the timing of keyframe animations. By setting it to `kCAAnimationPaced`, we let Core Animation apply a constant velocity to the animated object, regardless of how long the individual line segments of our path are.  
 Setting it to `kCAAnimationPaced` also disregards any `keyTimes` we would've set.
 
 Setting the `rotationMode` property to `kCAAnimationRotateAuto` ensures that the satellite follows the rotation along the path. By contrast, this is what the animation would look like had we left the property `nil`:
 
 <center><img src="planets-incorrect@2x.gif" width="400px"></center>
 
-You can achieve a couple of interesting effects using animations with paths,
+You can achieve a couple of interesting effects using animations with paths;
 fellow objc.io author [Ole Begemann](https://twitter.com/oleb) wrote [a great post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
 
-## Timing functions
+## Timing Functions
 
 Let's look at our first example again:
 
@@ -209,7 +209,7 @@ We can achieve this by introducing a _timing function_ (also sometimes referred 
     <img src="lerp-with-easing.png" height="32px">
 </center>
 
-The simplest easing function is _linear_, it maintains a constant speed throughout the animation and is effectively what we see above.
+The simplest easing function is _linear_. It maintains a constant speed throughout the animation and is effectively what we see above.
 In Core Animation, this function is represented by the `CAMediaTimingFunction`
 class:
 
@@ -241,9 +241,9 @@ Core Animation comes with a number of built-in easing functions beyond linear, s
   <center><img src="rect-default@2x.gif" width="540px"></center>
 
 
-It's also possible, within limits, to create your own easing function using `+functionWithControlPoints::::`[^3]. By passing in the _x_ and _y_ components of two control points of a cubic Bézier curve, you can easily create custom easing functions, such as the one I chose for our little red rocket:
+It's also possible, within limits, to create your own easing function using `+functionWithControlPoints::::`.[^3] By passing in the _x_ and _y_ components of two control points of a cubic Bézier curve, you can easily create custom easing functions, such as the one I chose for our little red rocket:
 
-[^3]: This method is infamous for having three nameless parameters. Not something that we recommend you make use of in your APIs.
+[^3]: This method is infamous for having three nameless parameters, not something that we recommend you make use of in your APIs.
 
 <center><img src="rocket-custom@2x.gif" width="400px"></center>
 
@@ -265,11 +265,11 @@ Without going into too much detail on Bézier curves, they are a common techniqu
 
 <center><img src="bezier.png"></center>
 
-The values passed to `+functionWithControlPoints::::` effectively control the position of the handles, the resulting timing function will then adjust the speed of the animation based on the resulting path: the x-axis represents the fraction of the duration, the y axis is the input value of to the interpolation function.
+The values passed to `+functionWithControlPoints::::` effectively control the position of the handles. The resulting timing function will then adjust the speed of the animation based on the resulting path. The x-axis represents the fraction of the duration, while the y-axis is the input value of the interpolation function.
 
-Unfortunately, since the components are clamped to the range of [0–1], it is not possible to create common effects such as anticipation, where an animated object swings back before moving to its target, or overshooting.
+Unfortunately, since the components are clamped to the range of [0–1], it is not possible to create common effects such as anticipation -- where an animated object swings back before moving to its target -- or overshooting.
 
-I wrote a small library called [RBBAnimation](https://github.com/robb/RBBAnimation) that contains a custom `CAKeyframeAnimation` subclass which allows you to use [more complex easing functions](https://github.com/robb/RBBAnimation#rbbtweenanimation), including bounces or cubic Bézier functions with negative components:
+I wrote a small library, called [RBBAnimation](https://github.com/robb/RBBAnimation), that contains a custom `CAKeyframeAnimation` subclass which allows you to use [more complex easing functions](https://github.com/robb/RBBAnimation#rbbtweenanimation), including bounces or cubic Bézier functions with negative components:
 
 <center><img src="anticipate@2x.gif" width="140px"></center>
 
@@ -295,7 +295,7 @@ animation.duration = 1;
 animation.easing = RBBEasingFunctionEaseOutBounce;
 ```
 
-## Animation groups
+## Animation Groups
 
 For certain complex effects, it may be necessary to animate multiple properties at once. Imagine we were to implement a shuffle animation when advancing to a random track in a media player app, it could look like this:
 
@@ -351,10 +351,10 @@ You can also use the animation group to control the timing of all components at 
 
 ## Beyond Core Animation
 
-By now, you've probably heard of UIKit Dynamics, a physics simulation framework introduced in iOS 7 that allows you to animate views by applying constraints and forces to them. Unlike Core Animation, the interaction with what you see on screen is more indirect but its dynamic nature allows you to create animations whose outcome you don't know beforehand.
+By now, you've probably heard of UIKit Dynamics, a physics simulation framework introduced in iOS 7 that allows you to animate views by applying constraints and forces to them. Unlike Core Animation, the interaction with what you see onscreen is more indirect, but its dynamic nature allows you to create animations with outcomes you don't know beforehand.
 
-Facebook recently open-sourced [pop](https://github.com/facebook/pop), the animation engine that powers Paper. Conceptually, it sits somewhere between Core Animation and UIKit Dynamics, it makes prominent use of spring animations and target values can be manipulated while the animation is running, without having to replace it.
-It's also available on OS X and allows to animate arbitrary properties on every `NSObject` subclass.
+Facebook recently made [Pop](https://github.com/facebook/pop), the animation engine that powers Paper, open source. Conceptually, it sits somewhere between Core Animation and UIKit Dynamics. It makes prominent use of spring animations, and target values can be manipulated while the animation is running, without having to replace it.
+It's also available on OS X and allows us to animate arbitrary properties on every `NSObject` subclass.
 
 ## Further Reading
 
