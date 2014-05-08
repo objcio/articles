@@ -2,7 +2,7 @@
 layout: post
 title:  "Interactive Animations"
 category: "12"
-date: "2014-05-01 10:00:00"
+date: "2014-05-08 06:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a> and <a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
 ---

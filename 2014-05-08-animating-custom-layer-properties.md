@@ -2,7 +2,7 @@
 layout: post
 title:  "Animating Custom Layer Properties"
 category: "12"
-date: "2014-04-28 11:00:00"
+date: "2014-05-08 10:00:00"
 tags: article
 author: "<a href=\"http://twitter.com/nicklockwood\">Nick Lockwood</a>"
 ---

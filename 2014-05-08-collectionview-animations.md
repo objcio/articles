@@ -1,8 +1,8 @@
 ---
 layout: post
-title:  "Animationing Collection Views"
+title:  "Animating Collection Views"
 category: "12"
-date: "2014-05-01 10:00:00"
+date: "2014-05-08 07:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/ekurutepe\">Engin Kurutepe</a>"
 ---

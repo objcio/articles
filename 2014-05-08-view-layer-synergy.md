@@ -2,7 +2,7 @@
 layout: post
 title:  "View-Layer Synergy"
 category: "12"
-date: "2014-05-01 11:00:00"
+date: "2014-05-08 08:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/davidronnqvist\">David Rönnqvist</a>"
 ---
