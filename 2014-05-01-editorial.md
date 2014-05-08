@@ -1,6 +1,6 @@
 Hey everyone,
 
-This issue is all about animations. It's the 12th issue, so next month we'll have our first year's anniversary. After a fun escape to Android last month, we decided to go back to Objective-C. This month's issue is once again chock-full of useful articles.  We tried to cover all angles of animations, from UIView animations, to Core Animation, all the way down to creating your own animations from scratch. We talk about animation view controllers, collection views and making everything interactive.
+This issue is all about animations. It's our 12th issue: next month is our one year anniversary. After last month's fun escape to the world of Android, we're back to Objective-C. We tried to cover all angles of animations, from UIView animations, to Core Animation, all the way down to creating your own animations from scratch. We talk about animation view controllers, collection views and making everything interactive.
 
 Again, for this issue we're very thankful for all the guest writers who contributed their posts.
 First of all, [Robert Böhnke]() explains us how animations work, and what to look out for when animating things.
