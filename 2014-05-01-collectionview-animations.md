@@ -1,13 +1,11 @@
 ---
 layout: post
-title:  "UICollectionView Animations"
+title:  "Animationing Collection Views"
 category: "12"
 date: "2014-05-01 10:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/ekurutepe\">Engin Kurutepe</a>"
 ---
-
-#Animating Collection Views
 
 `UICollectionView` and the set of associated classes are extremely flexible and powerful. But with this flexibility comes a certain dose of complexity: a collection view is a good deal deeper and more capable than the good old `UITableView`.
 
@@ -19,8 +17,8 @@ The two example projects for this article are available on GitHub:
 
 
 
-- [Layout Animations](https://github.com/ekurutepe/CollectionViewAnimations)
-- [Custom Collection View Transitions](https://github.com/ekurutepe/CustomCollectionViewTransition)
+- [Layout Animations](https://github.com/objcio/issue-12-CollectionViewAnimations)
+- [Custom Collection View Transitions](https://github.com/objcio/issue-12-CustomCollectionViewTransition)
 
 
 ##Collection View Layout Animations

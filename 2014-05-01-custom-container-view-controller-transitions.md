@@ -7,8 +7,6 @@ tags: article
 author: "<a href=\"https://twitter.com/osteslag\">Joachim Bondo</a>"
 ---
 
-# Custom Container View Controller Transitions
-
 In [issue #5](http://www.objc.io/issue-5/index.html), [Chris Eidhof](http://twitter.com/chriseidhof) took us through the new custom [View Controller Transitions](http://www.objc.io/issue-5/view-controller-transitions.html) in iOS 7. He [concluded](http://www.objc.io/issue-5/view-controller-transitions.html#conclusion) (emphasis mine):
 
 > We only looked at animating between two view controllers in a navigation controller, but **you can do the same for** tab bar controllers or **your own custom container view controllers**…
@@ -31,11 +29,11 @@ If you need to brush up on view controller containment, introduced in iOS 5, mak
 
 You may ask yourself a question or two at this point, so let me answer them for you:
 
-**Why not just subclass `UINavigationController` or `UITabBarController` and get the support for free?**
+*Why not just subclass `UINavigationController` or `UITabBarController` and get the support for free?*
 
 Well, sometimes that’s just not what you want. Maybe you want a very specific appearance or behavior, far from what these classes offer, and therefore would have to resort to tricky hacking, risking it to break with any new version of the framework. Or maybe you just want to be in total control of your containment and avoid having to support specialized functionality.
 
-**OK, but then why not just use `transitionFromViewController:toViewController:duration:options:animations:completion:` and be over with it?**
+*OK, but then why not just use `transitionFromViewController:toViewController:duration:options:animations:completion:` and be over with it?*
 
 Another good question, and you may just want to do that. But perhaps you care about your code and want to encapsulate the transition. So why not use a now-established and well-proven design pattern? And, heck, as a bonus, have support for third-party transition animations thrown in for free.
 
@@ -63,7 +61,7 @@ Enough talk, let’s get our hands dirty…
 
 In three stages, we will be creating a sample app featuring a custom container view controller, which implements support for custom child view controller transition animations.
 
-The Xcode project, in its three stages, is put in a [repository on GitHub](https://github.com/osteslag/custom-container-transitions).
+The Xcode project, in its three stages, is put in a [repository on GitHub](https://github.com/objcio/issue-12-custom-container-transitions).
 
 ### Stage 1: The Basics
 
@@ -73,7 +71,7 @@ The central class in our app is `ContainerViewController`, which hosts an array 
 
 To switch between child view controllers, tap the icons. At this stage, there is no transition animation when switching child view controllers.
 
-Check out the [stage-1](https://github.com/osteslag/custom-container-transitions/tree/stage-1) tag to see the code for the basic app.
+Check out the [stage-1](https://github.com/objcio/issue-12-custom-container-transitions/tree/stage-1) tag to see the code for the basic app.
 
 ### Stage 2: Animating the Transition
 
@@ -152,7 +150,7 @@ With that, the transition now looks like this:
 
 Pretty cool. We haven’t even written any animation code ourselves!
 
-This is reflected in the code with the [stage-2](https://github.com/osteslag/custom-container-transitions/tree/stage-2) tag. To see the full extent of the stage 2 changes, check the [diff against stage 1](https://github.com/osteslag/custom-container-transitions/compare/stage-1...stage-2).
+This is reflected in the code with the [stage-2](https://github.com/objcio/issue-12-custom-container-transitions/tree/stage-2) tag. To see the full extent of the stage 2 changes, check the [diff against stage 1](https://github.com/objcio/issue-12-custom-container-transitions/compare/stage-1...stage-2).
 
 ### Stage 3: Shrink-Wrapping
 
@@ -236,7 +234,7 @@ The transition animation now looks like this:
 
 ![Stage 3: third-party animation]({{site.images_path}}/issue-12/2014-05-01-custom-container-view-controller-transitions-stage-3.gif)
 
-In the code with the [stage-3](https://github.com/osteslag/custom-container-transitions/tree/stage-3) tag, setting the delegate in the app delegate has been [commented out](https://github.com/osteslag/custom-container-transitions/blob/stage-3/Container%20Transitions/AppDelegate.m#L41) in order to see the default animation in action. Set it back in to use `Animator` again. You may want to check out the [full diff against stage-2](https://github.com/osteslag/custom-container-transitions/compare/stage-2...stage-3).
+In the code with the [stage-3](https://github.com/objcio/issue-12-custom-container-transitions/tree/stage-3) tag, setting the delegate in the app delegate has been [commented out](https://github.com/objcio/issue-12-custom-container-transitions/blob/stage-3/Container%20Transitions/AppDelegate.m#L41) in order to see the default animation in action. Set it back in to use `Animator` again. You may want to check out the [full diff against stage-2](https://github.com/objcio/issue-12-custom-container-transitions/compare/stage-2...stage-3).
 
 We now have a self-contained `ContainerViewController` with a nicely animated default transition that developers can override with their own, iOS 7 custom animation controller (`UIViewControllerAnimatedTransitioning`) objects – even without needing access to our source code.
 
@@ -255,4 +253,4 @@ I will leave that as an exercise for you. It is somewhat more complex because we
 ## Further Indulgence
 
 - iOS 7 Tech Talks Videos, 2014: [“Architecting Modern Apps, Part 1”](https://developer.apple.com/tech-talks/videos/index.php?id=3#3) (07:23-31:27)
-- Full code on [GitHub](https://github.com/osteslag/custom-container-transitions).
+- Full code on [GitHub](https://github.com/objcio/issue-12-custom-container-transitions).

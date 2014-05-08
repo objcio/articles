@@ -7,8 +7,6 @@ tags: article
 author: "<a href=\"https://twitter.com/ceterum_censeo\">Robert Böhnke</a>"
 ---
 
-# Animations Explained
-
 The applications we write are rarely a static experience, as they adapt to the user's needs and change states to perform a multitude of tasks.
 
 When transitioning between these states, it is important to communicate what is going on. Rather than jumping between screens, animations help us explain where the user is coming from and where he or she going.

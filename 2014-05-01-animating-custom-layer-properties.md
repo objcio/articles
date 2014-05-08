@@ -2,7 +2,7 @@
 layout: post
 title:  "Animating Custom Layer Properties"
 category: "12"
-date: "2014-04-28 09:00:00"
+date: "2014-04-28 11:00:00"
 tags: article
 author: "<a href=\"http://twitter.com/nicklockwood\">Nick Lockwood</a>"
 ---
@@ -237,7 +237,7 @@ Now, if we set the `time` property again, we see that `-display` is called multi
     2014-04-28 22:37:04.515 ClockFace[49145:60b] time: 1.500000
     2014-04-28 22:37:04.755 ClockFace[49145:60b] time: 1.500000
 
-But for some reason when we log the `time` value at each of these intermediate points, we are still seeing the final value. Why aren't we getting the interpolated values? The reason is that we are looking at *the wrong `time` property*.
+But for some reason when we log the `time` value at each of these intermediate points, we are still seeing the final value. Why aren't we getting the interpolated values? The reason is that we are looking at the wrong `time` property.
 
 When you set a property of a `CALayer`, you are really setting the value of the *model* layer -- the layer that represents the final state of the layer when any ongoing animations have finished. If you ask the model layer for its values, it will always tell you the last value that it was set to.
 
