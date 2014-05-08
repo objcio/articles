@@ -43,7 +43,7 @@ In general, layout attributes are linearly interpolated from the initial state t
 
 Which results in this:
 
-![Insertion and Deletion](/images/issue-12/2014-05-01-collectionview-animations-1-insertion.gif)
+![Insertion and Deletion]({{site.images_path}}/issue-12/2014-05-01-collectionview-animations-1-insertion.gif)
 
 The corresponding `finalLayoutAttributesForAppearingItemAtIndexPath:` method for the shown animation is very similar, except that it assigns a different transform.
 
@@ -64,7 +64,7 @@ During the animation of the bounds change, the collection view acts as if the cu
 
 If you implemented some fancy animations for the insertion and deletion of items in the collection view, by now you should be seeing why Apple went with simple fade animations as a sensible default:
 
-![Wrong reaction to device rotation](/images/issue-12/2014-05-01-collectionview-animations-2-wrong-rotation.gif)
+![Wrong reaction to device rotation]({{site.images_path}}/issue-12/2014-05-01-collectionview-animations-2-wrong-rotation.gif)
 
 Oops…
 
@@ -112,7 +112,7 @@ And modify our item insertion animation to only shoot the item if it is currentl
 
 If the item is not being inserted, the normal attributes as reported by `layoutAttributesForItemAtIndexPath` will be returned, canceling any special appearance animations. Combined with the corresponding logic inside `finalLayoutAttributesForAppearingItemAtIndexPath:`, this will result in the items smoothly animating from their initial positions to their final positions in the case of a bounds change, creating a simple but cool animation:
 
-![Wrong reaction to device rotation](/images/issue-12/2014-05-01-collectionview-animations-3-correct-rotation.gif)
+![Wrong reaction to device rotation]({{site.images_path}}/issue-12/2014-05-01-collectionview-animations-3-correct-rotation.gif)
 
 ###Interactive Layout Animations
 
@@ -199,7 +199,7 @@ One of the big improvements in iOS 7 was with the custom view controller transit
 
 Let's look at how we can achieve a similar effect using the same sample project from the previous section:
 
-![Layout to Layout Navigation Transitions](/images/issue-12/2014-05-01-collectionview-animations-4-layout2layout.gif)
+![Layout to Layout Navigation Transitions]({{site.images_path}}/issue-12/2014-05-01-collectionview-animations-4-layout2layout.gif)
 
 In order for the layout-to-layout transitions to work, the root view controller in the navigation controller must be a collection view controller, where `useLayoutToLayoutNavigationTransitions` is set to `NO`. When another `UICollectionViewController` instance with `useLayoutToLayoutNavigationTransitions` set to `YES` is pushed on top of this root view controller, the navigation controller replaces the standard push animation with a layout transition animation. One important detail to note here is that the root view controller's collection view instance is recycled for the collection view controller instances pushed on the navigation stack, i.e. these collection view controllers don't have their own collection views, and if you try to set any collection view properties in methods like `viewDidLoad`, they will not have any effect and you will not receive any warnings.
 
@@ -227,7 +227,7 @@ When the detail collection view is pushed onto the stack, we set the collection 
 
 The layout-to-layout navigation transitions using the `useLayoutToLayoutNavigationTransitions` flag are quite useful, but limited to transitions where both view controllers are `UICollectionViewController` instances  only and the transition takes place between their top-level collection views. We need a custom view controller transition in order to achieve a similar transition between arbitrary collection views in arbitrary view controllers.
 
-![Custom Collection View Transition](/images/issue-12/2014-05-01-collectionview-animations-5-custom-transitions.gif)
+![Custom Collection View Transition]({{site.images_path}}/issue-12/2014-05-01-collectionview-animations-5-custom-transitions.gif)
 
 An animation controller for such a custom transition could be designed along the following steps:
 
