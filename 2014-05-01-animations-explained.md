@@ -133,14 +133,16 @@ Keyframes allow us to define an arbitrary number of points during the animation,
 
 Let's say we are working on a log-in form for our next iPhone application and want to shake the form whenever the user enters his or her password incorrectly. Using keyframe animations, this could look a little like so:
 
-> [ Animation of a form element shaking ]
+<center>
+    <img src="form.gif" width="320px">
+</center>
 
 ```objc
 CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
 animation.keyPath = @"position.x";
 animation.values = @[ @0, @10, @-10, @10, @0 ];
 animation.keyTimes = @[ @0, @(1 / 6.0), @(3 / 6.0), @(5 / 6.0), @1 ];
-animation.duration = 0.2;
+animation.duration = 0.4;
 
 animation.additive = YES;
 
