@@ -11,4 +11,5 @@ Next, [Joachim Bondo]() explains how we can animate custom view controller trans
 Finally, Florian and Chris write about interactive animations, and show how to implement them in a couple of different ways.
 
 Cheers from Berlin,
+
 Florian, Daniel and Chris
