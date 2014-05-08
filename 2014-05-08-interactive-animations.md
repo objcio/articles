@@ -373,7 +373,7 @@ So, let's try to make our own manually driven animation work with POP instead. S
     self.animation = animation;
 }
 
-You can find the full working example using POP on [GitHub](TODO).
+You can find the full working example using POP on [GitHub](https://github.com/objcio/issue-12-interactive-animations-pop).
 
 It's super easy to get it to work, and it's pretty straightforward to create more complex animations. But the real power of it lies in the fact that it enables you to create truly interactive and interruptible animations, as we have talked about before, because the animations it supports out of the box take the velocity as input. If you plan your interactions from the get-go to be interruptible at any time, a framework like POP helps you to implement this in a way that ensures animations always stay smooth.
 
