@@ -164,7 +164,7 @@ We not only allow the panel to be dragged, but it can also be tapped to toggle f
         [self animatePaneToState:targetState initialVelocity:CGPointZero];
     }
 
-And that's pretty much all there is to it. You can check out the whole example project on [GitHub](TODO). 
+And that's pretty much all there is to it. You can check out the whole example project on [GitHub](https://github.com/objcio/issue-12-interactive-animations-uidynamics). 
 
 To reiterate the crucial point: UIKit Dynamics allows us to drive the animation indirectly by simulating forces on the view (in our case, spring and friction forces). This indirection enables us to interact with the view at any time while maintaining a continuous velocity curve.
 
@@ -174,7 +174,7 @@ Now that we have implemented this interaction with UIKit Dynamics, we'll take a 
 
 ### Driving Animations Yourself
 
-As for the animations you'll use most of the time in your apps, e.g. simple spring animations, it's surprisingly not difficult to drive those yourself. It's a good exercise to lift the lid of the huge black box of UIKit Dynamics and to see what it takes to implement simple interactive animations 'manually.' The idea is rather easy: we make sure to change the view's frame 60 times per second. For each frame, we adjust the view's frame based on the current velocity and the forces acting on the view. 
+As for the animations you'll use most of the time in your apps, e.g. simple spring animations, it's surprisingly not difficult to drive those yourself. It's a good exercise to lift the lid of the huge black box of UIKit Dynamics and to see what it takes to implement simple interactive animations 'manually.' The idea is rather easy: we make sure to change the view's frame 60 times per second. For each frame, we adjust the view's frame based on the current velocity and the forces acting on the view.
 
 
 #### The Physics
@@ -339,13 +339,15 @@ We set up the display link to call `animationTick:`, and on each tick we iterate
          }
      }
 
+The entire project is available on [GitHub](https://github.com/objcio/issue-12-interactive-animations).
+
 
 ### Back to the Mac
 
 There's nothing like UIKit Dynamics available on Mac at this time. If you want
 to create truly interactive animations here, you have to take the route of
 driving those animations yourself.  Now that we've already shown how to
-implement this on iOS, it's very simple to make the same example work on OS X; check out the [full project](TODO) on GitHub. These are the things that need to be changed:
+implement this on iOS, it's very simple to make the same example work on OS X; check out the [full project](https://github.com/objcio/issue-12-interactive-animations-osx) on GitHub. These are the things that need to be changed:
 
 * The first thing to change is the `Animator`. On the Mac, there is no `CADisplayLink`, but instead, a `CVDisplayLink`, which has a C-based API. Setting it up is a bit more work, but just as straightforward.
 * Our spring animation on iOS adjusts the center of the view. An `NSView` doesn't have a center property, so instead we animate the frame's origin.
