@@ -16,9 +16,7 @@ In this article, we will discuss how to subclass `CALayer` and add our own prope
 Generally speaking, there are three types of animatable property that we might wish to add to a subclass of `CALayer`:
 
 * A property that indirectly animates one or more standard properties of the layer (or one of its sublayers).
-
 * A property that triggers redrawing of the layer's backing image (the `contents` property).
-
 * A property that doesn't involve redrawing the layer or animating any existing properties.
 
 ## Indirect Property Animation
@@ -31,104 +29,96 @@ In other words, even if `CALayer` doesn't know how to animate our custom propert
 
 To demonstrate this approach, let's create a simple analog clock where we can set the time using a `time` property of type `NSDate`. We'll start by creating our static clock face. The clock consists of three `CAShapeLayer` instances -- a circular layer for the face and two rectangular sublayers for the hour and minute hands:
 
-```objc
-@interface ClockFace: CAShapeLayer
+    @interface ClockFace: CAShapeLayer
 
-@property (nonatomic, strong) NSDate *time;
+    @property (nonatomic, strong) NSDate *time;
 
-@end
+    @end
 
+    @interface ClockFace ()
 
-@interface ClockFace ()
+    //private properties
+    @property (nonatomic, strong) CALayer *hourHand;
+    @property (nonatomic, strong) CALayer *minuteHand;
 
-//private properties
-@property (nonatomic, strong) CALayer *hourHand;
-@property (nonatomic, strong) CALayer *minuteHand;
+    @end
 
-@end
+    @implementation ClockFace
 
-
-@implementation ClockFace
-
-- (id)init
-{
-    if ((self = [super init]))
+    - (id)init
     {
-        self.bounds = CGRectMake(0, 0, 200, 200);
-        self.path = [UIBezierPath bezierPathWithOvalInRect:self.bounds].CGPath;
-        self.fillColor = [UIColor whiteColor].CGColor;
-        self.strokeColor = [UIColor blackColor].CGColor;
-        self.lineWidth = 4;
-        
-        self.hourHand = [CAShapeLayer layer];
-        self.hourHand.path = [UIBezierPath bezierPathWithRect:CGRectMake(-2, -70, 4, 70)].CGPath;
-        self.hourHand.fillColor = [UIColor blackColor].CGColor;
-        self.hourHand.position = CGPointMake(self.bounds.size.width / 2, self.bounds.size.height / 2);
-        [self addSublayer:self.hourHand];
-        
-        self.minuteHand = [CAShapeLayer layer];
-        self.minuteHand.path = [UIBezierPath bezierPathWithRect:CGRectMake(-1, -90, 2, 90)].CGPath;
-        self.minuteHand.fillColor = [UIColor blackColor].CGColor;
-        self.minuteHand.position = CGPointMake(self.bounds.size.width / 2, self.bounds.size.height / 2);
-        [self addSublayer:self.minuteHand];
+        if ((self = [super init]))
+        {
+            self.bounds = CGRectMake(0, 0, 200, 200);
+            self.path = [UIBezierPath bezierPathWithOvalInRect:self.bounds].CGPath;
+            self.fillColor = [UIColor whiteColor].CGColor;
+            self.strokeColor = [UIColor blackColor].CGColor;
+            self.lineWidth = 4;
+            
+            self.hourHand = [CAShapeLayer layer];
+            self.hourHand.path = [UIBezierPath bezierPathWithRect:CGRectMake(-2, -70, 4, 70)].CGPath;
+            self.hourHand.fillColor = [UIColor blackColor].CGColor;
+            self.hourHand.position = CGPointMake(self.bounds.size.width / 2, self.bounds.size.height / 2);
+            [self addSublayer:self.hourHand];
+            
+            self.minuteHand = [CAShapeLayer layer];
+            self.minuteHand.path = [UIBezierPath bezierPathWithRect:CGRectMake(-1, -90, 2, 90)].CGPath;
+            self.minuteHand.fillColor = [UIColor blackColor].CGColor;
+            self.minuteHand.position = CGPointMake(self.bounds.size.width / 2, self.bounds.size.height / 2);
+            [self addSublayer:self.minuteHand];
+        }
+        return self;
     }
-    return self;
-}
-      
-@end
-```
+          
+    @end
     
 We'll also set up a basic view controller with a `UIDatePicker` so we can test our layer (the date picker itself is set up in the Storyboard):
 
-```objc
-@interface ViewController ()
+    @interface ViewController ()
 
-@property (nonatomic, strong) IBOutlet UIDatePicker *datePicker;
-@property (nonatomic, strong) ClockFace *clockFace;
+    @property (nonatomic, strong) IBOutlet UIDatePicker *datePicker;
+    @property (nonatomic, strong) ClockFace *clockFace;
 
-@end
+    @end
 
 
-@implementation ViewController
+    @implementation ViewController
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    
-    //add clock face layer
-    self.clockFace = [[ClockFace alloc] init];
-    self.clockFace.position = CGPointMake(self.view.bounds.size.width / 2, 150);
-    [self.view.layer addSublayer:self.clockFace];
-    
-    //set default time
-    self.clockFace.time = [NSDate date];
-}
+    - (void)viewDidLoad
+    {
+        [super viewDidLoad];
+        
+        //add clock face layer
+        self.clockFace = [[ClockFace alloc] init];
+        self.clockFace.position = CGPointMake(self.view.bounds.size.width / 2, 150);
+        [self.view.layer addSublayer:self.clockFace];
+        
+        //set default time
+        self.clockFace.time = [NSDate date];
+    }
 
-- (IBAction)setTime
-{
-    self.clockFace.time = self.datePicker.date;
-}
+    - (IBAction)setTime
+    {
+        self.clockFace.time = self.datePicker.date;
+    }
 
-@end
-```
+    @end
 
 Now we just need to implement the setter method for our `time` property. This method uses `NSCalendar` to break the time down into hours and minutes, which we then convert into angular coordinates. We then use these angles to generate a `CGAffineTransform` to rotate the hands:
 
-```objc
-- (void)setTime:(NSDate *)time
-{
-    _time = time;
-    
-    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-    NSDateComponents *components = [calendar components:NSHourCalendarUnit | NSMinuteCalendarUnit fromDate:time];
-    self.hourHand.affineTransform = CGAffineTransformMakeRotation(components.hour / 12.0 * 2.0 * M_PI);
-    self.minuteHand.affineTransform = CGAffineTransformMakeRotation(components.minute / 60.0 * 2.0 * M_PI);
-}
-```
+    - (void)setTime:(NSDate *)time
+    {
+        _time = time;
+        
+        NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+        NSDateComponents *components = [calendar components:NSHourCalendarUnit | NSMinuteCalendarUnit fromDate:time];
+        self.hourHand.affineTransform = CGAffineTransformMakeRotation(components.hour / 12.0 * 2.0 * M_PI);
+        self.minuteHand.affineTransform = CGAffineTransformMakeRotation(components.minute / 60.0 * 2.0 * M_PI);
+    }
     
 The result looks like this:
 
-![](/images/issue-12/clock1.gif =320x)
+<img src="/images/issue-12/clock.gif" width="320px">
 
 You can check out the project for yourself [on GitHub](https://github.com/objcio/issue-12-custom-layer-property-animations).
 
@@ -140,86 +130,78 @@ Suppose that instead of implementing our clock face using individual layers, we 
 
 Much like `NSManagedObject`, `CALayer` has the ability to generate dynamic setters and getters for any declared property. In our current implementation, we've allowed the compiler to synthesize the `time` property's ivar and getter method for us, and we've provided our own implementation for the setter method. But let's change that now by getting rid of our setter and marking the property as `@dynamic`. We'll also get rid of the individual hand layers since we'll now be drawing those ourselves:
 
-```objc
-@interface ClockFace ()
+    @interface ClockFace ()
 
-@end
+    @end
 
 
-@implementation ClockFace
+    @implementation ClockFace
 
-@dynamic time;
+    @dynamic time;
 
-- (id)init
-{
-    if ((self = [super init]))
+    - (id)init
     {
-        self.bounds = CGRectMake(0, 0, 200, 200);
+        if ((self = [super init]))
+        {
+            self.bounds = CGRectMake(0, 0, 200, 200);
+        }
+        return self;
     }
-    return self;
-}
 
-@end
-```
+    @end
 
 Before we do anything else, we need to make one other slight adjustment: Unfortunately, `CALayer` doesn't know how to interpolate `NSDate` properties (i.e. it cannot automatically generate intermediate values between `NSDate` instances, as it can with numeric types and others such as `CGColor` and `CGAffineTransform`). We could keep our custom setter method and have it set another dynamic property representing the equivalent `NSTimeInterval` (which is a numeric value, and can be interpolated), but to keep the example simple, we'll replace our `NSDate` property with a floating-point value that represents hours on the clock, and update the user interface so it uses a simple `UITextField` to set the value instead of a date picker:
-    
-```objc
-@interface ViewController () <UITextFieldDelegate>
 
-@property (nonatomic, strong) IBOutlet UITextField *textField;
-@property (nonatomic, strong) ClockFace *clockFace;
+    @interface ViewController () <UITextFieldDelegate>
 
-@end
+    @property (nonatomic, strong) IBOutlet UITextField *textField;
+    @property (nonatomic, strong) ClockFace *clockFace;
+
+    @end
 
 
-@implementation ViewController
+    @implementation ViewController
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    
-    //add clock face layer
-    self.clockFace = [[ClockFace alloc] init];
-    self.clockFace.position = CGPointMake(self.view.bounds.size.width / 2, 150);
-    [self.view.layer addSublayer:self.clockFace];
-}
+    - (void)viewDidLoad
+    {
+        [super viewDidLoad];
+        
+        //add clock face layer
+        self.clockFace = [[ClockFace alloc] init];
+        self.clockFace.position = CGPointMake(self.view.bounds.size.width / 2, 150);
+        [self.view.layer addSublayer:self.clockFace];
+    }
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
-{
-    [textField resignFirstResponder];
-    return YES;
-}
+    - (BOOL)textFieldShouldReturn:(UITextField *)textField
+    {
+        [textField resignFirstResponder];
+        return YES;
+    }
 
-- (void)textFieldDidEndEditing:(UITextField *)textField
-{
-    self.clockFace.time = [textField.text floatValue];
-}
+    - (void)textFieldDidEndEditing:(UITextField *)textField
+    {
+        self.clockFace.time = [textField.text floatValue];
+    }
 
-@end
-```  
+    @end
     
 Now that we've removed our custom setter method, how are we going to know when our `time` property changes? We need a way to automatically notify the `CALayer` whenever the `time` property changes, so that it can redraw its contents. We do that by overriding the `+needsDisplayForKey:` method, as follows:
 
-```objc
-+ (BOOL)needsDisplayForKey:(NSString *)key
-{
-    if ([@"time" isEqualToString:key])
+    + (BOOL)needsDisplayForKey:(NSString *)key
     {
-        return YES;
+        if ([@"time" isEqualToString:key])
+        {
+            return YES;
+        }
+        return [super needsDisplayForKey:key];
     }
-    return [super needsDisplayForKey:key];
-}
-```
     
 This tells the layer that whenever the `time` property is modified, it needs to call the `-display` method. We'll now override the `-display` method as well, and add an `NSLog` statement to print out the value of `time`:
 
-```objc
-- (void)display
-{
-    NSLog(@"time: %f", self.time);
-}
-```
+    - (void)display
+    {
+        NSLog(@"time: %f", self.time);
+    }
     
 If we set the `time` property to 1.5, we'll see that display is called with the new value:
 
@@ -227,37 +209,33 @@ If we set the `time` property to 1.5, we'll see that display is called with the 
 
 That isn't really what we want though; we want the `time` property to animate smoothly between its old and new values over several frames. To make that happen, we need to specify an animation (or "action") for our time property, which we can do by overriding the `-actionForKey:` method:
 
-```objc
-- (id<CAAction>)actionForKey:(NSString *)key
-{
-    if ([key isEqualToString:@"time"])
+    - (id<CAAction>)actionForKey:(NSString *)key
     {
-        CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:key];
-        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-        animation.fromValue = @(self.time);
-        return animation;
+        if ([key isEqualToString:@"time"])
+        {
+            CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:key];
+            animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+            animation.fromValue = @(self.time);
+            return animation;
+        }
+        return [super actionForKey:key];
     }
-    return [super actionForKey:key];
-}
-```
     
 Now, if we set the `time` property again, we see that `-display` is called multiple times. The number of times should equate to approximately 60 times per second, for the duration of the animation (which defaults to 0.25 seconds, or about 15 frames):
 
-```objc
-2014-04-28 22:37:04.253 ClockFace[49145:60b] time: 1.500000
-2014-04-28 22:37:04.255 ClockFace[49145:60b] time: 1.500000
-2014-04-28 22:37:04.351 ClockFace[49145:60b] time: 1.500000
-2014-04-28 22:37:04.370 ClockFace[49145:60b] time: 1.500000
-2014-04-28 22:37:04.388 ClockFace[49145:60b] time: 1.500000
-2014-04-28 22:37:04.407 ClockFace[49145:60b] time: 1.500000
-2014-04-28 22:37:04.425 ClockFace[49145:60b] time: 1.500000
-2014-04-28 22:37:04.443 ClockFace[49145:60b] time: 1.500000
-2014-04-28 22:37:04.461 ClockFace[49145:60b] time: 1.500000
-2014-04-28 22:37:04.479 ClockFace[49145:60b] time: 1.500000
-2014-04-28 22:37:04.497 ClockFace[49145:60b] time: 1.500000
-2014-04-28 22:37:04.515 ClockFace[49145:60b] time: 1.500000
-2014-04-28 22:37:04.755 ClockFace[49145:60b] time: 1.500000
-```
+    2014-04-28 22:37:04.253 ClockFace[49145:60b] time: 1.500000
+    2014-04-28 22:37:04.255 ClockFace[49145:60b] time: 1.500000
+    2014-04-28 22:37:04.351 ClockFace[49145:60b] time: 1.500000
+    2014-04-28 22:37:04.370 ClockFace[49145:60b] time: 1.500000
+    2014-04-28 22:37:04.388 ClockFace[49145:60b] time: 1.500000
+    2014-04-28 22:37:04.407 ClockFace[49145:60b] time: 1.500000
+    2014-04-28 22:37:04.425 ClockFace[49145:60b] time: 1.500000
+    2014-04-28 22:37:04.443 ClockFace[49145:60b] time: 1.500000
+    2014-04-28 22:37:04.461 ClockFace[49145:60b] time: 1.500000
+    2014-04-28 22:37:04.479 ClockFace[49145:60b] time: 1.500000
+    2014-04-28 22:37:04.497 ClockFace[49145:60b] time: 1.500000
+    2014-04-28 22:37:04.515 ClockFace[49145:60b] time: 1.500000
+    2014-04-28 22:37:04.755 ClockFace[49145:60b] time: 1.500000
 
 But for some reason when we log the `time` value at each of these intermediate points, we are still seeing the final value. Why aren't we getting the interpolated values? The reason is that we are looking at *the wrong `time` property*.
 
@@ -265,104 +243,96 @@ When you set a property of a `CALayer`, you are really setting the value of the 
 
 But attached to the model layer is the *presentation* layer -- a copy of the model layer with values that represent the *current*, mid-animation state. If we modify our `-display` method to log the `time` property of the layer's `presentationLayer`, we will see the interpolated values we were expecting. (We'll also use the `presentationLayer`'s `time` property to get the starting value for our animation action, instead of `self.time`):
 
-```objc
-- (id<CAAction>)actionForKey:(NSString *)key
-{
-    if ([key isEqualToString:@"time"])
+    - (id<CAAction>)actionForKey:(NSString *)key
     {
-        CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:key];
-        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-        animation.fromValue = @([[self presentationLayer] time]);
-        return animation;
+        if ([key isEqualToString:@"time"])
+        {
+            CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:key];
+            animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+            animation.fromValue = @([[self presentationLayer] time]);
+            return animation;
+        }
+        return [super actionForKey:key];
     }
-    return [super actionForKey:key];
-}
 
-- (void)display
-{
-    NSLog(@"time: %f", [[self presentationLayer] time]);
-}
-```
+    - (void)display
+    {
+        NSLog(@"time: %f", [[self presentationLayer] time]);
+    }
     
 And here are the values:
 
-```objc
-2014-04-28 22:43:31.200 ClockFace[49176:60b] time: 0.000000
-2014-04-28 22:43:31.203 ClockFace[49176:60b] time: 0.002894
-2014-04-28 22:43:31.263 ClockFace[49176:60b] time: 0.363371
-2014-04-28 22:43:31.300 ClockFace[49176:60b] time: 0.586421
-2014-04-28 22:43:31.318 ClockFace[49176:60b] time: 0.695179
-2014-04-28 22:43:31.336 ClockFace[49176:60b] time: 0.803713
-2014-04-28 22:43:31.354 ClockFace[49176:60b] time: 0.912598
-2014-04-28 22:43:31.372 ClockFace[49176:60b] time: 1.021573
-2014-04-28 22:43:31.391 ClockFace[49176:60b] time: 1.134173
-2014-04-28 22:43:31.409 ClockFace[49176:60b] time: 1.242892
-2014-04-28 22:43:31.427 ClockFace[49176:60b] time: 1.352016
-2014-04-28 22:43:31.446 ClockFace[49176:60b] time: 1.460729
-2014-04-28 22:43:31.464 ClockFace[49176:60b] time: 1.500000
-2014-04-28 22:43:31.636 ClockFace[49176:60b] time: 1.500000
-```
+    2014-04-28 22:43:31.200 ClockFace[49176:60b] time: 0.000000
+    2014-04-28 22:43:31.203 ClockFace[49176:60b] time: 0.002894
+    2014-04-28 22:43:31.263 ClockFace[49176:60b] time: 0.363371
+    2014-04-28 22:43:31.300 ClockFace[49176:60b] time: 0.586421
+    2014-04-28 22:43:31.318 ClockFace[49176:60b] time: 0.695179
+    2014-04-28 22:43:31.336 ClockFace[49176:60b] time: 0.803713
+    2014-04-28 22:43:31.354 ClockFace[49176:60b] time: 0.912598
+    2014-04-28 22:43:31.372 ClockFace[49176:60b] time: 1.021573
+    2014-04-28 22:43:31.391 ClockFace[49176:60b] time: 1.134173
+    2014-04-28 22:43:31.409 ClockFace[49176:60b] time: 1.242892
+    2014-04-28 22:43:31.427 ClockFace[49176:60b] time: 1.352016
+    2014-04-28 22:43:31.446 ClockFace[49176:60b] time: 1.460729
+    2014-04-28 22:43:31.464 ClockFace[49176:60b] time: 1.500000
+    2014-04-28 22:43:31.636 ClockFace[49176:60b] time: 1.500000
     
 So now, all we have to do is draw our clock. We do this by using ordinary Core Graphics functions to draw to a Graphics Context, and then set the resultant image as our layer's `contents`. Here is the updated `-display` method:
 
-```objc
-- (void)display
-{
-    //get interpolated time value
-    float time = [self.presentationLayer time];
-    
-    //create drawing context
-    UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 0);
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    
-    //draw clock face
-    CGContextSetLineWidth(ctx, 4);
-    CGContextStrokeEllipseInRect(ctx, CGRectInset(self.bounds, 2, 2));
-    
-    //draw hour hand
-    CGFloat angle = time / 12.0 * 2.0 * M_PI;
-    CGPoint center = CGPointMake(self.bounds.size.width / 2, self.bounds.size.height / 2);
-    CGContextSetLineWidth(ctx, 4);
-    CGContextMoveToPoint(ctx, center.x, center.y);
-    CGContextAddLineToPoint(ctx, center.x + sin(angle) * 80, center.y - cos(angle) * 80);
-    CGContextStrokePath(ctx);
-    
-    //draw minute hand
-    angle = (time - floor(time)) * 2.0 * M_PI;
-    CGContextSetLineWidth(ctx, 2);
-    CGContextMoveToPoint(ctx, center.x, center.y);
-    CGContextAddLineToPoint(ctx, center.x + sin(angle) * 90, center.y - cos(angle) * 90);
-    CGContextStrokePath(ctx);
-    
-    //set backing image
-    self.contents = (id)UIGraphicsGetImageFromCurrentImageContext().CGImage;
-    UIGraphicsEndImageContext();
-}
-```
+    - (void)display
+    {
+        //get interpolated time value
+        float time = [self.presentationLayer time];
+        
+        //create drawing context
+        UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 0);
+        CGContextRef ctx = UIGraphicsGetCurrentContext();
+        
+        //draw clock face
+        CGContextSetLineWidth(ctx, 4);
+        CGContextStrokeEllipseInRect(ctx, CGRectInset(self.bounds, 2, 2));
+        
+        //draw hour hand
+        CGFloat angle = time / 12.0 * 2.0 * M_PI;
+        CGPoint center = CGPointMake(self.bounds.size.width / 2, self.bounds.size.height / 2);
+        CGContextSetLineWidth(ctx, 4);
+        CGContextMoveToPoint(ctx, center.x, center.y);
+        CGContextAddLineToPoint(ctx, center.x + sin(angle) * 80, center.y - cos(angle) * 80);
+        CGContextStrokePath(ctx);
+        
+        //draw minute hand
+        angle = (time - floor(time)) * 2.0 * M_PI;
+        CGContextSetLineWidth(ctx, 2);
+        CGContextMoveToPoint(ctx, center.x, center.y);
+        CGContextAddLineToPoint(ctx, center.x + sin(angle) * 90, center.y - cos(angle) * 90);
+        CGContextStrokePath(ctx);
+        
+        //set backing image
+        self.contents = (id)UIGraphicsGetImageFromCurrentImageContext().CGImage;
+        UIGraphicsEndImageContext();
+    }
     
 The result looks like this:
 
-![](/images/issue-12/clock2.gif =320x)
+<img src="/images/issue-12/clock2.gif" width="320px">
 
 As you can see, unlike the first clock animation, the minute hand actually cycles through a full revolution for each hour that the hour hand moves (like a real clock would), instead of just moving to its final position via the shortest path. That's an advantage of animating in this way; because we are animating the `time` value itself instead of just the positions of the hands, the contextual information is preserved. 
 
 Drawing the clock in this way is not ideal because Core Graphics functions are not hardware accelerated, and may cause the frame rate of our animation to drop. An alternative to redrawing the `contents` image 60 times per second would be to store a number of pre-drawn images in an array and simply select the correct image based on the interpolated value. The code to do that might look like this:
 
-```objc
-const NSInteger hoursOnAClockFace = 12;
+    const NSInteger hoursOnAClockFace = 12;
 
-- (void)display
-{
-    //get interpolated time value
-    float time = [self.presentationLayer time] / hoursOnAClockFace;
-    
-    //fetch frame from a previously defined array of images
-    NSInteger numberOfFrames = [self.frames count];
-    NSInteger index = round(time * numberOfFrames) % numberOfFrames;
-    UIImage *frame = self.frames[index];
-    self.contents = (id)frame.CGImage;
-}
-```
+    - (void)display
+    {
+        //get interpolated time value
+        float time = [self.presentationLayer time] / hoursOnAClockFace;
+        
+        //fetch frame from a previously defined array of images
+        NSInteger numberOfFrames = [self.frames count];
+        NSInteger index = round(time * numberOfFrames) % numberOfFrames;
+        UIImage *frame = self.frames[index];
+        self.contents = (id)frame.CGImage;
+    }
     
 This improves animation performance by avoiding the need for costly software drawing during each frame, but the tradeoff is that we need to store all of the pre-drawn animation frame images in memory, which -- for a complex animation -- might be prohibitively wasteful of RAM.
     
@@ -374,133 +344,129 @@ There would be no point in updating any other layer property from within `-displ
 
 The following code uses a `CALayer` combined with `AVAudioPlayer` to create an animated volume control. By tying the volume to a dynamic layer property, we can use Core Animation's property interpolation to smoothly ramp between different volume levels in the same way we might animate any cosmetic property of the layer:
 
-```objc
-@interface AudioLayer : CALayer
+    @interface AudioLayer : CALayer
 
-- (id)initWithAudioFileURL:(NSURL *)URL;
+    - (id)initWithAudioFileURL:(NSURL *)URL;
 
-@property (nonatomic, assign) float volume;
+    @property (nonatomic, assign) float volume;
 
-- (void)play;
-- (void)stop;
-- (BOOL)isPlaying;
+    - (void)play;
+    - (void)stop;
+    - (BOOL)isPlaying;
 
-@end
-
-
-@interface AudioLayer ()
-
-@property (nonatomic, strong) AVAudioPlayer *player;
-
-@end
+    @end
 
 
-@implementation AudioLayer
+    @interface AudioLayer ()
 
-@dynamic volume;
+    @property (nonatomic, strong) AVAudioPlayer *player;
 
-- (id)initWithAudioFileURL:(NSURL *)URL
-{
-    if ((self = [self init]))
+    @end
+
+
+    @implementation AudioLayer
+
+    @dynamic volume;
+
+    - (id)initWithAudioFileURL:(NSURL *)URL
     {
-        self.volume = 1.0;
-        self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:URL error:NULL];
+        if ((self = [self init]))
+        {
+            self.volume = 1.0;
+            self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:URL error:NULL];
+        }
+        return self;
     }
-    return self;
-}
 
-- (void)play
-{
-    [self.player play];
-}
-
-- (void)stop
-{
-    [self.player stop];
-}
-
-- (BOOL)isPlaying
-{
-    return self.player.playing;
-}
-
-+ (BOOL)needsDisplayForKey:(NSString *)key
-{
-    if ([@"volume" isEqualToString:key])
+    - (void)play
     {
-        return YES;
+        [self.player play];
     }
-    return [super needsDisplayForKey:key];
-}
 
-- (id<CAAction>)actionForKey:(NSString *)key
-{
-    if ([key isEqualToString:@"volume"])
+    - (void)stop
     {
-        CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:key];
-        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
-        animation.fromValue = @([[self presentationLayer] volume]);
-        return animation;
+        [self.player stop];
     }
-    return [super actionForKey:key];
-}
 
-- (void)display
-{
-    //set audio volume to interpolated volume value
-    self.player.volume = [self.presentationLayer volume];
-}
+    - (BOOL)isPlaying
+    {
+        return self.player.playing;
+    }
 
-@end
-```
+    + (BOOL)needsDisplayForKey:(NSString *)key
+    {
+        if ([@"volume" isEqualToString:key])
+        {
+            return YES;
+        }
+        return [super needsDisplayForKey:key];
+    }
+
+    - (id<CAAction>)actionForKey:(NSString *)key
+    {
+        if ([key isEqualToString:@"volume"])
+        {
+            CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:key];
+            animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+            animation.fromValue = @([[self presentationLayer] volume]);
+            return animation;
+        }
+        return [super actionForKey:key];
+    }
+
+    - (void)display
+    {
+        //set audio volume to interpolated volume value
+        self.player.volume = [self.presentationLayer volume];
+    }
+
+    @end
     
 We can test this using a simple view controller with play, stop, volume up, and volume down buttons:
 
-```objc
-@interface ViewController ()
+    @interface ViewController ()
 
-@property (nonatomic, strong) AudioLayer *audioLayer;
+    @property (nonatomic, strong) AudioLayer *audioLayer;
 
-@end
+    @end
 
 
-@implementation ViewController
+    @implementation ViewController
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    
-    NSURL *musicURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"music" ofType:@"caf"]];
-    self.audioLayer = [[AudioLayer alloc] initWithAudioFileURL:musicURL];
-    [self.view.layer addSublayer:self.audioLayer];
-}
-
-- (IBAction)playPauseMusic:(UIButton *)sender
-{
-    if ([self.audioLayer isPlaying])
+    - (void)viewDidLoad
     {
-        [self.audioLayer stop];
-        [sender setTitle:@"Play Music" forState:UIControlStateNormal];
+        [super viewDidLoad];
+        
+        NSURL *musicURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"music" ofType:@"caf"]];
+        self.audioLayer = [[AudioLayer alloc] initWithAudioFileURL:musicURL];
+        [self.view.layer addSublayer:self.audioLayer];
     }
-    else
+
+    - (IBAction)playPauseMusic:(UIButton *)sender
     {
-        [self.audioLayer play];
-        [sender setTitle:@"Pause Music" forState:UIControlStateNormal];
+        if ([self.audioLayer isPlaying])
+        {
+            [self.audioLayer stop];
+            [sender setTitle:@"Play Music" forState:UIControlStateNormal];
+        }
+        else
+        {
+            [self.audioLayer play];
+            [sender setTitle:@"Pause Music" forState:UIControlStateNormal];
+        }
     }
-}
 
-- (IBAction)fadeIn
-{
-    self.audioLayer.volume = 1;
-}
+    - (IBAction)fadeIn
+    {
+        self.audioLayer.volume = 1;
+    }
 
-- (IBAction)fadeOut
-{
-    self.audioLayer.volume = 0;
-}
+    - (IBAction)fadeOut
+    {
+        self.audioLayer.volume = 0;
+    }
 
-@end
-```
+    @end
 
 Note: even though our layer has no visual appearance, it still needs to be added to the onscreen view hierarchy in order for the animations to work correctly.
     

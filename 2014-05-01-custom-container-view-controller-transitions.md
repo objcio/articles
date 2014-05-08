@@ -79,11 +79,9 @@ Check out the [stage-1](https://github.com/osteslag/custom-container-transitions
 
 When adding a transition animation, we want to support *animation controllers* conforming to `UIViewControllerAnimatedTransitioning`. The protocol defines these three methods, the first two of which are required:
 
-```objc
-- (NSTimeInterval)transitionDuration:(id<UIViewControllerContextTransitioning>)transitionContext;
-- (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext;
-- (void)animationEnded:(BOOL)transitionCompleted;
-```
+    - (NSTimeInterval)transitionDuration:(id<UIViewControllerContextTransitioning>)transitionContext;
+    - (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext;
+    - (void)animationEnded:(BOOL)transitionCompleted;
 
 This tells us everything we need to know. When our container view controller is about to perform the animation, we can query the animation controller for the duration and ask it to perform the actual animation. When it is done, we can call `animationEnded:` on the the animation controller, if it implements that optional method.
 
@@ -95,27 +93,25 @@ There are a [lot of methods](https://developer.apple.com/library/ios/documentati
 
 Just like UIKit, we define a private `NSObject <UIViewControllerContextTransitioning>` class. In our specialized case, it is the `PrivateTransitionContext` class, and the initializer is implemented like this:
 
-```objc
-- (instancetype)initWithFromViewController:(UIViewController *)fromViewController toViewController:(UIViewController *)toViewController goingRight:(BOOL)goingRight {
-    NSAssert ([fromViewController isViewLoaded] && fromViewController.view.superview, @"The fromViewController view must reside in the container view upon initializing the transition context.");
-    
-    if ((self = [super init])) {
-        self.presentationStyle = UIModalPresentationCustom;
-        self.containerView = fromViewController.view.superview;
-        self.viewControllers = @{
-            UITransitionContextFromViewControllerKey:fromViewController,
-            UITransitionContextToViewControllerKey:toViewController,
-        };
+    - (instancetype)initWithFromViewController:(UIViewController *)fromViewController toViewController:(UIViewController *)toViewController goingRight:(BOOL)goingRight {
+        NSAssert ([fromViewController isViewLoaded] && fromViewController.view.superview, @"The fromViewController view must reside in the container view upon initializing the transition context.");
         
-        CGFloat travelDistance = (goingRight ? -self.containerView.bounds.size.width : self.containerView.bounds.size.width);
-        self.disappearingFromRect = self.appearingToRect = self.containerView.bounds;
-        self.disappearingToRect = CGRectOffset (self.containerView.bounds, travelDistance, 0);
-        self.appearingFromRect = CGRectOffset (self.containerView.bounds, -travelDistance, 0);
+        if ((self = [super init])) {
+            self.presentationStyle = UIModalPresentationCustom;
+            self.containerView = fromViewController.view.superview;
+            self.viewControllers = @{
+                UITransitionContextFromViewControllerKey:fromViewController,
+                UITransitionContextToViewControllerKey:toViewController,
+            };
+            
+            CGFloat travelDistance = (goingRight ? -self.containerView.bounds.size.width : self.containerView.bounds.size.width);
+            self.disappearingFromRect = self.appearingToRect = self.containerView.bounds;
+            self.disappearingToRect = CGRectOffset (self.containerView.bounds, travelDistance, 0);
+            self.appearingFromRect = CGRectOffset (self.containerView.bounds, -travelDistance, 0);
+        }
+        
+        return self;
     }
-    
-    return self;
-}
-```
 
 We basically capture state, including initial and final frames, for the appearing and disappearing views.
 
@@ -129,26 +125,24 @@ You probably remember that this was exactly what we did in [View Controller Tran
 
 Using an `Animator` instance to animate our transition essentially looks like this:
 
-```objc
-[fromViewController willMoveToParentViewController:nil];
-[self addChildViewController:toViewController];
+    [fromViewController willMoveToParentViewController:nil];
+    [self addChildViewController:toViewController];
 
-Animator *animator = [[Animator alloc] init];
+    Animator *animator = [[Animator alloc] init];
 
-NSUInteger fromIndex = [self.viewControllers indexOfObject:fromViewController];
-NSUInteger toIndex = [self.viewControllers indexOfObject:toViewController];
-PrivateTransitionContext *transitionContext = [[PrivateTransitionContext alloc] initWithFromViewController:fromViewController toViewController:toViewController goingRight:toIndex > fromIndex];
+    NSUInteger fromIndex = [self.viewControllers indexOfObject:fromViewController];
+    NSUInteger toIndex = [self.viewControllers indexOfObject:toViewController];
+    PrivateTransitionContext *transitionContext = [[PrivateTransitionContext alloc] initWithFromViewController:fromViewController toViewController:toViewController goingRight:toIndex > fromIndex];
 
-transitionContext.animated = YES;
-transitionContext.interactive = NO;
-transitionContext.completionBlock = ^(BOOL didComplete) {
-    [fromViewController.view removeFromSuperview];
-    [fromViewController removeFromParentViewController];
-    [toViewController didMoveToParentViewController:self];
-};
+    transitionContext.animated = YES;
+    transitionContext.interactive = NO;
+    transitionContext.completionBlock = ^(BOOL didComplete) {
+        [fromViewController.view removeFromSuperview];
+        [fromViewController removeFromParentViewController];
+        [toViewController didMoveToParentViewController:self];
+    };
 
-[animator animateTransition:transitionContext];
-```
+    [animator animateTransition:transitionContext];
 
 Most of this is the required container view controller song and dance, and finding out whether we going left or right. Doing the animation is basically three lines of code: 1) creating the animator, 2) creating the transition context, and 3) triggering the animation.
 
@@ -171,13 +165,11 @@ This entails conveniently removing the dependency to the `Animator` class, as we
 
 We define our protocol as:
 
-```objc
-@protocol ContainerViewControllerDelegate <NSObject>
-@optional
-- (void)containerViewController:(ContainerViewController *)containerViewController didSelectViewController:(UIViewController *)viewController;
-- (id <UIViewControllerAnimatedTransitioning>)containerViewController:(ContainerViewController *)containerViewController animationControllerForTransitionFromViewController:(UIViewController *)fromViewController toViewController:(UIViewController *)toViewController;
-@end
-```
+    @protocol ContainerViewControllerDelegate <NSObject>
+    @optional
+    - (void)containerViewController:(ContainerViewController *)containerViewController didSelectViewController:(UIViewController *)viewController;
+    - (id <UIViewControllerAnimatedTransitioning>)containerViewController:(ContainerViewController *)containerViewController animationControllerForTransitionFromViewController:(UIViewController *)fromViewController toViewController:(UIViewController *)toViewController;
+    @end
 
 The `containerViewController:didSelectViewController:` method just makes it easier to integrate `ContainerViewController` into more feature-complete apps. 
 
@@ -190,57 +182,53 @@ All these methods return an `id<UIViewControllerAnimatedTransitioning>` object.
 
 Instead of always using an `Animator` object, we can now ask our delegate for an animation controller:
 
-```objc
-id<UIViewControllerAnimatedTransitioning>animator = nil;
-if ([self.delegate respondsToSelector:@selector (containerViewController:animationControllerForTransitionFromViewController:toViewController:)]) {
-    animator = [self.delegate containerViewController:self animationControllerForTransitionFromViewController:fromViewController toViewController:toViewController];
-}
-animator = (animator ?: [[PrivateAnimatedTransition alloc] init]);
-```
+    id<UIViewControllerAnimatedTransitioning>animator = nil;
+    if ([self.delegate respondsToSelector:@selector (containerViewController:animationControllerForTransitionFromViewController:toViewController:)]) {
+        animator = [self.delegate containerViewController:self animationControllerForTransitionFromViewController:fromViewController toViewController:toViewController];
+    }
+    animator = (animator ?: [[PrivateAnimatedTransition alloc] init]);
 
 If we have a delegate and it returns an animator, we will use that. Otherwise, we will create our own private default animator of class `PrivateAnimatedTransition`. We will implement this next.
 
 Although the default animation is somewhat different than that of `Animator`, the code looks surprisingly similar. Here is the full implementation:
 
-```objc
-@implementation PrivateAnimatedTransition
+    @implementation PrivateAnimatedTransition
 
-static CGFloat const kChildViewPadding = 16;
-static CGFloat const kDamping = 0.75f;
-static CGFloat const kInitialSpringVelocity = 0.5f;
+    static CGFloat const kChildViewPadding = 16;
+    static CGFloat const kDamping = 0.75f;
+    static CGFloat const kInitialSpringVelocity = 0.5f;
 
-- (NSTimeInterval)transitionDuration:(id<UIViewControllerContextTransitioning>)transitionContext {
-    return 1;
-}
+    - (NSTimeInterval)transitionDuration:(id<UIViewControllerContextTransitioning>)transitionContext {
+        return 1;
+    }
 
-- (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext {
-    
-    UIViewController* toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
-    UIViewController* fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
-    
-    // When sliding the views horizontally, in and out, figure out whether we are going left or right.
-    BOOL goingRight = ([transitionContext initialFrameForViewController:toViewController].origin.x < [transitionContext finalFrameForViewController:toViewController].origin.x);
-    
-    CGFloat travelDistance = [transitionContext containerView].bounds.size.width + kChildViewPadding;
-    CGAffineTransform travel = CGAffineTransformMakeTranslation (goingRight ? travelDistance : -travelDistance, 0);
-    
-    [[transitionContext containerView] addSubview:toViewController.view];
-    toViewController.view.alpha = 0;
-    toViewController.view.transform = CGAffineTransformInvert (travel);
-    
-    [UIView animateWithDuration:[self transitionDuration:transitionContext] delay:0 usingSpringWithDamping:kDamping initialSpringVelocity:kInitialSpringVelocity options:0x00 animations:^{
-        fromViewController.view.transform = travel;
-        fromViewController.view.alpha = 0;
-        toViewController.view.transform = CGAffineTransformIdentity;
-        toViewController.view.alpha = 1;
-    } completion:^(BOOL finished) {
-        fromViewController.view.transform = CGAffineTransformIdentity;
-        [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
-    }];
-}
+    - (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext {
+        
+        UIViewController* toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+        UIViewController* fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+        
+        // When sliding the views horizontally, in and out, figure out whether we are going left or right.
+        BOOL goingRight = ([transitionContext initialFrameForViewController:toViewController].origin.x < [transitionContext finalFrameForViewController:toViewController].origin.x);
+        
+        CGFloat travelDistance = [transitionContext containerView].bounds.size.width + kChildViewPadding;
+        CGAffineTransform travel = CGAffineTransformMakeTranslation (goingRight ? travelDistance : -travelDistance, 0);
+        
+        [[transitionContext containerView] addSubview:toViewController.view];
+        toViewController.view.alpha = 0;
+        toViewController.view.transform = CGAffineTransformInvert (travel);
+        
+        [UIView animateWithDuration:[self transitionDuration:transitionContext] delay:0 usingSpringWithDamping:kDamping initialSpringVelocity:kInitialSpringVelocity options:0x00 animations:^{
+            fromViewController.view.transform = travel;
+            fromViewController.view.alpha = 0;
+            toViewController.view.transform = CGAffineTransformIdentity;
+            toViewController.view.alpha = 1;
+        } completion:^(BOOL finished) {
+            fromViewController.view.transform = CGAffineTransformIdentity;
+            [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
+        }];
+    }
 
-@end
-```
+    @end
 
 Note that even if the view frames haven’t been set to reflect the positional relationships, the code would still work, though it would always transition in the same direction. This class can therefore still be used in other codebases.
 

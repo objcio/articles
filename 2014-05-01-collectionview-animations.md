@@ -31,17 +31,15 @@ The standard `UICollectionViewFlowLayout` is very customizable except for its an
 
 In general, layout attributes are linearly interpolated from the initial state to the final state to compute the collection view animations. However, for the newly inserted or removed items, there are no initial and final attributes to interpolate from. To compute the animations for such cells, the collection view will ask its layout object to provide the initial and final attributes through the `initialLayoutAttributesForAppearingItemAtIndexPath:` and `finalLayoutAttributesForAppearingItemAtIndexPath:` methods. The default Apple implementation returns the layout attributes corresponding to the normal position at the specific index path, but with an `alpha` value of 0.0, resulting in a fade-in or fade-out animation. If you would like to have something fancier, like having your new cells shoot up from the bottom of the screen and rotate while flying into place, you could implement something like this in your layout subclass:
 
-````objc
-- (UICollectionViewLayoutAttributes*)initialLayoutAttributesForAppearingItemAtIndexPath:(NSIndexPath *)itemIndexPath
-{
-    UICollectionViewLayoutAttributes *attr = [self layoutAttributesForItemAtIndexPath:itemIndexPath];
+    - (UICollectionViewLayoutAttributes*)initialLayoutAttributesForAppearingItemAtIndexPath:(NSIndexPath *)itemIndexPath
+    {
+        UICollectionViewLayoutAttributes *attr = [self layoutAttributesForItemAtIndexPath:itemIndexPath];
 
-    attr.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(0.2, 0.2), M_PI);
-    attr.center = CGPointMake(CGRectGetMidX(self.collectionView.bounds), CGRectGetMaxY(self.collectionView.bounds));
+        attr.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(0.2, 0.2), M_PI);
+        attr.center = CGPointMake(CGRectGetMidX(self.collectionView.bounds), CGRectGetMaxY(self.collectionView.bounds));
 
-    return attr;
-}
-````
+        return attr;
+    }
 
 Which results in this:
 
@@ -53,16 +51,14 @@ The corresponding `finalLayoutAttributesForAppearingItemAtIndexPath:` method for
 
 A device orientation change usually results in a bounds change for a collection view. The layout object is asked if the layout should be invalidated and recomputed with the method `shouldInvalidateLayoutForBoundsChange:`. The default implementation in `UICollectionViewFlowLayout` does the correct thing, but if you are subclassing `UICollectionViewLayout` instead, you should return `YES` on a bounds change:
 
-````objc
-- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
-{
-    CGRect oldBounds = self.collectionView.bounds;
-    if (!CGSizeEqualToSize(oldBounds.size, newBounds.size)) {
-        return YES;
+    - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
+    {
+        CGRect oldBounds = self.collectionView.bounds;
+        if (!CGSizeEqualToSize(oldBounds.size, newBounds.size)) {
+            return YES;
+        }
+        return NO;
     }
-    return NO;
-}
-````
 
 During the animation of the bounds change, the collection view acts as if the currently displayed items are removed and inserted again in the new bounds, resulting in a series of `finalLayoutAttributesForAppearingItemAtIndexPath:` and `initialLayoutAttributesForAppearingItemAtIndexPath:` calls for each index path.
 
@@ -76,47 +72,43 @@ To prevent such unwanted animations, the sequence of initial position -> removal
 
 Luckily, the collection view tells the layout object which kind of animation is about to be performed. It does this by invoking the `prepareForAnimatedBoundsChange:` or `prepareForCollectionViewUpdates:` for bounds changes and item updates respectively. For the purposes of this example, we can use `prepareForCollectionViewUpdates:` to keep track of updated objects:
 
-````objc
-- (void)prepareForCollectionViewUpdates:(NSArray *)updateItems
-{
-    [super prepareForCollectionViewUpdates:updateItems];
-    NSMutableArray *indexPaths = [NSMutableArray array];
-    for (UICollectionViewUpdateItem *updateItem in updateItems) {
-        switch (updateItem.updateAction) {
-            case UICollectionUpdateActionInsert:
-                [indexPaths addObject:updateItem.indexPathAfterUpdate];
-                break;
-            case UICollectionUpdateActionDelete:
-                [indexPaths addObject:updateItem.indexPathBeforeUpdate];
-                break;
-            case UICollectionUpdateActionMove:
-                [indexPaths addObject:updateItem.indexPathBeforeUpdate];
-                [indexPaths addObject:updateItem.indexPathAfterUpdate];
-                break;
-            default:
-                NSLog(@"unhandled case: %@", updateItem);
-                break;
-        }
-    }  
-    self.indexPathsToAnimate = indexPaths;
-}
-````
+    - (void)prepareForCollectionViewUpdates:(NSArray *)updateItems
+    {
+        [super prepareForCollectionViewUpdates:updateItems];
+        NSMutableArray *indexPaths = [NSMutableArray array];
+        for (UICollectionViewUpdateItem *updateItem in updateItems) {
+            switch (updateItem.updateAction) {
+                case UICollectionUpdateActionInsert:
+                    [indexPaths addObject:updateItem.indexPathAfterUpdate];
+                    break;
+                case UICollectionUpdateActionDelete:
+                    [indexPaths addObject:updateItem.indexPathBeforeUpdate];
+                    break;
+                case UICollectionUpdateActionMove:
+                    [indexPaths addObject:updateItem.indexPathBeforeUpdate];
+                    [indexPaths addObject:updateItem.indexPathAfterUpdate];
+                    break;
+                default:
+                    NSLog(@"unhandled case: %@", updateItem);
+                    break;
+            }
+        }  
+        self.indexPathsToAnimate = indexPaths;
+    }
 And modify our item insertion animation to only shoot the item if it is currently being inserted into the collection view:
 
-````objc
-- (UICollectionViewLayoutAttributes*)initialLayoutAttributesForAppearingItemAtIndexPath:(NSIndexPath *)itemIndexPath
-{
-    UICollectionViewLayoutAttributes *attr = [self layoutAttributesForItemAtIndexPath:itemIndexPath];
+    - (UICollectionViewLayoutAttributes*)initialLayoutAttributesForAppearingItemAtIndexPath:(NSIndexPath *)itemIndexPath
+    {
+        UICollectionViewLayoutAttributes *attr = [self layoutAttributesForItemAtIndexPath:itemIndexPath];
 
-    if ([_indexPathsToAnimate containsObject:itemIndexPath]) {
-        attr.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(0.2, 0.2), M_PI);
-        attr.center = CGPointMake(CGRectGetMidX(self.collectionView.bounds), CGRectGetMaxY(self.collectionView.bounds));
-        [_indexPathsToAnimate removeObject:itemIndexPath];
+        if ([_indexPathsToAnimate containsObject:itemIndexPath]) {
+            attr.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(0.2, 0.2), M_PI);
+            attr.center = CGPointMake(CGRectGetMidX(self.collectionView.bounds), CGRectGetMaxY(self.collectionView.bounds));
+            [_indexPathsToAnimate removeObject:itemIndexPath];
+        }
+
+        return attr;
     }
-
-    return attr;
-}
-````
 
 If the item is not being inserted, the normal attributes as reported by `layoutAttributesForItemAtIndexPath` will be returned, canceling any special appearance animations. Combined with the corresponding logic inside `finalLayoutAttributesForAppearingItemAtIndexPath:`, this will result in the items smoothly animating from their initial positions to their final positions in the case of a bounds change, creating a simple but cool animation:
 
@@ -134,61 +126,57 @@ Let's see how we can build something where the user can pinch an item to zoom, a
 
 Our handler method could look something like this:
 
-````objc
-- (void)handlePinch:(UIPinchGestureRecognizer *)sender {
-    if ([sender numberOfTouches] != 2)
-        return;
+    - (void)handlePinch:(UIPinchGestureRecognizer *)sender {
+        if ([sender numberOfTouches] != 2)
+            return;
 
 
-    if (sender.state == UIGestureRecognizerStateBegan ||
-        sender.state == UIGestureRecognizerStateChanged) {
-        // Get the pinch points.
-        CGPoint p1 = [sender locationOfTouch:0 inView:[self collectionView]];
-        CGPoint p2 = [sender locationOfTouch:1 inView:[self collectionView]];
+        if (sender.state == UIGestureRecognizerStateBegan ||
+            sender.state == UIGestureRecognizerStateChanged) {
+            // Get the pinch points.
+            CGPoint p1 = [sender locationOfTouch:0 inView:[self collectionView]];
+            CGPoint p2 = [sender locationOfTouch:1 inView:[self collectionView]];
 
-        // Compute the new spread distance.
-        CGFloat xd = p1.x - p2.x;
-        CGFloat yd = p1.y - p2.y;
-        CGFloat distance = sqrt(xd*xd + yd*yd);
+            // Compute the new spread distance.
+            CGFloat xd = p1.x - p2.x;
+            CGFloat yd = p1.y - p2.y;
+            CGFloat distance = sqrt(xd*xd + yd*yd);
 
-        // Update the custom layout parameter and invalidate.
-        FJAnimatedFlowLayout* layout = (FJAnimatedFlowLayout*)[[self collectionView] collectionViewLayout];
+            // Update the custom layout parameter and invalidate.
+            FJAnimatedFlowLayout* layout = (FJAnimatedFlowLayout*)[[self collectionView] collectionViewLayout];
 
-        NSIndexPath *pinchedItem = [self.collectionView indexPathForItemAtPoint:CGPointMake(0.5*(p1.x+p2.x), 0.5*(p1.y+p2.y))];
-        [layout resizeItemAtIndexPath:pinchedItem withPinchDistance:distance];
-        [layout invalidateLayout];
+            NSIndexPath *pinchedItem = [self.collectionView indexPathForItemAtPoint:CGPointMake(0.5*(p1.x+p2.x), 0.5*(p1.y+p2.y))];
+            [layout resizeItemAtIndexPath:pinchedItem withPinchDistance:distance];
+            [layout invalidateLayout];
 
+        }
+        else if (sender.state == UIGestureRecognizerStateCancelled ||
+                 sender.state == UIGestureRecognizerStateEnded){
+            FJAnimatedFlowLayout* layout = (FJAnimatedFlowLayout*)[[self collectionView] collectionViewLayout];
+            [self.collectionView
+             performBatchUpdates:^{
+                [layout resetPinchedItem];
+             }
+             completion:nil];
+        }
     }
-    else if (sender.state == UIGestureRecognizerStateCancelled ||
-             sender.state == UIGestureRecognizerStateEnded){
-        FJAnimatedFlowLayout* layout = (FJAnimatedFlowLayout*)[[self collectionView] collectionViewLayout];
-        [self.collectionView
-         performBatchUpdates:^{
-            [layout resetPinchedItem];
-         }
-         completion:nil];
-    }
-}
-````
 
 This pinch handler computes the pinch distance and figures out the pinched item, and tells the layout to update itself while the user is pinching. As soon as the pinch gesture is over, the layout is reset in a batch update to animate the return to the original size.
 
 Our layout, on the other hand, keeps track of the pinched item and the desired size and provides the correct attributes for them when needed:
 
-````objc
-- (NSArray*)layoutAttributesForElementsInRect:(CGRect)rect
-{
-    NSArray *attrs = [super layoutAttributesForElementsInRect:rect];
+    - (NSArray*)layoutAttributesForElementsInRect:(CGRect)rect
+    {
+        NSArray *attrs = [super layoutAttributesForElementsInRect:rect];
 
-    if (_pinchedItem) {
-        UICollectionViewLayoutAttributes *attr = [[attrs filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"indexPath == %@", _pinchedItem]] firstObject];
+        if (_pinchedItem) {
+            UICollectionViewLayoutAttributes *attr = [[attrs filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"indexPath == %@", _pinchedItem]] firstObject];
 
-        attr.size = _pinchedItemSize;
-        attr.zIndex = 100;
+            attr.size = _pinchedItemSize;
+            attr.zIndex = 100;
+        }
+        return attrs;
     }
-    return attrs;
-}
-````
 
 ###Summary
 
@@ -219,21 +207,19 @@ Probably the most common gotcha of this behavior is to expect the recycled colle
 
 The workaround for this problem is to implement the navigation controller delegate methods and correctly set the data source and the delegate of the collection view as needed by the current view controller at the top of the navigation stack. In our simple example, this can be achieved by:
 
-````objc
-- (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
-{
-    if ([viewController isKindOfClass:[FJDetailViewController class]]) {
-        FJDetailViewController *dvc = (FJDetailViewController*)viewController;
-        dvc.collectionView.dataSource = dvc;
-        dvc.collectionView.delegate = dvc;
-        [dvc.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:_selectedItem inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
+    - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+    {
+        if ([viewController isKindOfClass:[FJDetailViewController class]]) {
+            FJDetailViewController *dvc = (FJDetailViewController*)viewController;
+            dvc.collectionView.dataSource = dvc;
+            dvc.collectionView.delegate = dvc;
+            [dvc.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:_selectedItem inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredVertically animated:NO];
+        }
+        else if (viewController == self){
+            self.collectionView.dataSource = self;
+            self.collectionView.delegate = self;
+        }
     }
-    else if (viewController == self){
-        self.collectionView.dataSource = self;
-        self.collectionView.delegate = self;
-    }
-}
-````
 
 When the detail collection view is pushed onto the stack, we set the collection view's data source to the detail view controller, which makes sure that only the selected color of cells is shown in the detail collection view. If we were not to do this, the layout would correctly transition but the collection would still be showing all cells. In a real-world app, the detail data source would usually be responsible for showing more detail about the data in such a transition.
 
@@ -257,64 +243,62 @@ Another approach, which is implemented in the accompanying demo project, relies 
 
 The basic idea is that both the source and the destination collection views have valid flow layouts and the layout attributes of the source layout could act as the initial layout attributes for the items in the the destination collection view to drive the transition animation. Once this is set up, the collection view machinery would take care of keeping track of all items and animate them for us, even if they're not initially visible on the screen. Here is the core of the `animateTransition:` method of our animation controller:
 
-````objc
-    CGRect initialRect = [inView.window convertRect:_fromCollectionView.frame fromView:_fromCollectionView.superview];
-    CGRect finalRect   = [transitionContext finalFrameForViewController:toVC];
+        CGRect initialRect = [inView.window convertRect:_fromCollectionView.frame fromView:_fromCollectionView.superview];
+        CGRect finalRect   = [transitionContext finalFrameForViewController:toVC];
 
-    UICollectionViewFlowLayout *toLayout = (UICollectionViewFlowLayout*) _toCollectionView.collectionViewLayout;
+        UICollectionViewFlowLayout *toLayout = (UICollectionViewFlowLayout*) _toCollectionView.collectionViewLayout;
 
-    UICollectionViewFlowLayout *currentLayout = (UICollectionViewFlowLayout*) _fromCollectionView.collectionViewLayout;
+        UICollectionViewFlowLayout *currentLayout = (UICollectionViewFlowLayout*) _fromCollectionView.collectionViewLayout;
 
-    //make a copy of the original layout
-    UICollectionViewFlowLayout *currentLayoutCopy = [[UICollectionViewFlowLayout alloc] init];
+        //make a copy of the original layout
+        UICollectionViewFlowLayout *currentLayoutCopy = [[UICollectionViewFlowLayout alloc] init];
 
-    currentLayoutCopy.itemSize = currentLayout.itemSize;
-    currentLayoutCopy.sectionInset = currentLayout.sectionInset;
-    currentLayoutCopy.minimumLineSpacing = currentLayout.minimumLineSpacing;
-    currentLayoutCopy.minimumInteritemSpacing = currentLayout.minimumInteritemSpacing;
-    currentLayoutCopy.scrollDirection = currentLayout.scrollDirection;
+        currentLayoutCopy.itemSize = currentLayout.itemSize;
+        currentLayoutCopy.sectionInset = currentLayout.sectionInset;
+        currentLayoutCopy.minimumLineSpacing = currentLayout.minimumLineSpacing;
+        currentLayoutCopy.minimumInteritemSpacing = currentLayout.minimumInteritemSpacing;
+        currentLayoutCopy.scrollDirection = currentLayout.scrollDirection;
 
-    //assign the copy to the source collection view
-    [self.fromCollectionView setCollectionViewLayout:currentLayoutCopy animated:NO];
+        //assign the copy to the source collection view
+        [self.fromCollectionView setCollectionViewLayout:currentLayoutCopy animated:NO];
 
-    UIEdgeInsets contentInset = _toCollectionView.contentInset;
+        UIEdgeInsets contentInset = _toCollectionView.contentInset;
 
-    CGFloat oldBottomInset = contentInset.bottom;
+        CGFloat oldBottomInset = contentInset.bottom;
 
-    //force a very big bottom inset in the target collection view
-    contentInset.bottom = CGRectGetHeight(finalRect)-(toLayout.itemSize.height+toLayout.sectionInset.bottom+toLayout.sectionInset.top);
-    self.toCollectionView.contentInset = contentInset;
+        //force a very big bottom inset in the target collection view
+        contentInset.bottom = CGRectGetHeight(finalRect)-(toLayout.itemSize.height+toLayout.sectionInset.bottom+toLayout.sectionInset.top);
+        self.toCollectionView.contentInset = contentInset;
 
-    //set the source layout for the destination collection view
-    [self.toCollectionView setCollectionViewLayout:currentLayout animated:NO];
+        //set the source layout for the destination collection view
+        [self.toCollectionView setCollectionViewLayout:currentLayout animated:NO];
 
-    toView.frame = initialRect;
+        toView.frame = initialRect;
 
-    [inView insertSubview:toView aboveSubview:fromView];
+        [inView insertSubview:toView aboveSubview:fromView];
 
-    [UIView
-     animateWithDuration:[self transitionDuration:transitionContext]
-     delay:0
-     options:UIViewAnimationOptionBeginFromCurrentState
-     animations:^{
-       //animate to the final frame
-         toView.frame = finalRect;
-         //set the final layout inside performUpdates
-         [_toCollectionView
-          performBatchUpdates:^{
-              [_toCollectionView setCollectionViewLayout:toLayout animated:NO];
-          }
-          completion:^(BOOL finished) {
-              _toCollectionView.contentInset = UIEdgeInsetsMake(contentInset.top,
-                                                                contentInset.left,
-                                                                oldBottomInset,
-                                                                contentInset.right);
-          }];
+        [UIView
+         animateWithDuration:[self transitionDuration:transitionContext]
+         delay:0
+         options:UIViewAnimationOptionBeginFromCurrentState
+         animations:^{
+           //animate to the final frame
+             toView.frame = finalRect;
+             //set the final layout inside performUpdates
+             [_toCollectionView
+              performBatchUpdates:^{
+                  [_toCollectionView setCollectionViewLayout:toLayout animated:NO];
+              }
+              completion:^(BOOL finished) {
+                  _toCollectionView.contentInset = UIEdgeInsetsMake(contentInset.top,
+                                                                    contentInset.left,
+                                                                    oldBottomInset,
+                                                                    contentInset.right);
+              }];
 
-     } completion:^(BOOL finished) {
-         [transitionContext completeTransition:YES];
-     }];
-````
+         } completion:^(BOOL finished) {
+             [transitionContext completeTransition:YES];
+         }];
 
 First, the animation controller makes sure that the destination collection view starts with the exact same frame and layout as the original. Then, it assigns the layout of the source collection view to the destination collection view, making sure that it does not get invalidated. At the same time, the layout is 'copied' into a new layout object, which gets assigned to the original collection view to prevent strange layout bugs when navigating back to the original view controller. We also force a large bottom content inset on the destination collection view to make sure that the layout stays on a single line for the initial positions for the animation. If you look at the logs, you will see the collection view complaining about this temporary condition because the item size plus the insets are larger than the non-scrolling dimension of the collection view. In this state, the behavior of the collection view is not defined, and we are only using this unstable state as the initial state for our transition animation. Finally, the convoluted animation block does its magic by first setting the frame of the destination collection view to its final position, and then performing a non-animated layout change to the final layout inside the updates block of `performBatchUpdates:completion:`, which is followed by the resetting of the content insets to the original values in the completion block.
 
