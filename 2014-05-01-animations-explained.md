@@ -134,7 +134,7 @@ Keyframes allow us to define an arbitrary number of points during the animation,
 Let's say we are working on a log-in form for our next iPhone application and want to shake the form whenever the user enters his or her password incorrectly. Using keyframe animations, this could look a little like so:
 
 <center>
-    <img src="form.gif" width="320px">
+    <img src="/images/issue-12/form.gif" width="320px">
 </center>
 
 ```objc
