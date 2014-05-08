@@ -7,9 +7,6 @@ tags: article
 author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a> and <a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
 ---
 
-TODO: Add credits to Loren for his advice on the topic.
-TODO: add MathJAX (`<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>`)
-
 
 When Steve Jobs introduced the first iPhone in 2007, the touch screen interaction had a certain kind of magic to it. A prime example of this was his [first demonstration of scrolling a table view](http://www.youtube.com/watch?v=t4OEsI0Sc_s&t=16m9s). You can hear in the reaction of the audience how impressive what seems the most normal thing to us today was back then. A little bit later in the presentation, he underlined this point by quoting somebody he had given a demo to before: ["You got me at scrolling"](https://www.youtube.com/watch?v=t4OEsI0Sc_s&t=22m10s). 
 
@@ -44,11 +41,11 @@ Core Animation is designed in a way that it decouples the layer's model properti
 
 The bigger problem with `CAAnimation` animations is that they directly operate on the spatial properties of a layer. This means, for example, that you specify that a layer should animate from position `(100, 100)` to position `(300, 300)`. If you want to stop this animation halfway and to animate the layer back to where it came from, things get very complicated. If you simply remove the current animation and add a new animation, then the layer's velocity would be discontinuous.
 
-<img src="{{site.images_path}}/issue-12/abrupt.png" width="50%" />
+<img src="{{site.images_path}}/issue-12/abrupt.png" width="600" />
 
 What we want to have, though, is a nice, smooth deceleration and acceleration.
 
-<img src="{{site.images_path}}/issue-12/smooth.png" width="50%" />
+<img src="{{site.images_path}}/issue-12/smooth.png" width="600" />
 
 This only becomes feasible once you start controlling animations *indirectly*, i.e. through simulated forces acting on the view. The new animation needs to take the layer's current velocity *vector* as input in order to produce a smooth result.
 
@@ -59,21 +56,23 @@ Looking at the `UIView` animation API for spring animations (`animateWithDuratio
 
 So let's take a look at how we can correctly implement interactive and interruptible animations. To do this, we're going to build something like the Control Center panel:
 
-TODO: animation.gif
+<center><video style="display:block;max-width:100%;height:auto;border:0;" controls="1">
+  <source src="{{site.images_path}}/issue-12/interactive-animation.mov"></source>
+</video></center>
 
 The panel has two states: opened and closed. You can toggle the states by tapping it, or dragging it up and down. The challenge is to make everything interactive, even while animating. For example, if you tap the panel while it's animating to the opened state, it should animate back to the closed state from its current position. In a lot of apps that use default animation APIs, you'll have to wait until the animation is finished before you can do anything. Or, if you don't have to wait, the animation exhibits a discontinuous velocity curve. We want to work around this.
 
 
 ### UIKit Dynamics
 
-With iOS 7, Apple introduced the animation framework UIKit Dynamics (see WWDC 2013 sessions [206](https://developer.apple.com/videos/wwdc/2013/index.php?id=206) and [221](https://developer.apple.com/videos/wwdc/2013/index.php?id=221)). UIKit Dynamics is based on a pseudo-physics engine that can animate everything that implements the [`UIDynamicItem`](TODO) protocol by adding specific behaviors to an animator object. This framework is very powerful and enables complex behaviors of many items like attachments and collisions. Take a look at the sample [dynamics catalog](https://developer.apple.com/library/ios/samplecode/DynamicsCatalog/Introduction/Intro.html) to see what's available.
+With iOS 7, Apple introduced the animation framework UIKit Dynamics (see WWDC 2013 sessions [206](https://developer.apple.com/videos/wwdc/2013/index.php?id=206) and [221](https://developer.apple.com/videos/wwdc/2013/index.php?id=221)). UIKit Dynamics is based on a pseudo-physics engine that can animate everything that implements the [`UIDynamicItem`](https://developer.apple.com/library/ios/documentation/uikit/reference/UIDynamicItem_Protocol/Reference/Reference.html) protocol by adding specific behaviors to an animator object. This framework is very powerful and enables complex behaviors of many items like attachments and collisions. Take a look at the sample [dynamics catalog](https://developer.apple.com/library/ios/samplecode/DynamicsCatalog/Introduction/Intro.html) to see what's available.
 
 Since animations with UIKit Dynamics are driven indirectly, as we discussed above, this enables us to implement truly interactive animations that can be interrupted and that exhibit continuous acceleration behavior at any time. At the same time, the abstraction of UIKit Dynamics at the physics level can also seem overwhelming for the kind of animations that we generally need in user interfaces. In most cases, we'll only use a very small subset of its capabilities.
 
 
 #### Defining Behaviors
 
-In order to implement our sliding-panel behavior, we'll make use of two different behaviors that come with UIKit Dynamics: [`UIAttachmentBehavior`](TODO) and [`UIDynamicItemBehavior`](TODO). The attachment behavior fulfills the role of a spring, pulling our view toward its target point. The dynamic item behavior, on the other hand, defines intrinsic properties of the view, such as its friction coefficient.
+In order to implement our sliding-panel behavior, we'll make use of two different behaviors that come with UIKit Dynamics: [`UIAttachmentBehavior`](https://developer.apple.com/library/ios/documentation/uikit/reference/UIAttachmentBehavior_Class/Reference/Reference.html) and [`UIDynamicItemBehavior`](https://developer.apple.com/library/ios/documentation/uikit/reference/UIDynamicItemBehavior_Class/Reference/Reference.html). The attachment behavior fulfills the role of a spring, pulling our view toward its target point. The dynamic item behavior, on the other hand, defines intrinsic properties of the view, such as its friction coefficient.
 
 To package these two behaviors for our sliding panel, we'll create our own behavior subclass:
 
@@ -183,45 +182,45 @@ Let's first take a look at some basic physics necessary to drive a spring animat
 
 The objective is to calculate the new position of the panel based on its current position and the time that has elapsed since the last animation tick. This can be expressed as:
 
-$$y = y_{0} + \Delta y$$
+    y = y0 + Δy
 
 The position delta is a function of the velocity and the time:
  
-$$\Delta y = v \cdot \Delta t$$
-
+    Δy = v ⋅ Δt
+    
 The velocity can be calculated as the previous velocity plus the velocity delta, caused by the force acting on the view:
 
-$$v = v_{0} + \Delta v$$
+    v = v0 + Δv
 
 The change in velocity can be calculated by the impulse applied to the view:
 
-$$\Delta v = \frac{F \cdot \Delta t}{m}$$
-
+    Δv = (F ⋅ Δt) / m
+    
 Now, let's take a look at the force acting on the view. In order to get the spring effect, we have to combine a spring force with friction force:
 
-$$F = F_{spring} + F_{friction}$$
+    F = F_spring + F_friction
 
 The spring force comes straight from the textbook:
 
-$$F_{spring} = k \cdot x$$
+    F_spring = k ⋅ x
 
-where $k$ is the spring constant and $x$ is the distance of the view to its target end point (the length of the spring). Therefore, we can also write this as:
+where `k` is the spring constant and `x` is the distance of the view to its target end point (the length of the spring). Therefore, we can also write this as:
 
-$$F_{spring} = k \cdot abs(y_{target} - y_{0})$$
+    F_spring = k ⋅ abs(y_target - y0)
 
 We calculate friction as being proportional to the view's velocity:
 
-$$F_{friction} = \mu \cdot v$$
+    F_friction = μ ⋅ v
 
-$\mu$ is a simple friction constant. You could come up with other ways to calculate the friction force, but this works well to create the animation we want to have.
+`μ` is a simple friction constant. You could come up with other ways to calculate the friction force, but this works well to create the animation we want to have.
 
 Putting this together, the force on the view is calculated as:
 
-$$F = k \cdot abs(y_{target} - y_{0}) + \mu \cdot v$$
+    F = k ⋅ abs(y_target - y0) + μ ⋅ v
 
-To simplify things a bit more, we'll set the view's mass to $1$, so that we can calculate the change in position as:
+To simplify things a bit more, we'll set the view's mass to `1`, so that we can calculate the change in position as:
 
-$$\Delta y = \left(v_0 + \left(k \cdot abs\left(y_{target} - y_0\right) + \mu \cdot v\right) \cdot \Delta t\right) \cdot \Delta t$$
+    Δy = (v0 + (k ⋅ abs(y_target - y0) + μ ⋅ v) ⋅ Δt) ⋅ Δt
 
 
 #### Implementing the Animation
@@ -384,3 +383,6 @@ If you need more than what `POPSpringAnimation` and `POPDecayAnimation` can do o
 ## The Road Ahead
 
 With iOS 7's shift away from visual imitation of real-world objects toward a stronger focus on the UI's behavior, truly interactive animations are a great way to stand out. They're also a way to extend the magic of the original iPhone's scrolling behavior into every aspect of the interaction. To make this work, it's important to consider those interactions early on in the design instead of just bolting on animations late in the development process.
+
+A special thanks goes to [Loren Brichter](https://twitter.com/lorenb) for his advice on this article!
+
