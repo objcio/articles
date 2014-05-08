@@ -39,7 +39,7 @@ By using `-[CALayer presentationLayer]` and `-[CALayer modelLayer]`, you can swi
 
 Probably the most common case is to animate a view's property from one value to another. Consider this example:
 
-![](rocket-linear.gif)
+<center><img src="rocket-linear@2x.gif" width="400px"></center>
 
 Here, we animate our little red rocket from an x-position of `77.0` to one of `455.0`, which is just beyond the edge of its parent view. In order to fill in all the steps along the way, we need to determine where our rocket is going to be at any given point in time. This is commonly done using linear interpolation:
 
@@ -162,7 +162,7 @@ Thankfully, `CAKeyframeAnimation` offers the more convenient `path` property as 
 
 For instance, this is how we would animate a view in a circle:
 
-![](planets.gif)
+<center><img src="planets@2x.gif" width="400px"></center>
 
 ```objc
 CGRect boundingRect = CGRectMake(-150, -150, 300, 300);
@@ -186,7 +186,7 @@ Setting it to `kCAAnimationPaced` also disregards any `keyTimes` we would've set
 
 Setting the `rotationMode` property to `kCAAnimationRotateAuto` ensures that the satellite follows the rotation along the path. By contrast, this is what the animation would look like had we left the property `nil`:
 
-![](planets-incorrect.gif)
+<center><img src="planets-incorrect@2x.gif" width="400px"></center>
 
 You can achieve a couple of interesting effects using animations with paths;
 fellow objc.io author [Ole Begemann](https://twitter.com/oleb) wrote [a great post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
@@ -195,7 +195,7 @@ fellow objc.io author [Ole Begemann](https://twitter.com/oleb) wrote [a great po
 
 Let's look at our first example again:
 
-![](rocket-linear.gif)
+<center><img src="rocket-linear@2x.gif" width="400px"></center>
 
 You'll notice that there is something very artificial about the animation of our rocket. That is because most movements we see in the real world take time to accelerate or decelerate. Objects that instantly reach their top speed and then stop immediately tend to look very unnatural. Unless you're [dancing the robot](https://www.youtube.com/watch?v=o8HkEprSaAs&t=1m2s), that's rarely a desired effect.
 
@@ -213,7 +213,7 @@ The simplest easing function is _linear_. It maintains a constant speed througho
 In Core Animation, this function is represented by the `CAMediaTimingFunction`
 class:
 
-![](rect-linear.gif)
+<img src="rect-linear@2x.gif" width="540px">
 
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
@@ -232,20 +232,20 @@ rectangle.layer.position = CGPointMake(150, 0);
 Core Animation comes with a number of built-in easing functions beyond linear, such as:
 
 * Ease in (`kCAMediaTimingFunctionEaseIn`):  
-  ![](rect-easein.gif)
+  <center><img src="rect-easein@2x.gif" width="540px"></center>
 * Ease out (`kCAMediaTimingFunctionEaseOut`):  
-  ![](rect-easeout.gif)
+  <center><img src="rect-easeout@2x.gif" width="540px"></center>
 * Ease in ease out (`kCAMediaTimingFunctionEaseInEaseOut`):  
-  ![](rect-easeineaseout.gif)
+  <center><img src="rect-easeineaseout@2x.gif" width="540px"></center>
 * Default (`kCAMediaTimingFunctionDefault`):  
-  ![](rect-default.gif)
+  <center><img src="rect-default@2x.gif" width="540px"></center>
 
 
 It's also possible, within limits, to create your own easing function using `+functionWithControlPoints::::`.[^3] By passing in the _x_ and _y_ components of two control points of a cubic Bézier curve, you can easily create custom easing functions, such as the one I chose for our little red rocket:
 
 [^3]: This method is infamous for having three nameless parameters, not something that we recommend you make use of in your APIs.
 
-![](rocket-custom.gif)
+<center><img src="rocket-custom@2x.gif" width="400px"></center>
 
 ```objc
 CABasicAnimation *animation = [CABasicAnimation animation];
@@ -263,7 +263,7 @@ rocket.layer.position = CGPointMake(150, 0);
 
 Without going into too much detail on Bézier curves, they are a common technique to create smooth curves in computer graphics. You've probably seen them in vector-based drawing tools such as Sketch or Adobe Illustrator.
 
-![](bezier.png)
+<center><img src="bezier.png"></center>
 
 The values passed to `+functionWithControlPoints::::` effectively control the position of the handles. The resulting timing function will then adjust the speed of the animation based on the resulting path. The x-axis represents the fraction of the duration, while the y-axis is the input value of the interpolation function.
 
@@ -271,7 +271,7 @@ Unfortunately, since the components are clamped to the range of [0–1], it is n
 
 I wrote a small library, called [RBBAnimation](https://github.com/robb/RBBAnimation), that contains a custom `CAKeyframeAnimation` subclass which allows you to use [more complex easing functions](https://github.com/robb/RBBAnimation#rbbtweenanimation), including bounces or cubic Bézier functions with negative components:
 
-> [ Rectangle with negative component ]
+<center><img src="anticipate@2x.gif" width="140px"></center>
 
 ```objc
 RBBTweenAnimation *animation = [RBBTweenAnimation animation];
@@ -280,10 +280,10 @@ animation.fromValue = @50;
 animation.toValue = @150;
 animation.duration = 1;
 
-animation.easing = RBBCubicBezier(0.68, -0.55, 0.265, 1.55);
+animation.easing = RBBCubicBezier(0.68, -0.55, 0.735, 1.55);
 ```
 
-> [ Rectangle with bounce ]
+<center><img src="bounce@2x.gif" width="140px"></center>
 
 ```objc
 RBBTweenAnimation *animation = [RBBTweenAnimation animation];
@@ -297,38 +297,55 @@ animation.easing = RBBEasingFunctionEaseOutBounce;
 
 ## Animation Groups
 
-For certain complex effects, it may be necessary to animate multiple properties at once. For instance, in the following card-shuffle animation, we will animate the position, rotation, and z-position of the card at once.
+For certain complex effects, it may be necessary to animate multiple properties at once. Imagine we were to implement a shuffle animation when advancing to a random track in a media player app, it could look like this:
 
-> [ Card shuffling animation ]
+<center>
+    <img src="covers@2x.gif" width="440px">
+</center>
 
-Here's the code that makes it happen:
+You can see that we have to animate the position, rotation and z-position of the artworks at once. Using `CAAnimationGroup`, the code to animate one of the covers could look a little something like this:
 
 ```objc
 CABasicAnimation *zPosition = [CABasicAnimation animation];
 zPosition.keyPath = @"zPosition";
 zPosition.fromValue = @-1;
 zPosition.toValue = @1;
+zPosition.duration = 1.2;
 
 CAKeyframeAnimation *rotation = [CAKeyframeAnimation animation];
 rotation.keyPath = @"transform.rotation";
-rotation.values = @[ @0, @30, @0 ];
+rotation.values = @[ @0, @0.14, @0 ];
+rotation.duration = 1.2;
+rotation.timingFunctions = @[
+    [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
+    [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
+];
 
 CAKeyframeAnimation *position = [CAKeyframeAnimation animation];
 position.keyPath = @"position";
-position.values = @[ 
+position.values = @[
     [NSValue valueWithCGPoint:CGPointZero],
-    [NSValue valueWithCGPoint:CGPointMake(40, 40)],
+    [NSValue valueWithCGPoint:CGPointMake(110, -20)],
     [NSValue valueWithCGPoint:CGPointZero]
 ];
+position.timingFunctions = @[
+    [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
+    [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
+];
 position.additive = YES;
+position.duration = 1.2;
 
 CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
 group.animations = @[ zPosition, rotation, position ];
+group.duration = 1.2;
+group.beginTime = 0.5;
 
-[card.layer addAnimationGroup:group forKey:shuffle];
+[card.layer addAnimation:group forKey:@"shuffle"];
+
+card.layer.zPosition = 1;
 ```
 
-One benefit we get from the animation group is being able to expose all animations as a single object. This is useful if you have a factory object that creates animations to be reused at multiple points in your application.
+One benefit we get from using `CAAnimationGroup` is being able to expose all animations as a single object. This is useful if you have a factory object that creates animations to be reused at multiple points in your application.
 
 You can also use the animation group to control the timing of all components at the same time.
 
@@ -342,3 +359,8 @@ It's also available on OS X and allows us to animate arbitrary properties on eve
 ## Further Reading
 
 - [Core Animation Programming Guide](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/Introduction/Introduction.html)
+- [12 basic principles of animation](https://en.wikipedia.org/wiki/12_basic_principles_of_animation)
+- [Animating drawing of CGPath with CAShapeLayer](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer)
+- [Controlling animation timing](http://ronnqvi.st/controlling-animation-timing/)
+- [pop](https://github.com/facebook/pop)
+- [RBBAnimation](https://github.com/robb/RBBAnimation)
