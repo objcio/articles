@@ -341,6 +341,11 @@ We set up the display link to call `animationTick:`, and on each tick we iterate
 The entire project is available on [GitHub](https://github.com/objcio/issue-12-interactive-animations).
 
 
+#### Tradeoffs
+
+It's important to keep in mind that driving animations via display links (as demonstrated above or by using UIKit Dynamics or something like Facebook's POP framework) comes with a tradeoff. As [Andy Matuschak pointed out](https://twitter.com/andy_matuschak/status/464790108072206337) `UIView` and `CAAnimation` animations are less likely to be affected by other tasks running on the system, because the render server runs at a higher priority than your app. 
+
+
 ### Back to the Mac
 
 There's nothing like UIKit Dynamics available on Mac at this time. If you want
@@ -385,4 +390,3 @@ If you need more than what `POPSpringAnimation` and `POPDecayAnimation` can do o
 With iOS 7's shift away from visual imitation of real-world objects toward a stronger focus on the UI's behavior, truly interactive animations are a great way to stand out. They're also a way to extend the magic of the original iPhone's scrolling behavior into every aspect of the interaction. To make this work, it's important to consider those interactions early on in the design instead of just bolting on animations late in the development process.
 
 A special thanks goes to [Loren Brichter](https://twitter.com/lorenb) for his advice on this article!
-
