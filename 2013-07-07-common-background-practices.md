@@ -364,8 +364,8 @@ To kick off the URL connection, we override the `start` method in our custom ope
         self.isFinished = NO;
         [[NSOperationQueue mainQueue] addOperationWithBlock:^
         {
-            self.connection = [NSURLConnectionconnectionWithRequest:request
-                                                           delegate:self];
+            self.connection = [NSURLConnection connectionWithRequest:request
+                                                            delegate:self];
         }];
     }
 
