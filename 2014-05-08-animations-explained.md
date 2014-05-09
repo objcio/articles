@@ -65,7 +65,7 @@ Once the animation is removed, the presentation layer will fall back to the valu
 
 There are two ways to deal with this issue:
 
-The first approach is to update the property directly on the model layer. This is usually the best approach, since it makes the animation completely optional.
+The first approach is to update the property directly on the model layer. _This is the recommended approach_, since it makes the animation completely optional.
 
 Once the animation completes and is removed from the layer, the presentation layer will fall through to the value that is set on the model, which matches the last step of the animation:
 
@@ -79,7 +79,9 @@ Once the animation completes and is removed from the layer, the presentation lay
 
     rocket.layer.position = CGPointMake(455, 61);
 
-Alternatively, you can tell the animation to remain in its final state by setting its `fillMode` property to ` kCAFillModeForward` and prevent it from being automatically removed by setting `removedOnCompletion` to `NO`:
+Alternatively, you can tell the animation to remain in its final state by setting its `fillMode` property to ` kCAFillModeForwards` and prevent it from being automatically removed by setting `removedOnCompletion` to `NO`. However, it's a good practice to keep the model and presentation layers in sync, so _this approach should be used carefully_.
+
+[Andy Matuschak also pointed out](https://twitter.com/andy_matuschak/status/464799423785336832), that keeping completed animations around adds additional overhead and may cause the renderer to draw unnecessary frames.
 
     CABasicAnimation *animation = [CABasicAnimation animation];
     animation.keyPath = @"position.x";
