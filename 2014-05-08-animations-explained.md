@@ -250,11 +250,11 @@ Without going into too much detail on Bézier curves, they are a common techniqu
 
 The values passed to `+functionWithControlPoints::::` effectively control the position of the handles. The resulting timing function will then adjust the speed of the animation based on the resulting path. The x-axis represents the fraction of the duration, while the y-axis is the input value of the interpolation function.
 
-Unfortunately, since the components are clamped to the range of [0–1], it is not possible to create common effects such as anticipation -- where an animated object swings back before moving to its target -- or overshooting.
+Unfortunately, since the components are clamped to the range of `[0–1]`, it is not possible to create common effects such as anticipation -- where an animated object swings back before moving to its target -- or overshooting.
 
 I wrote a small library, called [RBBAnimation](https://github.com/robb/RBBAnimation), that contains a custom `CAKeyframeAnimation` subclass which allows you to use [more complex easing functions](https://github.com/robb/RBBAnimation#rbbtweenanimation), including bounces or cubic Bézier functions with negative components:
 
-<center><img src="{{site.images_path}}/issue-12/anticipate@2x.gif" width="140px"></center>
+<center><img src="{{site.images_path}}/issue-12/anticipate@2x.gif" width="140"></center>
 
     RBBTweenAnimation *animation = [RBBTweenAnimation animation];
     animation.keyPath = @"position.x";
@@ -264,7 +264,7 @@ I wrote a small library, called [RBBAnimation](https://github.com/robb/RBBAnimat
 
     animation.easing = RBBCubicBezier(0.68, -0.55, 0.735, 1.55);
 
-<center><img src="{{site.images_path}}/issue-12/bounce@2x.gif" width="140px"></center>
+<center><img src="{{site.images_path}}/issue-12/bounce@2x.gif" width="140"></center>
 
     RBBTweenAnimation *animation = [RBBTweenAnimation animation];
     animation.keyPath = @"position.x";
@@ -278,9 +278,7 @@ I wrote a small library, called [RBBAnimation](https://github.com/robb/RBBAnimat
 
 For certain complex effects, it may be necessary to animate multiple properties at once. Imagine we were to implement a shuffle animation when advancing to a random track in a media player app, it could look like this:
 
-<center>
-    <img src="{{site.images_path}}/issue-12/covers@2x.gif" width="440px">
-</center>
+<center><img src="{{site.images_path}}/issue-12/covers@2x.gif" width="440"></center>
 
 You can see that we have to animate the position, rotation and z-position of the artworks at once. Using `CAAnimationGroup`, the code to animate one of the covers could look a little something like this:
 

@@ -361,17 +361,17 @@ There has been quite a bit of buzz in the last weeks around Facebook's [POP fram
 
 So, let's try to make our own manually driven animation work with POP instead. Since we already had our own spring animation packaged into its own class, the change is pretty trivial. All we have to do is instantiate a POP animation instead of our own one, and add this to the view:
 
-- (void)animatePaneWithInitialVelocity:(CGPoint)initialVelocity
-{
-    [self.pane pop_removeAllAnimations];
-    POPSpringAnimation *animation = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
-    animation.velocity = [NSValue valueWithCGPoint:initialVelocity];
-    animation.toValue = [NSValue valueWithCGPoint:self.targetPoint];
-    animation.springSpeed = 15;
-    animation.springBounciness = 6;
-    [self.pane pop_addAnimation:animation forKey:@"animation"];
-    self.animation = animation;
-}
+    - (void)animatePaneWithInitialVelocity:(CGPoint)initialVelocity
+    {
+        [self.pane pop_removeAllAnimations];
+        POPSpringAnimation *animation = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
+        animation.velocity = [NSValue valueWithCGPoint:initialVelocity];
+        animation.toValue = [NSValue valueWithCGPoint:self.targetPoint];
+        animation.springSpeed = 15;
+        animation.springBounciness = 6;
+        [self.pane pop_addAnimation:animation forKey:@"animation"];
+        self.animation = animation;
+    }
 
 You can find the full working example using POP on [GitHub](https://github.com/objcio/issue-12-interactive-animations-pop).
 

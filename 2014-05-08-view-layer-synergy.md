@@ -43,8 +43,8 @@ What may have seemed complicated a minute ago is all of a sudden very simple: th
 
 Running the above code shows that the view returns the NSNull object outside of the block and returns a CABasicAnimation inside of the block. Elegant, isn't it? Note that the description of NSNull prints with angle brackets, just like other objects, ("`<null>`") and that nil prints with parenthesis ("`(null)`"): 
 
-	outside animation block: <null>
-	inside animation block: <CABasicAnimation: 0x8c2ff10>
+    outside animation block: <null>
+    inside animation block: <CABasicAnimation: 0x8c2ff10>
 
 For backing layers, the search for an action doesn't go further than the first step.[^neverSeen] For standalone layers, there are four more steps that you can read more about in [the documentation for `actionForKey:` on CALayer][actionForKeyDocs]. 
 
@@ -83,14 +83,14 @@ The interaction between views and layers is rather easy to inspect, all thanks t
 By logging the debug description of the animation, we don't only see that it gets called as expected, but we also see how the animation is constructed:
 
     <CABasicAnimation:0x8c73680; 
-    	delegate = <UIViewAnimationState: 0x8e91fa0>;
-    	fillMode = both; 
-    	timingFunction = easeInEaseOut; 
-    	duration = 0.3; 
-    	fromValue = NSPoint: {5, 5}; 
-    	keyPath = position
+        delegate = <UIViewAnimationState: 0x8e91fa0>;
+        fillMode = both; 
+        timingFunction = easeInEaseOut; 
+        duration = 0.3; 
+        fromValue = NSPoint: {5, 5}; 
+        keyPath = position
     >
-	
+    
 At the time when the animation is added to the layer, the new value of the property hasn't yet been changed. The animation is constructed to make good use of this by only specifying an explicit `fromValue` (the current value). A quick glance at [the CABasicAnimation documentation][basicAnimation] reminds us what this means for the interpolation of the animation:
 
 > `fromValue` is non-`nil`. Interpolates between `fromValue` and the current presentation value of the property.
@@ -163,8 +163,6 @@ Depending on personal preference, a block-based callback style, like this, may f
 
 Once you know about the `actionForKey:` mechanism, UIView animations are a lot less magical than they might first seem. In fact, there isn't really anything stopping us from writing our own block-based animation APIs that are tailored to our needs. The one I'm designing will be used to draw attention to a view by animating the change inside of the block with a very aggressive timing curve, and then slowly animate back to the original value. You could say that it makes the view 'pop.'[^pop] Unlike a regular animation block with the `UIViewAnimationOptionAutoreverse` option, I'm also changing the model value back to what it was before, since that's what the animation conceptually does. Using the custom animation API will look like this:
 
-[^pop]: Not to be confused with Facebook's new framework.
-
     [UIView DR_popAnimationWithDuration:0.7
                                  animations:^{
                                      myView.transform = CGAffineTransformMakeRotation(M_PI_2);
@@ -180,7 +178,7 @@ To start with, we need to get the delegate callback when a layer property change
     @implementation UIView (DR_CustomBlockAnimations)
     
     + (void)load
-    {	    
+    {        
         SEL originalSelector = @selector(actionForLayer:forKey:);
         SEL extendedSelector = @selector(DR_actionForLayer:forKey:);
         
@@ -319,17 +317,17 @@ Creating your own API like this is not going to be a good fit for every case, bu
 I'd like to leave you with a completely different approach to a higher-level animation API: the UIImageView animation. On the surface, it barely resembles a traditional animation API. All that you are doing is specifying an array of images and a duration, and telling the image view to start animating. Behind that abstraction, it results in a discrete keyframe animation of the contents property being added to the image view's layer:
 
     <CAKeyframeAnimation:0x8e5b020; 
-    	removedOnCompletion = 0; 
-    	delegate = <_UIImageViewExtendedStorage: 0x8e49230>; 
-    	duration = 2.5; 
-    	repeatCount = 2.14748e+09; 
-    	calculationMode = discrete; 
-    	values = (
-    	    "<CGImage 0x8d6ce80>",
-    	    "<CGImage 0x8d6d2d0>",
-    	    "<CGImage 0x8d5cd30>"
-    	); 
-    	keyPath = contents
+        removedOnCompletion = 0; 
+        delegate = <_UIImageViewExtendedStorage: 0x8e49230>; 
+        duration = 2.5; 
+        repeatCount = 2.14748e+09; 
+        calculationMode = discrete; 
+        values = (
+            "<CGImage 0x8d6ce80>",
+            "<CGImage 0x8d6d2d0>",
+            "<CGImage 0x8d5cd30>"
+        ); 
+        keyPath = contents
     >
 
 Animation APIs can come in many different forms, and the same applies to the animation APIs you write yourself.
@@ -345,4 +343,7 @@ Animation APIs can come in many different forms, and the same applies to the ani
 [^animatable]: Almost all layer properties are implicitly animatable. You will see that their brief descriptions in the documentation end with 'animatable.' This applies to pretty much any numeric property, such as the position, size, color, and opacity, and even for boolean properties like isHidden and doubleSided. Properties that are paths are animatable but do not support implicit animations.
 
 [basicAnimation]: https://developer.apple.com/library/ios/documentation/GraphicsImaging/Reference/CABasicAnimation_class/Introduction/Introduction.html "CABasicAnimation documentation"
+
+
+[^pop]: Not to be confused with Facebook's new framework.
 
