@@ -27,7 +27,7 @@ Instead, Core Animation maintains two parallel layer hierarchies: the _model lay
 
 [^1]: There is actually a third layer tree called the _rendering tree_. Since it's private to Core Animation, we won't cover it here.
 
-Consider adding a fade-out animation to a view. If you, at any point during the animation, inspect the layer's `opacity` value, you most likely won't get an opacity that corresponds to what is onscreen. Instead, you need to need to inspect the presentation layer to get the correct result.
+Consider adding a fade-out animation to a view. If you, at any point during the animation, inspect the layer's `opacity` value, you most likely won't get an opacity that corresponds to what is onscreen. Instead, you need to inspect the presentation layer to get the correct result.
 
 While you may not set properties of the presentation layer directly, it can be useful to use its current values to create new animations or to interact with layers while an animation is taking place.
 
@@ -65,7 +65,7 @@ Once the animation is removed, the presentation layer will fall back to the valu
 
 There are two ways to deal with this issue:
 
-The first approach is to update the property directly on the model layer. This is usually the best approach, since it makes the animation completely optional.
+The first approach is to update the property directly on the model layer. _This is the recommended approach_, since it makes the animation completely optional.
 
 Once the animation completes and is removed from the layer, the presentation layer will fall through to the value that is set on the model, which matches the last step of the animation:
 
@@ -79,7 +79,9 @@ Once the animation completes and is removed from the layer, the presentation lay
 
     rocket.layer.position = CGPointMake(455, 61);
 
-Alternatively, you can tell the animation to remain in its final state by setting its `fillMode` property to ` kCAFillModeForward` and prevent it from being automatically removed by setting `removedOnCompletion` to `NO`:
+Alternatively, you can tell the animation to remain in its final state by setting its `fillMode` property to ` kCAFillModeForwards` and prevent it from being automatically removed by setting `removedOnCompletion` to `NO`. However, it's a good practice to keep the model and presentation layers in sync, so _this approach should be used carefully_.
+
+[Andy Matuschak also pointed out](https://twitter.com/andy_matuschak/status/464799423785336832), that keeping completed animations around adds additional overhead and may cause the renderer to draw unnecessary frames.
 
     CABasicAnimation *animation = [CABasicAnimation animation];
     animation.keyPath = @"position.x";
@@ -177,7 +179,7 @@ Setting the `rotationMode` property to `kCAAnimationRotateAuto` ensures that the
 <center><img src="{{site.images_path}}/issue-12/planets-incorrect@2x.gif" width="400px"></center>
 
 You can achieve a couple of interesting effects using animations with paths;
-fellow objc.io author [Ole Begemann](https://twitter.com/oleb) wrote [a great post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
+fellow objc.io author [Ole Begemann](https://twitter.com/olebegemann) wrote [a great post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
 
 ## Timing Functions
 
