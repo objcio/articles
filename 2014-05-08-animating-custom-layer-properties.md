@@ -76,7 +76,7 @@ We'll also set up a basic view controller with a `UIDatePicker` so we can test o
 
     @interface ViewController ()
 
-    @property (nonatomic, strong) IBOutlet UIDatePicker *datePicker;
+    @property (nonatomic, weak) IBOutlet UIDatePicker *datePicker;
     @property (nonatomic, strong) ClockFace *clockFace;
 
     @end
