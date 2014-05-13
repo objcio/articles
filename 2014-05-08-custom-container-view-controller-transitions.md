@@ -51,9 +51,9 @@ The components of the iOS 7 custom view controller transition API are mostly pro
 
 4. **Transitioning Contexts** defining metadata about the transition, such as properties of the view controllers and views participating in the transition. These objects conform to the `UIViewControllerContextTransitioning` protocol, *and are created and provided by the system*.
 
-5. **Transition Coordinators** providing methods to run other animations parallel to the transition animations. They conform to the `UIViewControllerTransitionCoordinator` protocol.
+5. **Transition Coordinators** providing methods to run other animations in parallel with the transition animations. They conform to the `UIViewControllerTransitionCoordinator` protocol.
 
-As you know, from other reading this publication, there are interactive and non-interactive transitions. In this article, we will concentrate on non-interactive transitions. These are the simplest, so they're a great place to start. This means that we will be dealing with *animation controllers*, *transitioning delegates*, and *transitioning contexts* from the list above.
+As you know, from otherwise reading this publication, there are interactive and non-interactive transitions. In this article, we will concentrate on non-interactive transitions. These are the simplest, so they're a great place to start. This means that we will be dealing with *animation controllers*, *transitioning delegates*, and *transitioning contexts* from the list above.
 
 Enough talk, let’s get our hands dirty…
 
@@ -186,7 +186,7 @@ Instead of always using an `Animator` object, we can now ask our delegate for an
     }
     animator = (animator ?: [[PrivateAnimatedTransition alloc] init]);
 
-If we have a delegate and it returns an animator, we will use that. Otherwise, we will create our own private default animator of class `PrivateAnimatedTransition`. We will implement this next.
+If we have a delegate, and it returns an animator, we will use that. Otherwise, we will create our own private default animator of class `PrivateAnimatedTransition`. We will implement this next.
 
 Although the default animation is somewhat different than that of `Animator`, the code looks surprisingly similar. Here is the full implementation:
 
