@@ -198,6 +198,26 @@ That's really all there is to it. In my experience, this naïve approach is effe
 
 <img alt="Springy Collection View" src="{{site.images_path}}/issue-5/springyCollectionView.gif">
 
+## Adding New Rows
+
+Now let's say that you want to add new rows. For that, we will need to add behaviors to our dynamic animator for each new row. Let's start off by creating a public instance method for our flow layout.
+
+    @interface ASHSpringyCollectionViewFlowLayout : UICollectionViewFlowLayout
+    - (void)resetLayout;
+    @end
+
+And in its implementation we remove the current behaviors and prepare for layout with the new items.
+
+    - (void)resetLayout {
+        [self.dynamicAnimator removeAllBehaviors];
+        [self prepareLayout];
+    }
+
+And in your collection view, call the new method after you reload your data.
+
+    [self.collectionView reloadData];
+    [(ASHSpringyCollectionViewFlowLayout *)[self collectionViewLayout] resetLayout];
+
 ## Tiling your Dynamic Behaviors for Performance
 
 A few hundred cells is all well and good, but what happens when your collection view data source exceeds that size? Or what if you can't predict exactly how large your data source will grow at runtime? Our naïve approach breaks down.
@@ -353,3 +373,8 @@ What we basically do is provide a method in the layout that removes the attachme
 Pull requests welcome. 
 
 This approach is somewhat limited. I've capped the number of cells at ten, but even then the animation is slow on older hardware like the second-generation iPad. However, this example is supposed to be demonstrative of the approach you can take for interesting dynamics simulations – it's not meant to be a turn-key solution for any data set. The individual aspects of your simulation, including its performance, are up to you. 
+
+
+
+
+
