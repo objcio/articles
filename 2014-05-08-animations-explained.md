@@ -179,7 +179,7 @@ Setting the `rotationMode` property to `kCAAnimationRotateAuto` ensures that the
 <center><img src="{{site.images_path}}/issue-12/planets-incorrect@2x.gif" width="400px"></center>
 
 You can achieve a couple of interesting effects using animations with paths;
-fellow objc.io author [Ole Begemann](https://twitter.com/oleb) wrote [a great post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
+fellow objc.io author [Ole Begemann](https://twitter.com/olebegemann) wrote [a great post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
 
 ## Timing Functions
 
