@@ -347,7 +347,7 @@ When pushing your project to GitHub, Travis gets triggered instantly. But builds
 
 Travis CI provides you with a fully functional continuous integration environment that builds, tests, and distributes your iOS apps. For open source projects, this service is even free. Community projects benefit from the great GitHub integration. You might have seen [buttons like this](http://about.travis-ci.org/docs/user/status-images/) already:
 
-<img src="https://travis-ci.org/MattesGroeger/TravisExample-iOS.png?branch=master">
+<img src="{{site.images_path}}/website/images/issue-6/TravisExample-iOS.png">
 
 Even for commercial projects, their support for private GitHub repositories with Travis Pro opens up an easy and fast way to use continuous integration.
 
