@@ -8,7 +8,7 @@ author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a> and <a hre
 ---
 
 
-When Steve Jobs introduced the first iPhone in 2007, the touch screen interaction had a certain kind of magic to it. A prime example of this was his [first demonstration of scrolling a table view](http://www.youtube.com/watch?v=t4OEsI0Sc_s&t=16m9s). You can hear in the reaction of the audience how impressive what seems the most normal thing to us today was back then. A little bit later in the presentation, he underlined this point by quoting somebody he had given a demo to before: ["You got me at scrolling"](https://www.youtube.com/watch?v=t4OEsI0Sc_s&t=22m10s). 
+When Steve Jobs introduced the first iPhone in 2007, the touch screen interaction had a certain kind of magic to it. A prime example of this was his [first demonstration of scrolling a table view](http://www.youtube.com/watch?v=t4OEsI0Sc_s&t=16m9s). You can hear in the reaction of the audience how impressive what seems the most normal thing to us today was back then. A little bit later in the presentation, he underlined this point by quoting somebody he had given a demo to before: ["You got me at scrolling."](https://www.youtube.com/watch?v=t4OEsI0Sc_s&t=22m10s) 
 
 What was it about scrolling that created this 'wow' effect?
 
