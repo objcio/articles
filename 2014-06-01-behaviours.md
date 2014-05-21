@@ -5,7 +5,7 @@ Feedback is welcome :]
 - [ ] What can we describe as Behaviour?
     - Introduce the idea.
     - Explain reasoning behind it.
-- [] What benefits does Behaviour bring?
+- [ ] What benefits does Behaviour bring?
     - Simplifying view controllers code.
 			- Sharing behaviours across different applications.
 			- Dependency free objects
