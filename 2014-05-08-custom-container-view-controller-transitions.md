@@ -250,7 +250,10 @@ Note that we only support non-interactive transitions so far. The next step is s
 
 I will leave that as an exercise for you. It is somewhat more complex because we are basically mimicking the framework behavior, which is all guesswork, really.
 
+**Update:** [Alek Åström](https://twitter.com/MisterAlek) was quick to take on the challenge and has posted a very interesting article, “[Interactive Custom Container View Controller Transitions](http://www.iosnomad.com/blog/2014/5/12/interactive-custom-container-view-controller-transitions)”. As an added bonus, it includes a new exercise…
+
 ## Further Indulgence
 
 - iOS 7 Tech Talks Videos, 2014: [“Architecting Modern Apps, Part 1”](https://developer.apple.com/tech-talks/videos/index.php?id=3#3) (07:23-31:27)
 - Full code on [GitHub](https://github.com/objcio/issue-12-custom-container-transitions).
+- Follow-up article by [Alek Åström](https://twitter.com/MisterAlek): “[Interactive Custom Container View Controller Transitions](http://www.iosnomad.com/blog/2014/5/12/interactive-custom-container-view-controller-transitions)”.
