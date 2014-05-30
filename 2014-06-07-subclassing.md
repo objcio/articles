@@ -9,7 +9,7 @@ author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a>"
 
 This article is a little bit different from the usual articles I write. It's more collection of thoughts and patterns than a guide. Almost all the patterns I will describe are found out the hard way: by making mistakes. I consider myself by no means an authority on subclassing, but here are a few things I learned. Don't read this as a definitive guide, but rather, as a collection of examples.
 
-When asked about OOP, Alan Kay (the inventor) wrote that it's not about classes, but rather about messaging.[^1] Still, a lot of people focus on creating class hierarchies. In this article, we'll look at some cases where it's useful, but mostly at alternatives to creating complicated class hierarchies. In our experience, this leads to code that's simpler and easier to maintain. A lot of things have been written on this in books like [Clean Code](TODO) and [Code Complete](TODO), which are recommended reading.
+When asked about OOP, Alan Kay (the inventor) wrote that it's not about classes, but rather about messaging.[^1] Still, a lot of people focus on creating class hierarchies. In this article, we'll look at some cases where it's useful, but mostly at alternatives to creating complicated class hierarchies. In our experience, this leads to code that's simpler and easier to maintain. A lot of things have been written on this in books like [Clean Code](http://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882) and [Code Complete](http://www.amazon.com/Code-Complete-Practical-Handbook-Construction/dp/0735619670), which are recommended reading.
 
 [^1]: http://c2.com/cgi/wiki?AlanKayOnMessaging
 
@@ -87,21 +87,29 @@ Sometimes, you might want to extend an object with a little bit of extra functio
 
 When extending a class that's not your own using categories, it is good practice that you prefix your methods. If you wouldn't, there is a chance that somebody else might implement the same method using the same technique. If the behavior doesn't match, unexpected things might happen.
 
+One of the dangers of using categories is that you might end up with a large amount of categories, and you lose overview. In that case, it's probably easier to create custom classes.
+
 ### Alternative: Configuration objects
 
-Example: Stylesheet?
+One of the mistakes I keep on making (but can now recognize fairly quickly), is having a class with some abstract functionality, and then a lot of subclasses that override one specific method. For example, in a presentation app, you might have a class `Theme`, which has a couple of properties, such as `backgroundColor` and `font`, and some logic for laying things out on a slide.
+
+Then, for each theme, you create a subclass of `Theme`, override a method (e.g. `setup`) and configure the properties. Using the superclass directly wouldn't make sense. In this case, you can make your code a bit simpler by using configuration objects. You can keep the shared logic in the `Theme` class (e.g. slide layout), but move the configuration into simpler objects that only have properties.
+
+For example, a `ThemeConfiguration` class would have the `backgroundColor` and `font` properties, and the `Theme` class gets a value of this  class in the initializer.
 
 ### Alternative: Composition
 
+The most powerful alterative to subclassing is composition. If you want to reuse existing code, but you're not sharing the same interface, composition can be your weapon of choice. For example, suppose you are designing a caching class:
 
+    @interface OBJCache : NSObject
+    - (void)cacheValue:(id)value forKey:(NSString *)key;
+    - (void)removeCachedValueForKey:(NSString *)key;
+    @end
 
-## Smells
+One easy way to do this is by subclassing `NSDictionary`, and implementing the two methods by calling to dictionary methods. 
 
+    @interface OBJCache : NSDictionary
 
+However, there are a couple of drawbacks. The fact that it is implemented with a dictionary should be an implementation detail. Now, everywhere where you expect an `NSDictionary` parameter, you could provide a `OBJCache` value. If you would ever want to switch to something completely different (e.g. your own library), you might need to refactor a lot of code.
 
-----
-
-
-* `isKindOfClass:`
-* Liskov Substitution Principle
-
+A better approach is to store this dictionary in a private property (or instance variable), and only expose the two `chache` methods. Now, you maintain the flexibility to change the implementation as you gain more insight, and consumers of your class don't need to be refactored.
