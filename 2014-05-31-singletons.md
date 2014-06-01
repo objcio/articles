@@ -144,7 +144,7 @@ We now have an object to model an authenticated user session, and we can store a
 
 	@end
 	
-We can explicitly pass the authenticated user object into the view controller. This is useful for a few reasons:
+We can explicitly pass the authenticated user object into the view controller. This technique of passing a dependency into a dependent object is more formally referred to as ["Dependency Injection,"][dependencyInjection] and it has ton of advantages:
 
 1. It makes clear to the reader of this interface that the `SPFriendListViewController` should only ever be shown when there's a signed-in user.
 2. The `SPFriendListViewController` can maintain a strong reference to the user object as long as it's being used. For instance, updating the earlier example, we can save an image into the thumbnail cache within a background task as follows:
@@ -164,3 +164,4 @@ Nothing discussed in this article is particularly novel. People have been compla
 
 [pathologicalLiars]: http://misko.hevery.com/2008/08/17/singletons-are-pathological-liars/
 [sheepsClothing]: http://misko.hevery.com/2008/08/25/root-cause-of-singletons/
+[dependencyInjection]: http://en.wikipedia.org/wiki/Dependency_injection
