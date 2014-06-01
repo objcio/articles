@@ -98,9 +98,9 @@ This is a flagrant abuse of the singleton pattern, but it will work, right?
 
 We could certainly make this solution work, but the cost is far too great. For one, we've lost the simplicity of the `dispatch_once` solution, a solution which guarentees thread safety and that all code calling `[SPThumbnailCache sharedThumbnailCache]` only ever gets the same instance. We now need to be extremely careful about the order of code execution for code that utilizes the thumbnail cache. Suppose while the user is in the process of signing out, there's some background task that is in the process of saving an image into the cache: 
 
-		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-			[[SPThumbnailCache sharedThumbnailCache] cacheProfileImage:newImage forUserId:userId];
-		});
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		[[SPThumbnailCache sharedThumbnailCache] cacheProfileImage:newImage forUserId:userId];
+	});
 
 We need to be certain `tearDown` doesn't execute until after that background task completes. This ensures the `newImage` data will get cleaned up properly. Or, we need to make sure the background task is cancelled when the thumbnail cache is shut down. Otherwise, a new thumbnail cache will be lazily created, and stale user state (the `newImage`) will be stored inside of it. 
 
@@ -114,7 +114,52 @@ The lesson here is that singletons should be preserved only for state that is gl
 
 So, if singletons are so bad for scoped state, how do we avoid using them?
 
-TODO: keep writing
+Let's revisit the example above. Since we have a thumbnail cache that caches state specific to an individual user, let's define a user object:
+
+	@interface SPUser : NSObject
+
+	@property (nonatomic, readonly) SPThumbnailCache *thumbnailCache;
+
+	@end
+
+	@implementation SPUser
+
+	- (instancetype)init
+	{
+	    if ((self = [super init])) {
+    	    _thumbnailCache = [[SPThumbnailCache alloc] init];
+	
+    	    // Initialize other user-specific state...
+	    }
+	    return self;
+	}
+
+	@end
+	
+We now have an object to model an authenticated user session, and we can store all user-specific state under this object. Now suppose we have a view controller that renders the list of friends:
+
+	@interface SPFriendListViewController : UIViewController
+
+	- (instancetype)initWithUser:(SPUser *)user;
+
+	@end
+	
+We can explicitly pass the authenticated user object into the view controller. This is useful for a few reasons:
+
+1. It makes clear to the reader of this interface that the `SPFriendListViewController` should only ever be shown when there's a signed-in user.
+2. The `SPFriendListViewController` can maintain a strong reference to the user object as long as it's being used. For instance, updating the earlier example, we can save an image into the thumbnail cache within a background task as follows:
+		
+		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+			[_user.thumbnailCache cacheProfileImage:newImage forUserId:userId];
+		});
+		
+		
+
+- definitely want to talk about how holding on to a _user in a background task -- it's retained, then it will drop to nil and cleanup can happen.
+
+#Conclusion
+
+Nothing discussed in this article is particularly novel. People have been complaining about the abuse of singletons for years. We all know global state is bad. But in the world of iOS development, singletons are so commonplace that we can sometimes forget the lessons learned from years of object-oriented programmng elsewhere. Hopefully this article has convinced you to re-evaluate your usage of singletons. The key is to remember: in mutable state programming, we want to minimize the scope of mutable state. Singletons stand in direct opposition to that, since they make mutable state accessible from anywhere in the program.
 
 
 [pathologicalLiars]: http://misko.hevery.com/2008/08/17/singletons-are-pathological-liars/
