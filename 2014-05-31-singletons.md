@@ -7,7 +7,7 @@ tags: article
 author: "<a href=\"https://twitter.com/stephenpoletto\">Stephen Poletto</a>"
 ---
 
-Singletons are one of the core design patterns used throughout Cocoa. In fact, Apple's developer library itself considers the singleton one of the "Cocoa Core Competencies." As iOS developers, we're familiar with interacting with singletons, from `UIApplication` to `NSFileManager.` We've seen countless examples of singleton usage, in open source projects, Apple's code samples, and on StackOverflow. Xcode even has a default code snippet, the "Dispatch Once" snippet, that makes it incredibly easy to add a singleton to your code:
+Singletons are one of the core design patterns used throughout Cocoa. In fact, Apple's developer library itself considers the singleton one of the "Cocoa Core Competencies." As iOS developers, we're familiar with interacting with singletons, from `UIApplication` to `NSFileManager`. We've seen countless examples of singleton usage, in open source projects, Apple's code samples, and on StackOverflow. Xcode even has a default code snippet, the "Dispatch Once" snippet, that makes it incredibly easy to add a singleton to your code:
 
     + (instancetype)sharedInstance
 	{
@@ -99,7 +99,7 @@ The developer working on the web viewer starts writing some unit tests to make s
 
 A few months later, these tests start failing, even though the web viewer code hasn't changed since she first wrote it! What happened?
 
-It turns out someone changed the order of her tests. The success case test is running first, followed by the other two. The error cases are now succeeded unexpectedly, because the singleton URL cache is caching the response across the tests.
+It turns out someone changed the order of her tests. The success case test is running first, followed by the other two. The error cases are now succeeding unexpectedly, because the singleton URL cache is caching the response across the tests.
 
 Persistent state is the enemy of unit testing, since unit testing is made effective by each test being independent of all other tests. If state is left behind from one test to another, then the order of execution of tests suddenly matters. Buggy tests, especially when a test succeeds when it shouldn't, is a very bad thing.
 
