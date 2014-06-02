@@ -196,9 +196,35 @@ We can explicitly pass the authenticated user object into the view controller. T
 			[_user.thumbnailCache cacheProfileImage:newImage forUserId:userId];
 		});
 		
-		
+	With this background task still outstanding, code elsewhere in the application is able to create an utilize an entirely new `SPUser` object, without blocking on the first instance being torn down.
+	
+To demonstrate the second point a little further, let's visualize the object graph before and after using dependency injection.
 
-- definitely want to talk about how holding on to a _user in a background task -- it's retained, then it will drop to nil and cleanup can happen.
+Suppose our `SPFriendListViewController` is currently the root view controller in the window. With the singleton model, we have an object graph that looks like this:
+
+![][figure1]
+
+The view controller itself, along with a list of custom image views, interact with the `sharedThumbnailCache`. When the user logs out, we want to clear the root view controller and take the user back to a sign in screen:
+
+![][figure2]
+
+The problem here is that the friend list view controller might still be executing code (due to background operations), and therefore may still have outstanding calls pending to the `sharedThumbnailCache`.
+
+Contrast this with the solution that utilizes dependency injection.
+
+![][figure3]
+
+Suppose, for simplicity, that the `SPApplicationDelegate` manages the `SPUser` instance (in practice, you probably want to offload such user state management to another object, but that's beyond the scope of this article). When the friend list view controller is installed in the window, it is passed a reference to the user. This reference can be funneled down the object graph to the profile image views as well. Now, when the user logs out, our object graph looks like this:
+
+![][figure4]
+
+The object graph looks pretty similar to the case in which we used a singleton. So what's the big deal?
+
+The problem is scope. In the singleton case, the `sharedThumbnailCache` is still accessible to arbitrary modules of the program. Suppose the user quickly signs in to a new account. The new user will want to see their friends, too, which means interacting with the thumbnail cache again.
+
+![][figure5]
+
+TODO FINISH THIS SECTION!!!
 
 #Conclusion
 
@@ -208,3 +234,9 @@ Nothing discussed in this article is particularly novel. People have been compla
 [pathologicalLiars]: http://misko.hevery.com/2008/08/17/singletons-are-pathological-liars/
 [sheepsClothing]: http://misko.hevery.com/2008/08/25/root-cause-of-singletons/
 [dependencyInjection]: http://en.wikipedia.org/wiki/Dependency_injection
+
+[figure1]: http://spolet.to/image/2Q372X3m1M2e/download/Screen%20Shot%202014-06-02%20at%205.21.20%20AM.png
+[figure2]: http://spolet.to/image/2m32423l3L2S/download/Screen%20Shot%202014-06-02%20at%205.53.45%20AM.png
+[figure3]: http://spolet.to/image/2g2H0r3x3Y2w/download/Screen%20Shot%202014-06-02%20at%205.38.59%20AM.png
+[figure4]: http://spolet.to/image/262P31053v2H/download/Screen%20Shot%202014-06-02%20at%205.54.07%20AM.png
+[figure5]: http://spolet.to/image/182w04211u0Y/download/Screen%20Shot%202014-06-02%20at%205.59.25%20AM.png
