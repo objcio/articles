@@ -106,7 +106,7 @@ Persistent state is the enemy of unit testing, since unit testing is made effect
 #Object Lifecycle
 The other major problem with singletons is their lifecycle. When adding a singleton to your program, it's easy to think, "There will only ever be one of these." But in much of the iOS code I've seen in the wild, that assumption can break down.
 
-For example, suppose we're building an app where users can see a list of their friends. Each of their friends has an profile picture, and we want the app to be able to download and cache those images on the device. With the `dispatch_once` snippet handy, we might find ourselves writing an `SPThumbnailCache` singleton:
+For example, suppose we're building an app where users can see a list of their friends. Each of their friends has a profile picture, and we want the app to be able to download and cache those images on the device. With the `dispatch_once` snippet handy, we might find ourselves writing an `SPThumbnailCache` singleton:
 
 	@interface SPThumbnailCache : NSObject
 
