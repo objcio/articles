@@ -214,7 +214,7 @@ Contrast this with the solution that utilizes dependency injection.
 
 ![][figure3]
 
-Suppose, for simplicity, that the `SPApplicationDelegate` manages the `SPUser` instance (in practice, you probably want to offload such user state management to another object, but that's beyond the scope of this article). When the friend list view controller is installed in the window, it is passed a reference to the user. This reference can be funneled down the object graph to the profile image views as well. Now, when the user logs out, our object graph looks like this:
+Suppose, for simplicity, that the `SPApplicationDelegate` manages the `SPUser` instance (in practice, you probably want to offload such user state management to another object to keep your application delegate [lighter][lighterViewControllers]). When the friend list view controller is installed in the window, it is passed a reference to the user. This reference can be funneled down the object graph to the profile image views as well. Now, when the user logs out, our object graph looks like this:
 
 ![][figure4]
 
@@ -234,6 +234,7 @@ Nothing discussed in this article is particularly novel. People have been compla
 [pathologicalLiars]: http://misko.hevery.com/2008/08/17/singletons-are-pathological-liars/
 [sheepsClothing]: http://misko.hevery.com/2008/08/25/root-cause-of-singletons/
 [dependencyInjection]: http://en.wikipedia.org/wiki/Dependency_injection
+[lighterViewControllers]: http://www.objc.io/issue-1/lighter-view-controllers.html
 
 [figure1]: http://spolet.to/image/2Q372X3m1M2e/download/Screen%20Shot%202014-06-02%20at%205.21.20%20AM.png
 [figure2]: http://spolet.to/image/2m32423l3L2S/download/Screen%20Shot%202014-06-02%20at%205.53.45%20AM.png
