@@ -228,7 +228,9 @@ TODO FINISH THIS SECTION!!!
 
 #Conclusion
 
-Nothing discussed in this article is particularly novel. People have been complaining about the abuse of singletons for years. We all know global state is bad. But in the world of iOS development, singletons are so commonplace that we can sometimes forget the lessons learned from years of object-oriented programmng elsewhere. Hopefully this article has convinced you to re-evaluate your usage of singletons. The key is to remember: in mutable state programming, we want to minimize the scope of mutable state. Singletons stand in direct opposition to that, since they make mutable state accessible from anywhere in the program.
+Hopefully nothing in this article reads as particularly novel. People have been complaining about the abuse of singletons for years and we all know global state is bad. But in the world of iOS development, singletons are so commonplace that we can sometimes forget the lessons learned from years of object-oriented programmng elsewhere. 
+
+The key takeaway from all of this is that in object-oriented programming we want to minimize the scope of mutable state. Singletons stand in direct opposition to that, since they make mutable state accessible from anywhere in the program. The next time you think to use a singleton, I hope you consider dependency injection as an alternative.
 
 
 [pathologicalLiars]: http://misko.hevery.com/2008/08/17/singletons-are-pathological-liars/
