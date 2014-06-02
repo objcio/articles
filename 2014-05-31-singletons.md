@@ -202,31 +202,31 @@ To demonstrate the second point a little further, let's visualize the object gra
 
 Suppose our `SPFriendListViewController` is currently the root view controller in the window. With the singleton model, we have an object graph that looks like this:
 
-<img src="http://spolet.to/image/2Q372X3m1M2e/download/Screen%20Shot%202014-06-02%20at%205.21.20%20AM.png" style="width:412px">
+<img src="http://spolet.to/image/2Q372X3m1M2e/download/Screen%20Shot%202014-06-02%20at%205.21.20%20AM.png" width="412" />
 
 The view controller itself, along with a list of custom image views, interact with the `sharedThumbnailCache`. When the user logs out, we want to clear the root view controller and take the user back to a sign in screen:
 
-<img src="http://spolet.to/image/2m32423l3L2S/download/Screen%20Shot%202014-06-02%20at%205.53.45%20AM.png" style="width:612px">
+<img src="http://spolet.to/image/2m32423l3L2S/download/Screen%20Shot%202014-06-02%20at%205.53.45%20AM.png" width="612" />
 
 The problem here is that the friend list view controller might still be executing code (due to background operations), and therefore may still have outstanding calls pending to the `sharedThumbnailCache`.
 
 Contrast this with the solution that utilizes dependency injection.
 
-<img src="http://spolet.to/image/2g2H0r3x3Y2w/download/Screen%20Shot%202014-06-02%20at%205.38.59%20AM.png" style="width:412px">
+<img src="http://spolet.to/image/2g2H0r3x3Y2w/download/Screen%20Shot%202014-06-02%20at%205.38.59%20AM.png" width="412" />
 
 Suppose, for simplicity, that the `SPApplicationDelegate` manages the `SPUser` instance (in practice, you probably want to offload such user state management to another object to keep your application delegate [lighter][lighterViewControllers]). When the friend list view controller is installed in the window, it is passed a reference to the user. This reference can be funneled down the object graph to the profile image views as well. Now, when the user logs out, our object graph looks like this:
 
-<img src="http://spolet.to/image/262P31053v2H/download/Screen%20Shot%202014-06-02%20at%205.54.07%20AM.png" style="width:612px">
+<img src="http://spolet.to/image/262P31053v2H/download/Screen%20Shot%202014-06-02%20at%205.54.07%20AM.png" width="612" />
 
 The object graph looks pretty similar to the case in which we used a singleton. So what's the big deal?
 
 The problem is scope. In the singleton case, the `sharedThumbnailCache` is still accessible to arbitrary modules of the program. Suppose the user quickly signs in to a new account. The new user will want to see their friends, too, which means interacting with the thumbnail cache again.
 
-<img src="http://spolet.to/image/182w04211u0Y/download/Screen%20Shot%202014-06-02%20at%205.59.25%20AM.png" style="width:612px">
+<img src="http://spolet.to/image/182w04211u0Y/download/Screen%20Shot%202014-06-02%20at%205.59.25%20AM.png" width="612" />
 
 When the user signs in to a new account, we should be able to construct and interact with a brand new `SPThumbnailCache`, with no attention paid to the destruction of the old thumbnail cache. The old view controllers and old thumbnail cache should be cleaned up lazily in the background on their own accord, based on the typical rules of object management. In short, we should isolate the state associated with user A from the state associated with user B:
 
-<img src="http://spolet.to/image/1R0E3F1e0M0n/download/Screen%20Shot%202014-06-02%20at%206.43.56%20AM.png" style="width:412px">
+<img src="http://spolet.to/image/1R0E3F1e0M0n/download/Screen%20Shot%202014-06-02%20at%206.43.56%20AM.png" width="412" />
 
 #Conclusion
 
