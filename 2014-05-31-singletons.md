@@ -149,7 +149,7 @@ We need to be certain `tearDown` doesn't execute until after that background tas
 
 Since there's no distinct owner for the singleton instance (i.e. the singleton manages its own lifecycle), it becomes very difficult to ever "shut down" a singleton.
 
-At this point, I hope you're saying, "the thumbnail cache shouldn't have ever been a singleton!" The problem is that an object's lifecycle may not be fully understood at the start of a project. As a concrete example, the Dropbox iOS app only ever had support for a single user account to be signed in. The app existed in this state for years. Until one day when we wanted to support multiple user accounts (both personal and business accounts) to be signed in simultaneously. All of a sudden, assumptions about "there will only ever be a single user signed in at a time" started to break down. By assuming an object's lifecycle will match the lifecycle of your application, you'll limit the extensibility of your code, and you may need to pay for that assumption later when product requirements change.
+At this point, I hope you're saying, "the thumbnail cache shouldn't have ever been a singleton!" The problem is that an object's lifecycle may not be fully understood at the start of a project. As a concrete example, the Dropbox iOS app only ever had support for a single user account to be signed in. The app existed in this state for years. Until one day when we wanted to support [multiple user accounts][twoDropboxes] (both personal and business accounts) to be signed in simultaneously. All of a sudden, assumptions about "there will only ever be a single user signed in at a time" started to break down. By assuming an object's lifecycle will match the lifecycle of your application, you'll limit the extensibility of your code, and you may need to pay for that assumption later when product requirements change.
 
 The lesson here is that singletons should be preserved only for state that is global, and not tied to any scope. If state is scoped to any session shorter than "a complete lifecycle of my app", that state should not be managed by a singleton. A singleton that's managing user-specific state is a code smell, and you should critically re-evaluate the design of your object graph.
 
@@ -237,6 +237,7 @@ The key takeaway from all of this is that in object-oriented programming we want
 [sheepsClothing]: http://misko.hevery.com/2008/08/25/root-cause-of-singletons/
 [dependencyInjection]: http://en.wikipedia.org/wiki/Dependency_injection
 [lighterViewControllers]: http://www.objc.io/issue-1/lighter-view-controllers.html
+[twoDropboxes]: https://www.dropbox.com/business/two-dropboxes
 
 [figure1]: http://spolet.to/image/2Q372X3m1M2e/download/Screen%20Shot%202014-06-02%20at%205.21.20%20AM.png
 [figure2]: http://spolet.to/image/2m32423l3L2S/download/Screen%20Shot%202014-06-02%20at%205.53.45%20AM.png
