@@ -83,7 +83,7 @@ So how does this example relate to singletons? In the words of Miško Hevery, ["
 
 	@end
 	
-In the example above, `SPConsumerA` and `SPConsumerB` are two completely independent modules of the program. Yet `SPConsumerB` is able to affect the behavior of `SPConsumerA` through the shared state provided by the singleton. This should only be possible if consumer B is given an explicit reference to A, making clear the relationship between the two. The singleton here, due to its global and stateful nature, causes hidden and implicit coupling.
+In the example above, `SPConsumerA` and `SPConsumerB` are two completely independent modules of the program. Yet `SPConsumerB` is able to affect the behavior of `SPConsumerA` through the shared state provided by the singleton. This should only be possible if consumer B is given an explicit reference to A, making clear the relationship between the two. The singleton here, due to its global and stateful nature, causes hidden and implicit coupling between seemingly unrelated modules.
 
 Let's take a look at a more concrete example, and expose one additional problem with global mutable state. Let's say we want to build a web viewer inside our app. To support this web viewer, we build a simple URL cache:
 
