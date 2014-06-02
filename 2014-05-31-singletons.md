@@ -25,7 +25,7 @@ While others have called singletons an "anti-pattern", "evil", and ["pathologica
 
 #Global State
 
-Most developers agree that global mutable state is a bad thing. Here's a simple demonstration of why mutable state is bad, even within a single instance:
+Most developers agree that global mutable state is a bad thing. Statefulness makes programs hard to reason about and hard to debug. We object-oriented programmers have much to learn from functional programming, in terms of minimizing the statefulness of code.
 
     @implementation SPMath {
         NSUInteger _a;
@@ -37,13 +37,10 @@ Most developers agree that global mutable state is a bad thing. Here's a simple 
 		return _a + _b;
 	}
 	
-With this implementation, the programmer is expected to set instance variables `_a` and `_b` to the proper values before invoking `computeSum`. There are a few problems here:
+In the above implementation of a simple math library, the programmer is expected to set instance variables `_a` and `_b` to the proper values before invoking `computeSum`. There are a few problems here:
 
 1. `computeSum` does not make the fact that it depends upon state `_a` and `_b` explicit by taking the values as parameters. Instead of inspecting the interface and understanding which variables control the output of the function, another developer reading this code must inspect the implementation to understand the dependency. Hidden dependencies are bad.
 2. When modifying `_a` and `_b` in preparation for calling `computeSum`, the programmer needs to be sure the modification does not affect the correctness of any other code that depends upon these variables. This is particularly difficult in multi-threaded environments.
-3. Unit testing this method is difficult. Persistent state is the enemy of unit testing, since unit testing is made effective by each test being independent of all other tests. If state is left behind from one test to another, then the order of execution of tests suddenly matters. Buggy tests, especially when a test succeeds when it shouldn't, is a very bad thing.
-
-TODO: Add an example
 
 Contrast the above example with this: 
   
@@ -52,13 +49,59 @@ Contrast the above example with this:
 		return a + b;
 	}
 
-Here, the dependency on `a` and `b` is made explicit. We don't need to mutate instance state to prepare for calling this method. And, we don't need to worry about leaving behind persistent side effects as a result of calling this method: as a note to the reader of this code, we can even make this method a class method to indicate that instance state will not be mutated by calling it.
+Here, the dependency on `a` and `b` is made explicit. We don't need to mutate instance state in order to call this method. And, we don't need to worry about leaving behind persistent side effects as a result of calling this method. As a note to the reader of this code, we can even make this method a class method to indicate that it does not modify instance state.
 
-Okay, we all know global state is bad, so why did we walk through this example? In the words of Miško Hevery, ["Singletons are global state in sheep’s clothing."][sheepsClothing]
+So how does this example relate to singletons? In the words of Miško Hevery, ["Singletons are global state in sheep’s clothing."][sheepsClothing] A singleton can be used anywhere, without explictly declaring the dependency. Just like `_a` and `_b` were used in `computeSum` without the depedency being made explict, any module of the program can call `[SPMySingleton sharedInstance]` and get access to the singleton. This means any side effects of interacting with the singleton can affect arbitrary code elsewhere in the program.
 
-A singleton can be used anywhere, without explictly declaring the dependency. Just like `_a` and `_b` were used in `computeSum` without the depedency being made explict, any module of the program can call `[SPMySingleton sharedInstance]` and get access to the singleton. This means singletons are effectively global state. If you're implementing a singleton, odds are the instance in question has instance state associated with it (otherwise, why not just use class methods or functions?). This entire blob of instance state is effectively global state. 
 
-We as iOS developers are not in the habit of thinking of singletons as glorified global variables, but we need to admit to ourselves they are.
+	@interface SPSingleton : NSObject
+
+	+ (instancetype)sharedInstance;
+
+	- (NSUInteger)badMutableState;
+	- (void)setBadMutableState:(NSUInteger)badMutableState;
+
+	@end
+	
+	@implementation SPConsumerA
+
+	- (void)someMethod
+	{
+	    if ([[SPSingleton sharedInstance] badMutableState]) {
+    	    // ...
+	    }
+	}
+
+	@end
+	
+	@implementation SPConsumerB
+
+	- (void)someOtherMethod
+	{
+	    [[SPSingleton sharedInstance] setBadMutableState:0];
+	}
+
+	@end
+	
+In the example above, `SPConsumerA` and `SPConsumerB` are two completely independent modules of the program. Yet `SPConsumerB` is able to affect the behavior of `SPConsumerA` through the shared state provided by the singleton. This should only be possible if consumer B is given an explicit reference to A, making clear the relationship between the two. The singleton here, due to its global and stateful nature, causes hidden and implicit coupling.
+
+Let's take a look at a more concrete example, and expose one additional problem with global mutable state. Let's say we want to build a web viewer inside our app. To support this web viewer, we build a simple URL cache:
+
+	@interface SPURLCache
+
+	+ (SPCache *)sharedURLCache;
+
+	- (void)storeCachedResponse:(NSCachedURLResponse *)cachedResponse forRequest:(NSURLRequest *)request;
+	
+	@end	
+
+The developer working on the web viewer starts writing some unit tests to make sure her code works as expected in a few different situations. First, she writes a test to make sure the web viewer shows an error when there's no device connectivity. Then she writes a test to make sure the web viewer handles server failures properly. Finally, she writes a test for the basic success case, to make sure the returned web content is shown properly. She runs all of her tests, and they work as expected. Nice!
+
+A few months later, these tests start failing, even though the web viewer code hasn't changed since she first wrote it! What happened?
+
+It turns out someone changed the order of her tests. The success case test is running first, followed by the other two. The error cases are now succeeded unexpectedly, because the singleton URL cache is caching the response across the tests.
+
+Persistent state is the enemy of unit testing, since unit testing is made effective by each test being independent of all other tests. If state is left behind from one test to another, then the order of execution of tests suddenly matters. Buggy tests, especially when a test succeeds when it shouldn't, is a very bad thing.
 
 #Object Lifecycle
 The other major problem with singletons is their lifecycle. When adding a singleton to your program, it's easy to think, "There will only ever be one of these." But in much of the iOS code I've seen in the wild, that assumption can break down.
