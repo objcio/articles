@@ -4,7 +4,7 @@ title:  "Behaviours in iOS apps"
 category: "12"
 date: "2014-05-28 06:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/chriseidhof\">Krzysztof Zabłocki</a> and <a href=\"https://twitter.com/merowing_\">Krzysztof Zabłocki</a>"
+author: "<a href=\"https://twitter.com/merowing_\">Krzysztof Zabłocki</a>
 ---
 
 As developers we strive to write clean and well structured code. There are many patterns one can use to make it happen, one of the best ones is composition. 
