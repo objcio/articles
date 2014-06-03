@@ -57,9 +57,9 @@ Many developers disregard Interface Builder without even learning it, they often
 
 Runtime attributes are one of the key features of using interface builder, they offer you a way to setup custom classes and even set properties on iOS built-in classes:
 eg. did you ever had to add corner radius masking to your layer?
-you can do that straight from IB by just specifying runtime attribute for it: ![](Image)
+you can do that straight from IB by just specifying runtime attribute for it: ![](cornerRadius.png)
 
-When creating behaviours in IB you are going to relay heavily on runtime attributes to setup their options.
+When creating behaviours in IB you are going to relay heavily on runtime attributes to setup their options so there usually will be more runtime attributes: ![](runtimeAttributes.png)
 
 ### Behaviour lifetime
 If an object is created from interface builder, it will be created and then removed immediately unless someone keeps a strong reference to it.
@@ -121,10 +121,10 @@ This will allow you to connect events from behaviours to your view controller co
 So what kind of things are easiest to implement as Behaviours?
 
 Here's how easy it is to add Parallax animation to a UIViewController class(no custom class):
-![](Video)
+![](parallaxAnimationBehaviour.mp4)
 
 Ever needed to pick an image from user library or camera?
-![](Video)
+![](imagePickerBehaviour.mp4)
 - Image picking.
 
 # More advanced
