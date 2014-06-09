@@ -38,8 +38,8 @@ To demonstrate this approach, let's create a simple analog clock where we can se
     @interface ClockFace ()
 
     //private properties
-    @property (nonatomic, strong) CALayer *hourHand;
-    @property (nonatomic, strong) CALayer *minuteHand;
+    @property (nonatomic, strong) CAShapeLayer *hourHand;
+    @property (nonatomic, strong) CAShapeLayer *minuteHand;
 
     @end
 
