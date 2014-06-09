@@ -103,7 +103,7 @@ Note that [UDP](https://en.wikipedia.org/wiki/User_Datagram_Protocol) is unrelia
 
 ### Receiving Data
 
-Receiving data is, at its core, quite simple too. The function `recvfrom(2)` expects two arguments: the first argument is the socket address `sin_other`, which is the socket we want to receive data from. The second argument is a pointer to a buffer, into which the data will be written. Upon success, it returns the number of bytes read:
+Receiving data is, at its core, quite simple too. The function `recvfrom(2)` expects two arguments: The first argument is the socket address `sin_other`, which is the socket we want to receive data from. The second argument is a pointer to a buffer, into which the data will be written. Upon success, it returns the number of bytes read:
 
     NSMutableData *data  = [NSMutableData dataWithLength:65535];
     ssize_t count = recvfrom(nativeSocket, [data mutableBytes], [data length], 0, (struct sockaddr *) &sin_other, &length);

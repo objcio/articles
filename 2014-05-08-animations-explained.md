@@ -252,19 +252,9 @@ Without going into too much detail on Bézier curves, they are a common techniqu
 
 The values passed to `+functionWithControlPoints::::` effectively control the position of the handles. The resulting timing function will then adjust the speed of the animation based on the resulting path. The x-axis represents the fraction of the duration, while the y-axis is the input value of the interpolation function.
 
-Unfortunately, since the components are clamped to the range of `[0–1]`, it is not possible to create common effects such as anticipation -- where an animated object swings back before moving to its target -- or overshooting.
+While [the documentation](https://developer.apple.com/library/mac/documentation/cocoa/reference/CAMediaTimingFunction_class/Introduction/Introduction.html#//apple_ref/doc/uid/TP40004505-CH1-DontLinkElementID_1) states that the output range of `+functionWithControlPoints::::` is `[0, 1]`, some readers pointed out that you can actually use negative components to achieve anticipation -- where an animated object swings back before moving to its target -- or overshooting.
 
-I wrote a small library, called [RBBAnimation](https://github.com/robb/RBBAnimation), that contains a custom `CAKeyframeAnimation` subclass which allows you to use [more complex easing functions](https://github.com/robb/RBBAnimation#rbbtweenanimation), including bounces or cubic Bézier functions with negative components:
-
-<center><img src="{{site.images_path}}/issue-12/anticipate@2x.gif" width="140"></center>
-
-    RBBTweenAnimation *animation = [RBBTweenAnimation animation];
-    animation.keyPath = @"position.x";
-    animation.fromValue = @50;
-    animation.toValue = @150;
-    animation.duration = 1;
-
-    animation.easing = RBBCubicBezier(0.68, -0.55, 0.735, 1.55);
+Since `CAMediaTimingFunction` is limited to functions that can be expressed as cubic Bézier curves, I wrote a small library, called [RBBAnimation](https://github.com/robb/RBBAnimation), that contains a custom `CAKeyframeAnimation` subclass which allows you to use [more complex easing functions](https://github.com/robb/RBBAnimation#rbbtweenanimation), including bounces:
 
 <center><img src="{{site.images_path}}/issue-12/bounce@2x.gif" width="140"></center>
 
