@@ -18,7 +18,7 @@ Last month we got a chance to sit together with a fantastic group of developers 
 
 TODO: photo
 
-The result of this is five articles addressing very different architectural issues: the [MVVM concept](TODO) by [Ash Furrow](TODO), [avoiding singleton abuse](TODO) by [Stephen Poletto](TODO), [subclassing versus composition](TODO) by our own Chris Eidhof, composing [modular behaviors with Interface Builder](TODO) by [Krzystof Zablłocki](TODO), and finally, an alternative perspective to the traditional MVC architecture, called [VIPER](TODO) by [Conrad Stoll](TODO) and [Jeff Gilbert](TODO). 
+The result of this is five articles addressing very different architectural issues: the [MVVM concept](/issue-13/mvvm.html) by [Ash Furrow](https://twitter.com/ashfurrow), [avoiding singleton abuse](/issue-13/singletons.html) by [Stephen Poletto](https://twitter.com/stephenpoletto), [subclassing versus composition](/issue-13/subclassing.html) by our own [Chris Eidhof](https://twitter.com/chriseidhof), composing [modular behaviors with Interface Builder](/issue-13/behaviors.html) by [Krzystof Zablłocki](https://twitter.com/merowing_), and finally, an alternative perspective to the traditional MVC architecture, called [VIPER](/issue-13/viper.html) by [Conrad Stoll](https://twitter.com/conradstoll) and [Jeff Gilbert](mailto:jeff.gilbert@mutualmobile.com). 
 
 All the best from a very summery Berlin,
 

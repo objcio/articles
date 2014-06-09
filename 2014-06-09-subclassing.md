@@ -2,7 +2,7 @@
 layout: post
 title:  "Subclassing"
 category: "13"
-date: "2014-06-09 09:00:00"
+date: "2014-06-09 08:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a>"
 ---

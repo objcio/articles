@@ -222,11 +222,11 @@ The object graph looks pretty similar to the case in which we used a singleton. 
 
 The problem is scope. In the singleton case, the `sharedThumbnailCache` is still accessible to arbitrary modules of the program. Suppose the user quickly signs in to a new account. The new user will want to see his or her friends, too, which means interacting with the thumbnail cache again:
 
-<img src="http://{{ site.images_path }}/issue-13/Screen%20Shot%202014-06-02%20at%205.59.25%20AM.png" width="612" />
+<img src="{{ site.images_path }}/issue-13/Screen%20Shot%202014-06-02%20at%205.59.25%20AM.png" width="612" />
 
 When the user signs in to a new account, we should be able to construct and interact with a brand new `SPThumbnailCache`, with no attention paid to the destruction of the old thumbnail cache. The old view controllers and old thumbnail cache should be cleaned up lazily in the background on their own accord, based on the typical rules of object management. In short, we should isolate the state associated with user A from the state associated with user B:
 
-<img src="http://{{ site.images_path }}/issue-13/Screen%20Shot%202014-06-02%20at%206.43.56%20AM.png" width="412" />
+<img src="{{ site.images_path }}/issue-13/Screen%20Shot%202014-06-02%20at%206.43.56%20AM.png" width="412" />
 
 #Conclusion
 
