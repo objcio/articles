@@ -9,7 +9,7 @@ author: "<a href=\"https://twitter.com/merowing_\">Krzysztof Zabłocki</a>"
 
 As developers, we strive to write clean and well-structured code. There are many patterns we can use to make it happen, and one of the best ones is composition. Composition makes it easier to follow the Single Responsibility Principle and simplify our classes. 
 
-Instead of having a Massive View Controller that serves multiple different roles (like data sources and delegates), you separate those roles into different classes. The view controller can then just be responsible for configuring them and coordinating the work. After all, the less code we write, the less code we need to debug and maintain. 
+Instead of having a Massive View Controller that serves multiple different roles (like data sources and delegates), you separate those roles into different classes. The view controller can then just be responsible for configuring them and coordinating the work. After all, the less code we write, the less code we need to debug and maintain. s
 
 
 ## So What Exactly is a Behavior?
@@ -118,7 +118,7 @@ Here we leverage associated objects to create a strong reference to a specific o
 
 It's very useful to have behaviors be able to post events, e.g. when an animation finishes. One can enable that in Interface Builder by making behaviors inherit from `UIControl`. Then a specific behavior can just call:
 
-  [self sendActionsForControlEvents:UIControlEventValueChanged];
+    [self sendActionsForControlEvents:UIControlEventValueChanged];
 
 This will allow you to connect events from behaviors to your view controller code.
 
@@ -185,7 +185,7 @@ If your behavior needs a delegate of some kind, like `UIScrollViewDelegate`, you
         }
     }
     
-@end
+    @end
 
 By creating an instance of that multiplexer behavior, you can assign it as a delegate of a scroll view (or any other object that has a delegate) so that the delegate calls are forwarded to all of them.
 

@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Editorial"
-category: "12"
+category: "13"
 date: "2014-06-09 12:00:00"
 tags: editorial
 ---
@@ -14,7 +14,7 @@ You're probably still as overwhelmed as we are by the slew of developer-centric 
 
 However, before we take a deeper look at all the new stuff, this month we've prepared a more timeless topic for you. We wanted to pick something that comes back to what we've written about in our very first issue: [lighter view controllers](http://www.objc.io/issue-1). But this time around we chose a broader scope, so that the articles in this issue cover a variety of different issues you might encounter when thinking about app architecture. 
 
-Last month we got a chance to sit together with a fantastic group of developers at [UIKonf] in Berlin to brainstorm about this topic:
+Last month we got a chance to sit together with a fantastic group of developers at [UIKonf](http://www.uikonf.com) in Berlin to brainstorm about this topic:
 
 TODO: photo
 
