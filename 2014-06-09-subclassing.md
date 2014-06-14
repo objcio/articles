@@ -36,7 +36,7 @@ Luckily, if you find yourself in a deep hierarchy like that, there are lot of al
 
 Often, a reason to use subclassing is when you want to make sure that an object responds to certain messages. Consider an app where you have a player object, that can play videos. Now, if you want to add YouTube support, you want the same interface, but a different implementation. One way you can achieve this with subclassing is like this:
 
-    @class Player : NSObject
+    @interface Player : NSObject
 
     - (void)play;
     - (void)pause;
@@ -44,7 +44,7 @@ Often, a reason to use subclassing is when you want to make sure that an object 
     @end
 
 
-    @class YouTubePlayer : Player
+    @interface YouTubePlayer : Player
 
     @end
 
@@ -59,12 +59,12 @@ Most likely, the two classes don't share a lot of code, just the same interface.
     @end
 
 
-    @class Player : NSObject <VideoPlayer>
+    @interface Player : NSObject <VideoPlayer>
 
     @end
 
 
-    @class YouTubePlayer : NSObject <VideoPlayer>
+    @interface YouTubePlayer : NSObject <VideoPlayer>
 
     @end
 
@@ -84,7 +84,7 @@ Again, suppose you have a `Player` class like in the example above. Now, at one 
     @end
 
 
-    @class Player : NSObject
+    @interface Player : NSObject
 
     @property (nonatomic,weak) id<PlayerDelegate> delegate;
 
