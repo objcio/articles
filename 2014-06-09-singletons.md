@@ -51,7 +51,7 @@ Contrast the above example with this:
 
 Here, the dependency on `a` and `b` is made explicit. We don't need to mutate instance state in order to call this method. And we don't need to worry about leaving behind persistent side effects as a result of calling this method. As a note to the reader of this code, we can even make this method a class method to indicate that it does not modify instance state.
 
-So how does this example relate to singletons? In the words of Miško Hevery, ["Singletons are global state in sheep’s clothing."][sheepsClothing] A singleton can be used anywhere, without explictly declaring the dependency. Just like `_a` and `_b` were used in `computeSum` without the depedency being made explict, any module of the program can call `[SPMySingleton sharedInstance]` and get access to the singleton. This means any side effects of interacting with the singleton can affect arbitrary code elsewhere in the program.
+So how does this example relate to singletons? In the words of Miško Hevery, ["Singletons are global state in sheep’s clothing."][sheepsClothing] A singleton can be used anywhere, without explicitly declaring the dependency. Just like `_a` and `_b` were used in `computeSum` without the dependency being made explicit, any module of the program can call `[SPMySingleton sharedInstance]` and get access to the singleton. This means any side effects of interacting with the singleton can affect arbitrary code elsewhere in the program.
 
 
     @interface SPSingleton : NSObject
@@ -139,7 +139,7 @@ The problem here is that singletons, by definition, are assumed to be "create on
     
 This is a flagrant abuse of the singleton pattern, but it will work, right?
 
-We could certainly make this solution work, but the cost is far too great. For one, we've lost the simplicity of the `dispatch_once` solution, a solution which guarentees thread safety and that all code calling `[SPThumbnailCache sharedThumbnailCache]` only ever gets the same instance. We now need to be extremely careful about the order of code execution for code that utilizes the thumbnail cache. Suppose while the user is in the process of signing out, there's some background task that is in the process of saving an image into the cache: 
+We could certainly make this solution work, but the cost is far too great. For one, we've lost the simplicity of the `dispatch_once` solution, a solution which guarantees thread safety and that all code calling `[SPThumbnailCache sharedThumbnailCache]` only ever gets the same instance. We now need to be extremely careful about the order of code execution for code that utilizes the thumbnail cache. Suppose while the user is in the process of signing out, there's some background task that is in the process of saving an image into the cache: 
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [[SPThumbnailCache sharedThumbnailCache] cacheProfileImage:newImage forUserId:userId];
@@ -230,7 +230,7 @@ When the user signs in to a new account, we should be able to construct and inte
 
 #Conclusion
 
-Hopefully nothing in this article reads as particularly novel. People have been complaining about the abuse of singletons for years and we all know global state is bad. But in the world of iOS development, singletons are so commonplace that we can sometimes forget the lessons learned from years of object-oriented programmng elsewhere. 
+Hopefully nothing in this article reads as particularly novel. People have been complaining about the abuse of singletons for years and we all know global state is bad. But in the world of iOS development, singletons are so commonplace that we can sometimes forget the lessons learned from years of object-oriented programming elsewhere. 
 
 The key takeaway from all of this is that in object-oriented programming we want to minimize the scope of mutable state. Singletons stand in direct opposition to that, since they make mutable state accessible from anywhere in the program. The next time you think to use a singleton, I hope you consider dependency injection as an alternative.
 
