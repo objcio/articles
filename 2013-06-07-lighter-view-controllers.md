@@ -129,7 +129,7 @@ However, it is much cleaner to move this code to a category on the `User` class.
 it looks like this in `View Controller.m`:
 
     - (void)loadPriorities {
-      self.priorities = [user currentPriorities];
+      self.priorities = [self.user currentPriorities];
     }
 
 and in `User+Extensions.m`:
