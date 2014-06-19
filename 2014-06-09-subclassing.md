@@ -18,7 +18,7 @@ When asked about OOP (object-oriented programming), Alan Kay (the inventor) wrot
 
 First, let's talk about some cases where it makes sense to create subclasses. If you're building a `UITableViewCell` with custom layout, create a subclass. The same holds for almost every view; once you start doing layout, it makes sense to move this into a subclass, so that you not only have your code nicely bundled up, but also have a reusable object that you can share across projects.
 
-Suppose you're targeting multiple platforms and versions from your code, and you need to somehow write custom bits for every platform and version. It might then make sense to create an `OBJDevice` class, which has subclasses like `OBJIPhoneDevice` and `OBJIPadDevice`, and maybe even deeper subclasses like `OBJIPhone5Device`, which override specific methods. For example, your `OBJDevice` could contain a method `applyRoundedCornersToView:withRadius:`. It has a default implementation, but can be overriden by specific subclasses.
+Suppose you're targeting multiple platforms and versions from your code, and you need to somehow write custom bits for every platform and version. It might then make sense to create an `OBJDevice` class, which has subclasses like `OBJIPhoneDevice` and `OBJIPadDevice`, and maybe even deeper subclasses like `OBJIPhone5Device`, which override specific methods. For example, your `OBJDevice` could contain a method `applyRoundedCornersToView:withRadius:`. It has a default implementation, but can be overridden by specific subclasses.
 
 Another case where subclassing might be very helpful is in model objects. Most of the time, my model objects inherit from a class that implements `isEqual:`, `hash`, `copyWithZone:`, and `description`. These methods are implemented once by iterating over the properties, making it a lot harder to make mistakes. (If you're looking for a base class like this, you can consider using [Mantle](https://github.com/mantle/mantle), which does exactly this, and more.)
 
@@ -36,7 +36,7 @@ Luckily, if you find yourself in a deep hierarchy like that, there are lot of al
 
 Often, a reason to use subclassing is when you want to make sure that an object responds to certain messages. Consider an app where you have a player object, that can play videos. Now, if you want to add YouTube support, you want the same interface, but a different implementation. One way you can achieve this with subclassing is like this:
 
-    @class Player : NSObject
+    @interface Player : NSObject
 
     - (void)play;
     - (void)pause;
@@ -44,7 +44,7 @@ Often, a reason to use subclassing is when you want to make sure that an object 
     @end
 
 
-    @class YouTubePlayer : Player
+    @interface YouTubePlayer : Player
 
     @end
 
@@ -59,12 +59,12 @@ Most likely, the two classes don't share a lot of code, just the same interface.
     @end
 
 
-    @class Player : NSObject <VideoPlayer>
+    @interface Player : NSObject <VideoPlayer>
 
     @end
 
 
-    @class YouTubePlayer : NSObject <VideoPlayer>
+    @interface YouTubePlayer : NSObject <VideoPlayer>
 
     @end
 
@@ -84,7 +84,7 @@ Again, suppose you have a `Player` class like in the example above. Now, at one 
     @end
 
 
-    @class Player : NSObject
+    @interface Player : NSObject
 
     @property (nonatomic,weak) id<PlayerDelegate> delegate;
 
@@ -122,7 +122,7 @@ For example, a `ThemeConfiguration` class would have the `backgroundColor` and `
 
 ### Alternative: Composition
 
-The most powerful alterative to subclassing is composition. If you want to reuse existing code but you're not sharing the same interface, composition can be your weapon of choice. For example, suppose you are designing a caching class:
+The most powerful alternative to subclassing is composition. If you want to reuse existing code but you're not sharing the same interface, composition can be your weapon of choice. For example, suppose you are designing a caching class:
 
     @interface OBJCache : NSObject
 

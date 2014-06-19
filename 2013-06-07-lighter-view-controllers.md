@@ -129,7 +129,7 @@ However, it is much cleaner to move this code to a category on the `User` class.
 it looks like this in `View Controller.m`:
 
     - (void)loadPriorities {
-      self.priorities = [user currentPriorities];
+      self.priorities = [self.user currentPriorities];
     }
 
 and in `User+Extensions.m`:
@@ -235,7 +235,7 @@ chances of taking unwieldy view controllers and making them clearer.
 * [View Controller Programming Guide for iOS](http://developer.apple.com/library/ios/#featuredarticles/ViewControllerPGforiPhoneOS/BasicViewControllers/BasicViewControllers.html)
 * [Cocoa Core Competencies: Controller Object](http://developer.apple.com/library/mac/#documentation/General/Conceptual/DevPedia-CocoaCore/ControllerObject.html)
 * [Writing high quality view controllers](http://subjective-objective-c.blogspot.de/2011/08/writing-high-quality-view-controller.html)
-* [Stack Overflow: Model View Controller Store](http://programmers.stackexchange.com/questions/184396/mvcs-model-view-controller-store)
+* [Programmers Stack Exchange: Model View Controller Store](http://programmers.stackexchange.com/questions/184396/mvcs-model-view-controller-store)
 * [Unburdened View Controllers](https://speakerdeck.com/trianglecocoa/unburdened-viewcontrollers-by-jay-thrash)
-* [Stack Overflow: How to avoid big and clumsy `UITableViewControllers` on iOS](http://programmers.stackexchange.com/questions/177668/how-to-avoid-big-and-clumsy-uitableviewcontroller-on-ios)
+* [Programmers Stack Exchange: How to avoid big and clumsy `UITableViewControllers` on iOS](http://programmers.stackexchange.com/questions/177668/how-to-avoid-big-and-clumsy-uitableviewcontroller-on-ios)
 
