@@ -4,6 +4,10 @@ Scripting from a Sandbox
 Introduction
 ------------
 
+Scripting between apps has long been a part of the Mac ecosystem.
+As Brent is showing in his article, you make your app scriptable so that people can do things you never dreamed of implementing.
+This tutorial will show how your own app can communicate with another app using AppleScript.
+
 History: Apple announced sandboxing for Mac apps on 10.7 in 2011. Initially for App Store submissions as o November 1st, 2011, but that deadline was pushed back several times until it eventually went into effect on June 1st, 2012.
 
 Unlike iOS developers who have always run in this environment, it was quite a shock for many long-time developers.
@@ -11,7 +15,8 @@ As I heard one Apple security engineer put it, "we're putting the genie back int
 
 Scripting apps was one of the hardest changes. Initially, Apple dealt with this situation by granting "temporary exceptions" in the application entitlements.
 Still, many things that used to be easy, were suddenly hard or outright impossible do to in a sandbox.
-Luckily, things have gotten much better in the past couple of years. This tutorial will guide you through the current best practices for controlling other apps with AppleScript.
+Luckily, things have gotten much better in the past couple of years.
+This tutorial will guide you through the current best practices for controlling other apps with AppleScript.
 
 This also fits in well with Brent's tutorial on adding AppleScript support to an app. Between the two of us, both sides of the fence are covered.
 
@@ -21,38 +26,7 @@ First steps
 
 Before we get into the problems associated with running AppleScripts from an app, you need to first come up to speed on how these scripts are run.
 
-Before you write any code, you need to take a quick step back in time.
-To the Carbon era:
-
-	#import <Carbon/Carbon.h> // for AppleScript definitions
-
-Nothing crazy like adding a framework, just the header.
-
-An event descriptor, with optional parameters, is created to call a function in that script.
-
-	- (NSAppleEventDescriptor *)chockifyEventDescriptorWithString:(NSString *)inputString
-	{
-		// parameter
-		NSAppleEventDescriptor *parameter = [NSAppleEventDescriptor descriptorWithString:inputString];
-		NSAppleEventDescriptor *parameters = [NSAppleEventDescriptor listDescriptor];
-		[parameters insertDescriptor:parameter atIndex:1]; // you have to love a language with indices that start at 1 instead of 0
-	
-		// target
-		ProcessSerialNumber psn = {0, kCurrentProcess};
-		NSAppleEventDescriptor *target = [NSAppleEventDescriptor descriptorWithDescriptorType:typeProcessSerialNumber bytes:&psn length:sizeof(ProcessSerialNumber)];
-	
-		// function
-		NSAppleEventDescriptor *function = [NSAppleEventDescriptor descriptorWithString:@"chockify"];
-	
-		// event
-		NSAppleEventDescriptor *event = [NSAppleEventDescriptor appleEventWithEventClass:kASAppleScriptSuite eventID:kASSubroutineEvent targetDescriptor:target returnID:kAutoGenerateReturnID transactionID:kAnyTransactionID];
-		[event setParamDescriptor:function forKeyword:keyASSubroutineName];
-		[event setParamDescriptor:parameters forKeyword:keyDirectObject];
-	
-		return event;
-	}
-
-The Automation.scpt file contains this code for the "chockify" function specified above:
+The first thing to do is to write an AppleScript:
 
 	on chockify(inputString)
 		set resultString to ""
@@ -85,6 +59,49 @@ The Automation.scpt file contains this code for the "chockify" function specifie
 	
 		resultString
 	end chockify
+
+In my opinion, AppleScript's greatest strength is not its syntax.
+Nor is its ability to process strings.
+Even when it's making it strings AWESOME DUH
+
+I'm constantly referring to this: https://developer.apple.com/library/mac/documentation/applescript/conceptual/applescriptlangguide/introduction/ASLR_intro.html#//apple_ref/doc/uid/TP40000983-CH208-SW1
+
+Scripts will typically be short and sweet.
+Mainly a transport mechanism, not much processing.
+
+Before you write any Objective-C code, you need to take a quick step back in time.
+To the Carbon era:
+
+	#import <Carbon/Carbon.h> // for AppleScript definitions
+
+Nothing crazy like adding a framework, just the header.
+
+An event descriptor, with optional parameters, is created to call a function in that script.
+
+	- (NSAppleEventDescriptor *)chockifyEventDescriptorWithString:(NSString *)inputString
+	{
+		// parameter
+		NSAppleEventDescriptor *parameter = [NSAppleEventDescriptor descriptorWithString:inputString];
+		NSAppleEventDescriptor *parameters = [NSAppleEventDescriptor listDescriptor];
+		[parameters insertDescriptor:parameter atIndex:1]; // you have to love a language with indices that start at 1 instead of 0
+	
+		// target
+		ProcessSerialNumber psn = {0, kCurrentProcess};
+		NSAppleEventDescriptor *target = [NSAppleEventDescriptor descriptorWithDescriptorType:typeProcessSerialNumber bytes:&psn length:sizeof(ProcessSerialNumber)];
+	
+		// function
+		NSAppleEventDescriptor *function = [NSAppleEventDescriptor descriptorWithString:@"chockify"];
+	
+		// event
+		NSAppleEventDescriptor *event = [NSAppleEventDescriptor appleEventWithEventClass:kASAppleScriptSuite eventID:kASSubroutineEvent targetDescriptor:target returnID:kAutoGenerateReturnID transactionID:kAnyTransactionID];
+		[event setParamDescriptor:function forKeyword:keyASSubroutineName];
+		[event setParamDescriptor:parameters forKeyword:keyDirectObject];
+	
+		return event;
+	}
+
+The Automation.scpt file contains this code for the "chockify" function specified above:
+
 
 NSAppleScript is loaded from a URL.
 
@@ -157,12 +174,12 @@ It's a pretty big security hole.
 A script can easily get the contents of the current page or even run JavaScript on any tab of any window.
 Imagine how great you'd feel if one of those pages was your bank account.
 
-Things got a lot better with the release of OS X 10.8.
+Things got a lot better with the release of OS X 10.8 (Mountain Lion)
 Apple introduced a new abstract class called NSUserScriptTask.
 There are three concrete subclasses that let you run Unix shell commands (NSUserUnixTask), Automator workflows (NSUserAutomatorTask), and of course AppleScript (NSUserAppleScriptTask).
 The remainder of this tutorial will focus on that last class since it's the most common use case.
 
-User intent
+"Driving security policy through user intent"
 Tell the user why you're installing a script and what it's going to do.
 Remember, they can also delete script at any time.
 
@@ -221,43 +238,64 @@ Scripting Tasks
 
 Now that you have the automation script in the right place, you can start to use it.
 
-	NSError *error;
-	NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
-	if (directoryURL) {
-		NSURL *scriptURL = [directoryURL URLByAppendingPathComponent:@"Automation.scpt"];
-		NSUserAppleScriptTask *userAppleScriptTask = [[NSUserAppleScriptTask alloc] initWithURL:scriptURL error:&error];
-		if (userAppleScriptTask) {
-			// run the script task
-			NSAppleEventDescriptor *event = [self safariURLEventDescriptor];
-			[userAppleScriptTask executeWithAppleEvent:event completionHandler:^(NSAppleEventDescriptor *resultEventDescriptor, NSError *error) {
-				if (! resultEventDescriptor) {
-					NSLog(@"%s AppleScript task error = %@", __PRETTY_FUNCTION__, error);
-				}
-				else {
-					// NOTE: The completion handler for the script is not run on the main thread. Before you update any UI, you'll need to get
-					// on that thread by using libdispatch or performing a selector.
+First, you'll need to create an automation script task:
 
-					NSURL *URL = [self URLForResultEventDescriptor:resultEventDescriptor];						
-					[self performSelectorOnMainThread:@selector(updateURLTextFieldWithURL:) withObject:URL waitUntilDone:NO];
-				}
-			}];
+	- (NSUserAppleScriptTask *)automationScriptTask
+	{
+		NSUserAppleScriptTask *result = nil;
+	
+		NSError *error;
+		NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
+		if (directoryURL) {
+			NSURL *scriptURL = [directoryURL URLByAppendingPathComponent:@"Automation.scpt"];
+			result = [[NSUserAppleScriptTask alloc] initWithURL:scriptURL error:&error];
+			if (! result) {
+				NSLog(@"%s no AppleScript task error = %@", __PRETTY_FUNCTION__, error);
+			}
 		}
 		else {
-			// the task couldn't be run, so try to install the script again (it could have been manually deleted by the user)
-			[self installAutomationScript:self];
+			// NOTE: if you're not running in a sandbox, the directory URL will always be nil
+			NSLog(@"%s no Application Scripts folder error = %@", __PRETTY_FUNCTION__, error);
 		}
+
+		return result;
 	}
-	else {
-		// NOTE: if you're not running in a sandbox, the directory URL will always be nil
-		NSLog(@"%s no Application Scripts folder error = %@", __PRETTY_FUNCTION__, error);
+
+Then give it an event descriptor:
+
+	NSUserAppleScriptTask *automationScriptTask = [self automationScriptTask];
+	if (automationScriptTask) {
+		NSAppleEventDescriptor *event = [self safariURLEventDescriptor];
+		[automationScriptTask executeWithAppleEvent:event completionHandler:^(NSAppleEventDescriptor *resultEventDescriptor, NSError *error) {
+			if (! resultEventDescriptor) {
+				NSLog(@"%s AppleScript task error = %@", __PRETTY_FUNCTION__, error);
+			}
+			else {
+				NSURL *URL = [self URLForResultEventDescriptor:resultEventDescriptor];
+				// NOTE: The completion handler for the script is not run on the main thread. Before you update any UI, you'll need to get
+				// on that thread by using libdispatch or performing a selector.
+				[self performSelectorOnMainThread:@selector(updateURLTextFieldWithURL:) withObject:URL waitUntilDone:NO];
+			}
+		}];
 	}
 
 Note: completion handler is not called on the main thread.
 Get there before updating UI elements.
 
 What's going on behind the scenes?
-XPC Service
+XPC
+Same technology that lets iOS 8 implement extensions.
+
 WWDC Session...
+The OS X App Sandbox - WWDC 2012 video: https://developer.apple.com/videos/wwdc/2012/
+Ivan Krstić entertaining and explains security goals at a high-level.
+36 minutes in: Automation changes
+
+Secure Automation Techniques in OS X - WWDC 2012 video
+Sal Soghoian & Chris Nebel
+
+
+Access Groups not discussed here, but you'll want to learn about them if you're scripting system apps like Mail or iTunes.
 
 Synchronicity
 -------------
@@ -274,30 +312,22 @@ In class or application initialization, use:
 
 Then wait and signal on that semaphore when executing the task:
 
-	NSError *error;
-	NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
-	if (directoryURL) {
-		NSURL *scriptURL = [directoryURL URLByAppendingPathComponent:@"Automation.scpt"];
-		NSUserAppleScriptTask *userAppleScriptTask = [[NSUserAppleScriptTask alloc] initWithURL:scriptURL error:&error];
-		if (userAppleScriptTask) {
-			// wait for any previous tasks to complete before starting a new one — remember that you're blocking the main thread here!
-			dispatch_semaphore_wait(self.appleScriptTaskSemaphore, DISPATCH_TIME_FOREVER);
-
-			// run the script task
-			NSAppleEventDescriptor *event = [self openNetworkPreferencesEventDescriptor];
-			[userAppleScriptTask executeWithAppleEvent:event completionHandler:^(NSAppleEventDescriptor *resultEventDescriptor, NSError *error) {
-				if (! resultEventDescriptor) {
-					NSLog(@"%s AppleScript task error = %@", __PRETTY_FUNCTION__, error);
-				}
-				else {
-					[self performSelectorOnMainThread:@selector(showNetworkAlert) withObject:nil waitUntilDone:NO];
-				}
-				
-				// the task has completed, so let any pending tasks proceed
-				dispatch_semaphore_signal(self.appleScriptTaskSemaphore);
-			}];
+	// wait for any previous tasks to complete before starting a new one — remember that you're blocking the main thread here!
+	dispatch_semaphore_wait(self.appleScriptTaskSemaphore, DISPATCH_TIME_FOREVER);
+	
+	// run the script task
+	NSAppleEventDescriptor *event = [self openNetworkPreferencesEventDescriptor];
+	[automationScriptTask executeWithAppleEvent:event completionHandler:^(NSAppleEventDescriptor *resultEventDescriptor, NSError *error) {
+		if (! resultEventDescriptor) {
+			NSLog(@"%s AppleScript task error = %@", __PRETTY_FUNCTION__, error);
 		}
-	}
+		else {
+			[self performSelectorOnMainThread:@selector(showNetworkAlert) withObject:nil waitUntilDone:NO];
+		}
+		
+		// the task has completed, so let any pending tasks proceed
+		dispatch_semaphore_signal(self.appleScriptTaskSemaphore);
+	}];
 
 Wrapping up
 -----------
