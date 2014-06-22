@@ -279,12 +279,15 @@ Then give it an event descriptor:
 		}];
 	}
 
+Pass nil for event to -executeWithAppleEvent: and the script's default "run" handler is called.
 Note: completion handler is not called on the main thread.
 Get there before updating UI elements.
 
 What's going on behind the scenes?
 XPC
 Same technology that lets iOS 8 implement extensions.
+Explains why you can't reuse the NSUserScriptTask
+"This method should be invoked no more than once for a given instance of the class."
 
 WWDC Session...
 The OS X App Sandbox - WWDC 2012 video: https://developer.apple.com/videos/wwdc/2012/
