@@ -284,7 +284,7 @@ Note: completion handler is not called on the main thread.
 Get there before updating UI elements.
 
 What's going on behind the scenes?
-XPC
+Scripts are run out of process using XPC
 Same technology that lets iOS 8 implement extensions.
 Explains why you can't reuse the NSUserScriptTask
 "This method should be invoked no more than once for a given instance of the class."
@@ -295,8 +295,8 @@ Ivan Krstić entertaining and explains security goals at a high-level.
 36 minutes in: Automation changes
 
 Secure Automation Techniques in OS X - WWDC 2012 video
-Sal Soghoian & Chris Nebel
-
+Sal Soghoian & Chris Nebel explains app to app communication at 24 minutes in.
+35 minutes in talks about Application-Run User Scripts. 41 minutes, Chris explains in detail.
 
 Access Groups not discussed here, but you'll want to learn about them if you're scripting system apps like Mail or iTunes.
 
