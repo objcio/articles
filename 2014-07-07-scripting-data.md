@@ -263,7 +263,7 @@ Try this script:
 
 Result: `{"Tiger Swallowtails", "Steak-frites"}`.
 
-(Note that AppleScript arrays are 1-based, so note 2 refers to the second note. Which doesn’t so crazy when we put it that way.)
+(Note that AppleScript arrays are 1-based, so note 2 refers to the second note. Which doesn’t sound so crazy when we put it that way.)
 
 You can also create notes:
 
