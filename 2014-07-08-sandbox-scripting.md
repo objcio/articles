@@ -88,7 +88,7 @@ Once you have the definitions, you can create an event descriptor. This is a chu
 		return event;
 	}
 
-_Note:_ This code is available on [my GitHub account](https://github.com/chockenberry) as [Scriptinator](https://github.com/chockenberry/Scriptinator). The `Automation.scpt` file contains the "chockify" function and all the other scripts used in this tutorial.
+_Note:_ This code is available on [my GitHub account](https://github.com/chockenberry) as [Scriptinator](https://github.com/chockenberry/Scriptinator). The `Automation.scpt` file contains the "chockify" function and all the other scripts used in this tutorial. The Objective-C code is all in `AppDelegate.m`.
 
 Now that you have an event descriptor that tells AppleScript what you want to do, you need to give it somewhere to do it. That means loading an AppleScript from your application bundle: 
 
@@ -108,7 +108,7 @@ Now that you have an event descriptor that tells AppleScript what you want to do
 		}
 	}
 
-An instance of `NSAppleScript` is created using a URL from the application bundle. That script, in turn, is used with the "chockify" event descriptor created above. If everything goes according to plan, you end up with another event descriptor. If not, you get a dictionary back that contains information describing what went wrong. Although the pattern is similar to many other Foundation classes, the error _is not_ an instance of `NSErrror`.
+An instance of `NSAppleScript` is created using a URL from the application bundle. That script, in turn, is used with the "chockify" event descriptor created above. If everything goes according to plan, you end up with another event descriptor. If not, you get a dictionary back that contains information describing what went wrong. Although the pattern is similar to many other Foundation classes, the error _is not_ an instance of `NSError`.
 
 All that's left to do now is extract the information you want from the descriptor:
 
@@ -133,7 +133,9 @@ Your inputString just got a FACE LIFT and you've seen everything you need to run
 The way it used to be
 ---------------------
 
-There was a time when you could send AppleEvents to any application. Say you wanted to know what URL was loaded into the frontmost window of Safari. All you needed to do was `tell application "Safari"` what to do:
+There was a time when you could send AppleEvents to any application, not just to the currently running application as with "chockify" above.
+
+Say you wanted to know what URL was loaded into the frontmost window of Safari. All you needed to do was `tell application "Safari"` what to do:
 
 	on safariURL()
 		tell application "Safari" to return URL of front document
@@ -149,7 +151,7 @@ These days, all that's likely to produce is the following in your Debug Console:
 		NSAppleScriptErrorRange = "NSRange: {0, 0}";
 	}
 
-Even if Safari is running. What. The.
+Even though Safari is running. What. The.
 
 
 Sandbox restrictions
