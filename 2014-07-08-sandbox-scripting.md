@@ -4,29 +4,23 @@ Scripting from a Sandbox
 Introduction
 ------------
 
-Scripting between apps has long been a part of the Mac ecosystem.
-As Brent is showing in his article, you make your app scriptable so that people can do things you never dreamed of implementing.
-This tutorial will show how your own app can communicate with another app using AppleScript.
+Scripting between Mac applications has long been a part of the desktop ecosystem. It was originally [introduced](http://en.wikipedia.org/wiki/AppleScript) in October 1993 as a part of System 7 as a way to create complex workflows using publishing applications like QuarkXPress. Since then, many applications have supported AppleScript through the use of scripting dictionaries (Brent's article [in this issue](http://http://www.objc.io/issue-14/) shows you how to do this.) In this article, I'm going to explain how to communicate with another app using the commands in its scripting dictionary.
 
-History: Apple announced sandboxing for Mac apps on 10.7 in 2011. Initially for App Store submissions as o November 1st, 2011, but that deadline was pushed back several times until it eventually went into effect on June 1st, 2012.
+But before we do that, we need to take a look some recent events on the Mac platform. After opening the Mac App Store in late 2010, Apple announced the all developer submissions would need to run in a sandbox by November 2011. This deadline was pushed back several times until it eventually went into effect on June 1st, 2012.
 
-Unlike iOS developers who have always run in this environment, it was quite a shock for many long-time developers.
-As I heard one Apple security engineer put it, "we're putting the genie back into the bottle."
+That moving deadline should be your first clue that getting Mac apps to run in a sandbox was not exactly straightforward. Unlike their counterparts on iOS who had *always* run in a sandbox, many long-time developers realized that a secure execution environment would mean a lot of changes to their apps. As I heard one Apple security engineer put it, "We're putting the genie back into the bottle."
 
-Scripting apps was one of the hardest changes. Initially, Apple dealt with this situation by granting "temporary exceptions" in the application entitlements.
-Still, many things that used to be easy, were suddenly hard or outright impossible do to in a sandbox.
-Luckily, things have gotten much better in the past couple of years.
-This tutorial will guide you through the current best practices for controlling other apps with AppleScript.
+One of the major challenges with this effort to put apps into a sandbox was with AppleScript. Many functions that used to be easy were suddenly hard to do. Other things became outright impossible to accomplish. The main cause of this frustration was because apps could no longer arbitrarily control another app via scripting. From a security point-of-view, there are very good reasons why this is a bad idea.
 
-This also fits in well with Brent's tutorial on adding AppleScript support to an app. Between the two of us, both sides of the fence are covered.
+Initially, Apple helped ease the transition by granting "temporary exceptions" in an application's entitlements. These exceptions allowed apps to retain functionality that would have otherwise been lost. And as the name indicates, many of these special cases are disappearing as alternative ways of controlling other apps have been made available in more recent versions of OS X.
+
+This tutorial will show you the current best practices for controlling another app using AppleScript. I'll also show you some tricks that will help you and your customers get AppleScripts setup with a minimum amount of effort.
 
 
 First steps
 -----------
 
-Before we get into the problems associated with running AppleScripts from an app, you need to first come up to speed on how these scripts are run.
-
-The first thing to do is to write an AppleScript:
+The first thing you need to learn is how to run an AppleScript from your own app. Typically the hardest part about this is writing AppleScript code. Behold:
 
 	on chockify(inputString)
 		set resultString to ""
@@ -60,23 +54,17 @@ The first thing to do is to write an AppleScript:
 		resultString
 	end chockify
 
-In my opinion, AppleScript's greatest strength is not its syntax.
-Nor is its ability to process strings.
-Even when it's making it strings AWESOME DUH
+In my opinion, AppleScript's greatest strength is not its syntax. Nor is its ability to process strings, even when its making them AWESOME DUH
 
-I'm constantly referring to this: https://developer.apple.com/library/mac/documentation/applescript/conceptual/applescriptlangguide/introduction/ASLR_intro.html#//apple_ref/doc/uid/TP40000983-CH208-SW1
+When developing scripts like this, I constantly refer to the [AppleScript Language Guide](https://developer.apple.com/library/mac/documentation/applescript/conceptual/applescriptlangguide/introduction/ASLR_intro.html#//apple_ref/doc/uid/TP40000983-CH208-SW1). The good news is that scripts that communicate with other apps are typically short and sweet. AppleScript can be thought of as a transport mechanism rather than a processing environment. The script shown above is atypical.
 
-Scripts will typically be short and sweet.
-Mainly a transport mechanism, not much processing.
-
-Before you write any Objective-C code, you need to take a quick step back in time.
-To the Carbon era:
+Once you have your script written and tested, you can get back to the comfortable environs of Objective-C. And the first line of code you'll write is a trip back in time to the Carbon era:
 
 	#import <Carbon/Carbon.h> // for AppleScript definitions
 
-Nothing crazy like adding a framework, just the header.
+Don't worry, you're not going to do anything crazy like add a framework to the project. You just need Carbon.h because it has a list of all the AppleEvent definitions. Remember, this code has been around for over 20 years!
 
-An event descriptor, with optional parameters, is created to call a function in that script.
+Once you have the definitions, you can create an event descriptor. This is a chunk of data that is passed both to and from your script. At this point, you can think of it as an encapsulation of a target that will execute the event, a function to call, and a list of parameters for that function. Here is one for the "chockify" function above using an NSString as a parameter:
 
 	- (NSAppleEventDescriptor *)chockifyEventDescriptorWithString:(NSString *)inputString
 	{
@@ -100,10 +88,9 @@ An event descriptor, with optional parameters, is created to call a function in 
 		return event;
 	}
 
-The Automation.scpt file contains this code for the "chockify" function specified above:
+_Note:_ This code is available on [my GitHub account](https://github.com/chockenberry) as [Scriptinator](https://github.com/chockenberry/Scriptinator). The `Automation.scpt` file contains the "chockify" function and all the other scripts used in this tutorial.
 
-
-NSAppleScript is loaded from a URL.
+Now that you have an event descriptor that tells AppleScript what you want to do, you need to give it somewhere to do it. That means loading an AppleScript from your application bundle: 
 
 	NSURL *URL = [[NSBundle mainBundle] URLForResource:@"Automation" withExtension:@"scpt"];
 	if (URL) {
@@ -121,8 +108,9 @@ NSAppleScript is loaded from a URL.
 		}
 	}
 
-The script is executed using the event descriptor. After the script is run, another event descriptor is returned.
-Any information you need is extracted from the result.
+An instance of `NSAppleScript` is created using a URL from application bundle. That script, in turn, is used with the "chockify" event descriptor created above. If everything goes according to plan, you end up with another event descriptor. If not, you get a dictionary back that contains information describing what went wrong. Although the pattern is similar to many other Foundation classes, the error _is not_ an instance of `NSErrror`.
+
+All that's left to do now is extract the information you want from the descriptor:
 
 	- (NSString *)stringForResultEventDescriptor:(NSAppleEventDescriptor *)resultEventDescriptor
 	{
@@ -139,7 +127,7 @@ Any information you need is extracted from the result.
 		return result;
 	}
 
-Note: You can run this code using my Scriptinator project on GitHub. For a real world example, take a look at the Overlay tool in xScope. It has a user-friendly setup procedure and sophisticated scripting that lets the app communicate with the customer's web browser. As a bonus, you'll find that xScope is a great tool for doing development: that's why we wrote it!
+Your inputString just got a FACE LIFT and you now know everything you need to run AppleScripts from your app. Sort of.
 
 
 The way it used to be
@@ -231,6 +219,8 @@ How do you get the script where it needs to be?
 	}];
 
 For this to work, you MUST update the Capbilities > App Sandbox > File Access > User Selected File to Read/Write.
+
+Note: You can run this code using my Scriptinator project on GitHub. For a real world example, take a look at the Overlay tool in xScope. It has a user-friendly setup procedure and sophisticated scripting that lets the app communicate with the customer's web browser. As a bonus, you'll find that xScope is a great tool for doing development: that's why we wrote it!
 
 
 Scripting Tasks
