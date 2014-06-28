@@ -1,0 +1,298 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CC0490BD194CFB8F00B7A9DB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC0490BC194CFB8F00B7A9DB /* Cocoa.framework */; };
+		CC0490C7194CFB8F00B7A9DB /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = CC0490C5194CFB8F00B7A9DB /* InfoPlist.strings */; };
+		CC0490D0194CFBD100B7A9DB /* TEMarkYellow.m in Sources */ = {isa = PBXBuildFile; fileRef = CC0490CF194CFBD100B7A9DB /* TEMarkYellow.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		CC0490B9194CFB8F00B7A9DB /* MarkYellow.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MarkYellow.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC0490BC194CFB8F00B7A9DB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		CC0490BF194CFB8F00B7A9DB /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		CC0490C0194CFB8F00B7A9DB /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		CC0490C1194CFB8F00B7A9DB /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		CC0490C4194CFB8F00B7A9DB /* MarkYellow-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MarkYellow-Info.plist"; sourceTree = "<group>"; };
+		CC0490C6194CFB8F00B7A9DB /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		CC0490C8194CFB8F00B7A9DB /* MarkYellow-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MarkYellow-Prefix.pch"; sourceTree = "<group>"; };
+		CC0490CE194CFBD100B7A9DB /* TEMarkYellow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TEMarkYellow.h; sourceTree = "<group>"; };
+		CC0490CF194CFBD100B7A9DB /* TEMarkYellow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TEMarkYellow.m; sourceTree = "<group>"; };
+		CCB25AB11958CB2800538674 /* TEPluginManagerInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TEPluginManagerInterface.h; path = "../../02 TextEdit/TEPluginManagerInterface.h"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC0490B6194CFB8F00B7A9DB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC0490BD194CFB8F00B7A9DB /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC0490B0194CFB8F00B7A9DB = {
+			isa = PBXGroup;
+			children = (
+				CC0490C2194CFB8F00B7A9DB /* MarkYellow */,
+				CC0490BB194CFB8F00B7A9DB /* Frameworks */,
+				CC0490BA194CFB8F00B7A9DB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CC0490BA194CFB8F00B7A9DB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC0490B9194CFB8F00B7A9DB /* MarkYellow.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC0490BB194CFB8F00B7A9DB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CC0490BC194CFB8F00B7A9DB /* Cocoa.framework */,
+				CC0490BE194CFB8F00B7A9DB /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CC0490BE194CFB8F00B7A9DB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CC0490BF194CFB8F00B7A9DB /* Foundation.framework */,
+				CC0490C0194CFB8F00B7A9DB /* CoreData.framework */,
+				CC0490C1194CFB8F00B7A9DB /* AppKit.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		CC0490C2194CFB8F00B7A9DB /* MarkYellow */ = {
+			isa = PBXGroup;
+			children = (
+				CC0490C3194CFB8F00B7A9DB /* Supporting Files */,
+				CC0490CE194CFBD100B7A9DB /* TEMarkYellow.h */,
+				CC0490CF194CFBD100B7A9DB /* TEMarkYellow.m */,
+				CCB25AB11958CB2800538674 /* TEPluginManagerInterface.h */,
+			);
+			path = MarkYellow;
+			sourceTree = "<group>";
+		};
+		CC0490C3194CFB8F00B7A9DB /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				CC0490C4194CFB8F00B7A9DB /* MarkYellow-Info.plist */,
+				CC0490C5194CFB8F00B7A9DB /* InfoPlist.strings */,
+				CC0490C8194CFB8F00B7A9DB /* MarkYellow-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CC0490B8194CFB8F00B7A9DB /* MarkYellow */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC0490CB194CFB8F00B7A9DB /* Build configuration list for PBXNativeTarget "MarkYellow" */;
+			buildPhases = (
+				CC0490B5194CFB8F00B7A9DB /* Sources */,
+				CC0490B6194CFB8F00B7A9DB /* Frameworks */,
+				CC0490B7194CFB8F00B7A9DB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MarkYellow;
+			productName = MarkYellow;
+			productReference = CC0490B9194CFB8F00B7A9DB /* MarkYellow.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CC0490B1194CFB8F00B7A9DB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = "August Mueller";
+			};
+			buildConfigurationList = CC0490B4194CFB8F00B7A9DB /* Build configuration list for PBXProject "MarkYellow" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = CC0490B0194CFB8F00B7A9DB;
+			productRefGroup = CC0490BA194CFB8F00B7A9DB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CC0490B8194CFB8F00B7A9DB /* MarkYellow */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CC0490B7194CFB8F00B7A9DB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC0490C7194CFB8F00B7A9DB /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC0490B5194CFB8F00B7A9DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC0490D0194CFBD100B7A9DB /* TEMarkYellow.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		CC0490C5194CFB8F00B7A9DB /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CC0490C6194CFB8F00B7A9DB /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		CC0490C9194CFB8F00B7A9DB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		CC0490CA194CFB8F00B7A9DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		CC0490CC194CFB8F00B7A9DB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "MarkYellow/MarkYellow-Prefix.pch";
+				INFOPLIST_FILE = "MarkYellow/MarkYellow-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Debug;
+		};
+		CC0490CD194CFB8F00B7A9DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "MarkYellow/MarkYellow-Prefix.pch";
+				INFOPLIST_FILE = "MarkYellow/MarkYellow-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CC0490B4194CFB8F00B7A9DB /* Build configuration list for PBXProject "MarkYellow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC0490C9194CFB8F00B7A9DB /* Debug */,
+				CC0490CA194CFB8F00B7A9DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC0490CB194CFB8F00B7A9DB /* Build configuration list for PBXNativeTarget "MarkYellow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC0490CC194CFB8F00B7A9DB /* Debug */,
+				CC0490CD194CFB8F00B7A9DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CC0490B1194CFB8F00B7A9DB /* Project object */;
+}
