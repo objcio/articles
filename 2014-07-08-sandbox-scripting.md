@@ -108,7 +108,7 @@ Now that you have an event descriptor that tells AppleScript what you want to do
 		}
 	}
 
-An instance of `NSAppleScript` is created using a URL from application bundle. That script, in turn, is used with the "chockify" event descriptor created above. If everything goes according to plan, you end up with another event descriptor. If not, you get a dictionary back that contains information describing what went wrong. Although the pattern is similar to many other Foundation classes, the error _is not_ an instance of `NSErrror`.
+An instance of `NSAppleScript` is created using a URL from the application bundle. That script, in turn, is used with the "chockify" event descriptor created above. If everything goes according to plan, you end up with another event descriptor. If not, you get a dictionary back that contains information describing what went wrong. Although the pattern is similar to many other Foundation classes, the error _is not_ an instance of `NSErrror`.
 
 All that's left to do now is extract the information you want from the descriptor:
 
@@ -127,21 +127,19 @@ All that's left to do now is extract the information you want from the descripto
 		return result;
 	}
 
-Your inputString just got a FACE LIFT and you now know everything you need to run AppleScripts from your app. Sort of.
+Your inputString just got a FACE LIFT and you've seen everything you need to run AppleScripts from your app. Sort of.
 
 
 The way it used to be
 ---------------------
 
-You could talk to other applications.
-
-But if your script contains a "tell application", you're stuck:
+There was a time when you could send AppleEvents to any application. Say you wanted to know what URL was loaded into the frontmost window of Safari. All you needed to do was `tell application "Safari"` what to do:
 
 	on safariURL()
 		tell application "Safari" to return URL of front document
 	end safariURL
 
-You'll see something like this logged in your debug console:
+These days, all that's likely to produce is the following in your Debug Console:
 
 	AppleScript run error = {
 		NSAppleScriptErrorAppName = Safari;
@@ -151,33 +149,39 @@ You'll see something like this logged in your debug console:
 		NSAppleScriptErrorRange = "NSRange: {0, 0}";
 	}
 
-Even if Safari is, in fact, running.
+Even if Safari is running. What. The.
 
 
 Sandbox restrictions
 --------------------
 
-No one gave your app permission to talk to Safari.
-It's a pretty big security hole.
-A script can easily get the contents of the current page or even run JavaScript on any tab of any window.
-Imagine how great you'd feel if one of those pages was your bank account.
+You're trying to run this script from an application sandbox. As far as that sandbox is concerned, Safari is, in fact, not running.
 
-Things got a lot better with the release of OS X 10.8 (Mountain Lion)
-Apple introduced a new abstract class called NSUserScriptTask.
-There are three concrete subclasses that let you run Unix shell commands (NSUserUnixTask), Automator workflows (NSUserAutomatorTask), and of course AppleScript (NSUserAppleScriptTask).
-The remainder of this tutorial will focus on that last class since it's the most common use case.
+The problem is that no one gave your app permission to talk to Safari. This turns out to be a pretty big security hole: a script can easily get the contents of the current page or even run JavaScript against any tab of any window in browser. Imagine how great that would be if one of those pages was for your bank account. Or a page that contained a form field with your credit card number. Ouch.
 
-"Driving security policy through user intent"
-Tell the user why you're installing a script and what it's going to do.
-Remember, they can also delete script at any time.
+That, in a nutshell, is why arbitrary script execution was banned from the Mac App Store.
 
-Installing Scripts
+Luckily, things have gotten much better in recent releases of OS X. In 10.8 (Mountain Lion), Apple introduced a new abstract class called `NSUserScriptTask`. There are three concrete subclasses that let you run Unix shell commands (`NSUserUnixTask`), Automator workflows (`NSUserAutomatorTask`), and of course AppleScript (`NSUserAppleScriptTask`). The remainder of this tutorial will focus on that last class since it's the one most commonly used.
+
+Apple's mantra for the application sandbox is "Driving security policy through user intent." In practice, this means a user has to decide they want to run your script, no matter where it came from. You need permission to run a script and once that permission is granted, the script is run in a way where its interaction with the rest of the system is limited. `NSUserScriptTask` makes all this possible.
+
+
+Installing scripts
 ------------------
 
-There is only one place where your automation script can be installed.
-Application Scripts is in Library folder.
-One that most people can't even get to because Library is hidden.
-How do you get the script where it needs to be?
+The "granting access" part of this system is that an application can only run scripts from a specific folder in the User's account. The only way scripts can get into that folder is if the user copies them there.
+
+This presents a challenge: the folder is in User > Library > Application Scripts and is named using the application's bundle identifier. For [Scriptinator](https://github.com/chockenberry/Scriptinator) it's `com.iconfactory.Scriptinator`. None of this is very user friendly, especially since the Library folder is hidden by default on OS X.
+
+One approach to this problem is to implement some code that makes is easy for your customer to open this hidden folder. For example:
+
+	NSError *error;
+	NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
+	[[NSWorkspace sharedWorkspace] openURL:directoryURL];
+
+That's a great solution for scripts actually written by a customer. But sometimes you'll want to help the end user install scripts that you've written to make a part of your app work better. How do you get scripts from your application bundle into the user's scripts folder?
+
+The solution here is to get a permission to write into that folder. You need to update your app's Capabilities under App Sandbox > File Access to "User Selected File to Read/Write". Again, user intent is the guiding factor here:
 
 	NSError *error;
 	NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
@@ -218,17 +222,21 @@ How do you get the script where it needs to be?
 		}
 	}];
 
-For this to work, you MUST update the Capbilities > App Sandbox > File Access > User Selected File to Read/Write.
+That `Automation.scpt` file that we used to run from inside the application bundle is now exposed in the regular file system.
 
-Note: You can run this code using my Scriptinator project on GitHub. For a real world example, take a look at the Overlay tool in xScope. It has a user-friendly setup procedure and sophisticated scripting that lets the app communicate with the customer's web browser. As a bonus, you'll find that xScope is a great tool for doing development: that's why we wrote it!
+It's important throughout this entire process to let your customer know what's going on. You have to remember that they're the ones in control of the script, not you. If they decide to clear out all their scripts from the folder, you need to cope with that. Either disable an app feature that requires the script or prompt to install the script again.
+
+_Note:_ The [Scriptinator](https://github.com/chockenberry/Scriptinator) sample code includes both of the approaches shown above. For a real world example, take a look at the [Overlay](http://xscopeapp.com/guide#overlay) tool in [xScope](http://xscopeapp.com/). It has a user-friendly setup procedure and sophisticated scripting that lets the app communicate with the customer's web browser. As a bonus, you may find that xScope is a great tool for doing web and app development!
 
 
-Scripting Tasks
+Scripting tasks
 ---------------
 
-Now that you have the automation script in the right place, you can start to use it.
+Now that you have the automation scripts in the right place, you can start to use them.
 
-First, you'll need to create an automation script task:
+In the code below, the event descriptors that we created above have not changed. The only thing that's different is how they're run: you'll be using an `NSUserAppleScriptTask` instead of `NSAppleScript`.
+
+Since you'll presumably using these automation script tasks frequently. The documentation warns that `NSUserAppleScriptTask` "should be invoked no more than once for a given instance of the class" so it's a good idea to write a factory method that creates them as needed:
 
 	- (NSUserAppleScriptTask *)automationScriptTask
 	{
@@ -251,7 +259,9 @@ First, you'll need to create an automation script task:
 		return result;
 	}
 
-Then give it an event descriptor:
+If you're writing a Mac app that has both a sandboxed and non-sandboxed version, you'll need to be careful getting the `directoryURL`. The `NSApplicationScriptsDirectory` is only available when sandboxed.
+
+After creating the script task, you execute it with an AppleEvent and provide a completion handler:
 
 	NSUserAppleScriptTask *automationScriptTask = [self automationScriptTask];
 	if (automationScriptTask) {
@@ -269,11 +279,20 @@ Then give it an event descriptor:
 		}];
 	}
 
-Pass nil for event to -executeWithAppleEvent: and the script's default "run" handler is called.
-Note: completion handler is not called on the main thread.
-Get there before updating UI elements.
+For scripts that a user has written, they may expect your app to just "run" the script. In that case, you'll pass `nil` for the event parameter and everyone will be happy.
+
+One of the nice things about `NSUserAppleScriptTask` is the completion handler. Scripts are run asynchronously, so your user interface doesn't need to block while a (potentially lengthy) script is run. Just be careful about what you do in that completion handler: it's not running on the main thread, so don't do updates to your user interface there.
+
+
+Behind the scenes
+-----------------
 
 What's going on behind the scenes?
+
+As you may have guessed by the fact that scripts are run asynchronously, 
+
+If you sniff around in the sender process id for the events, you'll see they come from /usr/libexec/lsboxd
+
 Scripts are run out of process using XPC
 Same technology that lets iOS 8 implement extensions.
 Explains why you can't reuse the NSUserScriptTask
