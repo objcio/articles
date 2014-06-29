@@ -185,7 +185,7 @@ One approach to this problem is to implement some code that makes is easy for yo
 
 That's a great solution for scripts written by a customer. They can open that folder and edit their scripts in any way they see fit.
 
-But sometimes you'll want to help the end user install scripts that you've written. Chances are you're a better programmer than your average customer and you can write code that make your app work a lot better with their apps. The natural place to put your own scripts is in the application bundle, but how do you get scripts into the user's scripts folder?
+But sometimes you'll want to help the end user install scripts that you've written. Chances are you're a better programmer than your average customer and you can write code that makes your app work a lot better with their apps. The natural place to put your own scripts is in the application bundle, but how do you get scripts into the user's scripts folder?
 
 The solution here is to get permission to write into that folder. In Xcode, you need to update your app's Capabilities under App Sandbox > File Access to "User Selected File to Read/Write". Again, user intent is the guiding factor here, they're giving you permission to add scripts to their folder:
 
@@ -369,11 +369,11 @@ So an "application" contains "panes". That sounds promising, in a new Script Edi
 		panes
 	end tell
 
-Our goal to open the Accessibility view of the security pane, so look through the Result in the output until you find something promising like:
+Our goal to open the Accessibility view of the security pane, so look through the Result in the output until you find something useful like:
 
 	pane id "com.apple.preference.security" of application "System Preferences"
 
-Take a look at it's "localized name" property:
+Learn more about it by looking at it's "localized name" property:
 
 	tell application "System Preferences"
 		localized name of pane id "com.apple.preference.security"
