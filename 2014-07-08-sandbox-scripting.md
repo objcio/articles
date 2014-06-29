@@ -359,6 +359,10 @@ At this point, you'll see a "Standard Suite" and "System Preferences" listed in 
 
 When you look at "application", you'll see two things: elements and properties. Elements are collections of objects that are managed by the selected object. The properties list data maintained by the selected object.
 
+<!--<img src="{{ site.images_path }}/issue-14/Scripting_Dictionary.png" width="741" />-->
+<img src="http://files.iconfactory.net/craig/test/Scripting_Dictionary.png" width="741" />
+
+
 So an "application" contains "panes". That sounds promising, in a new Script Editor window, create a simple script to show all the pane objects:
 
 	tell application "System Preferences"
@@ -369,13 +373,19 @@ Our goal to open the Accessibility view of the security pane, so look through th
 
 	pane id "com.apple.preference.security" of application "System Preferences"
 
-Now try writing another script that uses that "pane id" along with the "reveal" command we saw earlier:
+Take a look at it's "localized name" property:
+
+	tell application "System Preferences"
+		localized name of pane id "com.apple.preference.security"
+	end tell
+
+"Security & Privacy". Bingo! Now try writing another script that uses that "pane id" along with the "reveal" command we saw earlier:
 
 	tell application "System Preferences"
 		reveal pane id "com.apple.preference.security"
 	end tell
 
-Look at that! System Preferences just showed the "Security & Privacy" pane. Now all we need to do is query for the anchor elements contained in that pane:
+System Preferences just showed you the pane, now let's figure out how to get to the right view. Start by querying for the only elements contained in a pane, the anchor objects:
 
 	tell application "System Preferences"
 		anchors of pane "com.apple.preference.security"
@@ -385,7 +395,7 @@ Lo and behold, we see:
 
 	anchor "Privacy_Accessibility" of pane id "com.apple.preference.security" of application "System Preferences"
 
-That what we want. It also shows the hierarchy of the objects in System Preferences: an application has panes which have anchors. So let's tweak our script:
+That's what we want. It also shows the hierarchy of the objects in System Preferences: an application has panes which have anchors. So let's tweak our script:
 
 	tell application "System Preferences"
 		reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
