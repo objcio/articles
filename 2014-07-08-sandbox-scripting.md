@@ -133,7 +133,7 @@ Your inputString just got a FACE LIFT and you've seen everything you need to run
 The way it used to be
 ---------------------
 
-There was a time when you could send AppleEvents to any application, not just to the currently running application as with "chockify" above.
+There was a time when you could send AppleEvents to any application, not just to the currently running application as we did with "chockify" above.
 
 Say you wanted to know what URL was loaded into the frontmost window of Safari. All you needed to do was `tell application "Safari"` what to do:
 
@@ -159,13 +159,13 @@ Sandbox restrictions
 
 You're trying to run this script from an application sandbox. As far as that sandbox is concerned, Safari is, in fact, not running.
 
-The problem is that no one gave your app permission to talk to Safari. This turns out to be a pretty big security hole: a script can easily get the contents of the current page or even run JavaScript against any tab of any window in browser. Imagine how great that would be if one of those pages was for your bank account. Or a page that contained a form field with your credit card number. Ouch.
+The problem is that no one gave your app permission to talk to Safari. This turns out to be a pretty big security hole: a script can easily get the contents of the current page or even run JavaScript against any tab of any window in your browser. Imagine how great that would be if one of those pages was for your bank account. Or a page that contained a form field with your credit card number. Ouch.
 
 That, in a nutshell, is why arbitrary script execution was banned from the Mac App Store.
 
-Luckily, things have gotten much better in recent releases of OS X. In 10.8 (Mountain Lion), Apple introduced a new abstract class called `NSUserScriptTask`. There are three concrete subclasses that let you run Unix shell commands (`NSUserUnixTask`), Automator workflows (`NSUserAutomatorTask`), and of course AppleScript (`NSUserAppleScriptTask`). The remainder of this tutorial will focus on that last class since it's the one most commonly used.
+Luckily, things have gotten much better in recent releases of OS X. In 10.8 (Mountain Lion), Apple introduced a new abstract class called `NSUserScriptTask`. There are three concrete subclasses that let you run Unix shell commands (`NSUserUnixTask`), Automator workflows (`NSUserAutomatorTask`), and our beloved AppleScript (`NSUserAppleScriptTask`). The remainder of this tutorial will focus on that last class since it's the one most commonly used.
 
-Apple's mantra for the application sandbox is "Driving security policy through user intent." In practice, this means a user has to decide they want to run your script, no matter where it came from. You need permission to run a script and once that permission is granted, the script is run in a way where its interaction with the rest of the system is limited. `NSUserScriptTask` makes all this possible.
+Apple's mantra for the application sandbox is "driving security policy through user intent." In practice, this means a user has to decide they want to run your script. It might have come from the Internet or it might be a part of your application, the only thing that matters is that your customer says "Yes, I want to run this script." Once that permission is granted, their scripts are run in a way where the interaction with the rest of the system is limited. The `NSUserScriptTask` class makes all this possible.
 
 
 Installing scripts
@@ -281,9 +281,9 @@ After creating the script task, you execute it with an AppleEvent and provide a 
 		}];
 	}
 
-For scripts that a user has written, they may expect your app to just "run" the script. In that case, you'll pass `nil` for the event parameter and everyone will be happy.
+For scripts that a user has written, they may expect your app to just "run" the script (and not call a function specified in an event descriptor.) In this case, you'll pass `nil` for the event and the script will behave as if the user double-clicked on it in the Finder.
 
-One of the nice things about `NSUserAppleScriptTask` is the completion handler. Scripts are run asynchronously, so your user interface doesn't need to block while a (potentially lengthy) script is run. Just be careful about what you do in that completion handler: it's not running on the main thread, so don't do updates to your user interface there.
+One of the nice things about `NSUserAppleScriptTask` is the completion handler. Scripts are run asynchronously, so your user interface doesn't need to block while a (potentially lengthy) script is run. Be careful about what you do when that completion handler is invoked: it's not running on the main thread, so you can't do any updates to your user interface there.
 
 
 Behind the scenes
@@ -291,40 +291,27 @@ Behind the scenes
 
 What's going on behind the scenes?
 
-As you may have guessed by the fact that scripts are run asynchronously, 
+As you may have guessed by the fact that scripts can only run once and are performed asynchronously, scripts are now run out of process using XPC. Just as iOS 8 uses XPC to make sure extensions don't affect the calling application in any way, a running script has no access to the address space of your calling application.
 
-If you sniff around in the sender process id for the events, you'll see they come from /usr/libexec/lsboxd
+If you look at the `keySenderPIDAttr` in an incoming event descriptor, you'll see that the process ID belongs to `/usr/libexec/lsboxd`, not your own application. This mysterious process is presumably the Launch Services Sandbox daemon. In any case, your requests to another process are most certainly being marshalled.
 
-Scripts are run out of process using XPC
-Same technology that lets iOS 8 implement extensions.
-Explains why you can't reuse the NSUserScriptTask
-"This method should be invoked no more than once for a given instance of the class."
+To understand more about the security goals of the application sandbox at a high-level, I'd recommend Ivan Krstić's talk _"The OS X App Sandbox"_ at [WWDC 2012](https://developer.apple.com/videos/wwdc/2012/). It's a surprisingly entertaining talk and at 36 minutes into the presentation, the automation changes shown above are introduced. At that same conference, a talk entitled _"Secure Automation Techniques in OS X"_ by Sal Soghoian and Chris Nebel goes into the details of the automation changes. Skip ahead to the 35 minute mark if you just want to learn about Application-Run User Scripts.
 
-WWDC Session...
-The OS X App Sandbox - WWDC 2012 video: https://developer.apple.com/videos/wwdc/2012/
-Ivan Krstić entertaining and explains security goals at a high-level.
-36 minutes in: Automation changes
+Another important security announcement discussed in these talks, but not covered in this tutorial, are "access groups". If you're going to be scripting system applications like Mail or iTunes, you'll definitely want to pay attention to this topic in the videos above.
 
-Secure Automation Techniques in OS X - WWDC 2012 video
-Sal Soghoian & Chris Nebel explains app to app communication at 24 minutes in.
-35 minutes in talks about Application-Run User Scripts. 41 minutes, Chris explains in detail.
-
-Access Groups not discussed here, but you'll want to learn about them if you're scripting system apps like Mail or iTunes.
 
 Synchronicity
 -------------
 
-One subtle difference between executing an NSAppleScript object and running an NSUserAppleScriptTask is that the former is synchronous. There's no completion handler, you just run the script and it returns after it's done.
+As I mentioned above, there is a subtle difference between `NSAppleScript` and `NSUserAppleScriptTask`: the new mechanism is run asynchronously. For the most part, using a completion handler is a much better way to deal with things because there's nothing to block your application while a script runs.
 
-For the most part, using the asynchronous handler is a much better way to deal with things: nothing to block your UI.
-There are cases where your app may need to do some processing of the data before it starts another task.
+However, there are cases where it can get tricky if you're executing a lot of scripting tasks with dependencies. If one task needs to complete before another is started, you'll quickly be missing the synchronous nature of `NSAppleScript`.
 
-Use a semaphore in this case.
-In class or application initialization, use:
+If you need something that behaves more like the old way of doing things, you can use a semaphore to make sure that only one task is running at a time. In your class or application initialization, create the semaphore using `libdispatch`:
 
 	self.appleScriptTaskSemaphore = dispatch_semaphore_create(1);
 
-Then wait and signal on that semaphore when executing the task:
+Then simply wait on that semaphore before initiating the script task. When the task completes, signal on that same semaphore:
 
 	// wait for any previous tasks to complete before starting a new one — remember that you're blocking the main thread here!
 	dispatch_semaphore_wait(self.appleScriptTaskSemaphore, DISPATCH_TIME_FOREVER);
@@ -343,10 +330,66 @@ Then wait and signal on that semaphore when executing the task:
 		dispatch_semaphore_signal(self.appleScriptTaskSemaphore);
 	}];
 
+
+What can you script?
+--------------------
+
+In the last example, the Network pane of System Preferences was opened with the following AppleScript code:
+
+	tell application "System Preferences"
+		launch
+		activate
+		
+		reveal pane id "com.apple.preference.network"
+	end tell
+
+Pretty cool, but how the heck do you know what the IDs of the various panes are? How would you open the Accessibility view of the Security & Privacy pane?
+
+As you can see from Brent's article, every scriptable application has a scripting dictionary. That dictionary describes the objects and properties of the app's data model. So learn to poke around in that data model!
+
+Begin by opening the Script Editor application in your Applications > Utilities folder. Then from the File menu, select "Open Dictionary...". At that point, every application that supports AppleScript will be listed — more than you probably imagined! Select the System Preferences app from the list and click "Choose".
+
+At this point, you'll see a "Standard Suite" and "System Preferences" listed in a tree browser. The standard suite lists commands like "open", classes like "window" and other things that are common to most scripting dictionaries. The interesting stuff is in the other scripting suite: "System Preferences". When you select it you'll see a command named "reveal" and three classes (object types) named "application", "pane" and "anchor".
+
+When you look at "application", you'll see two things: elements and properties. Elements are collections of objects that are managed by the selected object. The properties list data maintained by the selected object.
+
+So an "application" contains "panes". That sounds promising, in a new Script Editor window, create a simple script to show all the pane objects:
+
+	tell application "System Preferences"
+		panes
+	end tell
+
+Our goal to open the Accessibility view of the security pane, so look through the Result in the output until you find something promising like:
+
+	pane id "com.apple.preference.security" of application "System Preferences"
+
+Now try writing another script that uses that "pane id" along with the "reveal" command we saw earlier:
+
+	tell application "System Preferences"
+		reveal pane id "com.apple.preference.security"
+	end tell
+
+Look at that! System Preferences just showed the "Security & Privacy" pane. Now all we need to do is query for the anchor elements contained in that pane:
+
+	tell application "System Preferences"
+		anchors of pane "com.apple.preference.security"
+	end tell
+
+Lo and behold, we see:
+
+	anchor "Privacy_Accessibility" of pane id "com.apple.preference.security" of application "System Preferences"
+
+That looks like we want. It also shows the hierarchy of the objects in System Preferences: an application has panes which have anchors. So let's tweak our script:
+
+	tell application "System Preferences"
+		reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
+	end tell
+
+Done! Now imagine how helpful that could be to a user who needs to add accessibility permissions for your app. Rather than tell them how to navigate to that preference panel, you just open it for them. Nice.
+
+
 Wrapping up
 -----------
 
-TBD
-
-
+There you have it: everything you need to know about controlling another app from your own app. Whether giving users the ability to automate their workflows or to enable internal functionality in your app, AppleScript is a powerful component of every Mac application, even if it's running in a sandbox. Hopefully this tutorial has given you new tools and insight on how to take advantage of these capabilities in your own projects!
 
