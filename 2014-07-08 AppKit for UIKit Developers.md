@@ -173,12 +173,20 @@ For example, AppKit exposes the `NSTypesetter` and `NSGlyphGenerator` which you 
 
 Overall it's still pretty similar and you'll be able to do everything on the Mac that you can do on iOS (and more), but for some things you will have to look for the appropriate hooks in different places. 
 
+### Colors
+
+- TODO: NSColor vs. UIColor
+
+### View Animations
+
+- TODO: Link to jwilling? older articles?
 
 ## What You'll Miss
 
 Although AppKit comes with a `NSCollectionView` class, its capabilities lag far behind its UIKit counterpart. Since `UICollectionView` is such a versatile building block on iOS, depending on your UI concept it's a tough pill to swallow that there is nothing like it in AppKit. 
 
 TODO: what else? there has to be more :)
+TODO: maybe IKImageBrowserView? This is what orta uses
 
 
 ## What's Unique
