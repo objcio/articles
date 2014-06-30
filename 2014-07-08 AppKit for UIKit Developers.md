@@ -36,10 +36,17 @@ While you almost never interact with windows on iOS (since they take up the whol
 This changes in a pretty big way on Yosemite though. `NSViewController` is now much more similar to `UIViewController` and is also part of the responder chain by default. Just remember that if you target your Mac app to OS X 10.9 or earlier, window controllers on the mac are much more akin to what you're used to as view controllers from iOS. As [Mike Ash writes](https://www.mikeash.com/pyblog/friday-qa-2013-04-05-windows-and-window-controllers.html), a good pattern to instantiate windows on the Mac is to have one nib file and one window controller per window type.
 
 
-### Document based apps
-
-
 ### Responder Chain
+
+Prior to OS X 10.10 the responder chain on the Mac was significantly different from iOS as view controllers were not part of it by default. In fact, `NSViewController` was just introduced in 2007 (in OS X 10.5), but it didn't take on the same role as it did on iOS. Events would bubble up through the view tree and then go straight to the window and the window controller. If you would want a view controller to handle events, you'd have to add it to the responder chain [manually)(http://www.cocoawithlove.com/2008/07/better-integration-for-nsviewcontroller.html).
+
+With Yosemite this changes: view controllers are now first class citizens in the responder chain and therefore the model feels much more familiar for iOS developers. 
+
+Other than the path events and actions travel, AppKit also has a more strict convention as to the method signature of actions. In AppKit an action method always looks like this:
+
+    - (void)performAction:(id)sender;
+    
+The variants that are permissible on iOS with no argument at all or a sender and an event argument don't work on OS X. Furthermore, in AppKit controls usually hold a reference to one target and and action pair, whereas you can associate multiple target action pairs with a control on iOS using the `addTarget:action:forControlEvents:` method.
 
 
 ### Views 
@@ -147,18 +154,36 @@ Furthermore, images on the Mac have the notion of resolution additional to size.
 
 ### Sandboxing
 
+If you want to sell your Mac app through the Mac App Store it has to be sandboxed. You might wonder why we're mentioning this here, since sandboxing has been the norm on iOS from day one, so you're very much familiar with it. However, we're so used to what apps were able to do on the Mac before sandboxing appeared on the radar, that it's sometimes easy to oversee that a feature you want to implement will get you into conflict with the sandboxing restrictions.
+
+The file system has always been exposed to the user on the Mac, so sandboxed apps are able to get access to files outside of its container if the user signals clear intent to do so. It's the same model that now came to iOS 8. However, whereas this approach enhances the prior possibilities on iOS, it restricts the prior possibilities on the Mac. That makes it easy to oversee or forget.
+
+We're guilty of this ourselves, therefore we hope to be able to prevent you from running into the same trap. When we started development of [Deckset](http://decksetapp.com) -- an app that transforms simple markdown into presentation slides -- we never thought that we might run into sandboxing issues. After all, we only needed read access to the markdown file. 
+
+What we forgot about is that we also needed to display the images that are referenced in the Markdown. And although you type the path to the image in your markdown file, that's not a user intent that counts within the sandboxing system. In the end we "solved" the problem by adding a notification UI in the app that prompts the user to allow us access to the files by explicitly opening the common ancestor folder of all images in the file once.
+
+Take a look at Apple's [sandboxing guides](https://developer.apple.com/app-sandboxing/) early in the development process so that you don't get tripped up later on.
+
+
+### Text System
+
+With [TextKit](TODO link Max's article) iOS 7 for the first time got an equivalent to what has been around on the Mac since ages as the [Cocoa Text System](https://developer.apple.com/library/mac/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextSystemArchitecture/ArchitectureOverview.html). But Apple didn't just transfer the system from the Mac to iOS, they also made some more and less subtle changes to it. 
+
+For example, AppKit exposes the `NSTypesetter` and `NSGlyphGenerator` which you can subclass to customize their behavior. On iOS those classes are not exposed, but some of the hooks for customization are available via the `NSLayoutManagerDelegate` protocol. 
+
+Overall it's still pretty similar and you'll be able to do everything on the Mac that you can do on iOS (and more), but for some things you will have to look for the appropriate hooks in different places. 
 
 
 ## What You'll Miss
 
-uicollectionview
+Although AppKit comes with a `NSCollectionView` class, its capabilities lag far behind its UIKit counterpart. Since `UICollectionView` is such a versatile building block on iOS, depending on your UI concept it's a tough pill to swallow that there is nothing like it in AppKit. 
 
+TODO: what else? there has to be more :)
 
 
 ## What's Unique
 
-cool stuff only the mac can do + links to other articles
-drag&drop
-scripting
-plugins
-xpc
+There are many things you can only do on the Mac, mostly either due to its different interaction model or to its more liberal security policies. In this issue we have articles covering some of these things in depth: [Cross process communication](TODO), [making an app scriptable](TODO), [scripting other apps in the sandbox](TODO), and creating a [plugin infrastructure](TODO) for your apps.
+
+Of course that's just a small subset of features unique to the Mac, but it gives you a good idea of the aspects that iOS 8 just starts to scratch the surface in terms of extensibility and communication between apps. There's of course much more to explore: Drag & Drop, Printing, Bindings, OpenCL, to name just a few examples.
+
