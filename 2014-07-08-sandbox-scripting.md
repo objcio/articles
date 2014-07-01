@@ -159,7 +159,7 @@ Sandbox restrictions
 
 You're trying to run this script from an application sandbox. As far as that sandbox is concerned, Safari is, in fact, not running.
 
-The problem is that no one gave your app permission to talk to Safari. This turns out to be a pretty big security hole: a script can easily get the contents of the current page or even run JavaScript against any tab of any window in your browser. Imagine how great that would be if one of those pages was for your bank account. Or a page that contained a form field with your credit card number. Ouch.
+The problem is that no one gave your app permission to talk to Safari. This turns out to be a pretty big security hole: a script can easily get the contents of the current page or even run JavaScript against any tab of any window in your browser. Imagine how great that would be if one of those pages was for your bank account. Or if one of the pages contained a form field with your credit card number. Ouch.
 
 That, in a nutshell, is why arbitrary script execution was banned from the Mac App Store.
 
@@ -177,17 +177,17 @@ The mechanism is surprisingly simple: your application can only run scripts from
 
 This presents a challenge: the folder is in User > Library > Application Scripts and is named using the application's bundle identifier. For [Scriptinator](https://github.com/chockenberry/Scriptinator) that folder is named in a way only a programmer could love: `com.iconfactory.Scriptinator`. None of this is very user-friendly, especially since the Library folder is hidden by default on OS X.
 
-One approach to this problem is to implement some code that makes is easy for your customer to open this hidden folder. For example:
+One approach to this problem is to implement some code that opens this hidden folder for your customer. For example:
 
 	NSError *error;
 	NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
 	[[NSWorkspace sharedWorkspace] openURL:directoryURL];
 
-That's a great solution for scripts written by a customer. They can open that folder and edit their scripts in any way they see fit.
+That's a great solution for scripts written by a user. They can open that folder using a control in your app and edit their scripts in any way they see fit.
 
-But sometimes you'll want to help the end user install scripts that you've written. Chances are you're a better programmer than your average customer and you can write code that makes your app work a lot better with their apps. The natural place to put your own scripts is in the application bundle, but how do you get scripts into the user's scripts folder?
+But sometimes you'll want to help the end user install scripts that you've written. Chances are you're a better programmer than your average customer and you know how to write code that makes your app work better with their other apps. The natural place to put your own scripts is in the application bundle, but how do you get scripts into the user's scripts folder?
 
-The solution here is to get permission to write into that folder. In Xcode, you need to update your app's Capabilities under App Sandbox > File Access to "User Selected File to Read/Write". Again, user intent is the guiding factor here, they're giving you permission to add scripts to their folder:
+The solution here is to get permission to write into that folder. In Xcode, you need to update your app's Capabilities under App Sandbox > File Access to "User Selected File to Read/Write". Again, user intent is the guiding factor here, since they're giving you permission to add scripts to their folder:
 
 	NSError *error;
 	NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
@@ -297,7 +297,7 @@ What's going on behind the scenes?
 
 As you may have guessed by the fact that scripts can only run once asynchronously, the code is now run out of process using XPC. Just as iOS 8 uses XPC to make sure extensions don't affect the calling application in any way, a running script has no access to the address space of your calling application.
 
-If you look at the `keySenderPIDAttr` attribute in an incoming event descriptor, you'll see that the process ID belongs to `/usr/libexec/lsboxd`, not your own application. This mysterious process is presumably the Launch Services Sandbox daemon. In any case, your requests to another process are most certainly being marshalled.
+If you look at the `keySenderPIDAttr` attribute in an incoming event descriptor, you'll see that the process ID belongs to `/usr/libexec/lsboxd`, not your own application. This mysterious process is presumably the Launch Services sandbox daemon. In any case, your requests to another process are most certainly being marshalled.
 
 To understand more about the security goals of the application sandbox at a high-level, I'd recommend Ivan Krstić's talk _"The OS X App Sandbox"_ at [WWDC 2012](https://developer.apple.com/videos/wwdc/2012/). It's a surprisingly entertaining talk and at 36 minutes into the presentation, the automation changes shown above are introduced. At that same conference, a talk entitled _"Secure Automation Techniques in OS X"_ by Sal Soghoian and Chris Nebel goes into the details of the automation changes. Skip ahead to the 35 minute mark if you just want to learn about Application-Run User Scripts.
 
