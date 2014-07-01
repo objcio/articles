@@ -18,29 +18,29 @@ Although iOS and OS X are separate operating systems, they share a lot of common
 
 More importantly though, OS X also shares a lot of the frameworks that you're already familiar with from iOS, like Foundation, Core Data and Core Animation. This year Apple harmonised the platforms further and brought frameworks like Multipeer Connectivity to the Mac that were iOS only previously. Also on a lower level you'll immediately see the APIs you're familiar with: Core Graphics, Core Text, libdispatch and many more.
 
-The UI framework is where things really start to diverge -- UIKit feels like a slimmed down and modernized version of AppKit that has been around and evolving since the NeXT days. With the introduction of the iPhone Apple got the chance to start fresh with UIKit, whereas AppKit still has to bear the weight of its origins. AppKit gets modernized step by step every year, but it never had the clean cut as UIKit did.
+The UI framework is where things really start to diverge -- UIKit feels like a slimmed down and modernized version of AppKit that has been around and evolving since the NeXT days. When Apple introduced the iPhone they had a chance to start from a clean slate take what they had learned from AppKit: Bring over the concepts and pieces that had proven to work well, and improve those that were less fortunate designs.
 
-That being said, UIKit and AppKit still share a lot of concepts. The UI is constructed out of windows and views with messages being sent over the responder chain just as on iOS (although you'll usually never have more than one window on iOS). What's `UIWindow` to iOS, is `NSWindow` on the Mac. `UIView` is `NSView`, `UIControl` is `NSControl`, `UIImage` is `NSImage`, `UIViewController` is `NSViewController`, `UITextView` is `NSTextView`. The list goes on and on.
+TODO Comment from Daniel: I'd argue that NSWindow is conceptually very different from UIWindow. UIWindow is a subclass of UIView. But NSWindow is not a view at all. Thoughts?
 
-It's tempting to assume that you can use these classes in the same way, just replace `UI` by `NS`. But that's not going to work in many cases. The similarity is more on the conceptual than on the implementation level. You'll pretty much know about the building blocks to look for to construct your user interface, which is a great help. But the devil is in the details -- you really need to look into the documentation and find out how these classes work.
+With this in mind, it's no wonder that UIKit and AppKit still share a lot of concepts. The UI is constructed out of windows and views with messages being sent over the responder chain just as on iOS. What's `UIView` is `NSView`, `UIControl` is `NSControl`, `UIImage` is `NSImage`, `UIViewController` is `NSViewController`, `UITextView` is `NSTextView`. The list goes on and on.
 
-In the next section we'll take a look at some of these pitfalls we got hung up with ourselves the most.
+It's tempting to assume that you can use these classes in the same way, just replace `UI` by `NS`. But that's not going to work in many cases. The similarity is more on the conceptual level than in the implementation. You'll pretty much know about the building blocks to look for to construct your user interface, which is a great help. And a lot of the design patters such as delegation. But the devil is in the details -- you really need to read the documentation and learn how these classes are to be used.
+
+In the next section we'll take a look at some of the pitfalls we fell into ourselves the most.
 
 
 ## What's Different
 
 ### Windows and Window Controllers
 
-While you almost never interact with windows on iOS (since they take up the whole screen anyway), windows are key component on the Mac. Therefore AppKit has a `NSWindowController` class that traditionally took on much of the tasks that you would handle in a view controller on iOS. In fact, on the Mac only the window controller was hooked into the responder chain by default, view controllers were not receiving actions by default and missed a lot of the lifecycle methods, view controller containment and other features you're used from UIKit.
+While you almost never interact with windows on iOS (since they take up the whole screen anyway), windows are key component on the Mac. Therefore AppKit has a `NSWindowController` class that traditionally took on much of the tasks that you would handle in a view controller on iOS. View controllers are a relatively new addition to AppKit, and they were not receiving actions by default and missed a lot of the lifecycle methods, view controller containment and other features you're used from UIKit. Historically Mac applications were multi-window, each with its own role in a way very similar to view controllers on iOS.
 
-This changes in a pretty big way on Yosemite though. `NSViewController` is now much more similar to `UIViewController` and is also part of the responder chain by default. Just remember that if you target your Mac app to OS X 10.9 or earlier, window controllers on the mac are much more akin to what you're used to as view controllers from iOS. As [Mike Ash writes](https://www.mikeash.com/pyblog/friday-qa-2013-04-05-windows-and-window-controllers.html), a good pattern to instantiate windows on the Mac is to have one nib file and one window controller per window type.
+Since Mac apps are relying more and more on a single window, AppKit has changed. As of OS X 10.10 Yosemite the `NSViewController` is similar in many ways to `UIViewController`. It is also part of the responder chain by default. Just remember that if you target your Mac app to OS X 10.9 or earlier, window controllers on the mac are much more akin to what you're used to as view controllers from iOS. As [Mike Ash writes](https://www.mikeash.com/pyblog/friday-qa-2013-04-05-windows-and-window-controllers.html), a good pattern to instantiate windows on the Mac is to have one nib file and one window controller per window type.
 
 
 ### Responder Chain
 
-Prior to OS X 10.10 the responder chain on the Mac was significantly different from iOS as view controllers were not part of it by default. In fact, `NSViewController` was just introduced in 2007 (in OS X 10.5), but it didn't take on the same role as it did on iOS. Events would bubble up through the view tree and then go straight to the window and the window controller. If you would want a view controller to handle events, you'd have to add it to the responder chain [manually)(http://www.cocoawithlove.com/2008/07/better-integration-for-nsviewcontroller.html).
-
-With Yosemite this changes: view controllers are now first class citizens in the responder chain and therefore the model feels much more familiar for iOS developers. 
+If you're developing for OS X 10.9 or lower, be aware that view controllers are not part of the responder chain by default. Events would bubble up through the view tree and then go straight to the window and the window controller. If you would want a view controller to handle events, you'd have to add it to the responder chain [manually)(http://www.cocoawithlove.com/2008/07/better-integration-for-nsviewcontroller.html).
 
 Other than the path events and actions travel, AppKit also has a more strict convention as to the method signature of actions. In AppKit an action method always looks like this:
 
@@ -51,16 +51,18 @@ The variants that are permissible on iOS with no argument at all or a sender and
 
 ### Views 
 
-The view system works very differently on the Mac for historic reasons. On iOS views were backed by Core Animation layers by default from the beginning. But AppKit predates Core Animation and the availability of powerful GPUs considerably. Therefore the view system evolved under very different premises.
+The view system works very differently on the Mac for historic reasons. On iOS views were backed by Core Animation layers by default from the beginning. But AppKit predates Core Animation by decades. When AppKit was designed, there was no such thing as a GPU we know if today. Therefore the view system heavily relied on the CPU doing the work. 
 
-By default AppKit views are not backed by Core Animation layers. Layer backing support has been integrated into AppKit retroactively, but while you never have to worry about this with UIKit, with AppKit there are decisions to make. AppKit differentiates between layer backed and layer hosting views, and layer backing can be turned on and off on a per view basis. 
+When you're getting started with development on the Mac we strongly recommend you check out Apple's [Intruduction to View Programming Guide for Cocoa](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaViewsGuide/Introduction/Introduction.html#//apple_ref/doc/uid/TP40002978). Furthermore there are two excellent WWDC sessions you should watch: [Layer-Backed Views: AppKit + Core Animation](https://developer.apple.com/videos/wwdc/2012/#217) and [Optimizing Drawing and Scrolling](https://developer.apple.com/videos/wwdc/2013/#215).
 
 
 #### Layer backed views
 
-You turn an AppKit view into a layer backed view by setting its `wantsLayer` property to `YES`. Once you do this, all subviews of this view will implicitly become layer backed too. The most straightforward approach is to simply enable layer backing once on the window's content view and never touch the `wantsLayer` property again. This can be done in code or simply in Interface Builder's view effects inspector.
+By default AppKit views are not backed by Core Animation layers. Layer backing support has been integrated into AppKit retroactively, but while you never have to worry about this with UIKit, with AppKit there are decisions to make. AppKit differentiates between layer backed and layer hosting views, and layer backing can be turned on and off on a per view basis. 
 
-Once you enable layer backing, you should treat the layers as an implementation detail. AppKit owns those layers and you should never touch them directly. For example, on iOS you would simply say
+The most straightforward approach to enable layer backing is to set the `wantsLayer` property to `YES` on the window's content view. Setting this property on the content view will cause all subviews to have their own backing layers, so there's no need to repeatedly set this property on each individual view. This can be done in code or simply in Interface Builder's view effects inspector.
+
+In contrast to iOS, on the Mac you should treat the backing layers as an implementation detail. This means you should not try to interact with the layers directly. AppKit owns those layers and you should never touch them directly. For example, on iOS you could simply say:
 
     self.layer.cornerRadius = 10;
     
@@ -95,9 +97,21 @@ You can use this for example to implement a very simple view with a uniform back
     
     @end
 
-This example assumes that layer backing is already enabled for the view tree where you'll insert this view. The alternative to this would be to simply override the `drawRect:` method to draw the colored background.
+This example assumes that layer backing is already enabled for the view tree where you'll insert this view. The alternative to this would be to simply override the `drawRect:` method to draw the colored background. 
 
-Since OS X 10.9 you can tell AppKit to coalesce the contents of a view tree into one common backing layer by using the `canDrawSubviewsIntoLayer` property. All subviews that are implicitly layer backed (i.e. you didn't explicitly set `wantsLayer = YES` on these sub views) will now get drawn into the same layer. However, as soon as you enable this `drawRect:` will be called on the view and its subviews no matter what `wantsUpdateLayer` returns.
+
+##### Coalescing Layers
+
+Opting into layer backed views will increase the amount of memory needed (each layer has its own backing store, probably overlapping with other views' backing stores) and introduce a potentially costly compositing step of all the layers. Since OS X 10.9 you can tell AppKit to coalesce the contents of a view tree into one common backing layer by using the `canDrawSubviewsIntoLayer` property. This can be a good option if you know that you will not need to animate subviews individually. 
+
+All subviews that are implicitly layer backed (i.e. you didn't explicitly set `wantsLayer = YES` on these sub views) will now get drawn into the same layer. However, subviews that do have `wantsLayer` set to `YES` will still have their own backing layer and their `drawRect:` method will be called, no matter what `wantsUpdateLayer` returns.
+
+
+##### Layer Redraw Policy
+
+Another gotcha that's important to know is the fact that layer backed views have their redraw policy set to `NSViewLayerContentsRedrawDuringViewResize` by default. This resembles the behavior of non-layer backed views, but it might be detrimental to animation performance, if a drawing step is introduced for each frame of the animation.
+
+To avoid this you can set the `layerContentsRedrawPolicy` property to `NSViewLayerContentsRedrawOnSetNeedsDisplay`. This way you have control over when the layer contents need to be redrawn. A frame change will not automatically trigger a redraw anymore, you are now responsible for triggering it by calling `-setNeedsDisplay:`.
 
 As you see this can become somewhat confusing pretty quickly. Therefore we recommend that you follow the simplest approach of enabling `wantsLayer` once on the window's content view if you don't have very good reasons not to do this.
 
@@ -131,8 +145,8 @@ In order to receive events for the mouse cursor entering or exiting the view or 
     - (void)updateTrackingAreas
     {
         [self removeTrackingArea:self.trackingArea];
-        self.trackingArea = [[NSTrackingArea alloc] initWithRect:self.bounds 
-                                                         options:NSTrackingMouseEnteredAndExited|STrackingActiveInActiveApp 
+        self.trackingArea = [[NSTrackingArea alloc] initWithRect:CGRectZero 
+                                                         options:NSTrackingMouseEnteredAndExited|NSTrackingInVisibleRect|NSTrackingActiveInActiveApp
                                                            owner:self 
                                                         userInfo:nil];
         [self addTrackingArea:self.trackingArea];
@@ -140,16 +154,102 @@ In order to receive events for the mouse cursor entering or exiting the view or 
 
 AppKit controls have been traditionally backed by `NSCell` subclasses. These cells should not be confused with table view cells or collection view cells in UIKit. AppKit made the distinction between views and cells in order to save resources -- views would delegate all their drawing to a cell object that could be reused for all views of the same type. Apple is deprecating this approach step by step, but you'll still encounter them from time to time. For example if you would want to create a custom button, you would subclass `NSButton` *and* `NSButtonCell`, implement your custom drawing in the cell subclass, and then assign your cell subclass to be used for the custom button by overriding the  `+[NSControl cellClass]` method.
 
-Lastly, if you'll ever wonder how to get to the current Core Graphics context when implementing your own `drawRect:` method, its the `graphicsPort` property on `NSGraphicsContext`.
+Lastly, if you'll ever wonder how to get to the current Core Graphics context when implementing your own `drawRect:` method, its the `graphicsPort` property on `NSGraphicsContext`. Check out the [Cocoa Drawing Guide](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaDrawingGuide/) for more details.
+
+
+### Animations
+
+As a consequence of the differences in the view system discussed above, animations also work quite differently on the Mac. For a good overview watch the WWDC session [Best Practices for Cocoa Animation](https://developer.apple.com/videos/wwdc/2013/#213).
+
+If your views are not layer backed, then naturally animations will be a CPU intensive process as every step of the animation has to be drawn accordingly in the window backing store. Since nowadays you'd mostly want to animate layer backed views to get really smooth animations, we'll focus on this case here.
+
+As mentioned above, you should never touch the backing layers of layer backed views in AppKit. The layers are managed by AppKit, and -- contrary to iOS -- the views' geometry properties are not just a reflection of the corresponding layer properties, but AppKit actually syncs the view geometry internally to the layer geometry. 
+
+There are a few different ways how you can trigger an animation on a view. First, you can use the [animator proxy](file:///Users/florian/Library/Developer/Shared/Documentation/DocSets/com.apple.adc.documentation.AppleOSX10.9.CoreReference.docset/Contents/Resources/Documents/documentation/Cocoa/Reference/NSAnimatablePropertyContainer_protocol/Introduction/Introduction.html#//apple_ref/occ/intfm/NSAnimatablePropertyContainer/animator):
+
+    view.animator.alphaValue = .5;
+    
+Behind the scenes this will enable implicit animations on the backing layer, set the alpha value, and disable the implicit animations again.
+
+Another option is to use an [animation context](https://developer.apple.com/library/mac/documentation/cocoa/reference/NSAnimationContext_class/Introduction/Introduction.html). This also gives you a completion handler if you need it:
+
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context){
+        view.animator.alphaValue = .5;
+    } completionHandler:^{
+        // ...
+    }]; 
+
+In order to influence the duration and the timing function used, we have to set these values on the animation context:
+
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context){
+        context.duration = 1;
+        context.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+        view.animator.alphaValue = .5;
+    } completionHandler:^{
+        // ...
+    }]; 
+
+If you don't need the completion handler, you can also use the shorthand form:
+
+    [NSAnimationContext currentContext].duration = 1;
+    view.animator.alphaValue = .5;    
+
+Lastly, you can also enable implicit animations, so that you don't have to explicitly use the animator proxy each time:
+
+    [NSAnimationContext currentContext].allowsImplicitAnimations = YES;
+    view.alphaValue = .5;
+
+For more control over the animation, you can also use `CAAnimation` instances. For example:
+
+    CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
+    animation.values = [@1, @.9, @.8, @.7, @.6];
+    view.animations = @{@"alphaValue": animation};
+    view.animator.alphaValue = .5;
+
+For `frame` animations it's important to set the view's `layerContentsRedrawPolicy` to `NSViewLayerContentsRedrawOnSetNeedsDisplay`, because the view's content will be redrawn on every frame otherwise.
+
+
+### Collection View
+
+Although AppKit comes with a `NSCollectionView` class, its capabilities lag far behind its UIKit counterpart. Since `UICollectionView` is such a versatile building block on iOS, depending on your UI concept it's a tough pill to swallow that there is nothing like it in AppKit. So when you're planning your user interface, take into account that it might be a lot of work to create grid layouts that are very easy to achieve on iOS.
 
 
 ### Images
 
-Coming from iOS you'll be familiar with `UIImage`, and conveniently there is a corresponding `NSImage` class in AppKit. But you'll quickly notice that these classes are vastly different. `NSImage` is in many ways a more powerful class than `UIImage`, but this comes at the cost of increased complexity.
+Coming from iOS you'll be familiar with `UIImage`, and conveniently there is a corresponding `NSImage` class in AppKit. But you'll quickly notice that these classes are vastly different. `NSImage` is in many ways a more powerful class than `UIImage`, but this comes at the cost of increased complexity. Apple's [Cocoa Drawing Guide](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaDrawingGuide/Images/Images.html#//apple_ref/doc/uid/TP40003290-CH208-BCIBBFGJ) has a good introduction of how to work with images in AppKit.
 
 The most important conceptual difference is that `NSImage` is backed by one or more image representations. AppKit comes with some `NSImageRep` subclasses, like `NSBitmapImageRep`, `NSPDFImageRep`, and `NSEPSImageRep`. For example one `NSImage` object could hold a thumbnail, a full size, and a PDF representation for printing of the same content. When you draw the image, an image representation matching the current graphics context and drawing dimensions will be picked, based on the color space, dimensions, resolution, and depth. 
 
 Furthermore, images on the Mac have the notion of resolution additional to size. An image representation has three properties that play into that: `size`, `pixelsWide`, and `pixelsHigh`. The size property determines the size of the image representation when being rendered, whereas the pixel width and height values specify the raw image size as derived from the image data itself. Together those properties determine the resolution of the image representation. The pixel dimensions can be different from the representation's size, which in turn can be different from the size of the image the representation belongs to. 
+
+Another difference to `UIImage` is that `NSImage` will cache the result when it's drawn to the screen (this behavior is configurable via the [`cacheMode`](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Classes/NSImage_Class/Reference/Reference.html#//apple_ref/occ/instm/NSImage/cacheMode) property). When you change an underlying image representation, you have to call `recache` on the image for the change to take effect.
+
+But working with images on the Mac isn't always more complex than on iOS. `NSImage` provides a very easy way to draw a new image, whereas on iOS you would have to create a bitmap context, then create a `CGImage` from that and finally use it to initalize an `UIImage` instance. With `NSImage` you can simply do:
+
+    [NSImage imageWithSize:(NSSize)size 
+                flipped:(BOOL)drawingHandlerShouldBeCalledWithFlippedContext 
+         drawingHandler:^BOOL (NSRect dstRect) 
+    {
+        // your drawing commands here...
+    }];
+
+
+### Colors
+
+The Mac supports fully color calibrated workflows, therefore anything to do with colors is potentially more complex. Color management is a complex topic, and we're not even going to pretend that we're experts in this. Therefore we're going to refer you to Apple's guides on the topic: [Introduction to Color Programming Topics for Cocoa](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/DrawColor/DrawColor.html#//apple_ref/doc/uid/10000082-SW1) and [Introduction to Color Management](https://developer.apple.com/library/mac/documentation/GraphicsImaging/Conceptual/csintro/csintro_intro/csintro_intro.html#//apple_ref/doc/uid/TP30001148).
+
+A common task is to use a color in your app that your designers have specified for you. In order to get the right color, it's important to pick the color from the design template using the same color space as the one you use to programatically specify it. The standard system color picker has a drop down menu, where you can choose the color space you want to use. We suggest to use the device independent sRGB color space, and then later use the `+[NSColor colorWithSRGBRed:green:blue:alpha:]` class method to create the color in code.
+
+TODO: Color picker screenshot
+
+
+### Text System
+
+With [TextKit](TODO link Max's article) iOS 7 for the first time got an equivalent to what has been around on the Mac since ages as the [Cocoa Text System](https://developer.apple.com/library/mac/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextSystemArchitecture/ArchitectureOverview.html). But Apple didn't just transfer the system from the Mac to iOS, they also made some more and less subtle changes to it. 
+
+For example, AppKit exposes the `NSTypesetter` and `NSGlyphGenerator` which you can subclass to customize their behavior. On iOS those classes are not exposed, but some of the hooks for customization are available via the `NSLayoutManagerDelegate` protocol. 
+
+Overall it's still pretty similar and you'll be able to do everything on the Mac that you can do on iOS (and more), but for some things you will have to look for the appropriate hooks in different places. 
 
 
 ### Sandboxing
@@ -163,30 +263,6 @@ We're guilty of this ourselves, therefore we hope to be able to prevent you from
 What we forgot about is that we also needed to display the images that are referenced in the Markdown. And although you type the path to the image in your markdown file, that's not a user intent that counts within the sandboxing system. In the end we "solved" the problem by adding a notification UI in the app that prompts the user to allow us access to the files by explicitly opening the common ancestor folder of all images in the file once.
 
 Take a look at Apple's [sandboxing guides](https://developer.apple.com/app-sandboxing/) early in the development process so that you don't get tripped up later on.
-
-
-### Text System
-
-With [TextKit](TODO link Max's article) iOS 7 for the first time got an equivalent to what has been around on the Mac since ages as the [Cocoa Text System](https://developer.apple.com/library/mac/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextSystemArchitecture/ArchitectureOverview.html). But Apple didn't just transfer the system from the Mac to iOS, they also made some more and less subtle changes to it. 
-
-For example, AppKit exposes the `NSTypesetter` and `NSGlyphGenerator` which you can subclass to customize their behavior. On iOS those classes are not exposed, but some of the hooks for customization are available via the `NSLayoutManagerDelegate` protocol. 
-
-Overall it's still pretty similar and you'll be able to do everything on the Mac that you can do on iOS (and more), but for some things you will have to look for the appropriate hooks in different places. 
-
-### Colors
-
-- TODO: NSColor vs. UIColor
-
-### View Animations
-
-- TODO: Link to jwilling? older articles?
-
-## What You'll Miss
-
-Although AppKit comes with a `NSCollectionView` class, its capabilities lag far behind its UIKit counterpart. Since `UICollectionView` is such a versatile building block on iOS, depending on your UI concept it's a tough pill to swallow that there is nothing like it in AppKit. 
-
-TODO: what else? there has to be more :)
-TODO: maybe IKImageBrowserView? This is what orta uses
 
 
 ## What's Unique
