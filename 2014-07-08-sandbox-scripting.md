@@ -232,7 +232,7 @@ That `Automation.scpt` file that we used to run from inside the application bund
 
 It's important throughout this entire process to let your customer know exactly what's going on. You have to remember that they're the ones in control of the script, not you. If they decide to clear out all their scripts from the folder, you need to cope with that. You may need to disable an app feature that requires the script or explain why the script needs to be installed again.
 
-_Note:_ The [Scriptinator](https://github.com/chockenberry/Scriptinator) sample code includes both of the approaches shown above. For a real world example, take a look at the [Overlay](http://xscopeapp.com/guide#overlay) tool in [xScope](http://xscopeapp.com/). It has a user-friendly setup procedure and sophisticated scripting that lets the app communicate with the customer's web browser. As a bonus, you may find that xScope is a great tool for doing your own development!
+_Note:_ The [Scriptinator](https://github.com/chockenberry/Scriptinator) sample code includes both of the approaches shown above. For a real world example, take a look at the [Overlay](http://xscopeapp.com/guide#overlay) tool in the free trial version of [xScope](http://xscopeapp.com/). It has a user-friendly setup procedure and sophisticated scripting that lets the app communicate with the customer's web browser. As a bonus, you may find that xScope is a great tool for doing your own development!
 
 
 Scripting tasks
