@@ -208,6 +208,10 @@ For more control over the animation, you can also use `CAAnimation` instances. F
 
 For `frame` animations it's important to set the view's `layerContentsRedrawPolicy` to `NSViewLayerContentsRedrawOnSetNeedsDisplay`, because the view's content will be redrawn on every frame otherwise.
 
+TODO: Warn about ever using CA on backing layers. Only on hosted layers.
+
+TODO: https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/CreatingBasicAnimations/CreatingBasicAnimations.html#//apple_ref/doc/uid/TP40004514-CH3-SW18
+
 
 ### Collection View
 
