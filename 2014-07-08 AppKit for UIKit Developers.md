@@ -20,6 +20,8 @@ More importantly though, OS X also shares a lot of the frameworks that you're al
 
 The UI framework is where things really start to diverge -- UIKit feels like a slimmed down and modernized version of AppKit that has been around and evolving since the NeXT days. When Apple introduced the iPhone they had a chance to start from a clean slate take what they had learned from AppKit: Bring over the concepts and pieces that had proven to work well, and improve those that were less fortunate designs.
 
+If you're interested in how this transition came about, check out these excellent episodes of the Debug podcast with [Nitin Ganatra](https://twitter.com/nitinganatra), former iOS apps director at Apple: [System 7 to Carbon](http://www.imore.com/debug-39-nitin-ganatra-episode-i-system-7-carbon), [OS X to iOS](http://www.imore.com/debug-40-nitin-ganatra-epsiode-ii-os-x-ios), and [iPhone to iPad](http://www.imore.com/debug-41-nitin-ganatra-episode-iii-iphone-ipad).
+
 TODO Comment from Daniel: I'd argue that NSWindow is conceptually very different from UIWindow. UIWindow is a subclass of UIView. But NSWindow is not a view at all. Thoughts?
 
 With this in mind, it's no wonder that UIKit and AppKit still share a lot of concepts. The UI is constructed out of windows and views with messages being sent over the responder chain just as on iOS. What's `UIView` is `NSView`, `UIControl` is `NSControl`, `UIImage` is `NSImage`, `UIViewController` is `NSViewController`, `UITextView` is `NSTextView`. The list goes on and on.
@@ -136,7 +138,7 @@ It's important that you set `wantsLayer` *after* you've set your custom layer.
 
 #### Other View Related Gotchas
 
-By default the view's coordinate system origin is located at the lower left, not the upper left as on iOS. This can be confusing at first, but you can also decide to restore the behavior you're used to by overriding `isFlipped` to return `YES`.
+By default the view's coordinate system origin is located at the lower left on the Mac, not the upper left as on iOS. This can be confusing at first, but you can also decide to restore the behavior you're used to by overriding `isFlipped` to return `YES`.
 
 As AppKit views don't have a background color property as UIKit views that you can set to `[NSColor clearColor]` in order to let the background shine through, many `NSView` subclasses like `NSTextView` or `NSScrollView` have a `drawsBackground` property that you have to set to `NO` if you want the view to be transparent. 
 
@@ -152,7 +154,9 @@ In order to receive events for the mouse cursor entering or exiting the view or 
         [self addTrackingArea:self.trackingArea];
     }
 
-AppKit controls have been traditionally backed by `NSCell` subclasses. These cells should not be confused with table view cells or collection view cells in UIKit. AppKit made the distinction between views and cells in order to save resources -- views would delegate all their drawing to a cell object that could be reused for all views of the same type. Apple is deprecating this approach step by step, but you'll still encounter them from time to time. For example if you would want to create a custom button, you would subclass `NSButton` *and* `NSButtonCell`, implement your custom drawing in the cell subclass, and then assign your cell subclass to be used for the custom button by overriding the  `+[NSControl cellClass]` method.
+AppKit controls have been traditionally backed by `NSCell` subclasses. These cells should not be confused with table view cells or collection view cells in UIKit. AppKit made the distinction between views and cells in order to save resources -- views would delegate all their drawing to a more lightweight cell object that could be reused for all views of the same type. 
+
+Apple is deprecating this approach step by step, but you'll still encounter them from time to time. For example if you would want to create a custom button, you would subclass `NSButton` *and* `NSButtonCell`, implement your custom drawing in the cell subclass, and then assign your cell subclass to be used for the custom button by overriding the  `+[NSControl cellClass]` method. 
 
 Lastly, if you'll ever wonder how to get to the current Core Graphics context when implementing your own `drawRect:` method, its the `graphicsPort` property on `NSGraphicsContext`. Check out the [Cocoa Drawing Guide](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaDrawingGuide/) for more details.
 
@@ -163,7 +167,7 @@ As a consequence of the differences in the view system discussed above, animatio
 
 If your views are not layer backed, then naturally animations will be a CPU intensive process as every step of the animation has to be drawn accordingly in the window backing store. Since nowadays you'd mostly want to animate layer backed views to get really smooth animations, we'll focus on this case here.
 
-As mentioned above, you should never touch the backing layers of layer backed views in AppKit. The layers are managed by AppKit, and -- contrary to iOS -- the views' geometry properties are not just a reflection of the corresponding layer properties, but AppKit actually syncs the view geometry internally to the layer geometry. 
+As mentioned above, you should never touch the backing layers of layer backed views in AppKit (See the section "Rules for Modifying Layers on OS X" at the bottom of [this page of the Core Animation Programming Guide](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/CreatingBasicAnimations/CreatingBasicAnimations.html#//apple_ref/doc/uid/TP40004514-CH3-SW18). The layers are managed by AppKit, and -- contrary to iOS -- the views' geometry properties are not just a reflection of the corresponding layer properties, but AppKit actually syncs the view geometry internally to the layer geometry. 
 
 There are a few different ways how you can trigger an animation on a view. First, you can use the [animator proxy](file:///Users/florian/Library/Developer/Shared/Documentation/DocSets/com.apple.adc.documentation.AppleOSX10.9.CoreReference.docset/Contents/Resources/Documents/documentation/Cocoa/Reference/NSAnimatablePropertyContainer_protocol/Introduction/Introduction.html#//apple_ref/occ/intfm/NSAnimatablePropertyContainer/animator):
 
@@ -171,7 +175,7 @@ There are a few different ways how you can trigger an animation on a view. First
     
 Behind the scenes this will enable implicit animations on the backing layer, set the alpha value, and disable the implicit animations again.
 
-Another option is to use an [animation context](https://developer.apple.com/library/mac/documentation/cocoa/reference/NSAnimationContext_class/Introduction/Introduction.html). This also gives you a completion handler if you need it:
+You can also wrap this into an [animation context](https://developer.apple.com/library/mac/documentation/cocoa/reference/NSAnimationContext_class/Introduction/Introduction.html) in order to get a completion handler callback:
 
     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context){
         view.animator.alphaValue = .5;
@@ -179,7 +183,7 @@ Another option is to use an [animation context](https://developer.apple.com/libr
         // ...
     }]; 
 
-In order to influence the duration and the timing function used, we have to set these values on the animation context:
+In order to influence the duration and the timing function, we have to set these values on the animation context:
 
     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context){
         context.duration = 1;
@@ -199,7 +203,7 @@ Lastly, you can also enable implicit animations, so that you don't have to expli
     [NSAnimationContext currentContext].allowsImplicitAnimations = YES;
     view.alphaValue = .5;
 
-For more control over the animation, you can also use `CAAnimation` instances. For example:
+For more control over the animation, you can also use `CAAnimation` instances. Contrary to iOS though, you don't add them directly to the layer (as you're not supposed to touch the layer yourself), but you use the API defined in the [`NSAnimatablePropertyContainer`](https://developer.apple.com/library/mac/documentation/cocoa/reference/NSAnimatablePropertyContainer_protocol/Introduction/Introduction.html) which is implemented by `NSView` and `NSWindow`. For example:
 
     CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
     animation.values = [@1, @.9, @.8, @.7, @.6];
@@ -208,9 +212,9 @@ For more control over the animation, you can also use `CAAnimation` instances. F
 
 For `frame` animations it's important to set the view's `layerContentsRedrawPolicy` to `NSViewLayerContentsRedrawOnSetNeedsDisplay`, because the view's content will be redrawn on every frame otherwise.
 
-TODO: Warn about ever using CA on backing layers. Only on hosted layers.
+Unfortunately `NSView` doesn't expose all animatable properties of Core Animation layers, `transform` being the most important example. Check out [this article](http://jwilling.com/osx-animations) by [Jonathan Willings](https://twitter.com/willing) for a description of how you can work around this limitation. Just be aware, that you're leaving officially sanctioned territory here.
 
-TODO: https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/CreatingBasicAnimations/CreatingBasicAnimations.html#//apple_ref/doc/uid/TP40004514-CH3-SW18
+All the things mentioned above apply to *layer backed* views. If you have a *layer hosting* view, you can use `CAAnimation`s directly on the view's layer or sublayers  since you own them.
 
 
 ### Collection View
