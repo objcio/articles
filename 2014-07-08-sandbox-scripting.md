@@ -62,7 +62,7 @@ Once you have your script written and tested, you can move back to the comfortab
 
 	#import <Carbon/Carbon.h> // for AppleScript definitions
 
-Don't worry, you're not going to do anything crazy like add a framework to the project. You just need Carbon.h because it has a list of all the AppleEvent definitions. Remember, this code has been around for more than 20 years!
+Don't worry; you're not going to do anything crazy like add a framework to the project. You just need Carbon.h because it has a list of all the AppleEvent definitions. Remember, this code has been around for more than 20 years!
 
 Once you have the definitions, you can create an event descriptor. This is a chunk of data that is passed both to and from your script. At this point, you can think of it as an encapsulation of a target that will execute the event, a function to call, and a list of parameters for that function. Here is one for the "chockify" function above, using an NSString as a parameter:
 
@@ -135,7 +135,7 @@ The Way It Used To Be
 
 There was a time when you could send AppleEvents to any application, not just to the currently running application, as we did with chockify above.
 
-Say you wanted to know what URL was loaded into the frontmost window of Safari. All you needed to do was `tell application "Safari"` what to do:
+Say you wanted to know what URL was loaded into the foremost window of Safari. All you needed to do was `tell application "Safari"` what to do:
 
 	on safariURL()
 		tell application "Safari" to return URL of front document
@@ -351,9 +351,9 @@ In the last example, the Network pane of System Preferences was opened with the 
 
 Pretty cool, but how the heck do you know what the IDs of the various panes are? How would you open the Accessibility view of the Security & Privacy pane instead of the Network pane?
 
-As you can see in Brent's article, every application that support AppleScript has a scripting dictionary. That dictionary describes the objects and properties of the app's data model. So just learn to poke around in that data model to find what you want!
+As you can see in Brent's article, every application that supports AppleScript has a scripting dictionary. That dictionary describes the objects and properties of the app's data model. So just learn to poke around in that data model to find what you want!
 
-Begin by opening the Script Editor application in your Applications > Utilities folder. Then, from the File menu, select "Open Dictionary…." At that point, every application that supports AppleScript will be listed -— more than you probably imagined! Select the System Preferences app from the list and click "Choose."
+Begin by opening the Script Editor application in your Applications > Utilities folder. Then, from the File menu, select "Open Dictionary…." At that point, every application that supports AppleScript will be listed -- more than you probably imagined! Select the System Preferences app from the list and click "Choose."
 
 At this point, you'll see a Standard Suite and System Preferences listed in a tree browser. The standard suite lists commands like "open," classes like "window," and other things that are common to most scripting dictionaries. The interesting stuff is in the other scripting suite: System Preferences. When you select it, you'll see a command named "reveal" and three classes (object types) named "application," "pane," and "anchor."
 
@@ -363,7 +363,7 @@ When you look at "application," you'll see two things: elements and properties. 
 <img src="http://files.iconfactory.net/craig/test/Scripting_Dictionary.png" width="741" />
 
 
-So an application contains panes. That sounds promising. So, in a new Script Editor window, create a simple script to show all the pane objects:
+So an application contains panes. That sounds promising. In a new Script Editor window, create a simple script to show all the pane objects:
 
 	tell application "System Preferences"
 		panes
