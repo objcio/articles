@@ -337,7 +337,7 @@ Then simply wait on that semaphore before initiating the script task. When the t
 Again, don't do this unless you have a really good reason.
 
 
-What can you Script?
+What Can You Script?
 --------------------
 
 In the last example, the Network pane of System Preferences was opened with the following AppleScript code:
