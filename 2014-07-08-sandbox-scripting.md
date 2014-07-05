@@ -163,19 +163,19 @@ The problem is that no one gave your app permission to talk to Safari. This turn
 
 That, in a nutshell, is why arbitrary script execution was banned from the Mac App Store.
 
-Luckily, things have gotten much better in recent releases of OS X. In 10.8 (Mountain Lion), Apple introduced a new abstract class called `NSUserScriptTask`. There are three concrete subclasses that let you run Unix shell commands (`NSUserUnixTask`), Automator workflows (`NSUserAutomatorTask`), and our beloved AppleScript (`NSUserAppleScriptTask`). The remainder of this tutorial will focus on that last class since it's the one most commonly used.
+Luckily, things have gotten much better in recent releases of OS X. In 10.8 Mountain Lion, Apple introduced a new abstract class called `NSUserScriptTask`. There are three concrete subclasses that let you run Unix shell commands (`NSUserUnixTask`), Automator workflows (`NSUserAutomatorTask`), and our beloved AppleScript (`NSUserAppleScriptTask`). The remainder of this tutorial will focus on that last class, since it's the one most commonly used.
 
-Apple's mantra for the application sandbox is "driving security policy through user intent." In practice, this means a user has to decide they want to run your script. It might have come from the Internet or it might be a part of your application, the only thing that matters is that your customer says "Yes, I want to run this script." Once that permission is granted, their scripts are run in a way where the interaction with the rest of the system is limited. The `NSUserScriptTask` class makes all this possible.
+Apple's mantra for the application sandbox is "driving security policy through user intent." In practice, this means a user has to decide to want to run your script. It might have come from the Internet or it might be a part of your application; the only thing that matters is that your customer says "Yes, I want to run this script." Once that permission is granted, the scripts are run in a way where the interaction with the rest of the system is limited. The `NSUserScriptTask` class makes all this possible.
 
 
-Installing scripts
+Installing Scripts
 ------------------
 
-So how does a user "grant access" for an application that wants to run scripts?
+So how does a user grant access for an application that wants to run scripts?
 
-The mechanism is surprisingly simple: your application can only run scripts from a specific folder in the User's account. The only way scripts can get into that folder is if the user copies them there. Essentially, OS X gives you a read-only view of what's in those scripts.
+The mechanism is surprisingly simple: your application can only run scripts from a specific folder in the user's account. The only way scripts can get into that folder is if the user copies them there. Essentially, OS X gives you a read-only view of what's in those scripts.
 
-This presents a challenge: the folder is in User > Library > Application Scripts and is named using the application's bundle identifier. For [Scriptinator](https://github.com/chockenberry/Scriptinator) that folder is named in a way only a programmer could love: `com.iconfactory.Scriptinator`. None of this is very user-friendly, especially since the Library folder is hidden by default on OS X.
+This presents a challenge: the folder is in User > Library > Application Scripts and is named using the application's bundle identifier. For [Scriptinator](https://github.com/chockenberry/Scriptinator), that folder is named in a way only a programmer could love: `com.iconfactory.Scriptinator`. None of this is very user-friendly, especially since the Library folder is hidden by default on OS X.
 
 One approach to this problem is to implement some code that opens this hidden folder for your customer. For example:
 
@@ -183,11 +183,11 @@ One approach to this problem is to implement some code that opens this hidden fo
 	NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
 	[[NSWorkspace sharedWorkspace] openURL:directoryURL];
 
-That's a great solution for scripts written by a user. They can open that folder using a control in your app and edit their scripts in any way they see fit.
+That's a great solution for scripts written by a user. The user can then open that folder using a control in your app and edit scripts in any way seen fit.
 
-But sometimes you'll want to help the end user install scripts that you've written. Chances are you're a better programmer than your average customer and you know how to write code that makes your app work better with their other apps. The natural place to put your own scripts is in the application bundle, but how do you get scripts into the user's scripts folder?
+But sometimes you'll want to help the end user install scripts that you've written. Chances are, you're a better programmer than your average customer, and you know how to write code that makes your app work better with your customer's other apps. The natural place to put your own scripts is in the application bundle, but how do you get scripts into the user's scripts folder?
 
-The solution here is to get permission to write into that folder. In Xcode, you need to update your app's Capabilities under App Sandbox > File Access to "User Selected File to Read/Write". Again, user intent is the guiding factor here, since they're giving you permission to add scripts to their folder:
+The solution here is to get permission to write into that folder. In Xcode, you need to update your app's Capabilities to "User Selected File to Read/Write," under App Sandbox > File Access. Again, user intent is the guiding factor here, since you're being given permission to add scripts to the folder:
 
 	NSError *error;
 	NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
@@ -230,12 +230,12 @@ The solution here is to get permission to write into that folder. In Xcode, you 
 
 That `Automation.scpt` file that we used to run from inside the application bundle is now exposed in the regular file system.
 
-It's important throughout this entire process to let your customer know exactly what's going on. You have to remember that they're the ones in control of the script, not you. If they decide to clear out all their scripts from the folder, you need to cope with that. You may need to disable an app feature that requires the script or explain why the script needs to be installed again.
+It's important throughout this entire process to let your customer know exactly what's going on. You have to remember that the customer is the one in control of the script, not you. If the customer decides to clear out all his or her scripts from the folder, you need to cope with that. You may need to disable an app feature that requires the script, or explain why the script needs to be installed again.
 
 _Note:_ The [Scriptinator](https://github.com/chockenberry/Scriptinator) sample code includes both of the approaches shown above. For a real world example, take a look at the [Overlay](http://xscopeapp.com/guide#overlay) tool in the free trial version of [xScope](http://xscopeapp.com/). It has a user-friendly setup procedure and sophisticated scripting that lets the app communicate with the customer's web browser. As a bonus, you may find that xScope is a great tool for doing your own development!
 
 
-Scripting tasks
+Scripting Tasks
 ---------------
 
 Now that you have the automation scripts in the right place, you can start to use them.
