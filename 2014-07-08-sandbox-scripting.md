@@ -130,7 +130,7 @@ All that's left to do now is extract the information you want from the descripto
 Your InputString just got a facelift, and you've seen everything you need to run AppleScripts from your app. Sort of.
 
 
-The Way it Used to be
+The Way It Used To Be
 ---------------------
 
 There was a time when you could send AppleEvents to any application, not just to the currently running application, as we did with chockify above.
