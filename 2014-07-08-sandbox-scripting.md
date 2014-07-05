@@ -4,23 +4,23 @@ Scripting from a Sandbox
 Introduction
 ------------
 
-Scripting between Mac applications has long been a part of the desktop ecosystem. It was originally [introduced](http://en.wikipedia.org/wiki/AppleScript) in October 1993 as a part of System 7 as a way to create complex workflows using publishing applications like QuarkXPress. Since then, many applications have supported AppleScript through the use of scripting dictionaries (Brent's article [in this issue](http://http://www.objc.io/issue-14/) shows you how to do this.) In this article, I'm going to explain how to communicate with another app using the commands and objects in its scripting dictionary.
+Scripting between Mac applications has long been a part of the desktop ecosystem. It was originally [introduced](http://en.wikipedia.org/wiki/AppleScript) in October 1993 as part of System 7 as a way to create complex workflows using publishing applications like QuarkXPress. Since then, many applications have supported AppleScript through the use of scripting dictionaries (Brent's article [in this issue](http://http://www.objc.io/issue-14/) shows you how to do this.) In this article, I'm going to explain how to communicate with another app using the commands and objects in its scripting dictionary.
 
-But before we do that, we need to take a look some recent events on the Mac platform. After opening the Mac App Store in late 2010, Apple announced the all developer submissions would need to run in a sandbox by November 2011. This deadline was pushed back several times until it eventually went into effect on June 1st, 2012.
+But before we do that, we need to take a look at some recent events on the Mac platform. After opening the Mac App Store in late 2010, Apple announced that all developer submissions would need to run in a sandbox by November 2011. This deadline was pushed back several times, until it eventually went into effect on June 1, 2012.
 
-That moving deadline should be your first clue that getting Mac apps to run in a sandbox was not exactly straightforward. Unlike their counterparts on iOS who had *always* run in a sandbox, many long-time developers realized that a secure environment would mean a lot of changes to their apps. As I heard one Apple security engineer put it, "We're putting the genie back into the bottle."
+The moving deadline should be your first clue that getting Mac apps to run in a sandbox was not exactly straightforward. Unlike their counterparts on iOS that had *always* run in a sandbox, many long-time developers realized that a secure environment would mean a lot of changes to their apps. As I heard one Apple security engineer put it, "We're putting the genie back into the bottle."
 
-One of the major challenges with this effort was with apps that used AppleScript. Many functions that used to be easy were suddenly hard to do. Other things became outright impossible to accomplish. The main cause of this frustration was because apps could no longer arbitrarily control another app via scripting. From a security point-of-view, there are very good reasons why this is a bad idea. From a developer and customer point-of-view, a lot of things broke.
+One of the major challenges with this effort was with apps that used AppleScript. Many functions that used to be easy were suddenly difficult. Other things became outright impossible to accomplish. The main cause of this frustration was that apps could no longer arbitrarily control another app via scripting. From a security point of view, there are many good reasons why this is a bad idea. From a developer and customer point of view, a lot of things broke.
 
-Initially, Apple helped ease the transition by granting "temporary exceptions" in an application's entitlements. These exceptions allowed apps to retain functionality that would have otherwise been lost. And as the name indicates, many of these special cases are disappearing as alternative ways of controlling other apps have been made available in more recent versions of OS X.
+Initially, Apple helped ease the transition by granting 'temporary exceptions' in an application's entitlements. These exceptions allowed apps to retain functionality that would have otherwise been lost. And as the name indicates, many of these special cases are disappearing, as alternative ways of controlling other apps have been made available in more recent versions of OS X.
 
-This tutorial will show you the current best practices for controlling another app using AppleScript. I'll also show you some tricks that will help you and your customers get AppleScripts setup with a minimum amount of effort.
+This tutorial will show you the current best practices for controlling another app using AppleScript. I'll also show you some tricks that will help you and your customers get AppleScripts set up with a minimum amount of effort.
 
 
-First steps
+First Steps
 -----------
 
-The first thing you need to learn is how to run an AppleScript from your own app. Typically the hardest part about this is writing AppleScript code. Behold:
+The first thing you need to learn is how to run an AppleScript from your own app. Typically, the hardest part of this is writing AppleScript code. Behold:
 
 	on chockify(inputString)
 		set resultString to ""
@@ -54,7 +54,7 @@ The first thing you need to learn is how to run an AppleScript from your own app
 		resultString
 	end chockify
 
-In my opinion, AppleScript's greatest strength is not its syntax. Nor is its ability to process strings, even when its making them AWESOME DUH
+In my opinion, AppleScript's greatest strength is not its syntax. Nor is it its ability to process strings, even when it's making them AWESOME DUH
 
 When developing scripts like this, I constantly refer to the [AppleScript Language Guide](https://developer.apple.com/library/mac/documentation/applescript/conceptual/applescriptlangguide/introduction/ASLR_intro.html#//apple_ref/doc/uid/TP40000983-CH208-SW1). The good news is that scripts that communicate with other apps are typically short and sweet. AppleScript can be thought of as a transport mechanism rather than a processing environment. The script shown above is atypical.
 
@@ -62,9 +62,9 @@ Once you have your script written and tested, you can move back to the comfortab
 
 	#import <Carbon/Carbon.h> // for AppleScript definitions
 
-Don't worry, you're not going to do anything crazy like add a framework to the project. You just need Carbon.h because it has a list of all the AppleEvent definitions. Remember, this code has been around for over 20 years!
+Don't worry, you're not going to do anything crazy like add a framework to the project. You just need Carbon.h because it has a list of all the AppleEvent definitions. Remember, this code has been around for more than 20 years!
 
-Once you have the definitions, you can create an event descriptor. This is a chunk of data that is passed both to and from your script. At this point, you can think of it as an encapsulation of a target that will execute the event, a function to call, and a list of parameters for that function. Here is one for the "chockify" function above using an NSString as a parameter:
+Once you have the definitions, you can create an event descriptor. This is a chunk of data that is passed both to and from your script. At this point, you can think of it as an encapsulation of a target that will execute the event, a function to call, and a list of parameters for that function. Here is one for the "chockify" function above, using an NSString as a parameter:
 
 	- (NSAppleEventDescriptor *)chockifyEventDescriptorWithString:(NSString *)inputString
 	{
@@ -88,7 +88,7 @@ Once you have the definitions, you can create an event descriptor. This is a chu
 		return event;
 	}
 
-_Note:_ This code is available on [my GitHub account](https://github.com/chockenberry) as [Scriptinator](https://github.com/chockenberry/Scriptinator). The `Automation.scpt` file contains the "chockify" function and all the other scripts used in this tutorial. The Objective-C code is all in `AppDelegate.m`.
+_Note:_ This code is available on [my GitHub account](https://github.com/chockenberry) as [Scriptinator](https://github.com/chockenberry/Scriptinator). The `Automation.scpt` file contains the chockify function and all the other scripts used in this tutorial. The Objective-C code is all in `AppDelegate.m`.
 
 Now that you have an event descriptor that tells AppleScript what you want to do, you need to give it somewhere to do it. That means loading an AppleScript from your application bundle: 
 
@@ -108,7 +108,7 @@ Now that you have an event descriptor that tells AppleScript what you want to do
 		}
 	}
 
-An instance of `NSAppleScript` is created using a URL from the application bundle. That script, in turn, is used with the "chockify" event descriptor created above. If everything goes according to plan, you end up with another event descriptor. If not, you get a dictionary back that contains information describing what went wrong. Although the pattern is similar to many other Foundation classes, the error _is not_ an instance of `NSError`.
+An instance of `NSAppleScript` is created using a URL from the application bundle. That script, in turn, is used with the chockify event descriptor created above. If everything goes according to plan, you end up with another event descriptor. If not, you get a dictionary back that contains information describing what went wrong. Although the pattern is similar to many other Foundation classes, the error _is not_ an instance of `NSError`.
 
 All that's left to do now is extract the information you want from the descriptor:
 
@@ -127,13 +127,13 @@ All that's left to do now is extract the information you want from the descripto
 		return result;
 	}
 
-Your inputString just got a FACE LIFT and you've seen everything you need to run AppleScripts from your app. Sort of.
+Your InputString just got a facelift, and you've seen everything you need to run AppleScripts from your app. Sort of.
 
 
-The way it used to be
+The Way it Used to be
 ---------------------
 
-There was a time when you could send AppleEvents to any application, not just to the currently running application as we did with "chockify" above.
+There was a time when you could send AppleEvents to any application, not just to the currently running application, as we did with chockify above.
 
 Say you wanted to know what URL was loaded into the frontmost window of Safari. All you needed to do was `tell application "Safari"` what to do:
 
@@ -141,7 +141,7 @@ Say you wanted to know what URL was loaded into the frontmost window of Safari. 
 		tell application "Safari" to return URL of front document
 	end safariURL
 
-These days, all that's likely to produce is the following in your Debug Console:
+These days, all doing that is likely to produce is the following in your Debug Console:
 
 	AppleScript run error = {
 		NSAppleScriptErrorAppName = Safari;
@@ -154,7 +154,7 @@ These days, all that's likely to produce is the following in your Debug Console:
 Even though Safari is running. What. The.
 
 
-Sandbox restrictions
+Sandbox Restrictions
 --------------------
 
 You're trying to run this script from an application sandbox. As far as that sandbox is concerned, Safari is, in fact, not running.
