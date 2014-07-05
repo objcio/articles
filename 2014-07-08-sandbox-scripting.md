@@ -301,7 +301,7 @@ If you look at the `keySenderPIDAttr` attribute in an incoming event descriptor,
 
 To understand more about the security goals of the application sandbox at a high level, I'd recommend Ivan Krstić's talk _"The OS X App Sandbox"_ at [WWDC 2012](https://developer.apple.com/videos/wwdc/2012/). It's a surprisingly entertaining talk, and at 36 minutes into the presentation, the automation changes shown above are introduced. At that same conference, a talk entitled _"Secure Automation Techniques in OS X"_ by Sal Soghoian and Chris Nebel goes into the details of the automation changes. Skip ahead to the 35-minute mark if you just want to learn about Application-Run User Scripts.
 
-Another important security announcement discussed in these talks -- but not covered in this tutorial -- are access groups. If you're going to be scripting system applications like Mail or iTunes, you'll definitely want to pay attention to this topic in the videos above.
+Another important security announcement discussed in these talks — but not covered in this tutorial — are access groups. If you're going to be scripting system applications like Mail or iTunes, you'll definitely want to pay attention to this topic in the videos above.
 
 
 Synchronicity
@@ -353,7 +353,7 @@ Pretty cool, but how the heck do you know what the IDs of the various panes are?
 
 As you can see in Brent's article, every application that supports AppleScript has a scripting dictionary. That dictionary describes the objects and properties of the app's data model. So just learn to poke around in that data model to find what you want!
 
-Begin by opening the Script Editor application in your Applications > Utilities folder. Then, from the File menu, select "Open Dictionary…." At that point, every application that supports AppleScript will be listed -- more than you probably imagined! Select the System Preferences app from the list and click "Choose."
+Begin by opening the Script Editor application in your Applications > Utilities folder. Then, from the File menu, select "Open Dictionary…." At that point, every application that supports AppleScript will be listed — more than you probably imagined! Select the System Preferences app from the list and click "Choose."
 
 At this point, you'll see a Standard Suite and System Preferences listed in a tree browser. The standard suite lists commands like "open," classes like "window," and other things that are common to most scripting dictionaries. The interesting stuff is in the other scripting suite: System Preferences. When you select it, you'll see a command named "reveal" and three classes (object types) named "application," "pane," and "anchor."
 
