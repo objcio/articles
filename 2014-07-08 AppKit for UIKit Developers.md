@@ -22,8 +22,6 @@ The UI framework is where things really start to diverge -- UIKit feels like a s
 
 If you're interested in how this transition came about, check out these excellent episodes of the Debug podcast with [Nitin Ganatra](https://twitter.com/nitinganatra), former iOS apps director at Apple: [System 7 to Carbon](http://www.imore.com/debug-39-nitin-ganatra-episode-i-system-7-carbon), [OS X to iOS](http://www.imore.com/debug-40-nitin-ganatra-epsiode-ii-os-x-ios), and [iPhone to iPad](http://www.imore.com/debug-41-nitin-ganatra-episode-iii-iphone-ipad).
 
-TODO Comment from Daniel: I'd argue that NSWindow is conceptually very different from UIWindow. UIWindow is a subclass of UIView. But NSWindow is not a view at all. Thoughts?
-
 With this in mind, it's no wonder that UIKit and AppKit still share a lot of concepts. The UI is constructed out of windows and views with messages being sent over the responder chain just as on iOS. What's `UIView` is `NSView`, `UIControl` is `NSControl`, `UIImage` is `NSImage`, `UIViewController` is `NSViewController`, `UITextView` is `NSTextView`. The list goes on and on.
 
 It's tempting to assume that you can use these classes in the same way, just replace `UI` by `NS`. But that's not going to work in many cases. The similarity is more on the conceptual level than in the implementation. You'll pretty much know about the building blocks to look for to construct your user interface, which is a great help. And a lot of the design patters such as delegation. But the devil is in the details -- you really need to read the documentation and learn how these classes are to be used.
@@ -39,6 +37,8 @@ While you almost never interact with windows on iOS (since they take up the whol
 
 Since Mac apps are relying more and more on a single window, AppKit has changed. As of OS X 10.10 Yosemite the `NSViewController` is similar in many ways to `UIViewController`. It is also part of the responder chain by default. Just remember that if you target your Mac app to OS X 10.9 or earlier, window controllers on the mac are much more akin to what you're used to as view controllers from iOS. As [Mike Ash writes](https://www.mikeash.com/pyblog/friday-qa-2013-04-05-windows-and-window-controllers.html), a good pattern to instantiate windows on the Mac is to have one nib file and one window controller per window type.
 
+Furthermore, `NSWindow` is not a view subclass like it's the case for `UIWindow`. Instead, each window holds a reference to its top level view in the `contentView` property. 
+
 
 ### Responder Chain
 
@@ -48,27 +48,27 @@ Other than the path events and actions travel, AppKit also has a more strict con
 
     - (void)performAction:(id)sender;
     
-The variants that are permissible on iOS with no argument at all or a sender and an event argument don't work on OS X. Furthermore, in AppKit controls usually hold a reference to one target and and action pair, whereas you can associate multiple target action pairs with a control on iOS using the `addTarget:action:forControlEvents:` method.
+The variants that are permissible on iOS with no arguments at all or a sender and an event argument don't work on OS X. Furthermore, in AppKit controls usually hold a reference to one target and and action pair, whereas you can associate multiple target action pairs with a control on iOS using the `addTarget:action:forControlEvents:` method.
 
 
 ### Views 
 
-The view system works very differently on the Mac for historic reasons. On iOS views were backed by Core Animation layers by default from the beginning. But AppKit predates Core Animation by decades. When AppKit was designed, there was no such thing as a GPU we know if today. Therefore the view system heavily relied on the CPU doing the work. 
+The view system works very differently on the Mac for historic reasons. On iOS views were backed by Core Animation layers by default from the beginning. But AppKit predates Core Animation by decades. When AppKit was designed, there was no such thing as a GPU as we know it today. Therefore the view system heavily relied on the CPU doing the work. 
 
 When you're getting started with development on the Mac we strongly recommend you check out Apple's [Intruduction to View Programming Guide for Cocoa](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaViewsGuide/Introduction/Introduction.html#//apple_ref/doc/uid/TP40002978). Furthermore there are two excellent WWDC sessions you should watch: [Layer-Backed Views: AppKit + Core Animation](https://developer.apple.com/videos/wwdc/2012/#217) and [Optimizing Drawing and Scrolling](https://developer.apple.com/videos/wwdc/2013/#215).
 
 
 #### Layer backed views
 
-By default AppKit views are not backed by Core Animation layers. Layer backing support has been integrated into AppKit retroactively, but while you never have to worry about this with UIKit, with AppKit there are decisions to make. AppKit differentiates between layer backed and layer hosting views, and layer backing can be turned on and off on a per view basis. 
+By default AppKit views are not backed by Core Animation layers. Layer backing support has been integrated into AppKit retroactively. But while you never have to worry about this with UIKit, with AppKit there are decisions to make. AppKit differentiates between layer backed and layer hosting views, and layer backing can be turned on and off on a per view tree basis. 
 
-The most straightforward approach to enable layer backing is to set the `wantsLayer` property to `YES` on the window's content view. Setting this property on the content view will cause all subviews to have their own backing layers, so there's no need to repeatedly set this property on each individual view. This can be done in code or simply in Interface Builder's view effects inspector.
+The most straightforward approach to enable layer backing is to set the `wantsLayer` property to `YES` on the window's content view. This will cause all all views in the window's view tree to have their own backing layers, so there's no need to repeatedly set this property on each individual view. This can be done in code or simply in Interface Builder's view effects inspector.
 
 In contrast to iOS, on the Mac you should treat the backing layers as an implementation detail. This means you should not try to interact with the layers directly. AppKit owns those layers and you should never touch them directly. For example, on iOS you could simply say:
 
-    self.layer.cornerRadius = 10;
+    self.layer.backgroundColor = [UIColor redColor];
     
-to enable rounded corners. But in AppKit you shouldn't touch the layer. If you want to interact with the layer in such ways, then you have to go one step further. Overriding `NSView`'s `wantsUpdateLayer` method to return `YES` enables you to change the layer's properties. If you do this though, AppKit will no longer call the view's `drawRect:` method. Instead `updateLayer` will be called during the view update cycle, where you can modify the layer. 
+But in AppKit you shouldn't touch the layer. If you want to interact with the layer in such ways, then you have to go one step further. Overriding `NSView`'s `wantsUpdateLayer` method to return `YES` enables you to change the layer's properties. If you do this though, AppKit will no longer call the view's `drawRect:` method. Instead `updateLayer` will be called during the view update cycle, where you can modify the layer. 
 
 You can use this for example to implement a very simple view with a uniform background color (yes, `NSView` has no `backgroundColor` property):
 
@@ -115,7 +115,7 @@ Another gotcha that's important to know is the fact that layer backed views have
 
 To avoid this you can set the `layerContentsRedrawPolicy` property to `NSViewLayerContentsRedrawOnSetNeedsDisplay`. This way you have control over when the layer contents need to be redrawn. A frame change will not automatically trigger a redraw anymore, you are now responsible for triggering it by calling `-setNeedsDisplay:`.
 
-As you see this can become somewhat confusing pretty quickly. Therefore we recommend that you follow the simplest approach of enabling `wantsLayer` once on the window's content view if you don't have very good reasons not to do this.
+Once you change the redraw policy in this way, you might also want to look into the [`layerContentsPlacement`](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Classes/NSView_Class/Reference/NSView.html#//apple_ref/occ/instm/NSView/layerContentsPlacement) property, which is the view's equivalent to the layer's `contentGravity` property. This allows you to specify how the existing layer content will be mapped into the layer as it is resized.
 
 
 #### Layer hosting views
@@ -232,7 +232,7 @@ Furthermore, images on the Mac have the notion of resolution additional to size.
 
 Another difference to `UIImage` is that `NSImage` will cache the result when it's drawn to the screen (this behavior is configurable via the [`cacheMode`](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Classes/NSImage_Class/Reference/Reference.html#//apple_ref/occ/instm/NSImage/cacheMode) property). When you change an underlying image representation, you have to call `recache` on the image for the change to take effect.
 
-But working with images on the Mac isn't always more complex than on iOS. `NSImage` provides a very easy way to draw a new image, whereas on iOS you would have to create a bitmap context, then create a `CGImage` from that and finally use it to initalize an `UIImage` instance. With `NSImage` you can simply do:
+But working with images on the Mac isn't always more complex than on iOS. `NSImage` provides a very easy way to draw a new image, whereas on iOS you would have to create a bitmap context, then create a `CGImage` from that and finally use it to initialize an `UIImage` instance. With `NSImage` you can simply do:
 
     [NSImage imageWithSize:(NSSize)size 
                 flipped:(BOOL)drawingHandlerShouldBeCalledWithFlippedContext 
