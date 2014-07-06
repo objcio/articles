@@ -6,13 +6,13 @@ When adding AppleScript support — which is also JavaScript support, as of OS X
 
 While that’s usually a small minority of users, they’re power users — the kind of people who recommend apps to friends and family. They blog and tweet about apps, and people listen to them. They can be your app’s biggest evangelists.
 
-The best reason to add scripting support is that it’s a matter of professionalism. But it doesn’t hurt that the effort is worth the reward.
+Overall, the best reason to add scripting support is that it’s a matter of professionalism. But it doesn’t hurt that the effort is worth the reward.
 
 ## Noteland
 
 Noteland is an app without any UI except for a blank window — but it has a model layer, and it’s scriptable. You can [download it](http://ranchero.com/downloads/Noteland.zip) (just 41K) and follow along.
 
-It supports AppleScript (and JavaScript on 10.10). It’s written in Objective-C in Xcode 5.1.1. We initially tried to use Swift and Xcode 6 beta 2, but ran into snags. (Thought it’s entirely likely they were our own fault, since we’re still learning Swift.)
+It supports AppleScript (and JavaScript on 10.10). It’s written in Objective-C in Xcode 5.1.1. We initially tried to use Swift and Xcode 6 Beta 2, but ran into snags, though it’s entirely likely they were our own fault, since we’re still learning Swift.
 
 ### Noteland’s Object Model
 
@@ -22,26 +22,26 @@ NLNote.h declares several properties: uniqueID, text, creationDate, archived, ta
 
 Tags are simpler. NLTag.h declares two scriptable properties: uniqueID and name.
 
-We want users to be able to create, edit, and delete notes and tags and to be able to access and change all of their properties (except any that are read-only).
+We want users to be able to create, edit, and delete notes and tags, and to be able to access and change all of their properties, with the exception of any that are read-only.
 
 ### Scripting Definition File (.sdef)
 
 The first step is to define the scripting interface — it’s conceptually like creating a .h file for scripters, but in a format that AppleScript understands.
 
-In the old days, we’d create and edit an aete resource (“aete” stands for AppleEvent Terminology; note the lower-case “e” for “event.”) These days it’s much easier: we create and edit an sdef (scripting definition) XML file.
+In the past, we’d create and edit an aete resource (“aete” stands for Apple Event Terminology.) These days it’s much easier: we create and edit an sdef (scripting definition) XML file.
 
-You might think you’d prefer JSON or a plist, but XML is a decent match for this. Beats an aete resource hands-down, at least. (In fact, there was a plist version for a while, but it required *two* different plists that you had to keep in sync. It was a pain.)
+You might think you’d prefer JSON or a plist, but XML is a decent match for this — beats an aete resource hands-down, at least. In fact, there was a plist version for a while, but it required *two* different plists that you had to keep in sync. It was a pain.
 
-The original name of the resource points to a matter worth noting. An Apple event is the low-level message that AppleScript generates, sends, and receives. It’s an interesting technology on its own, and has uses outside of scripting support. It’s been around since System 7 in the early ’90s, and has survived the transition to OS X.
+The original name of the resource points to a matter worth noting. An Apple event is the low-level message that AppleScript generates, sends, and receives. It’s an interesting technology on its own, and has uses outside of scripting support. Additionally, it’s been around since System 7 in the early ’90s, and has survived the transition to OS X.
 
-(Speculation: Apple events survived because so many print publishers relied on AppleScript, and publishers were among Apple’s most loyal customers during the dark days, in the middle and late ’90s.)
+(Speculation: Apple events survived because so many print publishers relied on AppleScript, and publishers were among Apple’s most loyal customers during the 'dark days,' in the middle and late ’90s.)
 
 An sdef file always starts with the same header:
 
 `<?xml version="1.0" encoding="UTF-8"?>`<br />
 `<!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">`
 
-The top-level item is a dictionary — “dictionary” is AppleScript’s word for a scripting interface. Inside the dictionary are one or more suites.
+The top-level item is a dictionary — “dictionary” is AppleScript’s word for a scripting interface. Inside the dictionary you'll find one or more suites.
 
 (Tip: open AppleScript Editor and choose File > Open Dictionary… You’ll see a list of apps with scripting dictionaries. If you choose one — iTunes, for instance — you’ll see the classes, properties, and commands that iTunes understands.)
 
@@ -89,11 +89,11 @@ Cocoa scripting uses Key-Value Coding (KVC), and the dictionary specifies the ke
 `<class name="note" code="NOTE" description="A note" inherits="item" plural="notes">`<br />
 `  <cocoa class="NLNote"/>`
 
-The code is `NOTE`. It could be almost anything, but note that Apple reserves all lowercase codes for its own use, so `note` wouldn’t be allowed. It could be `NOT*`, or `NoTe`, or `XYzy`, or whatever you want. (Ideally the code wouldn’t collide with codes used by other apps. But there’s no way that we know of to ensure that, so we just, well, *guess*. `NOTE` may not be all that great of a guess.)
+The code is `NOTE`. It could be almost anything, but note that Apple reserves all lowercase codes for its own use, so `note` wouldn’t be allowed. It could be `NOT*`, or `NoTe`, or `XYzy`, or whatever you want. (Ideally the code wouldn’t collide with codes used by other apps. But there’s no way that we know of to ensure that, so we just, well, *guess*. That said, `NOTE` may not be all that great of a guess.)
 
-Your classes should inherit from `item`. (In theory you could have a class the inherits from another of your classes. We’ve never tried this.)
+Your classes should inherit from `item`. (In theory you could have a class the inherits from another of your classes, but we’ve never tried this.)
 
-The note class several properties:
+The note class has several properties:
 
 `<property name="id" code="ID  " type="text" access="r" description="The unique identifier of the note.">`<br />
 &nbsp;&nbsp;`<cocoa key="uniqueID"/>`<br />
@@ -107,11 +107,11 @@ The note class several properties:
 `<property name="creationDate" code="CRdt" description="The date the note was created." type="date" access="r"/>`<br />
 `<property name="archived" code="ARcv" description="Whether or not the note has been archived." type="boolean" access="rw"/>`
 
-Whenever possible, it’s best to provide unique IDs for your objects. Otherwise scripters have to rely on names and positions, which may change. The code for unique IDs is 'ID  '. (Note the two spaces. Codes are four-character codes.) The name of the unique ID should always be `id`.
+Whenever possible, it’s best to provide unique IDs for your objects. Otherwise, scripters have to rely on names and positions, which may change. Use the code 'ID  ' for unique IDs. (Note the two spaces; codes are four-character codes.) The name of the unique ID should always be `id`.
 
 It’s also standard to provide a `name` property, whenever it makes sense, and the code should be `pnam`. Noteland makes this a read-only property, since the name is just the first line of the text of a note, and the text of the note is edited via the read-write `body` property.
 
-For `creationDate` and `archived` we don’t need to provide a Cocoa key element, since the key is the same as the property name.
+For `creationDate` and `archived`, we don’t need to provide a Cocoa key element, since the key is the same as the property name.
 
 Note the types: text, date, and boolean. AppleScript supports these and several more, as [listed in the documentation](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/ScriptableCocoaApplications/SApps_about_apps/SAppsAboutApps.html#//apple_ref/doc/uid/TP40001976-SW12).
 
@@ -180,7 +180,7 @@ Also note that the notes array property is declared in the .m file in the class 
 
 NLNote.h declares the various properties of a note: uniqueID, text, creationDate, archived, title, and tags.
 
-The `init` method sets the uniqueID and creationDate and sets the tags array to an empty NSArray. (Using an NSArray this time rather than an NSMutableArray, just to show it can be done.)
+The `init` method sets the uniqueID and creationDate and sets the tags array to an empty NSArray. We're using an NSArray this time, rather than an NSMutableArray, just to show it can be done.)
 
 The `title` method returns a calculated value: the first line of the text of the note. (Recall that this becomes the `name` to the scripting dictionary.)
 
@@ -201,7 +201,7 @@ NSApp is the global application object; we get its classDescription. The key is 
 
 We have to think ahead a little bit. Tags will need an objectSpecifier also, and tags are contained by notes — so a tag needs a reference to its containing note.
 
-Cocoa scripting handles creating tags,but there’s a method we can override that lets us customize the behavior.
+Cocoa scripting handles creating tags, but there’s a method we can override that lets us customize the behavior.
 
 NSObjectScripting.h defines `-newScriptingObjectOfClass:forValueForKey: withContentsValue:properties:`. That’s what we need. In NLNote.m, it looks like this:
 
@@ -227,7 +227,7 @@ It looks like this:
 
 That’s it. Done. That’s not much code — most of the work is in designing the interface and editing the sdef file.
 
-In the old days, you’d still be writing Apple event handlers and working with Apple event descriptors and all kinds of crazy jazz. You’d be a long way from done. Thankfully, these aren’t the old days.
+In the old days, you’d still be writing Apple event handlers and working with Apple event descriptors and all kinds of crazy jazz. In other words, you’d be a long way from done. Thankfully, these aren’t the old days.
 
 The fun part is next.
 
@@ -292,7 +292,7 @@ It works!
 
 Scripting the object model is just part of adding scripting support; you can add support for commands, too. For instance, Noteland could have an export command that writes notes to files on disk. An RSS reader might have a refresh command, a Mail app might have a download mail command, and so on.
 
-Matt Neuburg’s [AppleScript: The Definitive Guide](http://www.amazon.com/AppleScript-Definitive-Guide-Matt-Neuburg/dp/0596102119/ref=la_B001H6OITU_1_1?s=books&ie=UTF8&qid=1403816403&sr=1-1) is worth checking out even though it was published in 2006. Things haven’t changed much since then. Matt also has a [tutorial on adding scripting support to Cocoa apps](http://www.apeth.net/matt/scriptability/scriptabilityTutorial.html) that's definitely worth reading, and it goes into more detail than this article.
+Matt Neuburg’s [AppleScript: The Definitive Guide](http://www.amazon.com/AppleScript-Definitive-Guide-Matt-Neuburg/dp/0596102119/ref=la_B001H6OITU_1_1?s=books&ie=UTF8&qid=1403816403&sr=1-1) is worth checking out even though it was published in 2006, as things haven’t changed much since then. Matt also has a [tutorial on adding scripting support to Cocoa apps](http://www.apeth.net/matt/scriptability/scriptabilityTutorial.html). It's definitely worth reading, and it goes into more detail than this article.
 
 There’s a session in the [WWDC 2014 videos](https://developer.apple.com/videos/wwdc/2014/) on JavaScript for Automation, which talks about the new JavaScript OSA language. (Years ago, Apple suggested that one day there would be a programmer’s dialect of AppleScript, since the natural language thing is a bit weird for people who write in C and C-like languages. JavaScript could be considered the programmer’s dialect.)
 
