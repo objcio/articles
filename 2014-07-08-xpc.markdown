@@ -8,3 +8,400 @@ author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
 ---
 
 # XPC
+
+
+**Disclaimer: This article uses Swift on OS X 10.10 Yosemite. There are still some rough edges that we've filed radars about with Apple. Once it all works, we will update the article if needed. With Objective-C on OS X 10.9 everything will work just fine. **
+
+
+
+## About XPC
+
+
+XPC is first and foremost about doing things in a different way than you'd otherwise be able to do them. It is not about enabling things that you couldn't do without XPC.
+
+XPC is all about security and stability of our apps. XPC allows us to relatively easily split our application into multiple processes. XPC makes the communication between processes easy. For one thing it manages the life cycle of those proceses such that a given process is running when you want to to communicate with it. And in addition to that the sending back and forth of data is very easy to use and performant.
+
+We will be using the Foundation framework's classes that build on top of the raw XPC API. The XPC API itself is a pure C API which integrates nicely with libdispatch (aka. GCD). The Foundation classes are very true in nature to how the underlying C API works and expose almost all of the functionality.
+
+It's all about security and stability of our apps.
+
+(Some more here about what it let's us do)
+
+Seperate address space
+    fault isolation
+    different privileges / entitlements
+    least-required privilege
+
+
+## A Sample App
+
+Let us take a look at a trivil sample app: An app that shows multiple images in a table view. These images are downloaded as JPEG data from a webserver.
+
+The app will look something like this:
+
+[image here]
+
+The `NSTableViewDataSource` will retrieve the images from a class called `ImageSet` like this:
+
+    func tableView(tableView: NSTableView!, viewForTableColumn tableColumn: NSTableColumn!, row: Int) -> NSView! {
+        let cellView = tableView.makeViewWithIdentifier("Image", owner: self) as NSTableCellView
+        var image: NSImage? = nil
+        if let c = self.imageSet?.images.count {
+            if row < c {
+                image = self.imageSet?.images[row]
+            }
+        }
+        cellView.imageView.image = image
+        return cellView
+    }
+
+The `ImageSet` class has a simple
+
+    var images: NSImage![]
+
+property which is fills asynchronously using the `ImageLoader` class.
+
+### Without XPC
+
+Without XPC we would implement the `ImageLoader` class to download and decompress an image like so:
+
+
+    class ImageLoader: NSObject {
+    
+        let session: NSURLSession
+    
+        init()  {
+            let config = NSURLSessionConfiguration.defaultSessionConfiguration()
+            session = NSURLSession(configuration: config)
+        }
+    
+        func retrieveImage(atURL url: NSURL, completionHandler: (NSImage?)->Void) {
+            let task = session.dataTaskWithURL(url) {
+                maybeData, response, error in
+                if let data: NSData = maybeData {
+                    dispatch_async(dispatch_get_global_queue(0, 0)) {
+                        let source = CGImageSourceCreateWithData(data, nil).takeRetainedValue()
+                        let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil).takeRetainedValue()
+                        var size = CGSize(
+                            width: CGFloat(CGImageGetWidth(cgImage)),
+                            height: CGFloat(CGImageGetHeight(cgImage)))
+                        let image = NSImage(CGImage: cgImage, size: size)
+                        completionHandler(image)
+                    }
+                }
+            }
+            task.resume()
+        }
+    }
+
+This is pretty straight forward and works well.
+
+### Fault isolation and Split Privileges
+
+Our app does three distinct things: It downloads data from the internet, it decodes that data as JPEG, then it displays them.
+
+If we split the app into three seperate processes, we can give each one of them its own set of privileges: The UI doesn't need to have access to the network. The service that downloads the images from the network does need network access, but doesn't need access to any files (it will just forward the data, not save it). The 2nd service will decode the JPEG image data to RGB data. This process need neither network access nor file access.
+
+This way we have made it dramatically more difficult for someone to find a security exploit in our app. And as a side effect, the app is way more stable: If a bug in the download service causes it to crash, the main app will keep running. The download service will just get relaunched.
+
+This might look something like this:
+
+![An App with two Servives]({{ site.images_path }}/issue-14/xpc-app-2-services)
+
+We could also have designed it such that the app would talk to both services directly and be responsible for moving the data from one service to the other. The amount of flexibility is great. We'll dive into that later. [TODO: link]
+
+By far the largest set of security related bugs is in parsing of untrusted data, ie. data that we have received eg. over the internet and do not control. This is true for both handling the actual HTTP procotol and decoding JPEG data. With this design, we have move parsing of untrusted data into a subprocess, an XPC service.
+
+### XPC Services at Our Service
+
+There are two parts to the service: The service itself, and the code that communicates with it. The good news is: both are straightforward and similar.
+
+Xcode has a template to add a new target for a service. A service has a bundle identifier. It is good practice to set it to a *subdomain* of the app's bunlde identifier. In our case the sample app's bundle identifier is `io.objc.Superfamous-Images`, and we will set the bundle identifier of the download service to be `io.objc.Superfamous-Images.ImageDownloader`. The service target will create output its own bundle which will get copied into a folder called `XPCServices` -- next to the `Resources` folder.
+
+When the app sends data to the `io.objc.Superfamous-Images.ImageDownloader` service, XPC will automatically launch the XPC service.
+
+Communication over XPC is always asynchronous. It is defined by a protocol that both the app and the services use. In our case
+
+    @objc(ImageDownloaderProtocol) protocol ImageDownloaderProtocol {
+        func downloadImage(atURL: NSURL!, withReply: (NSData?)->Void)
+    }
+
+Note the `withReply:` part. This is how the reply will get sent back to the caller asynchronously. Messages that return data need to use methods where the last part is a `withReply:` that takes a closure.
+
+In our case we only have one method call in the service, but we could have multiple by defining multiple in the protocol.
+
+The connection from the app to the services is then created through an `NSXPCConnection` object like so (Disclaimer: This does not work, yet):
+
+    let connection = NSXPCConnection(serviceName: "io.objc.Superfamous-Images.ImageDownloader")
+    connection.remoteObjectInterface = NSXPCInterface(`protocol`: ImageDownloaderProtocol.Protocol)
+    connection.resume()
+
+If we store this connection object in `self.imageDownloadConnection` we can communicate with the service like so
+
+   let downloader = self.imageDownloadConnection.remoteObject as ImageDownloaderProtocol
+    downloader.downloadImageAtURL(url) {
+        (data) in
+        println("Got \(data.length) bytes.")
+    }
+
+We should use an error handler, though. That would look like this:
+
+    let downloader = self.imageDownloadConnection.remoteObjectProxyWithErrorHandler {
+        	(error) in NSLog("remote proxy error: %@", error)
+        } as ImageDownloaderProtocol
+    downloader.downloadImageAtURL(url) {
+        (data) in
+        println("Got \(data.length) bytes.")
+    }
+
+That's all there is to it on the app's side.
+
+### Listening to Service Requests
+
+The services has a listener, `NSXPCListener` that listens to incoming requests (from the app). This listener will then create a connection on the service side that corresponds to each connection that the app makes to it.
+
+In `main.swift` we can put
+
+    class ServiceDelegate : NSObject, NSXPCListenerDelegate {
+        func listener(listener: NSXPCListener!, shouldAcceptNewConnection newConnection: NSXPCConnection!) -> Bool {
+            newConnection.exportedInterface = NSXPCInterface(`protocol`: ImageDownloaderProtocol.Protocol)
+            var exportedObject = ImageDownloader()
+            newConnection.exportedObject = exportedObject
+            newConnection.resume()
+            return true
+        }
+    }
+    
+    // Create the listener and run it by resuming:
+    let delegate = ServiceDelegate()
+    let listener = NSXPCListener()
+    listener.delegate = delegate;
+    listener.resume()
+
+
+We create an `NSXPCListener` at global scope (this correspons to the `main` function in C / ObjC). We'll pass it a service delegate that can configure incoming connections. We need to set the same protocol on the connection that we use inside the app. Then we set in instance of `ImageDownloader` which actually implements that protocol:
+
+    class ImageDownloader : NSObject, ImageDownloaderProtocol {
+        let session: NSURLSession
+    
+        init()  {
+            let config = NSURLSessionConfiguration.defaultSessionConfiguration()
+            session = NSURLSession(configuration: config)
+        }
+    
+        func downloadImageAtURL(url: NSURL!, withReply: ((NSData!)->Void)!) {
+            let task = session.dataTaskWithURL(url) {
+                (data, response, error) in
+                switch (data, response) {
+                case (let d, let r as NSHTTPURLResponse) where (200 <= r.statusCode) && (r.statusCode <= 399):
+                    withReply(d)
+                default:
+                    withReply(nil)
+                }
+            }
+            task.resume()
+        }
+    }
+
+One important thing to note is that both `NSXPCListener` and `NSXPCConnection` start out being suspended. We need to resume them once they have been configured.
+
+
+
+
+
+
+
+
+## Listener, Connection, and Exported Object
+
+On the app's side, there's an connection object. Each time we want to send data to the service we use the `remoteObjectProxyWithErrorHandler` method which creates a remote object proxy.
+
+On the service's side, there's another layer. First there's a single listener, which listens for incoming connections from the app. The app can create multiple connections, and for each one, the listener will create a corresponding connection object on its side. The connection has a single exported object which is what the app will send messages to as the remote object proxy.
+
+When an app creates a connection to an XPC service, XPC manages the lifecycle of that service. The service is launched and shut down transparently by the XPC runtime. And if the service crashes for some reason it is transparently re-launched, too.
+
+When the app first creates the XPC connection, the XPC service is in fact not launched until the app actually sends the first message to the remote proxy object.
+
+And when there are no outstanding replies, the system may chose to stop the service because of memory pressure or because the XPC service has been idle for a while. The app's connection will stay valid, and when the app uses the connection again, the XPC system we re-launch the XPC service.
+
+If the XPC service crashes, it will also be re-launched transparently. The connection to it will remain valid. But if the XPC service crashes while message was being sent to it, and before the app received the response, the app needs to re-send that message. This is what the error handler in the `remoteObjectProxyWithErrorHandler` method is for.
+
+This method takes a closure that will get executed if an error occured. The API guarantees that exactly one of either the error handler or the message reply closure will get executed: If the message reply closure gets executed, the error handler closure will not and vice-versa. This makes resource cleanup easy.
+
+### Sudden Termination
+
+XPC manages the life cycle of the services by keeping track of requests that are still being processed. The service will not get shut down while a request is running. A request is consideren *running* if its reply has not been sent, yet. For requests that don't have a reply handler, the request is considered running as long as its method body runs.
+
+In some situations we might want to tell XPC that we have to do more work. To do this, we can use the `NSProcessInfo` API:
+
+    func disableAutomaticTermination(reason: String!)
+    func enableAutomaticTermination(reason: String!)
+
+
+TODO: Something about sudden termination -> request is live? -> reply has been sent?
+
+### Interruption and Invalidation
+
+The most common situation is for an app to send messages to its XPC service(s). But XPC allows very flexible setups. As we'll go through further below, connections are bidirectional, and connection can be made to anonymous listeners. Such connections will most likely not be valid if the other end goes away (due to a crash or even normal process termination). In these situations the connection becomes invalid.
+
+We can set a connection invalidation handler that will get run when the xpc runtime can not re-create the connection.
+
+We can also set a connection interruption handler that will get called when the connection is interrupted even if the connection will remain valid. The two properties on `NSXPCConnection` are
+
+    var interruptionHandler: (() -> Void)!
+    var invalidationHandler: (() -> Void)!
+
+
+
+## Bidirectional Connections
+
+One interesting fact, that's often forgotten, is that connections are bidirectional.
+
+The app needs to make the initial connection to the service. The service can not do this (see below on service discovery [TODO: Link]). But once the connection has been made, both ends can initiate requests.
+
+Just as the the service sets an `exportedObject` on the connection, the app can do so at it's end. This allows for the service to use the `remoteObjectProxy` on its end to talk to the app's exported object.
+
+So while the app needs to create the connection, once the connectio has been established the service can initiate actual communicaiton.
+
+The thing to be aware of, though, is that the system managed the life cycle of the service -- it may be terminated when there are no outstanding requests. C.f. Sudden Termination [TODO Link].
+
+
+## Service Lookup
+
+When we connect to an XPC service, the we need to *find* that other end which we're about to connect to. For an app using a private XPC service, the XPC system looks up the service by its name within the app’s scope. There are other ways to connect over XPC, though. Let us take a look at all the possibilities.
+
+### XPC Service
+
+When an app uses
+
+    NSXPCConnection(serviceName: "io.objc.myapp.myservice")
+
+XPC will look up the `io.objc.myapp.myservice` service inside the app's own name space. This service is local to the app -- other apps can't connect to this service. The XPC service bundle will either be located inside the app’s bundle or inside the bundle of a framework that the app is using.
+
+### Mach Service
+
+Another option is to use
+
+    NSXPCConnection(machServiceName: "io.objc.mymachservice", options: NSXPCConnectionOptions(0))
+
+this will look for the service `io.objc.myservice` in the user's login session. You can install so-called launch agents in either `/Library/LaunchAgents` or `~/Library/LaunchAgents` and these can provide XPC services in much the same way as an app's XPC service. But since these are per-login session, multiple app's running in a login session can talk to the same launch agent.
+
+This approach can be very useful, e.g. for a menu extra [TODO: check naming & link] to talk to an UI app. Both the normal app and the menu extra can talk to a common launch agent and exchange information in that way. Particularly when more than two processes need to communicate with each other, XPC can be a very elegant sollution.
+
+If we were to write a weather app, we could put the fetching and parsing of weather data into an XPC launch agent. We would then be able to create both a menu extra, an app, and a Today Widgets [TODO: link] that all display the weather. And they'd all be able to communicate with the same launch agent over an `NSXPCConnection`.
+
+In the same way as with an XPC service, the launch agent life cycle can be entirely managed by XPC: It will be launched on demand and terminated when it is no longer needed and the system is low on memory.
+
+### Anonymous Listeners & Endpoints
+
+XPC has the ability to pass so called *listener endpoints* over connection. This is at first very confusing, but allows for a great deal of flexibility.
+
+Let's say we have multiple apps, and we would like them to be able to communicate with each other over XPC. The apps don't know what the other apps are. But they all know about a (shared) launch agent.
+
+What we can do now if for app A to create a so-called *anonymoud listener*. It's anonymous because it doesn't have a name: it can not be discovered by name. App A can create an endpoint from its listener and send this endpoint object to the launch agent. App B can then retrieve this endpoint object from the agent. Using the endpoint object, app B can now create a direct connection to App A's listener.
+
+### Privileged Mach Service
+
+The final option is to use
+
+    NSXPCConnection(machServiceName: "io.objc.mymachservice", options: .Privileged)
+
+This is very similar to launch agents, but will create a connection to a daemon in stead. Launch agent processes are per-user. They run as the user and inside the user's login session. Daemons are per machine. An XPC daemon will only have once instance running even when multiple users are logged in.
+
+There are quite a few security considerations about how to run daemon. It's possible for a daemon to run as the root user -- which you should probably not do. You most likely want it to run as some unique user. Check the [“Designing Secure Helpers and Daemons”] [TN2083] document . For most things, we won’t need root privileges.
+
+
+## File Access
+
+Let's say we want to create a service that downloads a file over HTTP. We need to allow this service to make outgoing network connections (client) in order to connect to the server. What's less obvious, though, is that we can have the service write to a file without the service having any file access.
+
+The way this works, is that we first create the file that we want to download to inside the app. We then create an file handle for that file:
+
+    let fileURL = NSURL.fileURLWithPath("/some/path/we/want/to/download/to")
+    if NSData().writeToURL(fileURL, options:0, error:&error) {
+        let maybeHandle = NSFileHandle.fileHandleForWritingToURL(url:fileURL, error:&error)
+        if let handle = maybeHandle {
+            self.startDownload(fromURL:someURL, toFileHandle: handle) {
+                self.downloadComplete(url: someURL)
+            }
+        }
+    }
+
+and
+
+    func startDownload(fromURL: NSURL, toFileHandle: NSFileHandlehandle, completionHandler: (NSURL)->Void) -> Void
+
+would then send the file handle over the XPC connection by passing it to the remote object proxy.
+
+Similarly we can open an `NSFileHandler` for reading in one process and pass it to another process which can then read from that file without having file access itself.
+
+## Moving Data
+
+While XPC is very efficient, it's abviously not for free to move messages between processes. When moving large amounts of binary data over XPC, there are some tricks available.
+
+Normal NSData needs to get copied to get sent to the other side. For large binary data it is more efficient to use so called *mempory mapped* data. [WWDC 2013 session 702](wwdc2013videos) convers sending of *Big Data* on slides 57 and following.
+
+XPC has a fast path which makes sure data is never copied on its way to the other process. The trick is that `dispatch_data_t` is toll-free bridged with `NSData`. If we create a `dispatch_data_t` instance that's backed by a memory mapped region, we can send this over XPC more efficiently. This would look something like so
+
+    size_t size = ...
+    void *buff = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, -1, 0);
+    dispatch_data_t ddata = dispatch_data_create(buff, sz, DISPATCH_TARGET_QUEUE_DEFAULT, DISPATCH_DATA_DESTRUCTOR_MUNMAP);
+    NSData *data = (id) ddata;
+
+
+## Debugging
+
+Xcode has your back covered when you need to debug multiple processes communicating with each other over XPC. Since Xcode 5 the debugger will run XPC services embedded into our application in the debugger, and setting breakpoints in the XPC service’s code works just as expected.
+
+A very common mistake is to forget to resume either the connection or the listener. Both are created in a suspended state.
+
+If the connection is invalid, that's most likely due to a configuration error. Check that the bundle identifier matches the service name. And that the service name is correctly specified in the code.
+
+### Debugging Daemons
+
+When debugging daemons things are slightly more complicated, but it still works quite well. Our daemon will get launched by `launchd`. The trick is two fold: During development we will change the [`launchd.plist`][launchdplist5man] of our daemon and set the `WaitForDebugger` key to true. Then in Xcode, we can edit the scheme of the daemon: In the **scheme editor** under **Run**, the **Info** tab allows us to switch **Lauch** from “Automatically” to “Wait for executable to be launched”.
+
+Now when we “run” the daemon in Xcode, the daemon will not get launched, but the debugger will wait for it to be launched. Once `launchd` starts the daemon, the debugger will connect, and we're good to go.
+
+## Security Attributes of the Connection
+
+Each `NSXPCConnection` these properties
+
+    var auditSessionIdentifier: au_asid_t { get }
+    var processIdentifier: pid_t { get }
+    var effectiveUserIdentifier: uid_t { get }
+    var effectiveGroupIdentifier: gid_t { get }
+
+which describe the connection. On the listener side, i.e. inside the agent or daemon, we can use these to see who's trying to connect and deny or allow the connection based on that. For XPC Services inside an app bundle this doesn’t matter all that much, since only the app itself can look up the service.
+
+The [`xpc_connection_create(3)` man page]xpc_connection_create(3)` man page] has a section called “Credentials” which talks about some of the caveat of this API. Use it with care.
+
+## Lower Level API
+
+All of the NSXPCConnection API is built on top of a C API. This API is documented in the [`xpc(3) man age`][xpc3man] and its subpages.
+
+We can create an XPC service for our app and use the C API -- as long as we use the C API on both ends.
+
+It is very similar to the Foundation Frameworks’s API in concepts: One thing that is slightly confusing is that a connection can both be a **listener** that in turn accepts incoming connections, and they can be connections to another process.
+
+### Event Streams
+
+One feature that at this point is only available to the C API is the launch-on-demand for IOKit events, BSD notifications, or Core Foundation distributed notifications. These are available to launch daemons and agents.
+
+Event streams are outlined in the [`xpc_events(3)` man page] [xpcevents3man]. With this API it is relatively straight forward to write a launch agent (a background process() that will be launched on-demand when a specific piece of hardware is connected (attached).
+
+
+
+
+
+[TN2083]: https://developer.apple.com/library/mac/technotes/tn2083/_index.html "TN2083 Daemons and Agents"
+
+[xpcserviceplist5man]: https://developer.apple.com/library/mac/documentation/Darwin/Reference/Manpages/man5/xpcservice.plist.5.html "xpcservice.plist(5) man page"
+
+[launchdplist5man]: https://developer.apple.com/library/mac/documentation/Darwin/Reference/Manpages/man5/launchd.plist.5.html "launchd.plist(5) man page"
+
+[wwdc2013videos]: https://developer.apple.com/videos/wwdc/2013/ "WWDC 2013 Session Videos"
+
+[xpc3man]: https://developer.apple.com/library/mac/documentation/Darwin/Reference/Manpages/man3/xpc.3.html "xpc(3) man page"
+
+[xpcevents3man]: https://developer.apple.com/library/mac/documentation/Darwin/Reference/Manpages/man3/xpc_events.3.html#//apple_ref/doc/man/3/xpc_events "xpc_events(3) man page"
