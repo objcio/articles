@@ -295,7 +295,7 @@ Behind the Scenes
 
 What's going on behind the scenes?
 
-As you may have guessed by the fact that scripts can only run once asynchronously, the code is now run out of process using XPC. Just as iOS 8 uses XPC to make sure extensions don't affect the calling application in any way, a running script has no access to the address space of your calling application.
+As you may have guessed by the fact that scripts can only run once asynchronously, the code is now executed out of process using XPC. Just as iOS 8 uses XPC to make sure extensions don't affect the calling application in any way, a running script has no access to the address space of your calling application.
 
 If you look at the `keySenderPIDAttr` attribute in an incoming event descriptor, you'll see that the process ID belongs to `/usr/libexec/lsboxd`, not your own application. This mysterious process is presumably the Launch Services sandbox daemon. In any case, your requests to another process are most certainly being marshaled.
 
