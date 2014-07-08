@@ -33,7 +33,7 @@ In the next section, we'll take a look at some of the pitfalls we fell into ours
 
 ### Windows and Window Controllers
 
-While you almost never interact with windows on iOS (since they take up the whole screen anyway), windows are key components on the Mac. Therefore, AppKit has an `NSWindowController` class that traditionally took on much of the tasks that you would handle in a view controller on iOS. View controllers are a relatively new addition to AppKit; they were not receiving actions by default and missed a lot of the lifecycle methods, view controller containment, and other features you're used from UIKit. Historically, Mac applications were multi-window, each with its own role, very similar to view controllers on iOS.
+While you almost never interact with windows on iOS (since they take up the whole screen anyway), windows are key components on the Mac. Historically, Mac applications had multiple windows, each with its own role, very similar to view controllers on iOS. As a result, AppKit has an NSWindowController class that traditionally took on many of the tasks that you would handle in a view controller on iOS. View controllers are a relatively new addition to AppKit, and up until now, they did not receive actions by default, and missed a lot of the lifecycle methods, view controller containment, and other features you're used to from UIKit.
 
 Since Mac apps are relying more and more on a single window, AppKit has changed. As of OS X 10.10 Yosemite, the `NSViewController` is similar in many ways to `UIViewController`. It is also part of the responder chain by default. Just remember that if you target your Mac app to OS X 10.9 or earlier, window controllers on the Mac are much more akin to what you're used to as view controllers from iOS. As [Mike Ash writes](https://www.mikeash.com/pyblog/friday-qa-2013-04-05-windows-and-window-controllers.html), a good pattern to instantiate windows on the Mac is to have one nib file and one window controller per window type.
 
@@ -44,7 +44,7 @@ Furthermore, `NSWindow` is not a view subclass as is the case for `UIWindow`. In
 
 If you're developing for OS X 10.9 or lower, be aware that view controllers are not part of the responder chain by default. Instead, events will bubble up through the view tree and then go straight to the window and the window controller. In this instance, if you want a view controller to handle events, you will have to add it to the responder chain [manually)(http://www.cocoawithlove.com/2008/07/better-integration-for-nsviewcontroller.html).
 
-Other than the path events and actions travel, AppKit also has a more strict convention as to the method signature of actions. In AppKit, an action method always looks like this:
+In addition to the difference in the responder chain, AppKit also has a more strict convention as to the method signature of actions. In AppKit, an action method always looks like this:
 
     - (void)performAction:(id)sender;
     
@@ -253,7 +253,7 @@ TODO: Color picker screenshot
 
 ### Text System
 
-With [TextKit](TODO link Max's article), iOS 7 finally got an equivalent to what has been around on the Mac for ages, as the [Cocoa Text System](https://developer.apple.com/library/mac/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextSystemArchitecture/ArchitectureOverview.html). But Apple didn't just transfer the system from the Mac to iOS; instead, Apple made some more and less subtle changes to it. 
+With [TextKit](TODO link Max's article), iOS 7 finally got an equivalent to what has been around on the Mac for ages, as the [Cocoa Text System](https://developer.apple.com/library/mac/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextSystemArchitecture/ArchitectureOverview.html). But Apple didn't just transfer the system from the Mac to iOS; instead, Apple made some significant changes to it. 
 
 For example, AppKit exposes the `NSTypesetter` and `NSGlyphGenerator`, both of which you can subclass to customize their behaviors. On iOS, those classes are not exposed, but some of the hooks for customization are available via the `NSLayoutManagerDelegate` protocol. 
 
