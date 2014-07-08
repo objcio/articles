@@ -54,7 +54,7 @@ The first thing you need to learn is how to run an AppleScript from your own app
 		resultString
 	end chockify
 
-In my opinion, AppleScript's greatest strength is not its syntax. Nor is it its ability to process strings, even when it's making them AWESOME DUH
+In my opinion, AppleScript's greatest strength is not its syntax. Nor is it its ability to process strings.
 
 When developing scripts like this, I constantly refer to the [AppleScript Language Guide](https://developer.apple.com/library/mac/documentation/applescript/conceptual/applescriptlangguide/introduction/ASLR_intro.html#//apple_ref/doc/uid/TP40000983-CH208-SW1). The good news is that scripts that communicate with other apps are typically short and sweet. AppleScript can be thought of as a transport mechanism rather than a processing environment. The script shown above is atypical.
 
@@ -165,7 +165,7 @@ That, in a nutshell, is why arbitrary script execution was banned from the Mac A
 
 Luckily, things have gotten much better in recent releases of OS X. In 10.8 Mountain Lion, Apple introduced a new abstract class called `NSUserScriptTask`. There are three concrete subclasses that let you run Unix shell commands (`NSUserUnixTask`), Automator workflows (`NSUserAutomatorTask`), and our beloved AppleScript (`NSUserAppleScriptTask`). The remainder of this tutorial will focus on that last class, since it's the one most commonly used.
 
-Apple's mantra for the application sandbox is "driving security policy through user intent." In practice, this means a user has to decide to want to run your script. It might have come from the Internet or it might be a part of your application; the only thing that matters is that your customer says "Yes, I want to run this script." Once that permission is granted, the scripts are run in a way where the interaction with the rest of the system is limited. The `NSUserScriptTask` class makes all this possible.
+Apple's mantra for the application sandbox is to drive security policy through user intent. In practice, this means a user has to decide to want to run your script. It might have come from the Internet or it might be a part of your application; the only thing that matters is that your customer says "Yes, I want to run this script." Once that permission is granted, the scripts are run in a way where the interaction with the rest of the system is limited. The `NSUserScriptTask` class makes all this possible.
 
 
 Installing Scripts
