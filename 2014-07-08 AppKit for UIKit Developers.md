@@ -33,7 +33,7 @@ In the next section, we'll take a look at some of the pitfalls we fell into the 
 
 ### Windows and Window Controllers
 
-While you almost never interact with windows on iOS (since they take up the whole screen anyway), windows are key components on the Mac. Historically, Mac applications had multiple windows, each with its own role, very similar to view controllers on iOS. As a result, AppKit has an NSWindowController class that traditionally took on many of the tasks that you would handle in a view controller on iOS. View controllers are a relatively new addition to AppKit, and up until now, they did not receive actions by default, and missed a lot of the lifecycle methods, view controller containment, and other features you're used to from UIKit.
+While you almost never interact with windows on iOS (since they take up the whole screen anyway), windows are key components on the Mac. Historically, Mac applications had multiple windows, each with its own role, very similar to view controllers on iOS. As a result, AppKit has an `NSWindowController` class that traditionally took on many of the tasks that you would handle in a view controller on iOS. View controllers are a relatively new addition to AppKit, and up until now, they did not receive actions by default, and missed a lot of the lifecycle methods, view controller containment, and other features you're used to from UIKit.
 
 But AppKit has changed, since Mac apps are relying more and more on a single window. As of OS X 10.10 Yosemite, the `NSViewController` is similar in many ways to `UIViewController`. It is also part of the responder chain by default. Just remember that if you target your Mac app to OS X 10.9 or earlier, window controllers on the Mac are much more akin to what you're used to as view controllers from iOS. As [Mike Ash writes](https://www.mikeash.com/pyblog/friday-qa-2013-04-05-windows-and-window-controllers.html), a good pattern to instantiate windows on the Mac is to have one nib file and one window controller per window type.
 
@@ -122,7 +122,7 @@ Once you change the redraw policy in this way, you might also want to look into 
 
 `NSView`'s layer story doesn't end here, though. There is a whole different option to work with Core Animation layers — called layer-hosting views. In short, with a layer-hosting view, you can do with the layer and its sublayers whatever you want. The price you pay for this is that you cannot add any subviews to this view anymore. A layer-hosting view is a leaf node in the view tree. 
 
-The API to create a layer-hosting versus a layer-backed view is non-intuitive in the beginning, as the sequence of how you set up things is crucial. To create a layer-hosting view, you could add the following to the initializer:
+To create a layer-hosting view, you first have to assign a layer object to the `layer` property, and then set the `wantsLayer` to `YES`. Note that the sequence of these steps is crucial:
 
     - (instancetype)initWithFrame:(NSRect)frame
     {
@@ -154,7 +154,7 @@ In order to receive events for the mouse cursor entering or exiting the view or 
         [self addTrackingArea:self.trackingArea];
     }
 
-AppKit controls have been traditionally backed by `NSCell` subclasses. These cells should not be confused with table view cells or collection view cells in UIKit. AppKit made the distinction between views and cells in order to save resources — views would delegate all their drawing to a more lightweight cell object that could be reused for all views of the same type. 
+AppKit controls have been traditionally backed by `NSCell` subclasses. These cells should not be confused with table view cells or collection view cells in UIKit. AppKit originally made the distinction between views and cells in order to save resources — views would delegate all their drawing to a more lightweight cell object that could be reused for all views of the same type. 
 
 Apple is deprecating this approach step by step, but you'll still encounter it from time to time. For example, if you would want to create a custom button, you would subclass `NSButton` *and* `NSButtonCell`, implement your custom drawing in the cell subclass, and then assign your cell subclass to be used for the custom button by overriding the  `+[NSControl cellClass]` method. 
 
