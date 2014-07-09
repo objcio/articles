@@ -100,7 +100,7 @@ This is pretty straightforward and works well.
 
 Our app does three distinct things: it downloads data from the internet, it decodes that data as JPEG, and it then displays the data.
 
-If we split the app into three separate processes, we can give each process its own set of privileges: The UI doesn't need to have access to the network. The service that downloads the images from the network does need network access, but doesn't need access to any files (it will just forward the data, not save it). The second service will decode the JPEG image data to RGB data. This process needs neither network access nor file access.
+If we split the app into three separate processes, we can give each process its own set of privileges; the UI process oesn't need to have access to the network. The service that downloads the images from the network does need network access, but doesn't need access to any files (it will just forward the data, not save it). The second service will decode the JPEG image data to RGB data. This process needs neither network access nor file access.
 
 This way, we have made it dramatically more difficult for someone to find a security exploit in our app. And as a side effect, the app is way more stable; if a bug in the download service causes it to crash, the main app will keep running, and the download service will just get relaunched.
 
