@@ -100,7 +100,7 @@ This is pretty straightforward and works well.
 
 Our app does three distinct things: it downloads data from the internet, it decodes that data as JPEG, and it then displays the data.
 
-If we split the app into three separate processes, we can give each process its own set of privileges; the UI process oesn't need to have access to the network. The service that downloads the images from the network does need network access, but doesn't need access to any files (it will just forward the data, not save it). The second service will decode the JPEG image data to RGB data. This process needs neither network access nor file access.
+If we split the app into three separate processes, we can give each process its own set of privileges; the UI process doesn't need to have access to the network. The service that downloads the images from the network does need network access, but doesn't need access to any files (it will just forward the data, not save it). The second service will decode the JPEG image data to RGB data. This process needs neither network access nor file access.
 
 This way, we have made it dramatically more difficult for someone to find a security exploit in our app. And as a side effect, the app is way more stable; if a bug in the download service causes it to crash, the main app will keep running, and the download service will just get relaunched.
 
@@ -283,7 +283,7 @@ Another option is to use:
 
     NSXPCConnection(machServiceName: "io.objc.mymachservice", options: NSXPCConnectionOptions(0))
 
-This will look for the service `io.objc.myservice` in the user's login session. You can install so-called launch agents in either `/Library/LaunchAgents` or `~/Library/LaunchAgents` and these can provide XPC services in much the same way as an app's XPC service. But since these are per-login sessions, multiple apps running in a login session can talk to the same launch agent.
+This will look for the service `io.objc.myservice` in the user's login session. We can install so-called launch agents in either `/Library/LaunchAgents` or `~/Library/LaunchAgents` and these can provide XPC services in much the same way as an app's XPC service. But since these are per-login sessions, multiple apps running in a login session can talk to the same launch agent.
 
 This approach can be very useful, e.g. for a menu in the [status bar] [statusbar] to talk to a UI app. Both the normal app and the menu extra can talk to a common launch agent and exchange information in that way. Particularly, when more than two processes need to communicate with each other, XPC can be a very elegant solution.
 
@@ -320,7 +320,7 @@ The final option is to use:
 
 This is very similar to launch agents, but will create a connection to a daemon instead. Launch agent processes are per user. They run as the user and inside the user's login session. Daemons are per machine. An XPC daemon will only have one instance running, even when multiple users are logged in.
 
-There are quite a few security considerations about how to run daemon. It's possible for a daemon to run as the root user, which you should probably not do. You most likely want it to run as some unique user. Check the ["Designing Secure Helpers and Daemons"] [TN2083] document. For most things, we won’t need root privileges.
+There are quite a few security considerations about how to run daemon. It's possible for a daemon to run as the root user, which we should probably not do. We most likely want it to run as some unique user. Check the ["Designing Secure Helpers and Daemons"] [TN2083] document. For most things, we won’t need root privileges.
 
 
 ## File Access
@@ -398,7 +398,7 @@ The [`xpc_connection_create(3)` man page]xpc_connection_create(3)` man page] has
 
 With OS X 10.10, Apple introduced a concept called *Quality of Service* (QoS). It is used to help give the UI a higher priority and lower the priority of background activity. QoS is interesting when it comes to XPC services — what kind of work is an XPC service doing?
 
-Since the quality of service propagates across processes, in most cases you will not have to worry about it. When some UI code makes an XPC call, the code inside the service will get a boosted QoS. If background code inside the app makes an XPC call, that background QoS will get propagated across to the service, too. Its execution will be at a lower QoS.
+Since the quality of service propagates across processes, in most cases we won't have to worry about it. When some UI code makes an XPC call, the code inside the service will get a boosted QoS. If background code inside the app makes an XPC call, that background QoS will get propagated across to the service, too. Its execution will be at a lower QoS.
 
 [WWDC 2014 talk 716, “Power, Performance and Diagnostics,”](wwdc2014videos) has a lot of information about Quality of Service. It mentions how to use `DISPATCH_BLOCK_DETACHED` to detach the current QoS from code, i.e. how to prevent propagation.
 
