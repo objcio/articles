@@ -54,7 +54,7 @@ The first thing you need to learn is how to run an AppleScript from your own app
 		resultString
 	end chockify
 
-In my opinion, AppleScript's greatest strength is not its syntax. Nor is it its ability to process strings.
+In my opinion, AppleScript's greatest strength is not its syntax. Nor is its ability to process strings, even when it's making them AWESOME DUH
 
 When developing scripts like this, I constantly refer to the [AppleScript Language Guide](https://developer.apple.com/library/mac/documentation/applescript/conceptual/applescriptlangguide/introduction/ASLR_intro.html#//apple_ref/doc/uid/TP40000983-CH208-SW1). The good news is that scripts that communicate with other apps are typically short and sweet. AppleScript can be thought of as a transport mechanism rather than a processing environment. The script shown above is atypical.
 
