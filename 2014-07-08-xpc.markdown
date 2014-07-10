@@ -7,10 +7,6 @@ tags: article
 author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
 ---
 
-# XPC
-
-
-
 ## About XPC
 
 
