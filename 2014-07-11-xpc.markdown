@@ -347,7 +347,7 @@ Similarly, we can open an `NSFileHandler` for reading in one process and pass it
 
 While XPC is very efficient, it's obviously not free to move messages between processes. When moving large amounts of binary data over XPC, there are some tricks available.
 
-Normal `NSData` needs to get copied to get sent to the other side. For large binary data, it is more efficient to use so-called *memory-mapped* data. [WWDC 2013 session 702](wwdc2013videos) covers sending of *Big Data*, beginning with slide 57.
+Normal `NSData` needs to get copied to get sent to the other side. For large binary data, it is more efficient to use so-called *memory-mapped* data. [WWDC 2013 session 702][wwdc2013videos] covers sending of *Big Data*, beginning with slide 57.
 
 XPC has a fast path which makes sure data is never copied on its way from one process to another. The trick is that `dispatch_data_t` is toll-free bridged with `NSData`. If we create a `dispatch_data_t` instance that's backed by a memory-mapped region, we can send this over XPC more efficiently. This would look something like this:
 
@@ -361,7 +361,7 @@ XPC has a fast path which makes sure data is never copied on its way from one pr
 
 Xcode has your back covered when you need to debug multiple processes communicating with each other over XPC. If you set a breakpoint in an XPC service that's embedded into our application, the debugger will stop there as expected.
 
-Be sure to check out *Activity Tracing*. Its API is defined in `os/activity.h` and provides a way to convey across execution context and process boundaries what triggered a certain action to be taken. [WWDC 2014 talk 714, “Fix Bugs Faster Using Activity Tracing,”](wwdc2014videos) gives a good introduction.
+Be sure to check out *Activity Tracing*. Its API is defined in `os/activity.h` and provides a way to convey across execution context and process boundaries what triggered a certain action to be taken. [WWDC 2014 talk 714, “Fix Bugs Faster Using Activity Tracing,”][wwdc2014videos] gives a good introduction.
 
 ### Common Mistakes
 
@@ -396,7 +396,7 @@ With OS X 10.10, Apple introduced a concept called *Quality of Service* (QoS). I
 
 Since the quality of service propagates across processes, in most cases we won't have to worry about it. When some UI code makes an XPC call, the code inside the service will get a boosted QoS. If background code inside the app makes an XPC call, that background QoS will get propagated across to the service, too. Its execution will be at a lower QoS.
 
-[WWDC 2014 talk 716, “Power, Performance and Diagnostics,”](wwdc2014videos) has a lot of information about Quality of Service. It mentions how to use `DISPATCH_BLOCK_DETACHED` to detach the current QoS from code, i.e. how to prevent propagation.
+[WWDC 2014 talk 716, “Power, Performance and Diagnostics,”][wwdc2014videos] has a lot of information about Quality of Service. It mentions how to use `DISPATCH_BLOCK_DETACHED` to detach the current QoS from code, i.e. how to prevent propagation.
 
 When an XPC service starts unrelated work as a side effect of a request to it, it must make sure to *detach* from the QoS.
 
