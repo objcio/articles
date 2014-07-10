@@ -2,9 +2,9 @@
 layout: post
 title:  "AppKit for UIKit Developers"
 category: "14"
-date: "2014-07-08 06:00:00"
+date: "2014-07-11 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a> and <a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
+author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
 ---
 
 The Mac is not only a great platform to develop on — it's also a great platform to develop *for*. Last year we started building our first [Mac app](http://decksetapp.com), and it was a great experience to finally build something for the platform we're working on all day. However, we also had some difficulties discovering the peculiarities of the Mac compared to developing for iOS. In this article, we'll summarize what we've learned from this transition to hopefully give you a head start on your first Mac app.

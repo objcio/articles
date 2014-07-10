@@ -2,7 +2,7 @@
 layout: post
 title:  "XPC"
 category: "14"
-date: "2014-07-08 09:00:00"
+date: "2014-07-11 08:00:00"
 tags: article
 author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
 ---
@@ -102,7 +102,7 @@ This way, we have made it dramatically more difficult for someone to find a secu
 
 This might look something like this:
 
-![An App with two Services]({{ site.images_path }}/issue-14/xpc-app-2-services)
+![An App with two Services]({{ site.images_path }}/issue-14/xpc-app-2-services@2x.png)
 
 We could also have designed it so that the app would talk to both services directly and be responsible for moving the data from one service to the other. The amount of flexibility is great. We'll look into how an app [locates services](#service-lookup) later.
 
@@ -347,7 +347,7 @@ Similarly, we can open an `NSFileHandler` for reading in one process and pass it
 
 While XPC is very efficient, it's obviously not free to move messages between processes. When moving large amounts of binary data over XPC, there are some tricks available.
 
-Normal NSData needs to get copied to get sent to the other side. For large binary data, it is more efficient to use so-called *memory-mapped* data. [WWDC 2013 session 702](wwdc2013videos) covers sending of *Big Data*, beginning with slide 57.
+Normal `NSData` needs to get copied to get sent to the other side. For large binary data, it is more efficient to use so-called *memory-mapped* data. [WWDC 2013 session 702](wwdc2013videos) covers sending of *Big Data*, beginning with slide 57.
 
 XPC has a fast path which makes sure data is never copied on its way from one process to another. The trick is that `dispatch_data_t` is toll-free bridged with `NSData`. If we create a `dispatch_data_t` instance that's backed by a memory-mapped region, we can send this over XPC more efficiently. This would look something like this:
 
@@ -386,7 +386,7 @@ Each `NSXPCConnection` has these properties
 
 that describe the connection. On the listener side, i.e. inside the agent or daemon, we can use these to see who's trying to connect and deny or allow the connection based on that. For XPC Services inside an app bundle, this doesn’t matter all that much, since only the app itself can look up the service.
 
-The [`xpc_connection_create(3)` man page]xpc_connection_create(3)` man page] has a section called “Credentials” which talks about some of the caveats of this API. Use it with care.
+The [`xpc_connection_create(3)` man page](https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man3/xpc_connection_create.3.html) has a section called “Credentials” which talks about some of the caveats of this API. Use it with care.
 
 
 <a name="quality-of-service"> </a>
@@ -402,7 +402,7 @@ When an XPC service starts unrelated work as a side effect of a request to it, i
 
 ## Lower-Level API
 
-All of the NSXPCConnection API is built on top of a C API. This API is documented in the [`xpc(3) man age`][xpc3man] and its subpages.
+All of the `NSXPCConnection` API is built on top of a C API. This API is documented in the [`xpc(3) man age`][xpc3man] and its subpages.
 
 We can create an XPC service for our app and use the C API, as long as we use the C API on both ends.
 

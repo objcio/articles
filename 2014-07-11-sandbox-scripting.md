@@ -1,10 +1,17 @@
-Scripting from a Sandbox
-========================
+---
+layout: post
+title: Scripting from a Sandbox
+category: "14"
+date: "2014-07-11 10:00:00"
+author: "<a href=\"https://twitter.com/chockenberry/\">Craig Hockenberry</a>"
+tags: article
+---
+
 
 Introduction
 ------------
 
-Scripting between Mac applications has long been a part of the desktop ecosystem. It was originally [introduced](http://en.wikipedia.org/wiki/AppleScript) in October 1993 as part of System 7 as a way to create complex workflows using publishing applications like QuarkXPress. Since then, many applications have supported AppleScript through the use of scripting dictionaries (Brent's article [in this issue](http://http://www.objc.io/issue-14/) shows you how to do this.) In this article, I'm going to explain how to communicate with another app using the commands and objects in its scripting dictionary.
+Scripting between Mac applications has long been a part of the desktop ecosystem. It was originally [introduced](http://en.wikipedia.org/wiki/AppleScript) in October 1993 as part of System 7 as a way to create complex workflows using publishing applications like QuarkXPress. Since then, many applications have supported AppleScript through the use of scripting dictionaries ([Brent's article](/issue-14/scripting-data.html) shows you how to do this.) In this article, I'm going to explain how to communicate with another app using the commands and objects in its scripting dictionary.
 
 But before we do that, we need to take a look at some recent events on the Mac platform. After opening the Mac App Store in late 2010, Apple announced that all developer submissions would need to run in a sandbox by November 2011. This deadline was pushed back several times, until it eventually went into effect on June 1, 2012.
 
@@ -64,7 +71,7 @@ Once you have your script written and tested, you can move back to the comfortab
 
 Don't worry; you're not going to do anything crazy like add a framework to the project. You just need Carbon.h because it has a list of all the AppleEvent definitions. Remember, this code has been around for more than 20 years!
 
-Once you have the definitions, you can create an event descriptor. This is a chunk of data that is passed both to and from your script. At this point, you can think of it as an encapsulation of a target that will execute the event, a function to call, and a list of parameters for that function. Here is one for the "chockify" function above, using an NSString as a parameter:
+Once you have the definitions, you can create an event descriptor. This is a chunk of data that is passed both to and from your script. At this point, you can think of it as an encapsulation of a target that will execute the event, a function to call, and a list of parameters for that function. Here is one for the "chockify" function above, using an `NSString` as a parameter:
 
 	- (NSAppleEventDescriptor *)chockifyEventDescriptorWithString:(NSString *)inputString
 	{
@@ -88,7 +95,7 @@ Once you have the definitions, you can create an event descriptor. This is a chu
 		return event;
 	}
 
-_Note:_ This code is available on [my GitHub account](https://github.com/chockenberry) as [Scriptinator](https://github.com/chockenberry/Scriptinator). The `Automation.scpt` file contains the chockify function and all the other scripts used in this tutorial. The Objective-C code is all in `AppDelegate.m`.
+_Note:_ This code is available on [GitHub](https://github.com/objcio/issue-14-sandbox-scripting). The `Automation.scpt` file contains the chockify function and all the other scripts used in this tutorial. The Objective-C code is all in `AppDelegate.m`.
 
 Now that you have an event descriptor that tells AppleScript what you want to do, you need to give it somewhere to do it. That means loading an AppleScript from your application bundle: 
 
@@ -359,8 +366,7 @@ At this point, you'll see a Standard Suite and System Preferences listed in a tr
 
 When you look at "application," you'll see two things: elements and properties. Elements are collections of objects that are managed by the selected object. The properties list data maintained by the selected object.
 
-<!--<img src="{{ site.images_path }}/issue-14/Scripting_Dictionary.png" width="741" />-->
-<img src="http://files.iconfactory.net/craig/test/Scripting_Dictionary.png" width="741" />
+<img src="{{ site.images_path }}/issue-14/Scripting_Dictionary.png" />
 
 
 So an application contains panes. That sounds promising. In a new Script Editor window, create a simple script to show all the pane objects:
