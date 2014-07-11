@@ -134,7 +134,7 @@ The connection from the app to the services is then created through an `NSXPCCon
 
 If we store this connection object in `self.imageDownloadConnection`, we can communicate with the service, like so:
 
-   let downloader = self.imageDownloadConnection.remoteObject as ImageDownloaderProtocol
+    let downloader = self.imageDownloadConnection.remoteObject as ImageDownloaderProtocol
     downloader.downloadImageAtURL(url) {
         (data) in
         println("Got \(data.length) bytes.")
@@ -144,7 +144,7 @@ We should use an error handler, though. That would look like this:
 
     let downloader = self.imageDownloadConnection.remoteObjectProxyWithErrorHandler {
         	(error) in NSLog("remote proxy error: %@", error)
-        } as ImageDownloaderProtocol
+    } as ImageDownloaderProtocol
     downloader.downloadImageAtURL(url) {
         (data) in
         println("Got \(data.length) bytes.")
