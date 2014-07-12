@@ -66,7 +66,7 @@ The most straightforward approach to enable layer backing is to set the `wantsLa
 
 In contrast to iOS, on the Mac you should treat the backing layers as an implementation detail. This means you should not try to interact with the layers directly, as AppKit owns those layers. For example, on iOS you could simply say:
 
-    self.layer.backgroundColor = [UIColor redColor];
+    self.layer.backgroundColor = [UIColor redColor].CGColor;
     
 But in AppKit, you shouldn't touch the layer. If you want to interact with the layer in such ways, then you have to go one step further. Overriding `NSView`'s `wantsUpdateLayer` method to return `YES` enables you to change the layer's properties. If you do this though, AppKit will no longer call the view's `drawRect:` method. Instead, `updateLayer` will be called during the view update cycle, and this is where you can modify the layer. 
 
@@ -206,7 +206,7 @@ Lastly, you can also enable implicit animations, so that you don't have to expli
 For more control over the animation, you can also use `CAAnimation` instances. Contrary to on iOS, you don't add them directly to the layer (as you're not supposed to touch the layer yourself), but you use the API defined in the [`NSAnimatablePropertyContainer`](https://developer.apple.com/library/mac/documentation/cocoa/reference/NSAnimatablePropertyContainer_protocol/Introduction/Introduction.html), which is implemented by `NSView` and `NSWindow`. For example:
 
     CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
-    animation.values = [@1, @.9, @.8, @.7, @.6];
+    animation.values = @[@1, @.9, @.8, @.7, @.6];
     view.animations = @{@"alphaValue": animation};
     view.animator.alphaValue = .5;
 
