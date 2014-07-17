@@ -279,7 +279,7 @@ Another option is to use:
 
     NSXPCConnection(machServiceName: "io.objc.mymachservice", options: NSXPCConnectionOptions(0))
 
-This will look for the service `io.objc.myservice` in the user's login session. We can install so-called launch agents in either `/Library/LaunchAgents` or `~/Library/LaunchAgents` and these can provide XPC services in much the same way as an app's XPC service. But since these are per-login sessions, multiple apps running in a login session can talk to the same launch agent.
+This will look for the service `io.objc.mymachservice` in the user's login session. We can install so-called launch agents in either `/Library/LaunchAgents` or `~/Library/LaunchAgents` and these can provide XPC services in much the same way as an app's XPC service. But since these are per-login sessions, multiple apps running in a login session can talk to the same launch agent.
 
 This approach can be very useful, e.g. for a menu in the [status bar] [statusbar] to talk to a UI app. Both the normal app and the menu extra can talk to a common launch agent and exchange information in that way. Particularly, when more than two processes need to communicate with each other, XPC can be a very elegant solution.
 
