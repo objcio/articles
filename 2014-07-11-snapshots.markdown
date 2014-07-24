@@ -11,13 +11,22 @@ People have their own motivations to write tests for their applications. This ar
 
 Writing tests for the visual aspects of an app is tricky. There's Apple built-in support for logical testing of objects, but no support for testing the end result of view based code. This gap in functionality meant a lot of people dismissed writing tests due to the difficulty of doing view based tests.
 
-When Facebook released [FBSnapshotTestCase]([fbsnapshot]) to [CocoaPods](cocoapods), I initially dismissed it for this reason. I'm glad one of my co-workers didn't. 
+When Facebook released [FBSnapshotTestCase]([fbsnapshot]) to [CocoaPods](cocoapods), I initially dismissed it for this reason. I'm glad one of my co-workers didn't.
 
 View based testing means verifying that what the user sees is what you want to them to see. Doing this means being able to ensure that different versions of your views, or different states of your views, continue to look the same. It can be used to provide a high level test covering a lot of use cases surrounding the object.
 
-FBSnapShotTestCase takes a UIView or CALayer subclass and renders it to a UIImage. This snapshot is used to create tests that compare a saved snapshot of the view/layer and the version from your test.  When it fails it will create a reference image of the failed test, and another image to show the difference of the two.
+### How it works
 
-It makes the comparison by drawing both the view or layer and the existing snapshot into two CGContextRefs and doing a memory comparison of them in c. This makes it extremely quick, with my tests ranging from 0.013 - 0.086 seconds per comparison of up to retina iPad & iPhone images on a MacBook Air.
+FBSnapShotTestCase takes a UIView or CALayer subclass and renders it to a UIImage. This snapshot is used to create tests that compare a saved snapshot of the view/layer and the version generated your test.  When it fails it will create a reference image of the failed test, and another image to show the difference of the two.
+
+Here is an example of a failing test where we have less grid items than expected in a view controller:
+
+<img src="{{site.images_path}}/issue-14/snapshots-reference.png" style="width:100%" alt="Snapshots examples"/>
+<img src="http://cl.ly/image/2D381W2W3o2N/snapshots-reference.png" style="width:100%" alt="Snapshots examples"/>
+
+It makes the comparison by drawing both the view or layer and the existing snapshot into two CGContextRefs and doing a memory comparison of them with the c function `memcmp()`. This makes it extremely quick, with my tests ranging from 0.013 - 0.086 seconds per comparison of up to retina iPad & iPhone images on a MacBook Air.
+
+When set up it will default to storing the reference images inside your project's `[Project]Tests` folder, in a subfolder called `ReferenceImages`. Inside this is a library of folders based on the test case class name. Inside the test case folders are the reference images per test. When a test fails, it will generate a screenshot of what it thought would be the same and another image of the visual difference between the two. All three images are put inside the application's tmp folder. Snapshots will also NSLog a command to the console to load the two images into the visual diffing tool [Kaleidoscope](kaleidoscope).
 
 ### Installation
 
@@ -52,16 +61,16 @@ The default behaviour of Snapshots is to subclass `FBSnapshotTestCase` instead o
 
 Nothing's perfect. Let's start with the downsides.
 
-* Testing Asyncronous code is hard. This is a similar pattern throughout testing in Cocoa. I tend to have two answers to this. Using testing frameworks like [Specta](specta) or [Kiwi](kiwi) provide ways of running assertions in code repeatedly until a timeout occurs or it succeeds. This means you can give it 0.5 seconds to run. Alternatively you can use a 
+* Testing Asyncronous code is hard. This is a similar pattern throughout testing in Cocoa. I tend to have two answers to this. Using testing frameworks like [Specta](specta) or [Kiwi](kiwi) provide ways of running assertions in code repeatedly until a timeout occurs or it succeeds. This means you can give it 0.5 seconds to run. Alternatively you can use a
 
-* Some components can be hard to test. There are two notable examples that come to mind. 
+* Some components can be hard to test. There are two notable examples that come to mind.
 
   Some UIView classes cannot be initiated without a frame in a test, so get into the habit of always giving a frame to your views to avoid these messages: `<Error>: CGContextAddRect: invalid context 0x0. [..]`. If you write Auto Layout code a lot, then this is unintuitive.
-    
+
   CATiledLayer backed views require being on the main screen and being visible before they will render their tiles. They also render asynchronously, I tend to add a [2 second wait](arimagetiletest) for these tests.
 
 * Apple's OS patches can change the way their stock components are rendered. When Apple very subtley changed the font hinting in iOS 7.1 any snapshots with UILabels in them required re-recording.
-  
+
 * Each snapshot is a PNG file stored in your repository, they average out at about 30-100kb per file for me. I record all my tests in "@2x". The snapshots are as big as the view being rendered.
 
 ### Advantages
@@ -82,27 +91,35 @@ Nothing's perfect. Let's start with the downsides.
 
 ##### FBSnapShots + Specta + Expecta
 
-I don't use vanilla XCTest. I uses [Specta and Expecta](specta), which provide a more concise and readable test environment to work in. This is the default testing setup when you create a [new CocoaPod](newcocoapod). I'm a contributor to the pod [EXPMatchers+FBSnapshotTest](expmatchers) which provides a Expecta-like API to FBSnapshotTestCase. This means my Podfile look like:
+I don't use vanilla XCTest. I uses [Specta and Expecta](specta), which provide a more concise and readable test environment to work in. This is the default testing setup when you create a [new CocoaPod](newcocoapod). I'm a contributor to the pod [Expecta+Snapshots](expmatchers) which provides a Expecta-like API to FBSnapshotTestCase. It will handle naming screenshots for you, and can optionally run view controllers through their view event lifecycle. This means my Podfile look like:
 
 ```
 target 'MyApp Tests', :exclusive => true do
-    pod 'Specta',      '~> 0.2'
-    pod 'Expecta',     '~> 0.2'
-    pod 'EXPMatchers+FBSnapshotTest', '~> 0.1'
+    pod 'Specta','~> 1.0'
+    pod 'Expecta', '~> 1.0'
+    pod 'Expecta+Snapshots', '~> 1.0'
 end
 ```
 
-With tests looking like:
+Making my tests look like:
 
 ```
 # Headers
 
-SpecBegin(ARSwitchView)
+SpecBegin(ORMusicViewController)
 
-it (@"has a red square", ^{
-    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
-    view.backgroundColor = [UIColor redColor];
-    expect(view).to.haveValidSnapshot();
+it (@"notations in black and white look correct", ^{
+    UIView *notationView = [[ORMusicNotationView alloc] initWithFrame:CGRectMake(0, 0, 80, 320)];
+    notationView.style = ORMusicNotationViewStyleBlackWhite;
+
+    expect(notationView).to.haveValidSnapshot();
+});
+
+it (@"Initial music view controller looks corrects", ^{
+    id contoller = [[ORMusicViewController alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
+    controller.view.frame = [UIScreen mainScreen].bounds;
+
+    expect(controller).to.haveValidSnapshot();
 });
 
 SpecEnd
