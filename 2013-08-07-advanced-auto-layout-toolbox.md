@@ -395,7 +395,7 @@ As with the unsatisfiable constraints error message, we still have to figure out
 Another more visual way to spot ambiguous layouts is to use `exerciseAmbiguityInLayout`. This will randomly change the view's frame between valid values. However, calling this method once will also just change the frame once. So chances are that you will not see this change at all when you start your app. It's a good idea to create a helper method which traverses through the whole view hierarchy and makes all views that have an ambiguous layout "jiggle."
 
     @implementation UIView (AutoLayoutDebugging)
-    - (void)exerciseAmiguityInLayoutRepeatedly:(BOOL)recursive
+    - (void)exerciseAmbiguityInLayoutRepeatedly:(BOOL)recursive
     {
         #ifdef DEBUG
         if (self.hasAmbiguousLayout) {
