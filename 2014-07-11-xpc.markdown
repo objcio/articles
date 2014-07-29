@@ -203,7 +203,7 @@ We create an `NSXPCListener` at the global scope (this corresponds to the `main`
 
 One important thing to note is that both `NSXPCListener` and `NSXPCConnection` start out being suspended. We need to resume them once they have been configured.
 
-
+You can find a simple sample project [on GitHub](https://github.com/objcio/issue-14-xpc).
 
 ## Listener, Connection, and Exported Object
 
