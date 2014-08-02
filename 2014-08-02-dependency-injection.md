@@ -146,13 +146,13 @@ I won't go into the details of a swizzling example; there are plenty of other re
 
 ### Extract and Override Call
 
-This final technique falls outside the forms of DI from Seemann's book. Instead, Extract and Override Call comes from [Working Effectively with Legacy Code][Feathers] by Michael Feathers. Here's how to apply the technique to our NSUserDefaults problem:
+This final technique falls outside the forms of DI from Seemann's book. Instead, Extract and Override Call comes from [Working Effectively with Legacy Code][Feathers] by Michael Feathers. Here's how to apply the technique to our NSUserDefaults problem in 3 steps:
 
 [Feathers]: http://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052
 
-1. Select one of the calls `[NSUserDefaults standardUserDefaults]`. Use automated refactoring (in either Xcode or AppCode) to extract it to a new method.
+Step 1 — Select one of the calls `[NSUserDefaults standardUserDefaults]`. Use automated refactoring (in either Xcode or AppCode) to extract it to a new method.
 
-2. Change other places where the call is made, replacing them with calls to the new method. (But be careful not to change the new method itself.)
+Step 2 — Change other places where the call is made, replacing them with calls to the new method. (But be careful not to change the new method itself.)
   
 The modified code looks like this:
 
@@ -177,7 +177,7 @@ The modified code looks like this:
 
 With that in place, here's the final step.
 
-3. Create a special **testing subclass**, overriding the extracted method, like this:
+Step 3 — Create a special **testing subclass**, overriding the extracted method, like this:
 
 ```objective-c
 @interface TestingExample : Example
