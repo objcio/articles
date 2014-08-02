@@ -240,11 +240,12 @@ Ambient Context may be just what you need. But because it affects global context
 
 Instead of doing your own swizzling, see if someone has already written a library focusing on the ambient context you need. For example:
 
-  * OHHTTPStubs for networking (see [Gordon Fontenot's article][Fontenot])
-  * [TUDelorean][NSDate] for `[NSDate date]`
+  * Networking: [OHHTTPStubs][OHHTTPStubs] or [Nocilla][Nocilla]
+  * NSDate: [TUDelorean][TUDelorean]
 
-[Fontenot]: http://www.objc.io/issue-15/bdd-network-stack.html
-[NSDate]: https://github.com/tuenti/TUDelorean
+[OHHTTPStubs]: https://github.com/AliSoftware/OHHTTPStubs
+[Nocilla]: https://github.com/luisobo/Nocilla
+[TUDelorean]: https://github.com/tuenti/TUDelorean
 
 ### Extract and Override Call
 
