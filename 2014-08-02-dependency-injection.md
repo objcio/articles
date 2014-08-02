@@ -70,7 +70,7 @@ In Constructor Injection, a dependency is passed in to the constructor (in Objec
 @end
 ```
 
-The dependency can be captured in an instance variable, or in a property. The example above uses a read-only property to make it a little harder to tamper with it.
+The dependency can be captured in an instance variable, or in a property. The example above uses a read-only property to make it a little harder to tamper with.
 
 It may look odd to inject NSUserDefaults, and that's where this example may fall short. Remember, NSUserDefaults is standing in for "dependency that creates trouble." It would make more sense for the injected value to be an abstraction (that is, an `id` satisfying some protocol) instead of a concrete object. But I'm going to wave my hands in order to keep going with the examples.
 
@@ -202,7 +202,9 @@ We have five different forms of DI. Each comes with pros and cons, so each has i
 
 Constructor Injection should be your weapon of choice. When in doubt, start here. The advantage is that **it makes dependencies explicit.**
 
-The disadvantage is that it can feel cumbersome at first. This is especially true when an initializer has a long list of dependencies. But this can reveal a previously hidden code smell: doesn't that mean the class has too many dependencies?
+The disadvantage is that it can feel cumbersome at first. This is especially true when an initializer has a long list of dependencies. But this reveals a previously hidden code smell: does the class have *too many dependencies?* Perhaps it doesn't conform to the [Single Responsibility Principle][SRP].
+
+[SRP]: https://cleancoders.com/episode/clean-code-episode-9/show
 
 ### Property Injection
 
