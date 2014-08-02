@@ -240,11 +240,11 @@ Ambient Context may be just what you need. But because it affects global context
 
 Instead of doing your own swizzling, see if someone has already written a library focusing on the ambient context you need. For example:
 
-  * Networking: [OHHTTPStubs][OHHTTPStubs] or [Nocilla][Nocilla]
+  * Networking: [Nocilla][Nocilla] or [OHHTTPStubs][OHHTTPStubs]
   * NSDate: [TUDelorean][TUDelorean]
 
-[OHHTTPStubs]: https://github.com/AliSoftware/OHHTTPStubs
 [Nocilla]: https://github.com/luisobo/Nocilla
+[OHHTTPStubs]: https://github.com/AliSoftware/OHHTTPStubs
 [TUDelorean]: https://github.com/tuenti/TUDelorean
 
 ### Extract and Override Call
