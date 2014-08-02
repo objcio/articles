@@ -150,8 +150,9 @@ This final technique falls outside the forms of DI from Seemann's book. Instead,
 
 [Feathers]: http://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052
 
-  1. Select one of the calls `[NSUserDefaults standardUserDefaults]`. Use automated refactoring (in either Xcode or AppCode) to extract it to a new method.
-  2. Change other places where the call is made, replacing them with calls to the new method. (But be careful not to change the new method itself.)
+1. Select one of the calls `[NSUserDefaults standardUserDefaults]`. Use automated refactoring (in either Xcode or AppCode) to extract it to a new method.
+
+2. Change other places where the call is made, replacing them with calls to the new method. (But be careful not to change the new method itself.)
   
 The modified code looks like this:
 
@@ -176,7 +177,7 @@ The modified code looks like this:
 
 With that in place, here's the final step.
 
-  3. Create a special **testing subclass**, overriding the extracted method, like this:
+3. Create a special **testing subclass**, overriding the extracted method, like this:
 
 ```objective-c
 @interface TestingExample : Example
@@ -240,9 +241,10 @@ Ambient Context may be just what you need. But because it affects global context
 Instead of doing your own swizzling, see if someone has already written a library focusing on the ambient context you need. For example:
 
   * OHHTTPStubs for networking (see [Gordon Fontenot's article][Fontenot])
-  * [TUDelorean][https://github.com/tuenti/TUDelorean] for `[NSDate date]`
+  * [TUDelorean][NSDate] for `[NSDate date]`
 
 [Fontenot]: http://www.objc.io/issue-15/bdd-network-stack.html
+[NSDate]: https://github.com/tuenti/TUDelorean
 
 ### Extract and Override Call
 
