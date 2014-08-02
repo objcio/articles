@@ -3,7 +3,7 @@ layout: post
 title: Dependency Injection
 category: "15"
 date: "2014-08-02 09:00:00"
-author: "<a href=\"http://qualitycoding.org/about/">Jon Reid</a>"
+author: "<a href=\"http://qualitycoding.org/about/\">Jon Reid</a>"
 tags: article
 ---
 
