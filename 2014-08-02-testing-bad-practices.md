@@ -6,10 +6,10 @@ author: "<a href=\"http://twitter.com/luisobo/">Luis Solano</a>"
 tags: article
 ---
 
-I've been writting automated tests for a few years now and I have to
+I've been writing automated tests for a few years now and I have to
 confess that is a technique that still fascinates me when it comes down
 to make a code base more maintainable. I'd like to share some of my experiences
-and lessons I've learn from others of found myself.
+and lessons I've learn from others or found by myself.
 
 After all these years I've heard many good (and bad) reasons to write
 automated tests, things like:
@@ -30,7 +30,7 @@ In other words:
 
 > The only time test will give value back is when we want to _change_ our code.
 
-Let's see how the classic arguments in favor of writting tests are connected
+Let's see how the classic arguments in favor of writing tests are connected
 with this premise:
 
 - Makes refactoring easier: you can change implementation details
@@ -48,38 +48,33 @@ went wrong.
 Yes, all the reasons above are true down the road but the reason that
 pertains to us, developers, is that automated tests let us change stuff.
 
+Note that I'm not including the design feedback of _writing_ tests, as in TDD. That
+could be a separate conversation. We will be talking about tests, once they are written.
+
 Seems then that writing test and _how_ to write them should be motiviated by _change_.
 
-An easy way to take into account this fact when writing a test is always ask our tests these two
+An easy way to take into account this fact when writing a test is to always ask your tests these two
 questions:
-- "Hey test, are you going to fail (or pass) if I change X?"
-- "Is that a good reason for you to fail (or pass), dear test?"
+- "Are you going to fail (or pass) if I change my production code?"
+- "Is that a good reason for you to fail (or pass)?"
 
 If you find a bad reason for your test to fail (or pass), fix it.
 
 That way when we change our code later down the road our tests will pass or fail only
 for good reasons giving us a better return that flakly tests that fail for the wrong reason.
 
+What's the big deal about that? You may ask.
 
-#### So what?
+Let's answer this with another question: Why do our tests break when we
+change our code?
 
-So what!? What's the big deal about that? You may ask.
+We agreed that the the main purpose of having tests is so we can change our code with ease
+Then, how are all those red tests helping us? Those failing tests are nothing but noise, an
+impediment to get the job done so, how do we do it?
 
-Let me answer with another question: Why do your tests break when you
-change your code?
+It depends on the reason why we are changing the code:
 
-Didn't we agree that the whole point of those tests is to help you
-change stuff around? Then, how are all those red tests helping you?
-
-Those failing tests are nothing but noise, an impediment to get the job
-done so...
-
-### How do we do it?
-
-It depends on the reason why you are changing the code:
-
-
-##### Changing the behavior of the code
+### Changing the behavior of the code
 
 The starting point should always be green, i.e. all tests should pass.
 
@@ -104,7 +99,7 @@ In this case is okay to see a test failing, but only the tests related to the
 behvior that we are updating.
 
 
-##### Refactoring: changing the implementation of the code, leaving the behavior intact
+### Refactoring: changing the implementation of the code, leaving the behavior intact
 
 Again, the starting point should always be a green.
 
@@ -128,11 +123,33 @@ In this case it is not okay to see a test failing. It could mean that:
 - We accidentally changed the external behavior of the code. Good, our tests are helping us.
 - We didn't change the external behavoir of the code. Bad, we got false negatives. This is where most of the trouble is.
 
-#### But that's pretty far from reality. What's the secret sauce to make that happen?
 
-In a sentece: don't couple your tests to implementation details.
+We want our tests to aid in the processes described above. Let's see  some DOs
+ and DON'Ts that will help making our tests more cooperative.
 
-##### Don't test private methods
+## Good practices 101
+
+Before jumping into how _not_ to write your tests I'd like to go over the
+a few good practices really quick. There are 5 basic rules that every test should obey
+to be consider a good – or even a _valid_ – test. There is a mnemonic for
+these 5 rules: F.I.R.S.T. Tests should be:
+
+- **F**ast: so we can execute them often
+- **I**solated: one test cannot depend from external factors or from the result of another test.
+- **R**epeatable: tests should have the same result every time we run them.
+- **S**elf-verifying: test should include assertions. No human intervention needed.
+- **T**imely: test should be written along with the production code.
+
+To know more about these set of rules you can read [this article](http://pragprog.com/magazines/2012-01/unit-tests-are-first) by Tim Ottinger, Jeff Langr
+
+
+## Bad practices
+
+How do we maximize the outcome of our tests? In one sentece
+
+> Don't couple your tests to implementation details.
+
+### Don't test private methods
 
 [](http://shoulditestprivatemethods.com) nuff' said.
 
@@ -174,7 +191,7 @@ By doing this you will remaing free to change your (truly) private
 code and the design of your code will improve by having smaller classes
 that do one thing and are properly tested.
 
-##### Don't stub private methods
+### Don't stub private methods
 
 It has all the same caveats as exposing a private method for testing but on top
 of that it could be hard to debug. Usually stubbing libraries rely on hacks to
@@ -207,7 +224,7 @@ What to do: since foo is doing too much, extract that method to a new
 class and test it separately. Then, when testing bar, provide a test
 double for that new class.
 
-##### Don't stub external libraries
+### Don't stub external libraries
 
 Third-party code should never be mentioned direclty in your tests.
 
@@ -263,7 +280,7 @@ umbrella stubbing or you can create your own open source solution and
 share it with the community so the rest of us can properly write test.
 
 
-##### If you stub out a dependency do it properly
+### If you stub out a dependency do it properly
 
 This goes in hand with the previous point but this problem is more
 common. When your code relies on a dependecy to get something done but
@@ -319,7 +336,7 @@ you can also provide your lightweight version of your class as part of the
 production code, it could be of some use to someone.
 
 
-##### Don't test constructors
+### Don't test constructors
 
 Constructors are implementation details by definition and, since we
 agreed that we should decouple our tests from implementation details,
@@ -355,8 +372,20 @@ and not the behavior of the constructor.
 In case that your class has more than one constructor consider it a
 smell. Your class may be doing to much. Try to split it in smaller
 classes but if there is a legitimate reason for your class to have
-multiple constructors just follow the same piece of advise, make sure
+multiple constructors just follow the same piece of advice, make sure
 you test the public API of that class constructing it in different ways,
 in this case, using every constructors. (i.e. when this class is in this
 initial state, it behaves like this. When it's in this other initial
 state it behaves like that).
+
+## Conclusion
+
+Writing tests is an investment – we need to put time in the form of writing
+and maintaining them. The only way to justify such investment is because
+we expect to get that time back. Coupling tests to implementation details will
+reduce the amount of value that our tests will provide, making that investment
+less worthwhile or even worthless in some cases.
+
+When writing tests step back and ask yourself if those tests will maximize the
+outcome of your investment by checking if your tests could fail or pass for the
+wrong reason, either when refactoring or when changing the behavior of the system.
