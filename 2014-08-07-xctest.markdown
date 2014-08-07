@@ -45,14 +45,8 @@ We then put shared helper methods into the `TestCase` class. And we even have pr
 
 
 
-<<<<<<< Updated upstream
 <a name="naming"> </a>
 ## Naming
-=======
-As the [article about bad practices in testing](2014-08-02-testing-bad-practices.md) mentions, many people believe that "the only time tests will give value back is when we want to change our code." There's obviously more to it, and you should read that article. But it is also important to remember, that even when writing version 1 of any code, most of the time will be spent changing code: As the project evolves more and more features get added, we realize that behaviour needs to change slightly here and there. So even though you're not yet working on version 1.1 or 2.0, you'll still do a lot of changing, and tests do provide an invaluable help already at that point in time.
-
-We are currently still finishing the initial version of our framework, and have just recently passed 1,000 test cases with more than ten man months of effort spent on the project. Even though we had a clear vision of the projects architecture, we've still had to change and adapt the code along the way. The ever growing set of test cases have helped us do this.
->>>>>>> Stashed changes
 
 
 Sine a test is simply a method that begins with the word `test`, a typical test method would look like this:
@@ -75,27 +69,15 @@ If we ever need to disable a test, we simply prefix the name with `DISABLED`:
 
 It's easy to search for this string, and since the method name no longer starts with `test`, XCTest will skip this method.
 
-<<<<<<< Updated upstream
 
 <a name="given-when-then"> </a>
 ## Given / When / Then
-=======
-We have one test case class per production code class, and the first is named after the second, as in `HTTPRequestTests` and `HTTPRequest`. If a class gets a bit bigger we use categories to split up the test by topics.
-
-That only methods whose name begins with "test" are executed as tests works to our advantage when we temporarily need to disable a test. We simply do:
-
-    - (void)DISABLED_testThatItDoesSomething
->>>>>>> Stashed changes
 
 We structure our tests by using the *Given-When-Then* pattern: Every test is split into three parts.
 
 The **given** section sets up the environment for the test by creating model objects or bringing the system under test to a certain state. The **when** section contains the code we want to test. In most cases this is only one method call. In the **then** section we check the result of our action: Did we get the desired output? Was the object changed? This section consists mainly of assertions.
 
-<<<<<<< Updated upstream
 In a fairly simple test, it looks like this:
-=======
-We structure our tests by using the Given-When-Then pattern. This means that every test is split into three parts. The "given" section sets up the environment for the test by creating model objects or bringing the system under test to a certain state. The "when" section contains the code we want to test. In most cases this is only one method call. The section titled "then" checks the result of our action: Did we get the desired output? Was the object changed? This section consists mainly of assertions. In a fairly simple test it looks like this:
->>>>>>> Stashed changes
 
     - (void)testThatItDoesURLEncoding
     {
