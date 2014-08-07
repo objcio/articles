@@ -4,7 +4,7 @@ title:  "tbd"
 category: "15"
 date: "2014-08-07 08:00:00"
 tags: article
-author: "<a href=\"http://example.com/\">Arne Schroppe</a> and <a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author: "<a href=\"https://twitter.com/___asc___\">Arne Schroppe</a> and <a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
 ---
 
 # Real World Testing with XCTest
