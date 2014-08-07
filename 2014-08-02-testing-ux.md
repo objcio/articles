@@ -89,9 +89,9 @@ I want to end with view controllers. View controllers are likely the most import
 
 Presenting and dismissing view controllers is the best way to make sure every test has a consistent start state. Unfortunately, doing so in rapid succession—like a test runner does—will quickly result in error messages like:
 
-- Warning: Attempt to dismiss from view controller <UINavigationController: 0x109518bd0> while a presentation or dismiss is in progress!
-- Warning: Attempt to present <PresentedViewController: 0x10940ba30> on <UINavigationController: 0x109518bd0> while a presentation is in progress!
-- Unbalanced calls to begin/end appearance transitions for <UINavigationController: 0x109518bd0>
+- Warning: Attempt to dismiss from view controller \<UINavigationController: 0x109518bd0\> while a presentation or dismiss is in progress!
+- Warning: Attempt to present \<PresentedViewController: 0x10940ba30\> on \<UINavigationController: 0x109518bd0\> while a presentation is in progress!
+- Unbalanced calls to begin/end appearance transitions for \<UINavigationController: 0x109518bd0\>
 - nested push animation can result in corrupted navigation bar
 
 A test suite should be as fast as possible. Waiting for each presentation to finish is not an option. It turns out, the checks raising these warnings are on a per-window basis. Presenting each view controller in its own window gives you a consistent start state for your test, while also keeping it fast. By presenting each in its own window, you never have to wait for a presentation or dismissal to finish.
