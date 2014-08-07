@@ -16,8 +16,9 @@ automated tests, because it can:
 - Make refactoring easier
 - Avoid regressions
 - Provide an executable specification and documentation
-- Reduce costs of creating software
 - Reduce time of creating software
+- Reduce costs of creating software
+
 
 Sure, you could say those are true, but I want to give another
 perspective to all those reasons—a unified perspective if you will:
@@ -36,13 +37,13 @@ with this premise:
   with confidence, leaving the public API untouched.
 - Avoids regressions—When do regressions occur? When you change your
   code.
-- Executes specification and documentation—When do you want to
+- Provides executable specification and documentation—When do you want to
   know more about how software actually works? When you want to modify
 it.
-- Reduces cost of creating software—Well, time is money.
 - Reduces time of creating software—How? By allowing you to modify your
   code faster, with the confidence that your tests will tell you when something
 went wrong.
+- Reduces cost of creating software—Well, time is money.
 
 
 Yes, all the reasons above are true at some point, but the reason that this
@@ -68,7 +69,7 @@ Still, you may be wondering: "What's the big deal about that?"
 Let's answer this question with another question: Why do our tests break when we
 change our code?
 
-We agreed that the main purpose of having tests is so we can change our code with ease. If that's so, then how are all those red tests helping us? Those failing tests are nothing but noise—impediments to getting the job done. So, how do we do it?
+We agreed that the main purpose of having tests is so we can change our code with ease. If that's so, then how are all those red tests helping us? Those failing tests are nothing but noiseimpediments to getting the job done. So, how do we do testing in a way that will help us?
 
 It depends on the reason why we are changing the code.
 
@@ -108,9 +109,9 @@ list of steps to follow:
 1. Modify your code without touching your tests at all.
 
 Once your code is simpler, faster, or more flexible, your tests should remain
-just as they were—green. Additionally, they should have only fail in the case that
-you did something wrong while refactoring, mistake that you quickly
-reverted getting the tests back to green.
+just as they were—green. When refactoring, tests should only fail in the case that you made a
+mistake, such as changing the external behavior of your code. When that happens, you
+should reverse that mistake and go back to a green state.
 
 Because your tests stayed green the whole time, you know that you didn't break
 anything. That's how automated tests let us modify our code.
@@ -148,7 +149,7 @@ How do we maximize the outcome of our tests? In one sentence:
 
 Private means private. Period. If you feel the need to test a private
 method, there is something conceptually wrong with that method. Usually
-it is doing too much to be a private method, violating the [Single Responsibility Principle](http://www.objectmentor.com/resources/articles/srp.pdf)
+it is doing too much to be a private method, which in turn violates the [Single Responsibility Principle](http://www.objectmentor.com/resources/articles/srp.pdf)
 
 Today:
 Your class has a private method. It does plenty of stuff, so you decide to
@@ -173,7 +174,7 @@ class a properly defined contract, and test it separately.
 When testing code that relies on this new class, you can provide a test double
 of that class if needed.
 
-So, how do I test my private methods? Via the public API of that class.
+So, how do I test the private methods of a given class? Via the public API of its class.
 Always test your code via its public API. The public API of your code
 defines a contract, which is a well-defined set of expectations about how your
 code is going to act based on different inputs. The private API (private
@@ -187,7 +188,7 @@ that do one thing and are properly tested.
 
 ### Don't Stub Private Methods
 
-It has all the same caveats as exposing a private method for testing, but on top
+Stubbing private methods has all the same caveats as exposing a private method for testing, but on top
 of that, it could be hard to debug. Usually, stubbing libraries rely on hacks to
 get the job done, making it hard to find out why a test is failing.
 
@@ -274,14 +275,17 @@ share it with the community, so that the rest of us can properly write tests.
 
 ### If You Stub Out a Dependency, Do It Properly
 
-This goes in hand with the previous point, but this problem is more
-common. When your code relies on a dependency to get something done, but
-that dependency provides many ways of getting the same thing done
-but you only stubbed a subset of all those ways.
-
-In this case, there are no other third-party alternatives to get the job
-done. However, the dependency of your code provides multiple ways of doing
-the same thing.
+This goes hand in hand with the previous point, but this problem is more
+common. Our production code usually relies on dependencies to get something done. For instance, a dependency could help
+us query a database. Often, these dependencies offer many ways of achieving
+the exact same thing or, at least, with the same external behavior; in our
+database example, you could use the `find` method to retrieve a record by id,
+or use a `where` clause to get the same record. The problem comes when we
+only stub one of those possible mechanisms. If we only stub the `find`
+method—which is the one that our production code uses—but we don't stub
+the other possibilities, like the `where` clause, when we decide to
+refactor our implementation from using `find` to using `where`, our test will
+fail, even though the external behavior of our code hasn't changed.
 
 Today:
 The class UsersController relies on the class UsersRepository to
