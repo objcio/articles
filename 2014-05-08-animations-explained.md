@@ -21,7 +21,7 @@ In this article (and for most of the rest of this issue), we will look at Core A
 
 Before we can have a look at how animations interact with what we see on the screen, we need to take a quick look at Core Animation's `CALayer`, which is what the animations operate on.
 
-You probably know that `UIView` instances, as well as layer-backed `NSView`s, modify their `layer` to delegate rendering to the powerful Core Graphics framework. However, it is important to understand that animations, when added to a layer, don't modify its properties directly.
+You probably know that `UIView` instances, as well as layer-backed `NSView`s, modify their `layer` to delegate rendering to the powerful Core Animation framework. However, it is important to understand that animations, when added to a layer, don't modify its properties directly.
 
 Instead, Core Animation maintains two parallel layer hierarchies: the _model layer tree_ and the _presentation layer tree_.[^1] Layers in the former reflect the well-known state of the layers, wheres only layers in the latter approximate the in-flight values of animations.
 
@@ -145,7 +145,7 @@ Setting the `keyTimes` property allows us to specify at which point in time the 
 
 [^2]: Note how I chose different values for transitions from 0 to 30 and from 30 to -30 to maintain a constant velocity.
 
-Setting the `additive` property to `YES` tells Core Animation to add the values of the animation to the value of the model layer, before updating the presentation layer. This allows us to reuse the same animation for all form elements that need updating without having to know their positions in advance. Since this property is inherited from `CAPropertyAnimation`, you can also make use of it when employing `CABasicAnimation`.
+Setting the `additive` property to `YES` tells Core Animation to add the values specified by the animation to the value of the current render tree. This allows us to reuse the same animation for all form elements that need updating without having to know their positions in advance. Since this property is inherited from `CAPropertyAnimation`, you can also make use of it when employing `CABasicAnimation`.
 
 ## Animation Along a Path
 
