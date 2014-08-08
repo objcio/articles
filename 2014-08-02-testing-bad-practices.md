@@ -21,7 +21,7 @@ automated tests, because it can:
 
 
 Sure, you could say those are true, but I want to give another
-perspective to all those reasons—a unified perspective if you will:
+perspective to all those reasons -- a unified perspective if you will:
 
 > The only reason automated tests are valuable is to allow us to modify
   our own code later on.
@@ -33,16 +33,10 @@ In other words:
 Let's see how the classic arguments in favor of writing tests are connected
 with this premise:
 
-- Makes refactoring easier—You can change implementation details
-  with confidence, leaving the public API untouched.
-- Avoids regressions—When do regressions occur? When you change your
-  code.
-- Provides executable specification and documentation—When do you want to
-  know more about how software actually works? When you want to modify
-it.
-- Reduces time of creating software—How? By allowing you to modify your
-  code faster, with the confidence that your tests will tell you when something
-went wrong.
+- Makes refactoring easier—You can change implementation details with confidence, leaving the public API untouched.
+- Avoids regressions—When do regressions occur? When you change your code.
+- Provides executable specification and documentation—When do you want to know more about how software actually works? When you want to modify it.
+- Reduces time of creating software—How? By allowing you to modify your code faster, with the confidence that your tests will tell you when something went wrong.
 - Reduces cost of creating software—Well, time is money.
 
 
@@ -54,8 +48,8 @@ could be a separate conversation. We will be talking about tests, once they are 
 
 It seems then that writing tests and _how_ to write them should be motivated by _change_.
 
-An easy way to take this fact into account when writing a test is to always ask your tests these two
-questions:
+An easy way to take this fact into account when writing a test is to always ask your tests these two questions:
+
 - "Are you going to fail (or pass) if I change my production code?"
 - "Is that a good reason for you to fail (or pass)?"
 
@@ -69,7 +63,7 @@ Still, you may be wondering: "What's the big deal about that?"
 Let's answer this question with another question: Why do our tests break when we
 change our code?
 
-We agreed that the main purpose of having tests is so we can change our code with ease. If that's so, then how are all those red tests helping us? Those failing tests are nothing but noiseimpediments to getting the job done. So, how do we do testing in a way that will help us?
+We agreed that the main purpose of having tests is so we can change our code with ease. If that's so, then how are all those red tests helping us? Those failing tests are nothing but noise-impediments to getting the job done. So, how do we do testing in a way that will help us?
 
 It depends on the reason why we are changing the code.
 
