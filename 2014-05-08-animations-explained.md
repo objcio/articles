@@ -145,7 +145,7 @@ Setting the `keyTimes` property allows us to specify at which point in time the 
 
 [^2]: Note how I chose different values for transitions from 0 to 30 and from 30 to -30 to maintain a constant velocity.
 
-Setting the `additive` property to `YES` tells Core Animation to add the values of the animation to the value of the model layer, before updating the presentation layer. This allows us to reuse the same animation for all form elements that need updating without having to know their positions in advance. Since this property is inherited from `CAPropertyAnimation`, you can also make use of it when employing `CABasicAnimation`.
+Setting the `additive` property to `YES` tells Core Animation to add the values specified by the animation to the value of the current render tree. This allows us to reuse the same animation for all form elements that need updating without having to know their positions in advance. Since this property is inherited from `CAPropertyAnimation`, you can also make use of it when employing `CABasicAnimation`.
 
 ## Animation Along a Path
 
