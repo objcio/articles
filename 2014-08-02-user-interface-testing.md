@@ -1,8 +1,8 @@
 +---
  layout: post
- title: Testing user interaction
+ title: User Interface Testing
  category: "15"
- date: "2014-08-02 09:00:00"
+ date: "2014-08-08 06:00:00"
  author: "<a href=\"http://annema.me">Klaas Pieter Annema</a>"
  tags: article
  +---

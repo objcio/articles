@@ -1,8 +1,8 @@
 ---
 layout: post
-title:  "Snapshots"
+title:  "Snapshot Testing"
 category: "14"
-date: "2013-07-11 08:00:00"
+date: "2014-08-08 05:00:00"
 author: "<a href=\"https://orta.github.io\">Orta Therox</a>"
 tags: article
 ---

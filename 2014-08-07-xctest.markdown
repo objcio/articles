@@ -1,8 +1,8 @@
 ---
 layout: post
-title:  "tbd"
+title:  "Real World Testing with XCTest"
 category: "15"
-date: "2014-08-07 08:00:00"
+date: "2014-08-08 10:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/___asc___\">Arne Schroppe</a> and <a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
 ---

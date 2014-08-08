@@ -1,8 +1,8 @@
 ---
 layout: post
-title:  "BDD"
+title:  "Behavior-Driven Development"
 category: "1"
-date: "2013-07-11 08:00:00"
+date: "2014-08-08 11:00:00"
 author: "<a href=\"https://paweldudek.github.io\">Pawel Dudek</a>"
 tags: article
 ---

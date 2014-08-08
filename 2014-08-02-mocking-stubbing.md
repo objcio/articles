@@ -1,11 +1,11 @@
-+---
- layout: post
- title: Test Doubles: Mocks, Stubs, and More
- category: "15"
- date: "2014-08-02 09:00:00"
- author: "<a href=\"http://lazerwalker.com">Mike Lazer-Walker</a>"
- tags: article
- +---
+---
+layout: post
+title: Test Doubles: Mocks, Stubs, and More
+category: "15"
+date: "2014-08-08 07:00:00"
+author: "<a href=\"http://lazerwalker.com">Mike Lazer-Walker</a>"
+tags: article
+---
 
 
 ## Intro
