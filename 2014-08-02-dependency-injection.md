@@ -27,29 +27,29 @@ Let's say you want to write a method that looks something like this:
 }
 ```
 
-How do you write unit tests for this? The problem is that it's interacting with another object that we don't control, namely `NSUserDefaults`.
+How do you write unit tests for this? The problem is that the method is interacting with another object that we don't control, namely `NSUserDefaults`.
 
-Bear with me. As we work through this example, the issue isn't, "How do we test a method interacting with `NSUserDefaults`?" Rather, I'm using `NSUserDefaults` as an example of a bigger question: "How do we test a method that depends on another object when that object will keep the tests from being [fast and repeatable][firstTests]?"
+Bear with me. As we work through this example, the issue isn't "How do we test a method interacting with `NSUserDefaults`?" Rather, I'm using `NSUserDefaults` as an example of a bigger question: "How do we test a method that depends on another object when that object will keep the tests from being [fast and repeatable][firstTests]?"
 
 [firstTests]: http://pragprog.com/magazines/2012-01/unit-tests-are-first
 
-One of the biggest barriers to approaching unit testing for the first time is not knowing how to manage dependencies on things outside of the code you want to test. But there's an entire school full of approaches to this problem, which fall under the name Dependency Injection, or DI.
+One of the biggest barriers to approaching unit testing for the first time is not knowing how to manage dependencies on things outside of the code you want to test. But there's an entire school full of approaches to this problem, which fall under the name dependency injection, or DI.
 
 ## Forms of Dependency Injection
 
-Now as soon as I said DI, many of you thought of Dependency Injection Frameworks or Inversion Of Control (IOC) Containers. Please set those thoughts aside; we'll return to them in the FAQ.
+Now as soon as I said DI, many of you thought of dependency injection frameworks or Inversion of Control (IoC) containers. Please set those thoughts aside; we'll return to them in the FAQ.
 
 There are various techniques for taking a dependency and injecting something else in its place. In the Objective-C runtime, swizzling—that is, dynamically replacing one method with another—is certainly one such technique. Some even argue that [swizzling makes DI unnecessary][injectionIsNotAVirtue], and that the techniques below should be avoided. But I'd rather have code that makes dependencies explicit, so that I can see them (and be forced to deal with the code smelling when there are too many dependencies, or the wrong ones).
 
 [injectionIsNotAVirtue]: http://sharpfivesoftware.com/2013/03/20/dependency-injection-is-not-a-virtue-in-objective-c/
 
-So with that, let's quickly run through a number of forms of DI. With one exception, these all come from [Dependency Injection in .NET][Seemann] by Mark Seemann.
+So with that, let's quickly run through a number of forms of DI. With one exception, these all come from [*Dependency Injection in .NET*][Seemann] by Mark Seemann.
 
 [Seemann]: http://www.amazon.com/Dependency-Injection-NET-Mark-Seemann/dp/1935182501
 
 ### Constructor Injection
 
-*Note: Even though Objective-C doesn't have constructors per se, I use the term constructor injection instead of initializer injection. It's a standard DI term, and it's easier to look up for more information across languages.*
+*Note: Even though Objective-C doesn't have constructors per se, I use the term constructor injection instead of initializer injection. It's a standard DI term, and it's easier to look up across languages.*
 
 In constructor injection, a dependency is passed into the constructor (in Objective-C, the designated initializer) and captured for later use:
 
@@ -92,7 +92,7 @@ Now every place in this class that would refer to the singleton `[NSUserDefaults
 
 ### Property Injection
 
-In Property Injection, the code for `nextReminderId` looks the same, referring to `self.userDefaults`. But instead of passing the dependency to the initializer, we make it a settable property:
+In property injection, the code for `nextReminderId` looks the same, referring to `self.userDefaults`. But instead of passing the dependency to the initializer, we make it a settable property:
 
 ```objective-c
 @interface Example
@@ -133,7 +133,7 @@ If the dependency is only referenced in a single method, then we can just inject
 }
 ```
 
-Again, this may look odd—and again, remember that `NSUserDefaults` may not quite fit every example. But an `NSDate` parameter would fit well with Method Injection. (More on this below when we discuss the benefits of each form.)
+Again, this may look odd—and again, remember that `NSUserDefaults` may not quite fit every example. But an `NSDate` parameter would fit well with method injection. (More on this below when we discuss the benefits of each form.)
 
 ### Ambient Context
 
@@ -146,7 +146,7 @@ I won't go into the details of a swizzling example; there are plenty of other re
 
 ### Extract and Override Call
 
-This final technique falls outside the forms of DI from Seemann's book. Instead, the Extract and Override Call comes from [Working Effectively with Legacy Code][Feathers] by Michael Feathers. Here's how to apply the technique to our `NSUserDefaults` problem in three steps:
+This final technique falls outside the forms of DI from Seemann's book. Instead, the extract and override call comes from [Working Effectively with Legacy Code][Feathers] by Michael Feathers. Here's how to apply the technique to our `NSUserDefaults` problem in three steps:
 
 [Feathers]: http://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052
 
@@ -201,7 +201,7 @@ We have five different forms of DI. Each comes with its own set of pros and cons
 
 ### Constructor Injection
 
-Constructor Injection should be your weapon of choice. When in doubt, start here. The advantage is that **it makes dependencies explicit**.
+Constructor injection should be your weapon of choice. When in doubt, start here. The advantage is that **it makes dependencies explicit**.
 
 The disadvantage is that it can feel cumbersome at first. This is especially true when an initializer has a long list of dependencies. But this reveals a previously hidden code smell: does the class have *too many dependencies*? Perhaps it doesn't conform to the [Single Responsibility Principle][SRP].
 
@@ -220,11 +220,11 @@ Also, beware of automatically leaning toward property injection just because you
 
 ### Method Injection
 
-Method Injection is good when the dependency will vary with each call. This could be some app-specific context about the calling point. It could be a random number. It could be the current time.
+Method injection is good when the dependency will vary with each call. This could be some app-specific context about the calling point. It could be a random number. It could be the current time.
 
 Consider a method that uses the current time. Instead of directly calling `[NSDate date]`, try adding an `NSDate` parameter to your method. With a small increase in calling complexity, it opens up options for the method to be used more flexibly.
 
-(While Objective-C makes it easy to substitute test doubles without requiring protocols, I recommend reading [Beyond Mock Objects][Rainsberger] by J.B. Rainsberger. It's an interesting example of how wrestling with an injected date opens up larger questions of design and reuse.)
+(While Objective-C makes it easy to substitute test doubles without requiring protocols, I recommend reading ["Beyond Mock Objects"][Rainsberger] by J.B. Rainsberger. It's an interesting example of how wrestling with an injected date opens up larger questions of design and reuse.)
 
 [Rainsberger]: http://blog.thecodewhisperer.com/2013/11/23/beyond-mock-objects/
 
@@ -249,7 +249,7 @@ Instead of doing your own swizzling, see if someone has already written a librar
 
 ### Extract and Override Call
 
-Because Extract and Override Call is so simple and powerful, you may be tempted to use it everywhere. But because it requires test-specific subclasses, it's easy for tests to become fragile.
+Because extract and override call is so simple and powerful, you may be tempted to use it everywhere. But because it requires test-specific subclasses, it's easy for tests to become fragile.
 
 That said, it's effective with legacy code, especially when you don't want to change all the calling points.
 
@@ -257,9 +257,9 @@ That said, it's effective with legacy code, especially when you don't want to ch
 
 ### "Which DI Framework Should I Use?"
 
-My advice for folks starting off with mock objects is to avoid using any mock object framework, at first, as you'll have a better sense of what's going on. My advice for folks starting off with DI is the same. But you can get even further in DI without a framework, relying solely on 'Poor Man's DI' where you do it yourself.
+My advice for folks starting off with mock objects is to avoid using any mock object framework, at first, as you'll have a better sense of what's going on. My advice for folks starting off with DI is the same. But you can get even further in DI without a framework, relying solely on 'Poor Man's DI,' where you do it yourself.
 
-Actually, chances are good that you've already used a DI framework! **It's called Interface Builder**. IB isn't just about laying out interfaces; arbitrary properties can be filled with the real objects by declaring those properties as IBOutlets. This works well for creating an object graph at the point when you create a view. In his 2009 article, ["Dependency Inversion Principle and iPhone"][Smith], Eric Smith calls Interface Builder "my favorite DI framework of all time," giving an example of how to use Interface Builder for dependency injection.
+Actually, chances are good that you've already used a DI framework! **It's called Interface Builder**. IB isn't just about laying out interfaces; arbitrary properties can be filled with the real objects by declaring those properties as IBOutlets. This works well for creating an object graph at the point when you create a view. In his 2009 article, ["Dependency Inversion Principle and iPhone,"][Smith] Eric Smith calls Interface Builder "my favorite DI framework of all time," giving an example of how to use Interface Builder for dependency injection.
 
 [Smith]: http://blog.8thlight.com/eric-smith/2009/04/16/dependency-inversion-principle-and-iphone.html
 
@@ -274,13 +274,13 @@ But before you take that approach, I want to question the idea that DI leads to 
 When it feels cumbersome to expose dependencies, see if either of these scenarios fits:
 
   * Does it feel silly to expose dependencies on Apple's objects? Isn't anything Apple provides implicitly available, and thus fair game for any code? Not necessarily. Take our `NSUserDefaults` example: What if you've decided, for some reason, to avoid using `NSUserDefaults`? Having it explicitly identified as a dependency instead of hidden as an implementation detail will alert you to investigate this component. You can check to see if the use of `NSUserDefaults` violates your design constraints.
-  * Does it feel like you have to expose a bunch of internals in order to test your class? First, see if you can write tests that only go through your existing public API (while still being fast and deterministic). If you can't and need to manipulate dependencies that would otherwise be hidden, chances are there's another class trying to get out. Extract it, turn it into a dependency, and test it separately.
+  * Does it feel like you have to expose a bunch of internals in order to test your class? First, see if you can write tests that only go through your existing public API (while still being fast and deterministic). If you can't, and if you need to manipulate dependencies that would otherwise be hidden, chances are there's another class trying to get out. Extract it, turn it into a dependency, and test it separately.
 
-## DI is Bigger than Testing
+## DI Is Bigger Than Testing
 
-My initial motivation for exploring DI came from doing test-driven development, because in TDD you constantly wrestle with the question: "How do I write a unit test for this?" But I discovered that DI is actually concerned with a bigger idea: that **our code should be composed of modules that we snap together to build an application**.
+My initial motivation for exploring DI came from doing test-driven development, because in TDD you constantly wrestle with the question of "How do I write a unit test for this?" But I discovered that DI is actually concerned with a bigger idea: that **our code should be composed of modules that we snap together to build an application**.
 
-There are many benefits to such an approach. Graham Lee's article, ["Dependency Injection, iOS and You"][leeg] describes some of them: "to adapt… to new requirements, make bug fixes, add new features, and test components in isolation."
+There are many benefits to such an approach. Graham Lee's article, ["Dependency Injection, iOS and You,"][leeg] describes some of them: "to adapt… to new requirements, make bug fixes, add new features, and test components in isolation."
 
 [leeg]: http://www.bignerdranch.com/blog/dependency-injection-ios/
 
