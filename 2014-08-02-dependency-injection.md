@@ -263,7 +263,7 @@ Actually, chances are good that you've already used a DI framework! **It's calle
 
 [Smith]: http://blog.8thlight.com/eric-smith/2009/04/16/dependency-inversion-principle-and-iphone.html
 
-If you decide you need a DI framework and Interface Builder isn't enough, how do you pick a good one? My advice is: **be cautious of any framework that requires you to change your code**. As soon as you have to subclass something, conform to a protocol, or add some kind of annotation; you're tying your code directly to a particular implementation. (This goes against the basic idea behind DI!) Instead, find a framework that lets you specify the wiring from *outside* your classes, whether that's specified via a DSL or in code.
+If you decide you need a DI framework and Interface Builder isn't enough, how do you pick a good one? My advice is: **be cautious of any framework that requires you to change your code**. As soon as you have to subclass something, conform to a protocol, or add some kind of annotation, you're tying your code directly to a particular implementation. (This goes against the basic idea behind DI!) Instead, find a framework that lets you specify the wiring from *outside* your classes, whether that's specified via a DSL or in code.
 
 ### "I Don't Want to Expose All These Hooks."
 
