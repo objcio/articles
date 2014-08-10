@@ -269,7 +269,7 @@ If you decide you need a DI framework and Interface Builder isn't enough, how do
 
 Exposing injection points in initializers, properties, and method arguments can make it feel like you're breaking encapsulation. There's a desire to avoid showing the seams, because it's easy to tell yourself that the seams exist only to enable testing, and thus don't belong in the API. And this can be done by declaring them in a class category in a separate header file. For example, if we're dealing with Example.h, then create an additional header ExampleInternal.h. This will be imported only by Example.m and by test code.
 
-But before you take that approach, I want to question the idea that DI leads to breaking encapsulation. What we're doing is making dependencies explicit. We are defining the edges of our components, and how they fit together. For example, if a class has an initializer with argument type id <Foo>, it's clear that in order to use the class, you need to give it an object that satisfies the Foo protocol. Think of it as defining a set of sockets on your class, along with the plugs that fit those sockets.
+But before you take that approach, I want to question the idea that DI leads to breaking encapsulation. What we're doing is making dependencies explicit. We are defining the edges of our components, and how they fit together. For example, if a class has an initializer with argument type id \<Foo\>, it's clear that in order to use the class, you need to give it an object that satisfies the Foo protocol. Think of it as defining a set of sockets on your class, along with the plugs that fit those sockets.
 
 When it feels cumbersome to expose dependencies, see if either of these scenarios fits:
 
