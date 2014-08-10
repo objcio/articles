@@ -53,7 +53,7 @@ Notice that it's not just sending `UIControlValueChanged`. When a user interacts
 
 Not all controls in UIKit have a method equivalent to `sendActionsForControlEvents:`, but with a bit of creativity, it's often possible to find a workaround. As said before, the most important thing is to make it appear to your code as if the user triggered the action.
 
-For example, there is no method on UITableView to select a cell _and_ have it call its delegate or perform its associated segue. The sample project shows two ways of working around this. 
+For example, there is no method on `UITableView` to select a cell _and_ have it call its delegate or perform its associated segue. The sample project shows two ways of working around this. 
 
 The first method is specific to storyboards: it works by manually triggering the segue you want the table view cell to perform. Unfortunately, this does not verify that the table view cell is associated with that segue:
 
@@ -68,7 +68,7 @@ I prefer the second option. It completely decouples the test from how the view c
 
 As a final example of testing controls, I want to present the special case of `UIBarButtonItem`s. They don't have a `sendActionsForControlEvent:` method because they're not descendents of `UIControl`. Let's figure out how we can send the button action and, to our code, make it look like the user tapped it.
 
-A UIBarButtonItem, unlike `UIControl`, can only have one target and one action associated with it. Performing the action can be as simple as:
+A `UIBarButtonItem`, unlike `UIControl`, can only have one target and one action associated with it. Performing the action can be as simple as:
 
     [_viewController.barButton.target  performSelector:_viewController.barButton.action
                                              withObject:_viewController.barButton];
