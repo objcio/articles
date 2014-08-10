@@ -259,7 +259,7 @@ That said, it's effective with legacy code, especially when you don't want to ch
 
 My advice for folks starting off with mock objects is to avoid using any mock object framework, at first, as you'll have a better sense of what's going on. My advice for folks starting off with DI is the same. But you can get even further in DI without a framework, relying solely on 'Poor Man's DI' where you do it yourself.
 
-Actually, chances are good that you've already used a DI framework! **It's called Interface Builder**. IB isn't just about laying out interfaces; arbitrary properties can be filled with the real objects by declaring those properties as IBOutlets. This works well for creating an object graph at the point when you create a view. In his 2009 article, ["Dependency Inversion Principle and iPhone"][Smith], Eric Smith calls Interface Builder "my favorite DI framework of all time" and gives a good example.
+Actually, chances are good that you've already used a DI framework! **It's called Interface Builder**. IB isn't just about laying out interfaces; arbitrary properties can be filled with the real objects by declaring those properties as IBOutlets. This works well for creating an object graph at the point when you create a view. In his 2009 article, ["Dependency Inversion Principle and iPhone"][Smith], Eric Smith calls Interface Builder "my favorite DI framework of all time," giving an example of how to use Interface Builder for dependency injection.
 
 [Smith]: http://blog.8thlight.com/eric-smith/2009/04/16/dependency-inversion-principle-and-iphone.html
 
@@ -267,13 +267,13 @@ If you decide you need a DI framework and Interface Builder isn't enough, how do
 
 ### "I Don't Want to Expose All These Hooks."
 
-Exposing injection points in initializers, properties, and method arguments can make it feel like you're breaking encapsulation. There's a desire to avoid showing the seams when "these are just to enable testing, and shouldn't pollute the API." And this can be done by declaring them in a class category in a separate header file. For example, if we're dealing with Example.h, then create an additional header ExampleInternal.h. This will be imported only by Example.m and by test code.
+Exposing injection points in initializers, properties, and method arguments can make it feel like you're breaking encapsulation. There's a desire to avoid showing the seams, because it's easy to tell yourself that the seams exist only to enable testing, and thus don't belong in the API. And this can be done by declaring them in a class category in a separate header file. For example, if we're dealing with Example.h, then create an additional header ExampleInternal.h. This will be imported only by Example.m and by test code.
 
-But before you take that approach, I want to question the idea that DI leads to breaking encapsulation. What we're doing is making dependencies explicit. We are defining the edges of our components, and how they fit together: "In order to use this class, you need to give it objects that satisfy Foo, Bar, and Baz." It's defining a set of sockets on your class, and the plugs that fit them.
+But before you take that approach, I want to question the idea that DI leads to breaking encapsulation. What we're doing is making dependencies explicit. We are defining the edges of our components, and how they fit together. For example, if a class has an initializer with argument type id <Foo>, it's clear that in order to use the class, you need to give it an object that satisfies the Foo protocol. Think of it as defining a set of sockets on your class, along with the plugs that fit those sockets.
 
 When it feels cumbersome to expose dependencies, see if either of these scenarios fits:
 
-  * Does it feel silly to expose dependencies on Apple's objects, "because of course everything depends on these"? Ah, but not everything does. Take our `NSUserDefaults` example: What if you've decided, for some reason, to avoid using `NSUserDefaults`? Having it explicitly identified as a dependency instead of hidden as an implementation detail will alert you to investigate this component. You can check to see if its use of NSUserDefaults violates your design constraints.
+  * Does it feel silly to expose dependencies on Apple's objects? Isn't anything Apple provides implicitly available, and thus fair game for any code? Not necessarily. Take our `NSUserDefaults` example: What if you've decided, for some reason, to avoid using `NSUserDefaults`? Having it explicitly identified as a dependency instead of hidden as an implementation detail will alert you to investigate this component. You can check to see if the use of `NSUserDefaults` violates your design constraints.
   * Does it feel like you have to expose a bunch of internals in order to test your class? First, see if you can write tests that only go through your existing public API (while still being fast and deterministic). If you can't and need to manipulate dependencies that would otherwise be hidden, chances are there's another class trying to get out. Extract it, turn it into a dependency, and test it separately.
 
 ## DI is Bigger than Testing
