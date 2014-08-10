@@ -72,7 +72,7 @@ In constructor injection, a dependency is passed into the constructor (in Object
 
 The dependency can be captured in an instance variable or in a property. The example above uses a read-only property to make it a little harder to tamper with.
 
-It may look odd to inject `NSUserDefaults`, and that's where this example may fall short. Remember, `NSUserDefaults` is standing in for a dependency that creates trouble. It would make more sense for the injected value to be an abstraction (that is, an `id` satisfying some protocol) instead of a concrete object. But I'm going to wave my hands in order to keep going with the examples.
+It may look odd to inject `NSUserDefaults`, and that's where this example may fall short. Remember, `NSUserDefaults` is standing in for a dependency that creates trouble. It would make more sense for the injected value to be an abstraction (that is, an `id` satisfying some protocol) instead of a concrete object. But I'm not going to discuss that in this article; let's keep going with `NSUserDefaults` for our examples.
 
 Now every place in this class that would refer to the singleton `[NSUserDefaults standardUserDefaults]` should instead refer to `self.userDefaults`:
 
