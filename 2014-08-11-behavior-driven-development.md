@@ -162,7 +162,7 @@ Keep in mind that you shouldn't put *all* of your object dependencies and proper
 
 #### Message Formatter
 
-Let's start with a simple example. We'll build a component that is responsible for formatting a text message (think about a detailed description of an object that will fit somewhere in the UI) based on a passed in object: 
+Let's start with a simple example. We'll build a component that is responsible for formatting a text message for a given event object: 
 
 	@interface EventDescriptionFormatter : NSObject
 	@property(nonatomic, strong) NSDateFormatter *dateFormatter;
@@ -341,7 +341,7 @@ The request identifier is a private property of `CalendarDataDownloader`, so we 
 	@property(nonatomic, strong) id identifier;
 	@end
 	
-You can probably gauge that there's something wrong with these tests. Even though they are valid and they check for specific behavior, they expose the internal workings of our `CalendarDataDownloader`. There's no need for our tests to have knowledge of how it holds its request identifier. Let's see how we can write our tests without exposing internal implementation:
+You can probably gauge that there's something wrong with these tests. Even though they are valid and they check for specific behavior, they expose the internal workings of our `CalendarDataDownloader`. There's no need for our tests to have knowledge of how the `CalendarDataDownloader` holds its request identifier. Let's see how we can write our tests without exposing internal implementation:
 
     describe(@"update calendar data", ^{
         beforeEach(^{
@@ -661,7 +661,7 @@ Let's assume that we do not want to know who has the sign-in button. Perhaps it 
 	
 	@end
 	
-Our method will traverse subviews of the view and return the first button that has a title that matches the passed in title. We can write similar methods for text fields or labels:
+Our method will traverse subviews of the view and return the first button that has a title that matches the title argument. We can write similar methods for text fields or labels:
 
 	@interface UIView (Specs)
 	
