@@ -23,9 +23,9 @@ Here is an example of a failing test where we have less grid items than expected
 
 <img src="{{site.images_path}}/issue-15/snapshots-reference.png" style="width:100%" alt="Snapshots examples"/>
 
-It makes the comparison by drawing both the view or layer and the existing snapshot into two `CGContextRefs` and doing a memory comparison of them with the C function `memcmp()`. This makes it extremely quick, with my tests ranging from 0.013 to 0.086 seconds per comparison of up to retina iPad and iPhone images on a MacBook Air.
+It makes the comparison by drawing both the view or layer and the existing snapshot into two `CGContextRefs` and doing a memory comparison of them with the C function `memcmp()`. This makes it extremely quick, with my tests ranging from 0.013 to 0.086 seconds per image for fullscreen iPad and iPhone images on a MacBook Air.
 
-When it's set up, it will default to storing the reference images inside your project's `[Project]Tests` folder, in a subfolder called `ReferenceImages`. Inside this is a library of folders based on the test case classname. Inside the test case folders are the reference images per test. When a test fails, it will generate a screenshot of what it thought would be the same and another image of the visual difference between the two. All three images are put inside the application's tmp folder. Snapshots will also `NSLog` a command to the console to load the two images into the visual diffing tool, [Kaleidoscope][kaleidoscope].
+When it's set up, it will default to storing the reference images inside your project's `[Project]Tests` folder, in a subfolder called `ReferenceImages`. Inside this is a library of folders based on the test case classname. Inside the test case folders are the reference images per test. When a test fails it will generate an output image of the resulting visuals from the test, and an image of the visual difference between itself and the reference. All three images are put inside the application's tmp folder. Snapshots will also `NSLog` a command to the console to load the two images into the visual diffing tool, [Kaleidoscope][kaleidoscope].
 
 ### Installation
 
@@ -33,8 +33,7 @@ Let's not beat around the bush here: you should be using [CocoaPods][cocoapods].
 
 ### XCTest with Snapshots
 
-The default behavior of Snapshots is to subclass `FBSnapshotTestCase` instead of `XCTestCase`, and to then use the macro `FBSnapshotVerifyView(viewOrLayer, "optional identifier")` to verify against an already recorded image. There is a boolean property on the subclass `recordMode` that, when set, will make the macro record rather than check.
-
+The default behavior of Snapshots is to subclass `FBSnapshotTestCase` instead of `XCTestCase`, and to then use the macro `FBSnapshotVerifyView(viewOrLayer, "optional identifier")` to verify against an already recorded image. There is a boolean property on the subclass `recordMode` that, when set, will make the macro record a new screenshot rather than check the result against a reference image.
 
 # Headers
 
@@ -61,7 +60,8 @@ The default behavior of Snapshots is to subclass `FBSnapshotTestCase` instead of
 
 Nothing's perfect. Let's start with the downsides.
 
-* Testing asynchronous code is hard. This is a similar pattern throughout testing in Cocoa. I tend to have two answers to this. Using testing frameworks like [Specta][specta] or [Kiwi][kiwi] provides ways of repeatedly running assertions in code until a timeout occurs or succeeds. This means you can give it 0.5 seconds to run.
+* Testing asynchronous code is hard. This is a similar pattern throughout testing in Cocoa. I tend to have two answers to this. Using testing frameworks like [Specta][specta] or [Kiwi][kiwi] provides ways of repeatedly running assertions in code until a timeout occurs or succeeds. This means you can give it 0.5 seconds to run, with the tests repeatedly being checked. Alternatively, you can build your application code so that asynchronous code is run synchronously if flagged.
+
 * Some components can be hard to test. There are two notable examples that come to mind: Some `UIView` classes cannot be initiated without a frame in a test, so get into the habit of always giving a frame to your views to avoid these messages: `<Error>: CGContextAddRect: invalid context 0x0. [..]`. If you write Auto Layout code a lot, then this is unintuitive. `CATiledLayer`-backed views require being on the main screen and being visible before they will render their tiles. They also render asynchronously. I tend to add a [two-second wait][arimagetiletest] for these tests.
 * Apple's OS patches can change the way their stock components are rendered. When Apple very subtly changed the font hinting in iOS 7.1, any snapshots with `UILabels` in them required re-recording.
 * Each snapshot is a PNG file stored in your repository, and together they average out at about 30-100kb per file for me. I record all my tests in "@2x." The snapshots are as big as the view being rendered.
@@ -72,7 +72,7 @@ Nothing's perfect. Let's start with the downsides.
 * Snapshot tests are run at the same time as the rest of your tests. They don't have to run as another test scheme. They are written in the same language as the rest of your tests. They can [mostly](#disadvantages) be run without pushing the view to the screen.
 * Snapshots give code reviews a narrative. Tests show up first, offering a promise of what is coming up in the changeset. Next is the snapshots, proof that what the tests promise is true. Finally, the changes to the codebase show up. By the time you've hit the changeset, you're primed both by what has changed internally, and by what will be seen externally by users.
 * Providing visuals during the code review also opens up the review to designers; they can keep on top of changes by watching the project's repo.
-* I've found that writing snapshot tests provides overreaching test coverage. I don't believe it's optimal to aim for 100% coverage via unit tests. I try to be pragmatic in my approach to testing, wherein most of the changes introduced are tested. Snapshots test a large amount of code paths without you specifically aiming for it.
+* I've found that writing snapshot tests provides overreaching test coverage. I don't believe it's optimal to aim for 100% coverage via unit tests. I try to be pragmatic in my approach to testing, wherein most of the changes introduced are tested. Snapshots test a large amount of code paths without specifically denoting the paths called. This is because it can test the output of a lot systems easily. Consider it like painting with a wide brush, giving you the chance to make broad stokes at getting test coverage.
 * Snapshot tests are fast. Average tests on a modern MacBook Air using retina iPad-sized images range from 0.015 to 0.080 seconds per test. Having hundreds in an application's test suite is no problem. The [application I work on][folio] has hundreds of tests and they take less than five seconds.
 
 ### Tooling
