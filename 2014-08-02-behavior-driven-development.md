@@ -7,7 +7,7 @@ author: "<a href=\"https://paweldudek.github.io\">Pawel Dudek</a>"
 tags: article
 ---
 
-Starting you adventure with testing is not an easy task, especially if you don't have someone to help you out. If you ever tried that then you probably remember that moment when you've thought: this is it. I am starting testing now. I've heard so much about TDD and how beneficitial it is that I'm starting doing it right now. 
+Starting your adventure with testing is not an easy task, especially if you don't have someone to help you out. If you ever tried that then you probably remember that moment when you've thought: this is it. I am starting testing now. I've heard so much about TDD and how beneficial it is that I'm starting doing it right now. 
 
 Then you sat down in front of your computer. You opened your IDE. You created a new test file for one of your components.
 
@@ -29,11 +29,11 @@ This is where Behavior Driven Development (BDD) comes it. It aims at solving the
 
 ## What should I test?
 
-The answer to this profound question is strikingly simple, however it does require a shift in how you percevie your test suite. As the first word in BDD suggests you should no longer focus on *tests*, you should focus on *behaviors*. This seemingly meaningless change provides an exact answer to our question: you should test behaviors.
+The answer to this profound question is strikingly simple, however it does require a shift in how you preceive your test suite. As the first word in BDD suggests you should no longer focus on *tests*, you should focus on *behaviors*. This seemingly meaningless change provides an exact answer to our question: you should test behaviors.
 
 But what is a behavior? Well, to answer this question we have to get a little bit more technical. 
 
-Let's consider an object that is a part of an app you wrote. It has an inferface which defines its methods and dependencies. These methods, these dependencies declare *contract* of your object. They define how it should interact with the rest of your application and what capabilities and functionalities it has. They define its *behavior*.
+Let's consider an object that is a part of an app you wrote. It has an interface which defines its methods and dependencies. These methods, these dependencies declare *contract* of your object. They define how it should interact with the rest of your application and what capabilities and functionalities it has. They define its *behavior*.
 
 And that is what you should be aiming at: testing how your object behaves, leaving other details apart. 
 
@@ -105,7 +105,7 @@ Before we talk about benefits of BDD DSL let's first go through its basics and s
 
 `describe` block declares a group of examples.
 
-`context` block behaves similary to `describe` (syntax sugar).
+`context` block behaves similarly to `describe` (syntax sugar).
 
 `it` is a single example (a single test). 
 
@@ -117,7 +117,7 @@ First of all, in `describe` blocks, these strings group behaviors that are tied 
 
 That is exactly what happens in the `move to:` `describe` block: we created two `context` blocks to provide different expectations based on different states (engine either running or not) in which `Car` could be. This is an example of how BDD DSL encourages defining of *clear* requirements how given object should behave in given conditions. 
 
-Second of all these strings are used to create sentences that inform you which test failed. For instance let's assume that our test for moving with engine not started failed. We would then receive `Car move to when engine is not running should not move to given position` error message. These sentences really helps with *understanding* what has failed and what was the expected behavior, without actually reading any code, and thus they minimise cognitive load. Moreover they provide a standard language that is easily understandable by each member of your team, even those less technical. 
+Second of all these strings are used to create sentences that inform you which test failed. For instance let's assume that our test for moving with engine not started failed. We would then receive `Car move to when engine is not running should not move to given position` error message. These sentences really helps with *understanding* what has failed and what was the expected behavior, without actually reading any code, and thus they minimize cognitive load. Moreover they provide a standard language that is easily understandable by each member of your team, even those less technical. 
 
 Remember that you can also write tests with clear requirements and understandable names without BDD-style syntax (XCtest for instance). However BDD has been built from ground up with these capabilities in mind and thus it provides syntax and functionality that will make such approach easier.
 	
@@ -135,9 +135,9 @@ When it comes to syntax all these frameworks are nearly the same. Main differenc
 
 **Cedar** comes bundled with [matchers](https://github.com/pivotal/cedar/wiki/Writing-specs#matchers) and [doubles](https://github.com/pivotal/cedar/wiki/Writing-specs#doubles). Thought not exactly true for the sake of this article let's consider doubles as mocks (you can learn the difference between mocks and doubles [here](link to mikes article). 
 
-Apart from these helpers Cedar has additional configuration feature: focusing tests. Focusing tests means that Cedar will only only that particlar test or a test group. Focusing can be achieved by adding an `f` before `it`, `describe` or `context` block. 
+Apart from these helpers Cedar has additional configuration feature: focusing tests. Focusing tests means that Cedar will execute only that test or a test group. Focusing can be achieved by adding an `f` before `it`, `describe` or `context` block. 
 
-There's an opposite configuration capability: you can `x`' test to turn it off. XCTest has similar configuration capabilities, however they are achived by operating on schemes (or by manually pressing Run this test). Cedar configuration capabilities are simpler and faster to configure.
+There's an opposite configuration capability: you can `x`' test to turn it off. XCTest has similar configuration capabilities, however they are achieved by operating on schemes (or by manually pressing Run this test). Cedar configuration capabilities are simpler and faster to configure.
 
 Cedar uses a bit of hackery when it comes to integration with XCTest and thus it's prone to breaking should Apple decide to change some of its internal implementation. However from a user-perspective Cedar will work just as if it was integrated with XCTest.
 
@@ -156,7 +156,7 @@ It is also worth mentioning that there are already two BDD frameworks that are d
 
 There's one last thing I'd like to point out before we move to examples. Remember that one of key aspect of writing good behavioral tests is identifying dependencies (you can read more on this subject [here](link to Jons article)) and exposing them in your interface. 
 
-Most of your tests will either assert whether a specific interaction happened, or whether a specific value was returned (or passed in to another object) based on your tested object state. Extracting dependencies will allow you to easilly mock values and states. Moreover it will greatly simplify asserting whether a specific action happend or a specific value was calculated.
+Most of your tests will either assert whether a specific interaction happened, or whether a specific value was returned (or passed in to another object) based on your tested object state. Extracting dependencies will allow you to easily mock values and states. Moreover it will greatly simplify asserting whether a specific action happened or a specific value was calculated.
 
 Keep in mind that you shouldn't put *all* of your objects dependencies and properties in the interface (which, especially when you start testing, is really tempting). This will decrease readability and clarity of purpose of your object, whereas your interface should clearly state what it was designed for. 
 
@@ -228,7 +228,7 @@ Note that we have only tested whether our `EventDescriptionFormatter` uses its `
     
 Even though we have a fully tested component we wrote quite a few tests. And this is a really small component, isn't it? Let's try approaching this issue from a bit different angle.
 
-The example above doesn't exactly test *behavior* of `EventDescriptionFormatter`. It mostly tests its internal implementation by mocking the `NSDateFormatter`. In fact, we don't actualy care whether there's a date formatter underneath at all. From interface persepctive we could've been formatting the date manually by using date components. All we care about at this point is whether we got our string right. And that is the behavior that we want to test.
+The example above doesn't exactly test *behavior* of `EventDescriptionFormatter`. It mostly tests its internal implementation by mocking the `NSDateFormatter`. In fact, we don't actually care whether there's a date formatter underneath at all. From interface perspective we could've been formatting the date manually by using date components. All we care about at this point is whether we got our string right. And that is the behavior that we want to test.
 
 We can easily achieve this by not mocking the `NSDateFormatter`. As said before, we don't even care whether its there so let's remove it from the interface. 
 
@@ -266,7 +266,7 @@ Note how simple our test has become. We only have a minimalistic setup block whe
 
 #### Data downloader
 
-In this example we will build a simple data downloader. We will specifically focus on one single behavior of our data downloader: making a request and cancelling download. Let's start with defining our interface:
+In this example we will build a simple data downloader. We will specifically focus on one single behavior of our data downloader: making a request and canceling download. Let's start with defining our interface:
 
 	@interface CalendarDataDownloader : NSObject
 	
@@ -286,7 +286,7 @@ And of course interface for our network layer.
 
 	@interface NetworkLayer : NSObject
 	
-	// Returns an identifier that can be used for cancelling a request.
+	// Returns an identifier that can be used for canceling a request.
 	- (id)makeRequest:(id <NetworkRequest>)request completion:(void (^)(id <NetworkRequest>, id, NSError *))completion;
 	
 	- (void)cancelRequestWithIdentifier:(id)identifier;
@@ -354,7 +354,7 @@ You can probably feel that there's something wrong with these tests. Even though
             [verify(mockNetworkLayer) makeRequest:instanceOf([CalendarDataRequest class]) completion:anything()];
         });
 
-        describe(@"cancelling request", ^{
+        describe(@"canceling request", ^{
             beforeEach(^{
                 [calendarDataDownloader cancel];
             });
@@ -363,7 +363,7 @@ You can probably feel that there's something wrong with these tests. Even though
                 [verify(mockNetworkLayer) cancelRequestWithIdentifier:@"Fixture Identifier"];
             });
 
-            describe(@"cancelling it again", ^{
+            describe(@"canceling it again", ^{
                 beforeEach(^{
                     [calendarDataDownloader cancel];
                 });
@@ -379,11 +379,11 @@ We started by stubbing `makeRequest:completion:` method. We returned a fixture i
 
 Note that at this point we don't actually need a test that checks whether network request was made - we would not get an identifier and the `cancelRequestWithIdentifier:` would never be called. However we retained that test to make sure we know what happened should that functionality break.
 
-We've managed to test the exact same behavior without exposing internal implementation of `CalendarDataDownloader`. Moreover we've done so with only 3 tests instead of 4. And we've leveraged BDD DSL nesting capabilities to chain simulation of behaviors - we first simulated download and then in the same `describe` block we simulated cancelling of a request. 
+We've managed to test the exact same behavior without exposing internal implementation of `CalendarDataDownloader`. Moreover we've done so with only 3 tests instead of 4. And we've leveraged BDD DSL nesting capabilities to chain simulation of behaviors - we first simulated download and then in the same `describe` block we simulated canceling of a request. 
 
 ### Testing view controllers
 
-It seems that the most common attitude to testing view controllers among iOS developers is that people don't see value in it. Which I find odd as controllers often represent the core aspect of application. They are the place where all components are glued together. They are the place that connects user interface with application logic and model. Thus damaged caused by a involutnary change can be substantial. 
+It seems that the most common attitude to testing view controllers among iOS developers is that people don't see value in it. Which I find odd as controllers often represent the core aspect of application. They are the place where all components are glued together. They are the place that connects user interface with application logic and model. Thus damaged caused by a involuntary change can be substantial. 
 
 This is why I strongly believe that view controllers should be tested as well. However testing view controllers is not an easy task. The Upload Photo and Sign In View Controller examples should help with understanding how BDD can be leveraged to simplify building view controllers test suites.
 
@@ -472,7 +472,7 @@ But what is wrong with the example above? The problem is that we are testing the
 
 Let's go back to our `PhotoUploadViewController` and see how we could rewrite our tests to make sure we're not testing implementation, but just our interface. 
 
-First of all, we don't need to know that `didTapUploadButton:` method exists at all. It is just an implementation detail. We care only for the behavior: when user taps Upload button the `UploadManager` should recieve a `uploadPhoto:` message. This is great as it means we don't really need our `Specs` category on `PhotoUploadViewController`. 
+First of all, we don't need to know that `didTapUploadButton:` method exists at all. It is just an implementation detail. We care only for the behavior: when user taps Upload button the `UploadManager` should receive a `uploadPhoto:` message. This is great as it means we don't really need our `Specs` category on `PhotoUploadViewController`. 
 
 Second of all, we don't need to know what target/action is defined on our `rightBarButtonItem`. Our *only* concern is what happens when it is tapped. Let's simulate that action in tests. We can use a helper category on `UIBarButtonItem` to do this:
 
@@ -518,7 +518,7 @@ Now that we have a helper method that simulates a tap we can simplify our tests 
         });
     });
 
-Note that we have managed to remove two tests and we still have a fully tested component. Moreover out test suite is less prone to breaking as we no longer rely on existance of `didTapUploadButton:` method. Last but not least we have focused more on the behavioral aspect of our controller, rather than its internal implementation.
+Note that we have managed to remove two tests and we still have a fully tested component. Moreover out test suite is less prone to breaking as we no longer rely on existence of `didTapUploadButton:` method. Last but not least we have focused more on the behavioral aspect of our controller, rather than its internal implementation.
 
 #### Sign In View Controller
 
@@ -546,10 +546,7 @@ First thing that we will want to test is the view part.
 	- (IBAction)didTapSignInButton:(UIButton *)signInButton;
 	
 	@end
-
-
-In order to test our controller we will need to somehow expose existance of our 
-
+	
 First we will check some basic information about our text fields:
 
         beforeEach(^{
@@ -748,7 +745,7 @@ What is also great is that we no longer need to expose any of those properties. 
 	
 	@end
 	
-What is also great about these tests is that we have leveraged the capabilties of BDD DSL. Note how we used `context` blocks to define different requirements for how should `SignInViewController` behave based on its text fields state. This is a great example how you can use BDD to make your tests simpler and more readable whilst retaining their functionality.
+What is also great about these tests is that we have leveraged the capabilities of BDD DSL. Note how we used `context` blocks to define different requirements for how should `SignInViewController` behave based on its text fields state. This is a great example how you can use BDD to make your tests simpler and more readable whilst retaining their functionality.
 
 ## Conclusion
 
@@ -759,5 +756,6 @@ And with great tools provided by iOS community you should be able to start BDDin
 ### Links
 
 If you're interested in roots of BDD and how it came to be you should definitely read [this article](http://dannorth.net/introducing-bdd/).
-For those of you who understands TDD, but they don't exactly know how it differs from TDD I recommend [this article](http://blog.mattwynne.net/2012/11/20/tdd-vs-bdd/)
+For those of you who understands TDD, but they don't exactly know how it differs from TDD I recommend [this article](http://blog.mattwynne.net/2012/11/20/tdd-vs-bdd/).
+Last but not least you can find example project with tests presented above [here](https://github.com/paweldudek/bdd-examples).
 
