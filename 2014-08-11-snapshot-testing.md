@@ -11,7 +11,7 @@ People have their own motivations to write tests for their applications. This ar
 
 Writing tests for the visual aspects of an app is tricky. There's Apple built-in support for logical testing of objects, but no support for testing the end result of view-based code. This gap in functionality means a lot of people dismiss writing tests due to the difficulty of doing view-based tests.
 
-When Facebook released [FBSnapshotTestCase][fbsnapshot] to [CocoaPods][cocoapods], I initially dismissed it for this reason. I'm glad one of my co-workers didn't.
+When Facebook released [`FBSnapshotTestCase`][fbsnapshot] to [CocoaPods][cocoapods], I initially dismissed it for this reason. I'm glad one of my co-workers didn't.
 
 View-based testing means verifying that what the user sees is what you want the user to see. Doing this means being able to ensure that different versions of your views, or different states of your views, continue to look the same. View-based testing can be used to provide a high-level test covering a lot of use cases surrounding an object.
 
@@ -131,7 +131,7 @@ To deal with nearly all of the common use cases, I built an Xcode plugin called 
 
 ### Conclusion
 
-[FBSnapshotTestCase][fbsnapshot] gives you a way to test view-related code. It can be used to build and visualize view states without jumping through hoops in the simulator. You should use it with my plugin [Snapshots][snapshots] if you use Xcode. Sometimes it can be a bit frustrating, but it pays off. It welcomes designers into the code review stage. It can be a very easy first step into writing tests on an existing project; you should give it a try.
+[`FBSnapshotTestCase`][fbsnapshot] gives you a way to test view-related code. It can be used to build and visualize view states without jumping through hoops in the simulator. You should use it with my plugin [Snapshots][snapshots] if you use Xcode. Sometimes it can be a bit frustrating, but it pays off. It welcomes designers into the code review stage. It can be a very easy first step into writing tests on an existing project; you should give it a try.
 
 Examples from Open Source:
 
