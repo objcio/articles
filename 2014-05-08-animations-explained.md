@@ -259,7 +259,7 @@ Since `CAMediaTimingFunction` is limited to functions that can be expressed as c
 <center><img src="{{site.images_path}}/issue-12/bounce@2x.gif" width="140"></center>
 
     RBBTweenAnimation *animation = [RBBTweenAnimation animation];
-    animation.keyPath = @"position.x";
+    animation.keyPath = @"position.y";
     animation.fromValue = @50;
     animation.toValue = @150;
     animation.duration = 1;

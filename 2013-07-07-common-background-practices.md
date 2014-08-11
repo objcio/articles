@@ -193,8 +193,7 @@ tell it to do so. We add the following line to the `init` method of the `Store` 
         }];
     }];
 
-Note that by passing in the main queue as a parameter, the block
-will be called on the main thread. 
+Note that by calling `performBlock:` on the main managed object context, the block will be called on the main thread. 
 If you now start the app, you will notice that the table view reloads 
 its data at the end of the import. However, this blocks the user interface 
 for a couple of seconds.
