@@ -3,7 +3,7 @@ layout: post
 title:  "Behavior-Driven Development"
 category: "15"
 date: "2014-08-11 11:00:00"
-author: "<a href=\"https://paweldudek.github.io\">Pawel Dudek</a>"
+author: "<a href=\"https://twitter.com/eldudi\">Pawel Dudek</a>"
 tags: article
 ---
 
