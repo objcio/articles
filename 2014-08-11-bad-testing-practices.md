@@ -12,17 +12,17 @@ confess that it's a technique that still fascinates me when it comes down
 to making a code base more maintainable. In this article, I'd like to share some of my experiences, as well as the lessons I've learned either from others or via trial and error.
 
 After all these years, I've heard many good (and bad) reasons to write
-automated tests, because it can:
+automated tests. On the positive side, writing automated tests can:
 
 - Make refactoring easier
 - Avoid regressions
-- Provide an executable specification and documentation
-- Reduce time of creating software
-- Reduce costs of creating software
+- Provide executable specification and documentation
+- Reduce the time of creating software
+- Reduce the costs of creating software
 
 
 Sure, you could say those are true, but I want to give another
-perspective to all those reasons -- a unified perspective if you will:
+perspective to all those reasons—a unified perspective if you will:
 
 > The only reason automated tests are valuable is to allow us to modify
   our own code later on.
@@ -32,17 +32,17 @@ In other words:
 > The only time a test will give value back is when we want to _change_ our code.
 
 Let's see how the classic arguments in favor of writing tests are connected
-with this premise:
+to this premise:
 
 - Makes refactoring easier—You can change implementation details with confidence, leaving the public API untouched.
 - Avoids regressions—When do regressions occur? When you change your code.
 - Provides executable specification and documentation—When do you want to know more about how software actually works? When you want to modify it.
-- Reduces time of creating software—How? By allowing you to modify your code faster, with the confidence that your tests will tell you when something went wrong.
-- Reduces cost of creating software—Well, time is money.
+- Reduces the time of creating software—How? By allowing you to modify your code faster, with the confidence that your tests will tell you when something went wrong.
+- Reduces the cost of creating software—Well, time is money.
 
 
 Yes, all the reasons above are true at some point, but the reason that this
-pertains to us, developers, is that automated tests let us change stuff.
+pertains to us developers is that automated tests let us change stuff.
 
 Note that I'm not including the design feedback of _writing_ tests, as in TDD. That
 could be a separate conversation. We will be talking about tests, once they are written.
@@ -56,7 +56,7 @@ An easy way to take this fact into account when writing a test is to always ask 
 
 If you find a bad reason for your test to fail (or pass), fix it.
 
-That way, when you change your code later down the road, your tests will pass or fail only
+That way, when you change your code later on down the road, your tests will pass or fail only
 for good reasons, thus giving a better return than flakey tests that fail for the wrong reason.
 
 Still, you may be wondering: "What's the big deal about that?"
@@ -64,7 +64,7 @@ Still, you may be wondering: "What's the big deal about that?"
 Let's answer this question with another question: Why do our tests break when we
 change our code?
 
-We agreed that the main purpose of having tests is so we can change our code with ease. If that's so, then how are all those red tests helping us? Those failing tests are nothing but noise-impediments to getting the job done. So, how do we do testing in a way that will help us?
+We agreed that the main purpose of having tests is so we can change our code with ease. If that's so, then how are all those red tests helping us? Those failing tests are nothing but noise—impediments to getting the job done. So, how do we do testing in a way that will help us?
 
 It depends on the reason why we are changing the code.
 
@@ -81,7 +81,7 @@ your code _does_) you would:
 1. Run the tests and see if those modified tests fail.
 1. Update your code to make all tests pass again.
 
-At the end of this process, we are back at square one—all tests pass
+At the end of this process, we are back at square one—all tests pass,
 and we are ready to start over if needed.
 
 Because you know exactly which tests failed and which modification of the
@@ -98,7 +98,7 @@ Again, the starting point should always be green.
 
 If all you want is to change the implementation of a piece of code to
 make it simpler, more performant, easy to extend, etc. (i.e. changing
-_how_ your code does something but not _what_ it does) this is the extensive
+_how_ your code does something but not _what_ it does), this is the extensive
 list of steps to follow:
 
 1. Modify your code without touching your tests at all.
@@ -116,20 +116,21 @@ In this case, it is not OK to see a test failing. It could mean that:
 - We didn't change the external behavior of the code. Bad, we got false negatives. This is where most of the trouble is.
 
 
-We want our tests to aid in the processes described above. So let's see some DOs
- and DON'Ts that will help make our tests more cooperative.
+We want our tests to aid in the processes described above. So let's see some specific tips that will help make our tests more cooperative.
 
 ## Good Practices 101
 
-Before jumping into how _not_ to write your tests, I'd like to go over a few good practices really quick. There are five basic rules that every test should obey to be considered a good—or even a _valid_—test. There is a mnemonic for these five rules: F.I.R.S.T. Tests should be:
+Before jumping into how _not_ to write your tests, I'd like to go over a few good practices really quick. There are five basic rules that every test should obey to be considered a good—or even a _valid_—test. There is a mnemonic for these five rules: F.I.R.S.T. 
 
-- **F**ast—so we can execute them often.
-- **I**solated—one test cannot depend on external factors or on the result of another test.
+Tests should be:
+
+- **F**ast—tests should be able to be executed often.
+- **I**solated—tests on their own cannot depend on external factors or on the result of another test.
 - **R**epeatable—tests should have the same result every time we run them.
-- **S**elf-verifying—tests should include assertions. No human intervention needed.
+- **S**elf-verifying—tests should include assertions; no human intervention needed.
 - **T**imely—tests should be written along with the production code.
 
-To find out more about this set of rules, you can read [this article](http://pragprog.com/magazines/2012-01/unit-tests-are-first) by Tim Ottinger, and Jeff Langr.
+To find out more about this set of rules, you can read [this article](http://pragprog.com/magazines/2012-01/unit-tests-are-first) by Tim Ottinger and Jeff Langr.
 
 
 ## Bad Practices
@@ -144,7 +145,7 @@ How do we maximize the outcome of our tests? In one sentence:
 
 Private means private. Period. If you feel the need to test a private
 method, there is something conceptually wrong with that method. Usually
-it is doing too much to be a private method, which in turn violates the [Single Responsibility Principle](http://www.objectmentor.com/resources/articles/srp.pdf)
+it is doing too much to be a private method, which in turn violates the [Single Responsibility Principle](http://www.objectmentor.com/resources/articles/srp.pdf).
 
 Today:
 Your class has a private method. It does plenty of stuff, so you decide to
@@ -155,7 +156,7 @@ internally by other public methods of the same class.
 You write tests for that private (now technically public) method.
 
 Tomorrow:
-You decide to modify what this method does, because some change in the
+You decide to modify what this method does, because of some change in the
 requirements (totally fine).
 You find out that some coworker is using that method from another class
 for something totally different because "it does what I need." After all,
@@ -174,7 +175,7 @@ Always test your code via its public API. The public API of your code
 defines a contract, which is a well-defined set of expectations about how your
 code is going to act based on different inputs. The private API (private
 methods or even entire classes) does not define that contract and it is
-subject to change without notice, therefore your tests (or your colleagues)
+subject to change without notice, so your tests (or your colleagues)
 cannot rely on them.
 
 By testing your private methods in this way, you will remain free to change your (truly) private
@@ -184,28 +185,28 @@ that do one thing and are properly tested.
 ### Don't Stub Private Methods
 
 Stubbing private methods has all the same caveats as exposing a private method for testing, but on top
-of that, it could be hard to debug. Usually, stubbing libraries rely on hacks to
+of that, doing this could be hard to debug. Usually, stubbing libraries rely on hacks to
 get the job done, making it hard to find out why a test is failing.
 
-Also, when we stub a method, we should doing it according to its contract.
+Also, when we stub a method, we should be doing it according to its contract.
 But a private method has no specified contract—that's mostly why it's
 private, after all. Since the behavior of a private method is subject to
 change without notice, your stub may diverge from reality, but your test
 _will still pass_. Horrendous. Let's see an example:
 
 Today:
-Public method of a class relies on a private method of the same class.
-Private method foo never returns nil.
+The public method of a class relies on a private method of the same class.
+The private method foo never returns nil.
 Tests for the public method stub out the private method for convenience.
 When stubbing out method foo, you never consider making foo return nil,
 because it currently never happens.
 
 Tomorrow:
 The private method changes and now it returns nil. It's a private method, so that's fine.
-Tests of the public method are never updated accordingly ("I'm changing a private method,
-why should I update any test at all?")
+Tests of the public method are never updated accordingly ("I'm changing a private method, so
+why should I update any test at all?").
 The public method is now broken for the case in which the private method returns
-nil but the tests still pass!
+nil, but the tests still pass!
 
 Horrendous.
 
@@ -219,15 +220,15 @@ double for that new class.
 Third-party code should never be mentioned directly in your tests.
 
 Today:
-Your networking code relies on the famous HTTP library LSNetworking.
+Your networking code relies on the famous HTTP library `LSNetworking`.
 To avoid hitting the actual network (to make your tests fast and reliable),
 you stub out the method `-[LSNetworking makeGETrequest:]` of that library,
 properly replacing its behavior (it calls the success callback with a
 canned response) but without hitting the network.
 
 Tomorrow:
-You need to swap LSNetworking with an alternative (it could be that
-LSNetworking is no longer maintained or that you need to switch
+You need to swap `LSNetworking` with an alternative (it could be that
+`LSNetworking` is no longer maintained or that you need to switch
 to a more advanced library because it has that feature that you need, etc.).
 It's a refactor, so you should not change your tests.
 You replace the library.
@@ -274,7 +275,7 @@ This goes hand in hand with the previous point, but this problem is more
 common. Our production code usually relies on dependencies to get something done. For instance, a dependency could help
 us query a database. Often, these dependencies offer many ways of achieving
 the exact same thing or, at least, with the same external behavior; in our
-database example, you could use the `find` method to retrieve a record by id,
+database example, you could use the `find` method to retrieve a record by ID,
 or use a `where` clause to get the same record. The problem comes when we
 only stub one of those possible mechanisms. If we only stub the `find`
 method—which is the one that our production code uses—but we don't stub
@@ -283,34 +284,34 @@ refactor our implementation from using `find` to using `where`, our test will
 fail, even though the external behavior of our code hasn't changed.
 
 Today:
-The class UsersController relies on the class UsersRepository to
+The `UsersController`class relies on the `UsersRepository`class to
 retrieve users from the database.
-You are testing UsersController and you stub out the `find` method of the
-UsersRepository class to make your tests run faster and in a deterministic
+You are testing `UsersController` and you stub out the `find` method of the
+`UsersRepository` class to make your tests run faster and in a deterministic
 fashion, which is an awesome thing to do.
 
 Tomorrow:
-You decide to refactor UsersController to use the new query syntax of
-UsersRepository, which is more readable.
+You decide to refactor `UsersController` to use the new query syntax of
+`UsersRepository`, which is more readable.
 Because it's a refactoring, you should not touch your tests.
-You update UsersController to use the more readable method `where`, in order to find the
+You update `UsersController` to use the more readable method `where`, in order to find the
 records of interest.
 Now your tests are broken because they stub the method `find` but not
-where.
+`where`.
 
 Umbrella stubbing can help here in some cases, but for our case
-with the class UsersController... well, there is no alternative library to
-fetch _my_ Users from _my_ database.
+with the `UsersController` class... well, there is no alternative library to
+fetch _my_ users from _my_ database.
 
 What To Do: 
 Create an alternative implementation of the same
 class for testing purposes and use it as a test double.
 
-To continue with our example, we should provide an InMemoryUsersReposity.
+To continue with our example, we should provide an `InMemoryUsersRepository`.
 This in-memory alternative should comply to every single aspect of the
-contract established by the original class UsersRepository, except that
+contract established by the original `UsersRepository` class, except that
 it stores data in memory to make our tests fast. This means that when
-you refactor UsersRepository, you do the same with its in-memory version.
+you refactor `UsersRepository`, you do the same with its in-memory version.
 To make it very clear: yes, you now have to maintain two different
 implementations of the same class.
 
@@ -347,7 +348,7 @@ Tomorrow:
 The class Engine turns out to be costly to construct, so you decide to
 lazily initialize it the first time that the getter of Engine is called.
 (This is a totally fine thing to do.)
-Your test for the constructor of the class Car breaks because, upon
+Your test for the constructor of the Car class breaks because, upon
 construction, Car no longer has an Engine, even though the Car will
 work perfectly.
 Another option is that your test does not fail because testing that the
@@ -366,12 +367,12 @@ smell. Your class may be doing too much. Try to split it in smaller
 classes, but if there is a legitimate reason for your class to have
 multiple constructors, just follow the same piece of advice. Make sure
 you test the public API of that class, constructing it in different ways. In this case, test it using every constructor (i.e. when this class is in this
-initial state, it behaves like this. When it's in this other initial
-state it behaves like that).
+initial state, it behaves like this, and when it's in this other initial
+state, it behaves like that).
 
 ## Conclusion
 
-Writing tests is an investment—we need to put time in the form of writing
+Writing tests is an investment—we need to put in time in the form of writing
 and maintaining them. The only way we can justify such an investment is because
 we expect to get that time back. Coupling tests to implementation details will
 reduce the amount of value that our tests will provide, making that investment
