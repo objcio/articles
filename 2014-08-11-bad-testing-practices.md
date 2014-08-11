@@ -258,8 +258,7 @@ networking stack without breaking your tests.
 Another example could be stubbing out dates. There are many ways of
 getting the current time in most programming languages, but libraries like
 [TUDelorean](https://github.com/tuenti/TUDelorean) take care of stubbing
-every single time-related API so you can control "what time is it" for
-testing purposes without coupling your tests to any of those multiple
+every single time-related API so that you can simulate a different system time for testing purposes without coupling your tests to any of those multiple
 time APIs. This lets you refactor your implementation to a different
 time API without breaking your tests.
 
@@ -339,20 +338,19 @@ that we should only test the behavior of our code, there is nothing to
 test.
 
 Today:
-Your class, Car, has one constructor.
-You test that, once a Car is constructed, its engine is not nil (because you
-know that the constructor creates a new Engine and assigns it to the
+Your class, `Car`, has one constructor.
+You test that, once a `Car` is constructed, its `Engine` is not nil (because you
+know that the constructor creates a new `Engine` and assigns it to the
 variable `_engine`).
 
 Tomorrow:
-The class Engine turns out to be costly to construct, so you decide to
-lazily initialize it the first time that the getter of Engine is called.
+The class `Engine` turns out to be costly to construct, so you decide to
+lazily initialize it the first time that the getter of `Engine` is called.
 (This is a totally fine thing to do.)
-Your test for the constructor of the Car class breaks because, upon
-construction, Car no longer has an Engine, even though the Car will
+Your test for the constructor of the `Car` class breaks because, upon
+construction, `Car` no longer has an `Engine`, even though the `Car` will
 work perfectly.
-Another option is that your test does not fail because testing that the
-car has an Engine triggers the lazy load initialization of the Engine.
+Another option is that your test does not fail because testing that `Car` has an `Engine` triggers the lazy load initialization of the `Engine`.
 So my question is: What are you testing again?
 
 What To Do:
