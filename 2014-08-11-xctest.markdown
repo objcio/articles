@@ -354,7 +354,7 @@ and
 
 are some basic building blocks for asynchronous tests.
 
-XCTest has some convenience stuff for `NSNotification` and key-value observing, both of which are built on top of this.
+XCTest has some convenience stuff for `NSNotification` and key-value observing, both of which are built on top of these building blocks.
 
 Sometimes, though, we found ourselves using the same patters in multiple places, e.g. if we're asynchronously expecting a managed object context to be saved, we may have code like this:
 
