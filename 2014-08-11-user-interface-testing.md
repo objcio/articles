@@ -1,11 +1,11 @@
-+---
- layout: post
- title: User Interface Testing
- category: "15"
- date: "2014-08-08 06:00:00"
- author: "<a href=\"http://annema.me">Klaas Pieter Annema</a>"
- tags: article
- +---
+---
+layout: post
+title: User Interface Testing
+category: "15"
+date: "2014-08-11 06:00:00"
+author: "<a href=\"http://annema.me\">Klaas Pieter Annema</a>"
+tags: article
+---
 
 One question often asked about iOS (and I guess Mac, and every other UI-driven platform) is how to test UIs. A lot of us don't do it at all, often saying things like: “you should only test your business logic.” Others want to test the UI, but deem it too complex.
 

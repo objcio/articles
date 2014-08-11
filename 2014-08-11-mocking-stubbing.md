@@ -1,9 +1,9 @@
 ---
 layout: post
-title: Test Doubles: Mocks, Stubs, and More
+title: "Test Doubles: Mocks, Stubs, and More"
 category: "15"
-date: "2014-08-08 07:00:00"
-author: "<a href=\"http://lazerwalker.com">Mike Lazer-Walker</a>"
+date: "2014-08-11 07:00:00"
+author: "<a href=\"http://lazerwalker.com\">Mike Lazer-Walker</a>"
 tags: article
 ---
 
@@ -49,102 +49,89 @@ Let's say we're trying to test an object with a method that opens another applic
 
 Imagine the object in question has a single method:
 
-```
-@interface AppLinker : NSObject
-	- (instancetype)initWithApplication:(UIApplication *)application;
-	- (void)doSomething:(NSURL *)url;
-@end
-```
+    @interface AppLinker : NSObject
+            - (instancetype)initWithApplication:(UIApplication *)application;
+            - (void)doSomething:(NSURL *)url;
+    @end
 
 This is a pretty contrived example, but bear with me. In this case, you'll notice we're using constructor injection to inject a UIApplication object when we create our instance of AppLinker. In most cases, using mock objects is going to require some form of dependency injection. If this is a foreign concept to you, definitely check out [Jon's article] in this issue.
 
 ### OCMockito
 [OCMockito](https://github.com/jonreid/OCMockito) is a very lightweight mocking library: 
 
-```
-		UIApplication *app = mock([UIApplication class]);
-		AppLinker *linker = [AppLinker alloc] initWithApplication:app];
-        NSURL *url = [NSURL urlWithString:@"https://google.com"];
-        
-        [linker doSomething:URL];
-        
-        [verify(app) openURL:url];
-```
+    UIApplication *app = mock([UIApplication class]);
+    AppLinker *linker = [AppLinker alloc] initWithApplication:app];
+    NSURL *url = [NSURL urlWithString:@"https://google.com"];
+    
+    [linker doSomething:URL];
+    
+    [verify(app) openURL:url];
 
 ### OCMock
 [OCMock](http://ocmock.org) is another Objective-C mock object library. Like OCMockito, it provides full functionality for stubs, mocks, and just about everything else you might want. It has a lot more functionality than OCMockito, which, depending on your personal preference, might be a benefit or a drawback.
 
 At the most basic level, we can rewrite the previous test using OCMock in a way that will look very familiar:
-```
-		id app = OCMClassMock([UIApplication class]);
-		AppLinker *linker = [AppLinker alloc] initWithApplication:app];
-        NSURL *url = [NSURL urlWithString:@"https://google.com"];
-        
-        [linker doSomething:url];
-        
-        OCMVerify([app openURL:url]);
-```
+
+    id app = OCMClassMock([UIApplication class]);
+    AppLinker *linker = [AppLinker alloc] initWithApplication:app];
+    NSURL *url = [NSURL urlWithString:@"https://google.com"];
+    
+    [linker doSomething:url];
+    
+    OCMVerify([app openURL:url]);
 
 This style of mocking, where you verify that a method was called after your test, is known as a "verify after running" approach. OCMock just added support for this in its recent 3.0 release. It also supports an older style, known as expect-run-verify, that has you setting up your expectations before executing the code you are testing. At the end, you simply verify that the expectations were met:
 
- ```
-		id app = OCMClassMock([UIApplication class]);
+    id app = OCMClassMock([UIApplication class]);
 
-		AppLinker *linker = [AppLinker alloc] initWithApplication:app];
-        NSURL *url = [NSURL urlWithString:@"https://google.com"];
+    AppLinker *linker = [AppLinker alloc] initWithApplication:app];
+    NSURL *url = [NSURL urlWithString:@"https://google.com"];
 
-		OCMExpect([app openURL:url]);
+    OCMExpect([app openURL:url]);
 
-        [linker doSomething:url];
-        
-        OCMVerifyAll();
-```
+    [linker doSomething:url];
+    
+    OCMVerifyAll();
 
 
 Because OCMock lets you stub out class methods, you could also test this using OCMock, if your implementation of `doSomething` uses `[UIApplication sharedApplication]` rather than the UIApplication object injected in the initializer: 
 
-```
-		id app = OCMClassMock([UIApplication class]);
-		OCMStub([app sharedInstance]).andReturn(app);
+    id app = OCMClassMock([UIApplication class]);
+    OCMStub([app sharedInstance]).andReturn(app);
 
-		AppLinker *linker = [AppLinker alloc] init];
-        NSURL *url = [NSURL urlWithString:@"https://google.com"];
-        
-        [linker doSomething:url];
-        
-        OCMVerify([app openURL:url]);
-```
+    AppLinker *linker = [AppLinker alloc] init];
+    NSURL *url = [NSURL urlWithString:@"https://google.com"];
+    
+    [linker doSomething:url];
+    
+    OCMVerify([app openURL:url]);
 
 You'll notice that stubbing out class methods looks exactly the same as stubbing out instance methods.
 
 ## Roll Your Own
 For a simple use case like this, you might not need the full weight of a mock object library. Often, you can just as easily create your own fake object to test the behavior you care about:
 
-```
-@interface FakeApplication : NSObject
-	@property (readwrite, nonatomic, strong) NSURL *lastOpenedURL;
-	
-	- (void)openURL:(NSURL *)url;
-@end
-
-@implementation FakeApplication
-	- (void)openURL:(NSURL *)url {
-		self.lastOpenedURL = url;
-	}
-@end
-```
+    @interface FakeApplication : NSObject
+        @property (readwrite, nonatomic, strong) NSURL *lastOpenedURL;
+        
+        - (void)openURL:(NSURL *)url;
+    @end
+    
+    @implementation FakeApplication
+        - (void)openURL:(NSURL *)url {
+            self.lastOpenedURL = url;
+        }
+    @end
 
 And then the test:
 
-```
-		FakeApplication *app = [[FakeApplication alloc] init];
-		AppLinker *linker = [AppLinker alloc] initWithApplication:app];
-        NSURL *url = [NSURL urlWithString:@"https://google.com"];
-        
-        [linker doSomething:url];
-        
-		XCAssertEqual(app.lastOpenedURL, url, @"Did not open the expected URL");
-```
+    FakeApplication *app = [[FakeApplication alloc] init];
+    AppLinker *linker = [AppLinker alloc] initWithApplication:app];
+    NSURL *url = [NSURL urlWithString:@"https://google.com"];
+    
+    [linker doSomething:url];
+    
+    XCAssertEqual(app.lastOpenedURL, url, @"Did not open the expected URL");
 
 For a contrived example such as this, it might appear that creating your own fake object just adds in a lot of unnecessary boilerplate, but if you find yourself needing to simulate more complex object interactions, having full control over the behavior of your mock object can be very valuable.
 

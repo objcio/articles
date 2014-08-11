@@ -2,7 +2,7 @@
 layout: post
 title:  "Editorial"
 category: "15"
-date: "2014-08-08 12:00:00"
+date: "2014-08-11 12:00:00"
 tags: editorial
 ---
 

@@ -1,8 +1,8 @@
 ---
 layout: post
 title:  "Snapshot Testing"
-category: "14"
-date: "2014-08-08 05:00:00"
+category: "15"
+date: "2014-08-11 05:00:00"
 author: "<a href=\"https://orta.github.io\">Orta Therox</a>"
 tags: article
 ---
@@ -36,26 +36,25 @@ Let's not beat around the bush here: you should be using [CocoaPods](cocoapods).
 
 The default behavior of Snapshots is to subclass `FBSnapshotTestCase` instead of `XCTestCase`, and to then use the macro `FBSnapshotVerifyView(viewOrLayer, "optional identifier")` to verify against an already recorded image. There is a boolean property on the subclass `recordMode` that, when set, will make the macro record rather than check.
 
-```
+
 # Headers
 
-@interface ORSnapshotTestCase : FBSnapshotTestCase
-@end
-
-@implementation ORSnapshotTestCase
-
-- (void)testHasARedSquare
-{
-    // Removing this will verify instead of recording
-    self.recordMode = YES;
-
-    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
-    view.backgroundColor = [UIColor redColor];
-    FBSnapshotVerifyView(view, nil);
-}
-
-@end
-```
+    @interface ORSnapshotTestCase : FBSnapshotTestCase
+    @end
+  
+    @implementation ORSnapshotTestCase
+  
+    - (void)testHasARedSquare
+    {
+        // Removing this will verify instead of recording
+        self.recordMode = YES;
+        
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
+        view.backgroundColor = [UIColor redColor];
+        FBSnapshotVerifyView(view, nil);
+    }
+  
+    @end
 
 ### Disadvantages
 
@@ -93,37 +92,33 @@ Nothing's perfect. Let's start with the downsides.
 
 I don't use vanilla XCTest. I uses [Specta and Expecta](specta), which provide a more concise and readable test environment to work in. This is the default testing setup when you create a [new CocoaPod](newcocoapod). I'm a contributor to the pod [Expecta+Snapshots](expmatchers), which provides an Expecta-like API to `FBSnapshotTestCase`. It will handle naming screenshots for you, and can optionally run view controllers through their view event lifecycle. This means my Podfile look like:
 
-```
-target 'MyApp Tests', :exclusive => true do
-    pod 'Specta','~> 1.0'
-    pod 'Expecta', '~> 1.0'
-    pod 'Expecta+Snapshots', '~> 1.0'
-end
-```
+    target 'MyApp Tests', :exclusive => true do
+        pod 'Specta','~> 1.0'
+        pod 'Expecta', '~> 1.0'
+        pod 'Expecta+Snapshots', '~> 1.0'
+    end
 
 In turn, my tests look like:
 
-```
 # Headers
 
-SpecBegin(ORMusicViewController)
+    SpecBegin(ORMusicViewController)
+    
+    it (@"notations in black and white look correct", ^{
+        UIView *notationView = [[ORMusicNotationView alloc] initWithFrame:CGRectMake(0, 0, 80, 320)];
+        notationView.style = ORMusicNotationViewStyleBlackWhite;
+    
+        expect(notationView).to.haveValidSnapshot();
+    });
+    
+    it (@"Initial music view controller looks corrects", ^{
+        id contoller = [[ORMusicViewController alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
+        controller.view.frame = [UIScreen mainScreen].bounds;
+    
+        expect(controller).to.haveValidSnapshot();
+    });
 
-it (@"notations in black and white look correct", ^{
-    UIView *notationView = [[ORMusicNotationView alloc] initWithFrame:CGRectMake(0, 0, 80, 320)];
-    notationView.style = ORMusicNotationViewStyleBlackWhite;
-
-    expect(notationView).to.haveValidSnapshot();
-});
-
-it (@"Initial music view controller looks corrects", ^{
-    id contoller = [[ORMusicViewController alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
-    controller.view.frame = [UIScreen mainScreen].bounds;
-
-    expect(controller).to.haveValidSnapshot();
-});
-
-SpecEnd
-```
+    SpecEnd
 
 ### Snapshots Xcode Plugin
 
