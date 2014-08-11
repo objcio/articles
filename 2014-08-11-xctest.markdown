@@ -25,7 +25,7 @@ We tried to link to the other articles in [this issue](/issue-15/) where it make
 
 As the [article about bad practices in testing](/issue-15/bad-testing-practices.html) mentions, many people believe that "the only time a test will give value back is when we want to change our code." There's obviously more to it, and you should read that article. But it is also important to remember that even when writing the first version of any code, most of the time will be spent changing code—as the project evolves, more and more features get added, and we realize that behavior needs to change slightly here and there. So even though you're not yet working on version 1.1 or 2.0, you'll still do a lot of changing, and tests do provide invaluable help at that point in time.
 
-We are still finishing the initial version of our framework, and have just recently passed 1,000 test cases with more than ten man months of effort spent on the project. Even though we had a clear vision of the project's architecture, we've still had to change and adapt the code along the way. The ever-growing set of test cases have helped us do this.
+We are still finishing the initial version of our framework, and have just recently passed 1,000 test cases with more than 10 [man months](https://en.wikipedia.org/wiki/Man-hour) of effort spent on the project. Even though we had a clear vision of the project's architecture, we've still had to change and adapt the code along the way. The ever-growing set of test cases have helped us do this.
 
 They have given us a level of comfort with the quality of our code, and at the same time given us the ability to refactor and change the code while knowing that we didn't break things. And we have been able to actually run our code from day one; we didn't have to wait for all the pieces to be in place.
 
@@ -101,9 +101,9 @@ This simple pattern makes it easier to write and understand tests, as they all f
 
 ## Reusable Code
 
-Over time, we noticed that we repeated some code again and again in our tests, like waiting for an asynchronous operation to finish or setting up an in-memory core data stack. To avoid code duplication, we began to gather all these useful snippets into a common base class for all our tests.
+Over time, we noticed that we repeated some code again and again in our tests, like waiting for an asynchronous operation to finish or setting up an in-memory Core Data stack. To avoid code duplication, we began to gather all these useful snippets into a common base class for all our tests.
 
-It turned out that this is not only useful as a collection of utility methods. The test base class can run its own `-setUp` and `-tearDown` methods to set up the environment. We use this mostly to initialize core data stacks for testing, to reseed our deterministic NSUUID (which is one of those small things that makes debugging a lot easier), and to set up background magic to simplify asynchronous testing.
+It turned out that this is not only useful as a collection of utility methods. The test base class can run its own `-setUp` and `-tearDown` methods to set up the environment. We use this mostly to initialize Core Data stacks for testing, to reseed our deterministic NSUUID (which is one of those small things that makes debugging a lot easier), and to set up background magic to simplify asynchronous testing.
 
 Another useful pattern we started using recently is to implement delegate protocols directly in our `XCTestCase` classes. This way, we don't have to awkwardly mock the delegate. Instead, we can interact with the tested class in a fairly direct way.
 
@@ -146,13 +146,13 @@ method. It makes sure that the mocks get verified at the end of that method / te
 
 A lot has been said about stateless code during the last few years. But at the end of the day, our apps need state. Without state, most apps would be pretty pointless. But managing state is the source of a lot of bugs, because managing state is very complex.
 
-Isolating the state into a few classes, while to others are stateless made our code a lot easier do work on. And testing got a whole lot easier, too.
+We made our code a lot easier to work on by isolating the state. A few classes contain state, while most are stateless. In addition to the code, testing got a whole lot easier, too.
 
-As an example, we have a class that is responsible for sending local changes to our server. The state in this case is: Which local objects have changes that need to get pushed to the server. And also which changes are currently being pushed. We can send multiple changes at once, but we don't want to send the same change twice.
+For example, we have a class, `EventSync`, that is responsible for sending local changes to our server. It needs to keep track of which local objects have changes that need to get pushed to the server, and which changes are currently being pushed. We can send multiple changes at once, but we don't want to send the same change twice.
 
 We also had interdependencies between objects to keep track of. If *A* has a relationship to *B*, and *B* has local changes, we need to wait for those local changes to be pushed first, before we can send the changes of *A*.
 
-We have a `UserSyncStrategy` that has a `-nextRequest` method that generates the next request. This request will send local changes to the server. The class itself is stateless, though. Or rather: All its state is encapsulated inside an `UpstreamObjectSync` class, which keeps track of all the user objects that have local changes, and for which we have running requests. The state is isolated.
+We have a `UserSyncStrategy` that has a `-nextRequest` method that generates the next request. This request will send local changes to the server. The class itself is stateless, though. Or rather: All its state is encapsulated inside an `UpstreamObjectSync` class, which keeps track of all the user objects that have local changes, and for which we have running requests. There is no state outside this class.
 
 This way, it was easy for us to have one set of tests for the `UpstreamObjectSync`. They check that this class manages the state correctly. For the `UserSyncStrategy`, we were mocking the `UpstreamObjectSync` and didn't have to worry about any state inside the `UserSyncStrategy` itself. That reduced the test complexity a lot, even more so because we were syncing many different kind of objects, and our different classes were all stateless and able to re-use the `UpstreamObjectSync` class.
 
@@ -244,7 +244,7 @@ We found that the best solution to this problem is to consistently use groups, n
 
 Some of our classes need to use a `dispatch_queue_t` internally. Some of our classes enqueue blocks onto an `NSManagedObjectContext`'s private queue.
 
-Inside our `-tearDown` method, we need to wait for all such asynchronous work to be completed. To achieve that, we had to do multiple things.
+Inside our `-tearDown` method, we need to wait for all such asynchronous work to be completed. To achieve that, we had to do multiple things, as shown below.
 
 Our test classes have a property:
 
@@ -254,7 +254,7 @@ We define this once in our common superclass and set it there.
 
 Next, we can inject this group into any class that we're using that uses a `dispatch_queue` or similar, e.g. instead of calling `dispatch_async()`, we're consistently using `dispatch_group_async()`.
 
-Since we're relying heavily on code data, we added a method to `NSManagedObjectContext` called
+Since we're relying heavily on Core Data, we added a method to `NSManagedObjectContext` called
 
     - (void)performGroupedBlock:(dispatch_block_t)block ZM_NON_NULL(1);
     {
@@ -265,9 +265,9 @@ Since we're relying heavily on code data, we added a method to `NSManagedObjectC
         }];
     }
 
-and add a new `dispatchGroup` property to all managed object contexts. We then exclusively use -performGroupedBlock: is all our code.
+and added a new `dispatchGroup` property to all managed object contexts. We then exclusively used `-performGroupedBlock:` is all our code.
 
-With this we can wait for all asynchronous work to be done inside our tear-down method:
+With this, we could wait for all asynchronous work to be done inside our `tearDown` method:
 
     - (void)tearDown
     {
@@ -290,7 +290,7 @@ With this we can wait for all asynchronous work to be done inside our tear-down 
         }
     }
 
-This works, because `-tearDown` gets called on the main loop. We spin the main loop to make sure that any code that might get enqueued onto the main queue gets to run. The above code will hang indefinitely if the group never empties. In our case, we adapted it slightly, so that we have a timeout.
+This works, because `-tearDown` gets called on the main loop. We spun the main loop to make sure that any code that might get enqueued onto the main queue got to run. The above code will hang indefinitely if the group never empties. In our case, we adapted it slightly, so that we had a timeout.
 
 ### Waiting for All Work to Be Done
 
@@ -354,7 +354,7 @@ and
 
 are some basic building blocks for asynchronous tests.
 
-XCTest has some convenience stuff for `NSNotification` and key-value observing, which is built on top of this.
+XCTest has some convenience stuff for `NSNotification` and key-value observing, both of which are built on top of this.
 
 Sometimes, though, we found ourselves using the same patters in multiple places, e.g. if we're asynchronously expecting a managed object context to be saved, we may have code like this:
 
@@ -387,7 +387,7 @@ inside our tests. This is easier to read. Along this pattern it is possible to a
 
 One important question in testing an application is how to test the interaction with the server. The most ideal solution would be to quickly spin up a local copy of the real server, to provision it with fake data, and to run tests directly against it over http.
 
-We are, in fact, working on this solution. It gives us a very realistic test setup. But the sad reality is that it is also a very slow setup. Clearing the database of the server between each tests is slow. We have 1,000 tests. Even if only 30 of them depend on having a real server, if clearing the database and bringing up a 'clean' server instance takes 5 seconds, that would be 2.5 minutes of our test spent on waiting for that to happen. And we also need to be able to test server API that's not quite there, yet. We needed something else.
+We are, in fact, working on this solution. It gives us a very realistic test setup. But the sad reality is that it is also a very slow setup. Clearing the database of the server between each tests is slow. We have 1,000 tests. Even if only 30 of them depend on having a real server, if clearing the database and bringing up a 'clean' server instance takes 5 seconds, that would be 2.5 minutes of our test spent on waiting for that to happen. And we also needed to be able to test a server API before that API had been implemented. We needed something else.
 
 This alternative solution is our 'fake server.' From the get-go, we structured our code so that all our communication with the server is channeled through a single class, the `TransportSession`, which is similar in style to `NSURLSession`, but also handles JSON conversion.
 
@@ -399,7 +399,7 @@ Also, the fake server has tests of its own, so its answers are more precisely de
 
 The implementation of our `FakeTransportSession` is simple. An `HTTPRequest` object encapsulates the relative URL, method, and optional payload of a request. The `FakeTransportSession` maps all endpoints to internal methods, which then generate responses. It even has its own in-memory Core Data stack to keep track of the objects it knows about. This way, a GET can return a resource that a previous operation added with a PUT.
 
-All of this may sound like a hard-to-justify time investment. But the fake server is actually quite simple: it is not a real server; we cut a lot of corners. The fake server can only serve a single client, we do not have to worry about performance / scalability. We also did not implement everything in one huge effort but wrote the parts we needed while developing and testing.
+All of this may sound like a hard-to-justify time investment. But the fake server is actually quite simple: it is not a real server; we cut a lot of corners. The fake server can only serve a single client, and we do not have to worry about performance / scalability. We also did not implement everything in one huge effort but wrote the parts we needed while developing and testing.
 
 One thing worked in our favor, though: the server API was already quite stable and well defined when we started.
 
@@ -554,7 +554,7 @@ Groups of tests and individual tests can also be started from this UI. What's mo
 
 ### Continuous Integration
 
-OS X Server has a feature called [Xcode Server](https://www.apple.com/osx/server/features/#xcode-server), which is Continuos Integration server based on Xcode. We have been using this.
+OS X Server has a feature called [Xcode Server](https://www.apple.com/osx/server/features/#xcode-server), which is a [continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) server based on Xcode. We have been using this.
 
 Our Xcode Server automatically checks out the project from GitHub whenever there's a new commit. We have it configured to run the static analyzer, run all our tests on an iPod touch and a few iOS simulators, and finally create an Xcode archive that can be downloaded.
 
