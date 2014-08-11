@@ -11,7 +11,7 @@ People have their own motivations to write tests for their applications. This ar
 
 Writing tests for the visual aspects of an app is tricky. There's Apple built-in support for logical testing of objects, but no support for testing the end result of view-based code. This gap in functionality means a lot of people dismiss writing tests due to the difficulty of doing view-based tests.
 
-When Facebook released [FBSnapshotTestCase]([fbsnapshot]) to [CocoaPods](cocoapods), I initially dismissed it for this reason. I'm glad one of my co-workers didn't.
+When Facebook released [FBSnapshotTestCase][fbsnapshot] to [CocoaPods][cocoapods], I initially dismissed it for this reason. I'm glad one of my co-workers didn't.
 
 View-based testing means verifying that what the user sees is what you want the user to see. Doing this means being able to ensure that different versions of your views, or different states of your views, continue to look the same. View-based testing can be used to provide a high-level test covering a lot of use cases surrounding an object.
 
@@ -26,11 +26,11 @@ Here is an example of a failing test where we have less grid items than expected
 
 It makes the comparison by drawing both the view or layer and the existing snapshot into two `CGContextRefs` and doing a memory comparison of them with the C function `memcmp()`. This makes it extremely quick, with my tests ranging from 0.013 to 0.086 seconds per comparison of up to retina iPad and iPhone images on a MacBook Air.
 
-When it's set up, it will default to storing the reference images inside your project's `[Project]Tests` folder, in a subfolder called `ReferenceImages`. Inside this is a library of folders based on the test case classname. Inside the test case folders are the reference images per test. When a test fails, it will generate a screenshot of what it thought would be the same and another image of the visual difference between the two. All three images are put inside the application's tmp folder. Snapshots will also `NSLog` a command to the console to load the two images into the visual diffing tool, [Kaleidoscope](kaleidoscope).
+When it's set up, it will default to storing the reference images inside your project's `[Project]Tests` folder, in a subfolder called `ReferenceImages`. Inside this is a library of folders based on the test case classname. Inside the test case folders are the reference images per test. When a test fails, it will generate a screenshot of what it thought would be the same and another image of the visual difference between the two. All three images are put inside the application's tmp folder. Snapshots will also `NSLog` a command to the console to load the two images into the visual diffing tool, [Kaleidoscope][kaleidoscope].
 
 ### Installation
 
-Let's not beat around the bush here: you should be using [CocoaPods](cocoapods). So installation is just adding `pod "FBSnapshotTestCase"` into the tests target of your Podfile. Running the command `pod install` will install the library.
+Let's not beat around the bush here: you should be using [CocoaPods][cocoapods]. So installation is just adding `pod "FBSnapshotTestCase"` into the tests target of your Podfile. Running the command `pod install` will install the library.
 
 ### XCTest with Snapshots
 
@@ -56,17 +56,19 @@ The default behavior of Snapshots is to subclass `FBSnapshotTestCase` instead of
   
     @end
 
+<a name="disadvantages"> </a>
+
 ### Disadvantages
 
 Nothing's perfect. Let's start with the downsides.
 
-* Testing asynchronous code is hard. This is a similar pattern throughout testing in Cocoa. I tend to have two answers to this. Using testing frameworks like [Specta](specta) or [Kiwi](kiwi) provides ways of repeatedly running assertions in code until a timeout occurs or succeeds. This means you can give it 0.5 seconds to run. Alternatively you can use a
+* Testing asynchronous code is hard. This is a similar pattern throughout testing in Cocoa. I tend to have two answers to this. Using testing frameworks like [Specta][specta] or [Kiwi][kiwi] provides ways of repeatedly running assertions in code until a timeout occurs or succeeds. This means you can give it 0.5 seconds to run. Alternatively you can use a
 
 * Some components can be hard to test. There are two notable examples that come to mind.
 
   Some `UIView` classes cannot be initiated without a frame in a test, so get into the habit of always giving a frame to your views to avoid these messages: `<Error>: CGContextAddRect: invalid context 0x0. [..]`. If you write Auto Layout code a lot, then this is unintuitive.
 
-  `CATiledLayer`-backed views require being on the main screen and being visible before they will render their tiles. They also render asynchronously. I tend to add a [two-second wait](arimagetiletest) for these tests.
+  `CATiledLayer`-backed views require being on the main screen and being visible before they will render their tiles. They also render asynchronously. I tend to add a [two-second wait][arimagetiletest] for these tests.
 
 * Apple's OS patches can change the way their stock components are rendered. When Apple very subtly changed the font hinting in iOS 7.1, any snapshots with `UILabels` in them required re-recording.
 
@@ -84,13 +86,13 @@ Nothing's perfect. Let's start with the downsides.
 
 * I've found that writing snapshot tests provides overreaching test coverage. I don't believe it's optimal to aim for 100% coverage via unit tests. I try to be pragmatic in my approach to testing, wherein most of the changes introduced are tested. Snapshots test a large amount of code paths without you specifically aiming for it.
 
-* Snapshot tests are fast. Average tests on a modern MacBook Air using retina iPad-sized images range from 0.015 to 0.080 seconds per test. Having hundreds in an application's test suite is no problem. The [application I work on](folio) has hundreds of tests and they take less than five seconds.
+* Snapshot tests are fast. Average tests on a modern MacBook Air using retina iPad-sized images range from 0.015 to 0.080 seconds per test. Having hundreds in an application's test suite is no problem. The [application I work on][folio] has hundreds of tests and they take less than five seconds.
 
 ### Tooling
 
 ##### FBSnapShots + Specta + Expecta
 
-I don't use vanilla XCTest. I uses [Specta and Expecta](specta), which provide a more concise and readable test environment to work in. This is the default testing setup when you create a [new CocoaPod](newcocoapod). I'm a contributor to the pod [Expecta+Snapshots](expmatchers), which provides an Expecta-like API to `FBSnapshotTestCase`. It will handle naming screenshots for you, and can optionally run view controllers through their view event lifecycle. This means my Podfile look like:
+I don't use vanilla XCTest. I uses [Specta and Expecta][specta], which provide a more concise and readable test environment to work in. This is the default testing setup when you create a [new CocoaPod][newcocoapod]. I'm a contributor to the pod [Expecta+Snapshots][expmatchers], which provides an Expecta-like API to `FBSnapshotTestCase`. It will handle naming screenshots for you, and can optionally run view controllers through their view event lifecycle. This means my Podfile look like:
 
     target 'MyApp Tests', :exclusive => true do
         pod 'Specta','~> 1.0'
@@ -122,16 +124,17 @@ In turn, my tests look like:
 
 ### Snapshots Xcode Plugin
 
-Parsing the console log to find the references to images is a lot of effort. Loading up all the different failing tests into a visual diff tool like [Kaleidoscope](kaleidoscope) requires running a lot of terminal commands.
+Parsing the console log to find the references to images is a lot of effort. Loading up all the different failing tests into a visual diff tool like [Kaleidoscope][kaleidoscope] requires running a lot of terminal commands.
 
-To deal with nearly all of the common use cases, I built an Xcode plugin called [Snapshots](snapshots). It can be installed via [Alcatraz](alcatraz) or built yourself. It makes it simple to compare the success and failure images for any inline failed test in Xcode.
+To deal with nearly all of the common use cases, I built an Xcode plugin called [Snapshots][snapshots]. It can be installed via [Alcatraz][alcatraz] or built yourself. It makes it simple to compare the success and failure images for any inline failed test in Xcode.
 
 
 ### Conclusion
 
-[FBSnapshotTestCase](fbsnapshot) gives you a way to test view-related code. It can be used to build and visualize view states without jumping through hoops in the simulator. You should use it with my plugin [Snapshots](snapshots) if you use Xcode. Sometimes it can be a bit frustrating, but it pays off. It welcomes designers into the code review stage. It can be a very easy first step into writing tests on an existing project; you should give it a try.
+[FBSnapshotTestCase][fbsnapshot] gives you a way to test view-related code. It can be used to build and visualize view states without jumping through hoops in the simulator. You should use it with my plugin [Snapshots][snapshots] if you use Xcode. Sometimes it can be a bit frustrating, but it pays off. It welcomes designers into the code review stage. It can be a very easy first step into writing tests on an existing project; you should give it a try.
 
 Examples from Open Source:
+
   * [ARTiledImageView](https://github.com/dblock/ARTiledImageView)
   * [NAMapKit](https://github.com/neilang/NAMapKit/)
   * [ORStackView](https://github.com/orta/ORStackView/)
@@ -143,7 +146,7 @@ Examples from Open Source:
 
 [specta]: http://github.com/specta/specta/ "Specta Github Repo"
 
-[expmatchers]: http://github.com/dblock/specta/ "EXPMatchers+FBSnapshotTest Github Repo"
+[expmatchers]: https://github.com/dblock/ios-snapshot-test-case-expecta "EXPMatchers+FBSnapshotTest Github Repo"
 
 [kiwi]: https://github.com/kiwi-bdd/Kiwi "Kiwi Github Repo"
 

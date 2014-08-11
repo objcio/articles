@@ -11,7 +11,7 @@ One question often asked about iOS (and I guess Mac, and every other UI-driven p
 
 Whenever someone tells me UI testing is hard, I think back to something [Landon Fuller](https://twitter.com/landonfuller) said about testing the UI of [Paper (by 53)](https://www.fiftythree.com/paper) during a [panel about testing](http://www.meetup.com/CocoaPods-NYC/events/164278492/) that we were both part of:
 
-> What you see on the screen is the culmination of a variety of data and transforms applied to that data over time ... Being able to decompose those things into testable units means you can break...down [things] that are relatively complex into more easily understood elements.
+> What you see on the screen is the culmination of a variety of data and transforms applied to that data over time ... Being able to decompose those things into testable units means you can break...down \[things\] that are relatively complex into more easily understood elements.
 
 Paper’s UI is relatively complex. Testability is usually not something taken into account when building such a UI. However, any action taken by the user is modeled in code somewhere; it’s always possible to fake the user’s action in a test. The problem is that most frameworks, including UIKit, often don’t publicly expose the necessary lower-level constructs.
 

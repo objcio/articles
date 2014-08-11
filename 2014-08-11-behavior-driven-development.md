@@ -133,7 +133,7 @@ As an iOS or Mac developer you can choose from a variety of BDD frameworks:
 
 When it comes to syntax all these frameworks are nearly the same. Main difference between them lies in their configurability and bundled components. 
 
-**Cedar** comes bundled with [matchers](https://github.com/pivotal/cedar/wiki/Writing-specs#matchers) and [doubles](https://github.com/pivotal/cedar/wiki/Writing-specs#doubles). Thought not exactly true for the sake of this article let's consider doubles as mocks (you can learn the difference between mocks and doubles [here](http://www.objc.io/issue-15/mocking-stubbing.html). 
+**Cedar** comes bundled with [matchers](https://github.com/pivotal/cedar/wiki/Writing-specs#matchers) and [doubles](https://github.com/pivotal/cedar/wiki/Writing-specs#doubles). Thought not exactly true for the sake of this article let's consider doubles as mocks (you can learn the difference between mocks and doubles [here](/issue-15/mocking-stubbing.html). 
 
 Apart from these helpers Cedar has additional configuration feature: focusing tests. Focusing tests means that Cedar will execute only that test or a test group. Focusing can be achieved by adding an `f` before `it`, `describe` or `context` block. 
 
@@ -154,7 +154,7 @@ It is also worth mentioning that there are already two BDD frameworks that are d
 
 ## Examples
 
-There's one last thing I'd like to point out before we move to examples. Remember that one of key aspect of writing good behavioral tests is identifying dependencies (you can read more on this subject [here](http://www.objc.io/issue-15/dependency-injection.html)) and exposing them in your interface. 
+There's one last thing I'd like to point out before we move to examples. Remember that one of key aspect of writing good behavioral tests is identifying dependencies (you can read more on this subject [here](/issue-15/dependency-injection.html)) and exposing them in your interface. 
 
 Most of your tests will either assert whether a specific interaction happened, or whether a specific value was returned (or passed in to another object) based on your tested object state. Extracting dependencies will allow you to easily mock values and states. Moreover it will greatly simplify asserting whether a specific action happened or a specific value was calculated.
 
@@ -184,7 +184,7 @@ This is how our interface looks like. The event protocol defines three basic pro
 
 Our goal is to test whether `EventDescriptionFormatter` returns a formatted description that looks like `My Event starts at Aug 21, 2014, 12:00 AM and ends at Aug 21, 2014, 1:00 AM.`. 
 
-Please note that this (and all other examples in this article) use mocking frameworks. If you never used a mocking framework before you should consult [this article](http://www.objc.io/issue-15/mocking-stubbing.html).
+Please note that this (and all other examples in this article) use mocking frameworks. If you never used a mocking framework before you should consult [this article](/issue-15/mocking-stubbing.html).
 
 We'll start by mocking our only dependency in the component, which is the date formatter. We'll use the created mock to return fixture strings for start and end dates. And finally we'll check whether the string returned from event formatter is constructed using the values that we have just mocked. 
 
@@ -757,5 +757,5 @@ And with great tools provided by iOS community you should be able to start BDDin
 
 If you're interested in roots of BDD and how it came to be you should definitely read [this article](http://dannorth.net/introducing-bdd/).
 For those of you who understands TDD, but they don't exactly know how it differs from TDD I recommend [this article](http://blog.mattwynne.net/2012/11/20/tdd-vs-bdd/).
-Last but not least you can find example project with tests presented above [here](https://github.com/paweldudek/bdd-examples).
+Last but not least you can find example project with tests presented above [here](https://github.com/objcio/issue-15-bdd).
 
