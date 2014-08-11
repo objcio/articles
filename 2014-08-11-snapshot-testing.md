@@ -61,25 +61,24 @@ The default behavior of Snapshots is to subclass `FBSnapshotTestCase` instead of
 Nothing's perfect. Let's start with the downsides.
 
 * Testing asynchronous code is hard. This is a similar pattern throughout testing in Cocoa. I tend to have two answers to this. Using testing frameworks like [Specta][specta] or [Kiwi][kiwi] provides ways of repeatedly running assertions in code until a timeout occurs or succeeds. This means you can give it 0.5 seconds to run, with the tests repeatedly being checked. Alternatively, you can build your application code so that asynchronous code is run synchronously if flagged.
-
 * Some components can be hard to test. There are two notable examples that come to mind: Some `UIView` classes cannot be initiated without a frame in a test, so get into the habit of always giving a frame to your views to avoid these messages: `<Error>: CGContextAddRect: invalid context 0x0. [..]`. If you write Auto Layout code a lot, then this is unintuitive. `CATiledLayer`-backed views require being on the main screen and being visible before they will render their tiles. They also render asynchronously. I tend to add a [two-second wait][arimagetiletest] for these tests.
 * Apple's OS patches can change the way their stock components are rendered. When Apple very subtly changed the font hinting in iOS 7.1, any snapshots with `UILabels` in them required re-recording.
 * Each snapshot is a PNG file stored in your repository, and together they average out at about 30-100kb per file for me. I record all my tests in "@2x." The snapshots are as big as the view being rendered.
 
 ### Advantages
 
-* I end up testing first. This is by writing a screenshot test for every different view state as I add ways to make changes to the object. This gives me the ability to do a single test run and see the changes I make to the different states instantly. No tapping through my app to get to the right view, then changing state. I simply look at the images rendered by `FBSnapshotTestCase`. This saves a lot of time in building.
+* I end up testing first. This is done by writing a screenshot test for every different view state as I add ways to make changes to the object. This gives me the ability to do a single test run and see the changes I make to the different states instantly. No tapping through my app to get to the right view, then changing state. I simply look at the images rendered by `FBSnapshotTestCase`. This saves a lot of time in building.
 * Snapshot tests are run at the same time as the rest of your tests. They don't have to run as another test scheme. They are written in the same language as the rest of your tests. They can [mostly](#disadvantages) be run without pushing the view to the screen.
 * Snapshots give code reviews a narrative. Tests show up first, offering a promise of what is coming up in the changeset. Next is the snapshots, proof that what the tests promise is true. Finally, the changes to the codebase show up. By the time you've hit the changeset, you're primed both by what has changed internally, and by what will be seen externally by users.
 * Providing visuals during the code review also opens up the review to designers; they can keep on top of changes by watching the project's repo.
-* I've found that writing snapshot tests provides overreaching test coverage. I don't believe it's optimal to aim for 100% coverage via unit tests. I try to be pragmatic in my approach to testing, wherein most of the changes introduced are tested. Snapshots test a large amount of code paths without specifically denoting the paths called. This is because snapshots test the output from a combination of systems easily. Consider the use of snapshots like painting with a wide brush, giving you the chance to make broad stokes at getting test coverage swiftly.
+* I've found that writing snapshot tests provides overreaching test coverage. I don't believe it's optimal to aim for 100% coverage via unit tests. I try to be pragmatic in my approach to testing, wherein most of the changes introduced are tested. Snapshots test a large amount of code paths without specifically denoting the paths called. This is because snapshots test the output from a combination of systems easily. Compare the use of snapshots to painting with a wide brush, giving you the chance to make broad stokes at getting test coverage swiftly.
 * Snapshot tests are fast. Average tests on a modern MacBook Air using retina iPad-sized images range from 0.015 to 0.080 seconds per test. Having hundreds in an application's test suite is no problem. The [application I work on][folio] has hundreds of tests and they take less than five seconds.
 
 ### Tooling
 
 ##### FBSnapShots + Specta + Expecta
 
-I don't use vanilla XCTest. I uses [Specta and Expecta][specta], which provide a more concise and readable test environment to work in. This is the default testing setup when you create a [new CocoaPod][newcocoapod]. I'm a contributor to the pod [Expecta+Snapshots][expmatchers], which provides an Expecta-like API to `FBSnapshotTestCase`. It will handle naming screenshots for you, and can optionally run view controllers through their view event lifecycle. This means my Podfile look like:
+I don't use vanilla XCTest. I uses [Specta and Expecta][specta], which provide a more concise and readable test environment to work in. This is the default testing setup when you create a [new CocoaPod][newcocoapod]. I'm a contributor to the pod [Expecta+Snapshots][expmatchers], which provides an Expecta-like API to `FBSnapshotTestCase`. It will handle naming screenshots for you, and can optionally run view controllers through their view event lifecycle. This means my Podfile looks like:
 
     target 'MyApp Tests', :exclusive => true do
         pod 'Specta','~> 1.0'
@@ -118,7 +117,7 @@ To deal with nearly all of the common use cases, I built an Xcode plugin called 
 
 ### Conclusion
 
-[`FBSnapshotTestCase`][fbsnapshot] gives you a way to test view-related code. It can be used to build and visualize view states without jumping through hoops in the simulator. You should use it with my plugin [Snapshots][snapshots] if you use Xcode. Sometimes it can be a bit frustrating, but it pays off. It welcomes designers into the code review stage. It can be a very easy first step into writing tests on an existing project; you should give it a try.
+[`FBSnapshotTestCase`][fbsnapshot] gives you a way to test view-related code. It can be used to build and visualize view states without jumping through hoops in the simulator. You should use it with my plugin [Snapshots][snapshots] if you use Xcode. Sometimes it can be a bit frustrating, but it pays off. It welcomes designers into the code review stage. It can be a very easy first step into writing tests on an existing project. You should give it a try.
 
 Examples from Open Source:
 
