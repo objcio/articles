@@ -25,7 +25,7 @@ Here is an example of a failing test where we have less grid items than expected
 
 It makes the comparison by drawing both the view or layer and the existing snapshot into two `CGContextRefs` and doing a memory comparison of them with the C function `memcmp()`. This makes it extremely quick, with my tests ranging from 0.013 to 0.086 seconds per image for fullscreen iPad and iPhone images on a MacBook Air.
 
-When it's set up, it will default to storing the reference images inside your project's `[Project]Tests` folder, in a subfolder called `ReferenceImages`. Inside this is a library of folders based on the testcase classname. Inside the test case folders are the reference images per test. When a test fails, it will generate an output image of the resulting visuals from the test, and an image of the visual difference between itself and the reference. All three images are put inside the application's tmp folder. Snapshots will also `NSLog` a command to the console to load the two images into the visual diffing tool, [Kaleidoscope][kaleidoscope].
+When it's set up, it will default to storing the reference images inside your project's `[Project]Tests` folder, in a subfolder called `ReferenceImages`. Inside this is a library of folders based on the testcase class name. Inside the test case folders are the reference images per test. When a test fails, it will generate an output image of the resulting visuals from the test, and an image of the visual difference between itself and the reference. All three images are put inside the application's tmp folder. Snapshots will also `NSLog` a command to the console to load the two images into the visual diffing tool, [Kaleidoscope][kaleidoscope].
 
 ### Installation
 
