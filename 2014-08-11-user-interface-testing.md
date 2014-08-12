@@ -17,7 +17,12 @@ Paper’s UI is relatively complex. Testability is usually not something taken i
 
 Knowing what to test is as important as knowing how to test. I've been referring to “UI testing” because that's the accepted term for the type of testing I'm going to discuss. In truth, I think you can split UI testing into two categories: 1) behavior and 2) aesthetics.
 
-There is no way to deterministically say that aesthetics are correct, as they tend to change very often. You don't want to have to change your tests every time you're tweaking the UI. That's not to say that you can't test the aesthetics at all. I have no experience with it, but verifying aesthetics could be done with snapshots. Read Orta’s article to learn more [about this method]().
+There is no way to deterministically say that aesthetics are correct, as they
+tend to change very often. You don't want to have to change your tests every
+time you're tweaking the UI. That's not to say that you can't test the
+aesthetics at all. I have no experience with it, but verifying aesthetics could
+be done with snapshots. Read Orta’s article to learn more [about this
+method](http://www.objc.io/issue-15/snapshot-testing.html).
 
 The remainder of this article will be about testing user behavior. I've provided a project on [GitHub](https://github.com/klaaspieter/objc-io-issue-15-ux-testing) that includes some practical examples. It’s written for iOS using Objective-C, but the underlying principles can be applied to the Mac and other UI frameworks.
 
