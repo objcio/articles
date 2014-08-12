@@ -614,7 +614,7 @@ And last, but not least, we will check how our controller behaves when the butto
                  [signInViewController didTapSignInButton:nil];
              });
 
-             it(@"should tell the sign in manager to sign in with given username and password", ^{
+             it(@"should not tell the sign in manager to sign in", ^{
                  [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
              });
          });
@@ -627,7 +627,7 @@ And last, but not least, we will check how our controller behaves when the butto
                  [signInViewController didTapSignInButton:nil];
              });
 
-             it(@"should tell the sign in manager to sign in with given username and password", ^{
+             it(@"should not tell the sign in manager to sign in", ^{
                  [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
              });
          });
@@ -713,7 +713,7 @@ Let's see how our tests look now:
                     [signInButton specsSimulateTap];
                 });
 
-                it(@"should tell the sign in manager to sign in with given username and password", ^{
+                it(@"should not tell the sign in manager to sign in", ^{
                     [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
                 });
             });
@@ -726,7 +726,7 @@ Let's see how our tests look now:
                     [signInButton specsSimulateTap];
                 });
 
-                it(@"should tell the sign in manager to sign in with given username and password", ^{
+                it(@"should not tell the sign in manager to sign in", ^{
                     [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
                 });
             });
