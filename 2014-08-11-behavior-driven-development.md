@@ -143,7 +143,9 @@ Cedar uses a bit of hackery when it comes to integration with XCTest, and thus i
 
 **Kiwi** also comes bundled with [matchers](https://github.com/kiwi-bdd/Kiwi/wiki/Expectations), as well as [stubs and mocks](https://github.com/kiwi-bdd/Kiwi/wiki/Mocks-and-Stubs). Unlike Cedar, Kiwi is tightly integrated with XCTest, however, it lacks the configuration capabilities available in Cedar. 
 
-**Specta** offers a different approach when it comes to testing tools, as it lacks any matchers, mocks, or stubs. It is tightly integrated with XCTest and offers configuration capabilities similar to Cedar. 
+**Specta** offers a different approach when it comes to testing tools, as it does not come bundled with any matchers, mocks, or stubs. It does, however, offer a separate library `Expecta` that provides a variety of matchers. 
+
+Specta is tightly integrated with XCTest and offers configuration capabilities similar to Cedar - focusing and x'ing tests. 
 
 As mentioned before, Cedar, Kiwi, and Specta offer similar syntax. I would not say that there is a framework that is better than all the others; they all have their small pros and cons. Choosing a BDD framework to work with comes down to personal preference. 
 
@@ -614,7 +616,7 @@ And last but not least, we will check how our controller behaves when the button
                  [signInViewController didTapSignInButton:nil];
              });
 
-             it(@"should tell the sign in manager to sign in with given username and password", ^{
+             it(@"should not tell the sign in manager to sign in", ^{
                  [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
              });
          });
@@ -627,7 +629,7 @@ And last but not least, we will check how our controller behaves when the button
                  [signInViewController didTapSignInButton:nil];
              });
 
-             it(@"should tell the sign in manager to sign in with given username and password", ^{
+             it(@"should not tell the sign in manager to sign in", ^{
                  [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
              });
          });
@@ -713,7 +715,7 @@ Let's see how our tests look now:
                     [signInButton specsSimulateTap];
                 });
 
-                it(@"should tell the sign in manager to sign in with given username and password", ^{
+                it(@"should not tell the sign in manager to sign in", ^{
                     [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
                 });
             });
@@ -726,7 +728,7 @@ Let's see how our tests look now:
                     [signInButton specsSimulateTap];
                 });
 
-                it(@"should tell the sign in manager to sign in with given username and password", ^{
+                it(@"should not tell the sign in manager to sign", ^{
                     [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
                 });
             });
