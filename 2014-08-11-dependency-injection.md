@@ -127,8 +127,8 @@ Again, this may look odd—and again, remember that `NSUserDefaults` may not qui
 
 When the dependency is accessed through a class method (such as a singleton), then there are two ways to control that dependency from a test:
 
-  * If you control the singleton, you may be able to **expose its properties** to control its state.
-  * If fiddling with properties is insufficient, or the singleton isn't yours to control, then **it's time to swizzle**: replace the class method so that it returns the fake you need.
+* If you control the singleton, you may be able to **expose its properties** to control its state.
+* If fiddling with properties is insufficient, or the singleton isn't yours to control, then **it's time to swizzle**: replace the class method so that it returns the fake you need.
 
 I won't go into the details of a swizzling example; there are plenty of other resources on that. But see? Swizzling *can* be used for DI. Do read on, though. After this brief overview of different forms of DI, we'll discuss their pros and cons.
 
@@ -197,8 +197,8 @@ The advantage of property injection is that it separates initialization from inj
 
 Property injection looks simple, but **making it robust is surprisingly tricky**:
 
-  * You may want to guard against the property being reset arbitrarily. So instead of the default setter, you may want a custom setter that makes sure the backing instance variable is nil and the given argument is non-nil.
-  * Does the getter need to be thread-safe? If so, you'll have an easier time using constructor injection instead of trying to make the getter both safe and fast.
+* You may want to guard against the property being reset arbitrarily. So instead of the default setter, you may want a custom setter that makes sure the backing instance variable is nil and the given argument is non-nil.
+* Does the getter need to be thread-safe? If so, you'll have an easier time using constructor injection instead of trying to make the getter both safe and fast.
 
 Also, beware of automatically leaning toward property injection just because you have a specific instance in mind. **Make sure the default value doesn't refer to another library**. Otherwise, you will require users of your class to also include that other library, breaking the benefits of loose coupling. (In Seemann's terminology, this is the difference between a local default and a foreign default.)
 
@@ -216,16 +216,16 @@ Consider a method that uses the current time. Instead of directly calling `[NSDa
 
 If you have a dependency that is used at various low-level points, you may have a cross-cutting concern. Passing this dependency around through higher levels can interfere with your code, especially when you can't predict in advance where it will be needed. Examples of this may include:
 
-  * Logging
-  * `[NSUserDefaults standardUserDefaults]`
-  * `[NSDate date]`
+* Logging
+* `[NSUserDefaults standardUserDefaults]`
+* `[NSDate date]`
 
 Ambient context may be just what you need. But because it affects global context, don't forget to reset it when you're done. For example, if you swizzle a method, use `tearDown` or `afterEach` (depending on your testing framework) to restore the original method.
 
 Instead of doing your own swizzling, see if someone has already written a library focusing on the ambient context you need. For example:
 
-  * Networking—[Nocilla][Nocilla] or [OHHTTPStubs][OHHTTPStubs]
-  * NSDate—[TUDelorean][TUDelorean]
+* Networking—[Nocilla][Nocilla] or [OHHTTPStubs][OHHTTPStubs]
+* NSDate—[TUDelorean][TUDelorean]
 
 [Nocilla]: https://github.com/luisobo/Nocilla
 [OHHTTPStubs]: https://github.com/AliSoftware/OHHTTPStubs
@@ -257,8 +257,8 @@ But before you take that approach, I want to question the idea that DI leads to 
 
 When it feels cumbersome to expose dependencies, see if either of these scenarios fits:
 
-  * Does it feel silly to expose dependencies on Apple's objects? Isn't anything Apple provides implicitly available, and thus fair game for any code? Not necessarily. Take our `NSUserDefaults` example: What if you've decided, for some reason, to avoid using `NSUserDefaults`? Having it explicitly identified as a dependency instead of hidden as an implementation detail will alert you to investigate this component. You can check to see if the use of `NSUserDefaults` violates your design constraints.
-  * Does it feel like you have to expose a bunch of internals in order to test your class? First, see if you can write tests that only go through your existing public API (while still being fast and deterministic). If you can't, and if you need to manipulate dependencies that would otherwise be hidden, chances are there's another class trying to get out. Extract it, turn it into a dependency, and test it separately.
+* Does it feel silly to expose dependencies on Apple's objects? Isn't anything Apple provides implicitly available, and thus fair game for any code? Not necessarily. Take our `NSUserDefaults` example: What if you've decided, for some reason, to avoid using `NSUserDefaults`? Having it explicitly identified as a dependency instead of hidden as an implementation detail will alert you to investigate this component. You can check to see if the use of `NSUserDefaults` violates your design constraints.
+* Does it feel like you have to expose a bunch of internals in order to test your class? First, see if you can write tests that only go through your existing public API (while still being fast and deterministic). If you can't, and if you need to manipulate dependencies that would otherwise be hidden, chances are there's another class trying to get out. Extract it, turn it into a dependency, and test it separately.
 
 ## DI Is Bigger Than Testing
 
