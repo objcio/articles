@@ -94,7 +94,7 @@ Upload tasks can also be created with a request and either an `NSData` object fo
          
      [uploadTask resume];
 
-Download requests take a request as well, but differ in their `completionHandler`. Rather than being returned all at once upon completion, as data and upload tasks, download tasks have their data written to a local temp file. It's the responsibility of the completion handler to move the file from its temporary location to a permanent location, which is then the return value of the block:
+Download requests take a request as well, but differ in their `completionHandler`. Rather than being returned all at once upon completion, as data and upload tasks, download tasks have their data written to a local temp file. It's the responsibility of the completion handler to move the file from its temporary location to a permanent location.
 
      NSURL *URL = [NSURL URLWithString:@"http://example.com/file.zip"];
      NSURLRequest *request = [NSURLRequest requestWithURL:URL];
@@ -105,9 +105,13 @@ Download requests take a request as well, but differ in their `completionHandler
         ^(NSURL *location, NSURLResponse *response, NSError *error) {
             NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
             NSURL *documentsDirectoryURL = [NSURL fileURLWithPath:documentsPath];
-            return [documentsDirectoryURL URLByAppendingPathComponent:[[response URL] lastPathComponent]];
-        }];
-        
+            NSURL *documentURL = [documentsDirectoryURL URLByAppendingPathComponent:[response 
+    suggestedFilename]];
+            [[NSFileManager defaultManager] moveItemAtURL:location
+                                                    toURL:documentURL
+                                                    error:nil];
+     }];
+
      [downloadTask resume];
 
 ### NSURLSession & NSURLConnection Delegate Methods
