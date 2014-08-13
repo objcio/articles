@@ -728,7 +728,7 @@ Let's see how our tests look now:
                     [signInButton specsSimulateTap];
                 });
 
-                it(@"should not tell the sign in manager to sign", ^{
+                it(@"should not tell the sign in manager to sign in", ^{
                     [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
                 });
             });
