@@ -217,6 +217,9 @@ And in your collection view, call the new method after you reload your data.
 
     [self.collectionView reloadData];
     [(ASHSpringyCollectionViewFlowLayout *)[self collectionViewLayout] resetLayout];
+    
+Please note that the code above for adding rows is a naïve implementation that wouldn't work with the tiling mechanism outlined below to improve performance.
+
 
 ## Tiling your Dynamic Behaviors for Performance
 
