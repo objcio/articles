@@ -560,7 +560,7 @@ First, we will check some basic information about our text fields:
             expect(signInViewController.usernameTextField.placeholder).to.equal(@"Username");
         });
 
-        it(@"should have a placeholder on user name text field", ^{
+        it(@"should have a placeholder on password text field", ^{
              expect(signInViewController.passwordTextField.placeholder).to.equal(@"Password");
         });
         
