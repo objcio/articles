@@ -150,7 +150,7 @@ First, we have to come up with a password that encrypts all our files (the secre
 
 	openssl aes-256-cbc -k "foo" -in scripts/profile/TravisExample_Ad_Hoc.mobileprovision -out scripts/profile/TravisExample_Ad_Hoc.mobileprovision.enc -a
 	openssl aes-256-cbc -k "foo" -in scripts/certs/dist.cer -out scripts/certs/dist.cer.enc -a
-	openssl aes-256-cbc -k "foo" -in scripts/certs/dist.p12 -out scripts/certs/dist.cer.p12 -a
+	openssl aes-256-cbc -k "foo" -in scripts/certs/dist.p12 -out scripts/certs/dist.p12.enc -a
 
 This will create encrypted versions of our files with the ending `.enc`. You can now remove or ignore the original files. At the very least, make sure not to commit them, otherwise they will show up on GitHub. If you accidentally committed or pushed them already, [get some help](https://help.github.com/articles/remove-sensitive-data).
 
@@ -162,7 +162,7 @@ Lastly, we have to tell Travis which files to decrypt. Add the following command
 
 	before_script:
 	- openssl aes-256-cbc -k "$ENCRYPTION_SECRET" -in scripts/profile/TravisExample_Ad_Hoc.mobileprovision.enc -d -a -out scripts/profile/TravisExample_Ad_Hoc.mobileprovision
-	- openssl aes-256-cbc -k "$ENCRYPTION_SECRET" -in scripts/certs/dist.p12.enc -d -a -out scripts/certs/dist.p12
+	- openssl aes-256-cbc -k "$ENCRYPTION_SECRET" -in scripts/certs/dist.cer.enc -d -a -out scripts/certs/dist.cer
 	- openssl aes-256-cbc -k "$ENCRYPTION_SECRET" -in scripts/certs/dist.p12.enc -d -a -out scripts/certs/dist.p12
 
 With that, your files on GitHub will be secured, while Travis can still read and use them. There is only one security issue that you have to be aware of: You could (accidentally) expose a decrypted environment variable in the Travis build log. Note, however, that decryption is disabled for pull requests.
@@ -176,6 +176,12 @@ Now we have to make sure that the certificates get imported in the Travis CI key
 	# Create a custom keychain
 	security create-keychain -p travis ios-build.keychain
 	
+	# Make the custom keychain default, so xcodebuild will use it for signing
+	security default-keychain -s ios-build.keychain
+	
+	# Unlock the keychain
+	security unlock-keychain -p travis ios-build.keychain
+	
 	# Set keychain timeout to 1 hour for long builds
 	# see http://www.egeek.me/2013/02/23/jenkins-and-xcode-user-interaction-is-not-allowed/
 	security set-keychain-settings -t 3600 -l ~/Library/Keychains/ios-build.keychain
@@ -185,8 +191,6 @@ Now we have to make sure that the certificates get imported in the Travis CI key
 	security import ./scripts/certs/dist.cer -k ~/Library/Keychains/ios-build.keychain -T /usr/bin/codesign
 	security import ./scripts/certs/dist.p12 -k ~/Library/Keychains/ios-build.keychain -P $KEY_PASSWORD -T /usr/bin/codesign
 	
-	# Make the custom keychain default, so xcodebuild will use it for signing
-	security default-keychain -s ios-build.keychain
 	
 	# Put the provisioning profile in place
 	mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
