@@ -450,8 +450,8 @@ So, what you would do is:
 
 	- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
 
-		if (self.collectionView.window == nil) {
-			[self.collectionView reloadData];
+		if (self.tableView.window == nil) {
+			[self.tableView reloadData];
 			return;	
 		}
 
@@ -495,7 +495,8 @@ by Aleksandar Vacić that does all this for you. You use it like this:
 	}
 
 With this, you don't have to think is the view visible or not – `commitChanges` will 
-do the right thing in either case.
+do the right thing in either case and there are no additional checks you need 
+to do anywhere else in your code.
 
 ### Deletion
 
