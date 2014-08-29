@@ -94,7 +94,7 @@ Before we talk about benefits of BDD DSL, let's first go through its basics and 
                     });
                     
                     it(@"should not move to given position", ^{
-                        expect(car.engine.running).to.beTruthy();
+                        expect(car.position).to.equal(CGPointZero);
                     });
                 });
             });
