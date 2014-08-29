@@ -421,9 +421,81 @@ any longer. We then need to add it after we come out of `paused` state:
     }
 
 The `performFetch` will then make sure your data source is up to date.
+
 Of course, a nicer implementation would be to not set the delegate to nil, but
 instead keep a list of the changes that happened while in paused state,
 and update the table view accordingly after you get out of paused state.
+
+So, what you would do is:
+
+	- (void)controller:(NSFetchedResultsController *)controller
+	didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo
+			   atIndex:(NSUInteger)sectionIndex 
+			   forChangeType:(NSFetchedResultsChangeType)type
+	{
+		//(save changes in some collection object)
+		return;
+	}
+
+	- (void)controller:(NSFetchedResultsController *)controller 
+		didChangeObject:(id)anObject
+		   atIndexPath:(NSIndexPath *)indexPath 
+		forChangeType:(NSFetchedResultsChangeType)type
+		  newIndexPath:(NSIndexPath *)newIndexPath
+	{
+		//(save changes in some collection object)
+		return;
+	}
+
+
+	- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
+
+		if (self.collectionView.window == nil) {
+			[self.collectionView reloadData];
+			return;	
+		}
+
+		//	process updates	with animations
+		...
+	}
+
+The need for the collection object that keeps the changes is due to possible 
+race-condition - table view can come onscreen in-between the 
+delegate calls and thus you would miss previous data changes, if not saved.
+
+There's a [category on the UICollectionView](https://github.com/radianttap/UICollectionView-NSFetchedResultsController)
+by Aleksandar Vacić that does all this for you. You use it like this:
+
+	- (void)controller:(NSFetchedResultsController *)controller 
+	didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo
+			   atIndex:(NSUInteger)sectionIndex 
+			   forChangeType:(NSFetchedResultsChangeType)type
+	{
+
+		[self.collectionView addChangeForSection:sectionInfo 
+							atIndex:sectionIndex 
+							forChangeType:type];
+	}
+
+	- (void)controller:(NSFetchedResultsController *)controller 
+		didChangeObject:(id)anObject
+		   atIndexPath:(NSIndexPath *)indexPath 
+		   forChangeType:(NSFetchedResultsChangeType)type
+		  newIndexPath:(NSIndexPath *)newIndexPath
+	{
+
+		[self.collectionView addChangeForObjectAtIndexPath:indexPath 
+						forChangeType:type 
+						newIndexPath:newIndexPath];
+	}
+
+	- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
+
+		[self.collectionView commitChanges];
+	}
+
+With this, you don't have to think is the view visible or not – `commitChanges` will 
+do the right thing in either case.
 
 ### Deletion
 
