@@ -57,7 +57,7 @@ This function takes in one parameter named **param1** of type **String**, one pa
 
 ## Calling All Functions
 
-One of the big differences between Swift and Objective-C is how parameters work when a Swift function is called. If you love the verbosity of Objective-C, like I do, keep in mind that parameter names are not included externally by default when functions are called. 
+One of the big differences between Swift and Objective-C is how parameters work when a Swift function is called. If you love the verbosity of Objective-C, like I do, keep in mind that parameter names are not included externally by default when a Swift function is called. 
 
 ```swift
 func hello(name: String) {
@@ -67,7 +67,7 @@ func hello(name: String) {
 hello("Mr. Roboto")
 ```
 
-This might not seem so bad until you add a few more arguments to your function: 
+This might not seem so bad until you add a few more parameters to your function: 
 
 ```swift
 func hello(name: String, age: Int, location: String) {
@@ -86,7 +86,7 @@ func hello(fromName name: String) {
     println("\(name) says hello to you!")
 }
 
-hello(fromName: "Robot")
+hello(fromName: "Mr. Roboto")
 ```
 
 In the above function, **fromName** is an external parameter, which gets included when the function is called, while **name** is the internal parameter used to reference the parameter inside the function execution. 
@@ -111,10 +111,11 @@ func hello(#name: String) {
 hello(name: "Robot")
 ```
 
-And of course, the rules for how parameter works are different for Methods...
+And of course, the rules for how parameters work are slightly different for Methods...
 
 ## Calling On Methods
-In a class (or stuct or enum), the rules for how parameter names work are different: 
+
+When encapsulated in a class (or struct or enum), the **first parameter name** of a method is **not** included externally, while all following parameter names are included externally when the method is called!
 
 ```swift
 class MyFunClass {
@@ -129,9 +130,7 @@ let myFunClass = MyFunClass()
 myFunClass.hello("Mr. Roboto", age: 5, location: "San Francisco")
 ```
 
-As you can see, the first parameter name of a method is not included, while all following parameter names are included when the method is called!
-
-It is therefore best practice to include your first parameter name in your method name, just like we're used to in Objective-C: 
+It is therefore best practice to include your first parameter name in your method name, just like in Objective-C: 
 
 ```swift
 class MyFunClass {
@@ -267,7 +266,44 @@ public struct JSValue : Equatable {
 ## Fancy Parameters
 Swift has a lot of extra options for what type of parameters can be passed in compared to Objective-C. Here are some of examples: 
 
-### Parameters with a Default Value
+### Optional Parameter Types
+
+In Swift, there is a new concept of [optional types](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/TheBasics.html): 
+
+> Optionals say either “there is a value, and it equals x” or “there isn’t a value at all”. Optionals are similar to using nil with pointers in Objective-C, but they work for any type, not just classes. Optionals are safer and more expressive than nil pointers in Objective-C and are at the heart of many of Swift’s most powerful features.
+
+To indicate that a parameter type is optional (can be nil), just add a question mark after the type specification: 
+
+```swift
+func myFuncWithOptionalType(parameter: String?) {
+    // function execution
+}
+
+myFuncWithOptionalType("someString")
+myFuncWithOptionalType(nil)
+```
+
+When working with optionals, don't forget to unwrap!
+
+```swift
+func myFuncWithOptionalType(optionalParameter: String?) {
+    if let unwrappedOptional = optionalParameter {
+        println("The optional has a value! It's \(unwrappedOptional)")
+    } else {
+        println("The optional is nil!")
+    }
+}
+
+myFuncWithOptionalType("someString")
+// The optional has a value! It's someString
+
+myFuncWithOptionalType(nil)
+// The optional is nil
+```
+
+Coming from Objective-C, getting used to working with optionals definitely takes some time to get used to!
+
+### Parameters with Default Values
 ```swift
 func hello(name: String = "you") {
     println("hello, \(name)")
@@ -289,6 +325,9 @@ And since parameter with a default value can be skipped when the function is cal
 I'm a huge fan of default parameters, mostly because it makes code easy to change and backwards compatible. You might start out with two parameters for your specific use-case at the time, such as a function to configure a custom UITableViewCell, and if another use-case comes up that requires another parameter (such as a different text color for your cell's label), just add a new parameter with a default value - all the other places where this function has already been called will be fine, and the new part of your code that needs the parameter can just pass in the non-default value!
 
 ### Variadic Parameters 
+
+Variadic parameters are simply a more readable version of passing in an array of elements. In fact, if you were to look at the type of the internal parameter **names** in the below example, you'd see that it is of type **[String]** (Array of Strings). 
+
 ```swift
 func helloWithNames(names: String...) {
     for name in names {
@@ -308,8 +347,6 @@ helloWithNames("Batman", "Superman", "Wonder Woman", "Catwoman")
 // Hello, Wonder Woman
 // Hello, Catwoman
 ```
-
-Variadic parameters are a more readable version of passing in an array of elements. In fact, if you were to look at the type of the internal parameter **names** in the above example, you'd see that it is in fact of type **[String]**. 
 
 The catch here is to remember that it is possible to pass in **0 values** just like it is possible to pass in an **empty array**, so don't forget to check for the empty array if needed!
 
@@ -332,7 +369,7 @@ Another note about variadic parameters - it must be the **last parameter** in yo
 
 ### Inout Parameters
 
-With inout parameters, you have the ability to manipulate external variables:
+With inout parameters, you have the ability to manipulate external variables (aka pass by reference):
 
 ```swift
 var name1 = "Mr. Potato"
@@ -367,7 +404,7 @@ This is a very common pattern in Objective-C for handling error scenarios. NSJSO
 }
 ```
 
-Since Swift is so new, there aren't clear conventions on handling errors just yet, but there are definitely a lot of options beyond the inout parameters! Take a look at David Owen's recent blog post on [error handling in Swift](http://owensd.io/2014/08/22/error-handling-take-two.html). More on this topic should also be covered in [Functional Programming in Swift](http://www.objc.io/books/). 
+Since Swift is so new, there aren't clear conventions on handling errors just yet, but there are definitely a lot of options beyond inout parameters! Take a look at David Owen's recent blog post on [error handling in Swift](http://owensd.io/2014/08/22/error-handling-take-two.html). More on this topic should also be covered in [Functional Programming in Swift](http://www.objc.io/books/). 
 
 ### Generic Parameter Types
 
@@ -424,7 +461,7 @@ Note that this is different than an inout parameter - variable parameters do not
 
 ### Functions as Parameters
 
-Just like you can pass in blocks as parameters in Objective-C, you can pass in closures as parameters in Swift: 
+Just like you can pass in blocks as parameters in Objective-C, you can pass in functions (aka closures) as parameters in Swift: 
 
 ```swift
 func luckyNumberForName(name: String, #lotteryHandler: (String, Int) -> String) -> String {
@@ -438,7 +475,7 @@ luckyNumberForName("Mr. Roboto", lotteryHandler: {name, number in
 // Mr. Roboto's lucky number is 74
 ```
 
-To make your function definition a bit more readable, consider using **typealiasing** (similar to typedef in Objective-C) for your closure: 
+To make your function definition a bit more readable, consider using **typealiasing** your closure (similar to typedef in Objective-C): 
 
 ```swift
 typealias lotteryOutputHandler = (String, Int) -> String
@@ -511,27 +548,200 @@ Hopefully future releases of Swift will include an option to use one private key
 
 ## Fancy Return Types
 
-Just
+In Swift, function return types and values can get a bit more complex than we're used to in Objective-C, especially with the introduction of optionals and multiple return types. 
 
-// Optional return types - don't forget to unwrap!
+### Optional Return Types
 
-// Multiple Return Values!
-// optional inside the tuple - how to unwrap
-// optional tuple - how to unwrap
+If there is a possibility that your function could return a nil value, you need to specify the return type as optional. 
+
+```swift
+func myFuncWithOptonalReturnType() -> String? {
+    let someNumber = arc4random() % 100
+    if someNumber > 50 {
+        return "someString"
+    } else {
+        return nil
+    }
+}
+
+myFuncWithOptonalReturnType()
+```
+
+And of course when you're using the optional return value, don't forget to unwrap!
+
+```swift
+let optionalString = myFuncWithOptonalReturnType()
+
+if let someString = optionalString {
+    println("The function returned a value: \(someString)")
+} else {
+    println("The function returned nil")
+}
+```
+
+The best explanation I've seen of optionals is from a [tweet by @Kronusdark](https://twitter.com/Kronusdark/status/496444128490967041): 
+
+> I finally get @SwiftLang optionals, they are like Schrödinger's cat! You have to see if the cat is alive before you use it.
+
+### Multiple Return Values
+
+One of the most exciting features of Swift is the ability for a function to have multiple return values!
+
+```swift 
+func findRangeFromNumbers(numbers: Int...) -> (min: Int, max: Int) {
+
+    var min = numbers[0]
+    var max = numbers[0]
+    
+    for number in numbers {
+        if number > max {
+            max = number
+        }
+        
+        if number < min {
+            min = number
+        }
+    }
+    
+    return (min, max)
+}
+
+findRangeFromNumbers(1, 234, 555, 345, 423)
+// (1, 555)
+```
+
+As you can see, the multiple return values are returned in a tuple, a very simple data structure of grouped values. There are two ways to use the multiple return values from the tuple: 
+
+```swift
+let range = findRangeFromNumbers(1, 234, 555, 345, 423)
+println("From numbers: 1, 234, 555, 345, 423. The min is \(range.min). The max is \(range.max).")
+// From numbers: 1, 234, 555, 345, 423. The min is 1. The max is 555.
+
+let (min, max) = findRangeFromNumbers(236, 8, 38, 937, 328)
+println("From numbers: 236, 8, 38, 937, 328. The min is \(min). The max is \(max)")
+// From numbers: 236, 8, 38, 937, 328. The min is 8. The max is 937
+```  
+
+### Multiple Return Values + Optionals
+
+The tricky part about multiple return values is when the return values can be optional, but there are two ways to handle dealing with optional multiple return values. 
+
+In the above example function, my logic is flawed - it is possible that no values could be passed in, so my program would actually crash if that ever happen. If no values are passed in, I might want to make my whole return value optional: 
+
+```swift
+func findRangeFromNumbers(numbers: Int...) -> (min: Int, max: Int)? {
+
+    if numbers.count > 0 {
+        
+        var min = numbers[0]
+        var max = numbers[0]
+        
+        for number in numbers {
+            if number > max {
+                max = number
+            }
+            
+            if number < min {
+                min = number
+            }
+        }
+        
+        return (min, max)
+    } else {
+        return nil
+    }
+}
+
+if let range = findRangeFromNumbers() {
+    println("Max: \(range.max). Min: \(range.min)")
+} else {
+    println("No numbers!")
+}
+// No numbers!
+```
+
+In other cases, it might make sense to make each return value within a tuple optional vs making the whole tuple optional: 
+
+```swift
+func componentsFromUrlString(urlString: String) -> (host: String?, path: String?) {
+    let url = NSURL(string: urlString)
+    return (url.host, url.path)
+}
+``` 
+
+If you decide that some of your tuple values could be optionals, it becomes a little bit more difficult to unwrap, since you have to consider every single combination of optional values: 
+
+```swift
+let urlComponents = componentsFromUrlString("http://name.com/12345;param?foo=1&baa=2#fragment")
+
+switch (urlComponents.host, urlComponents.path) {
+case let (.Some(host), .Some(path)):
+    println("This url consists of host \(host) and path \(path)")
+case let (.Some(host), .None):
+    println("This url only has a host \(host)")
+case let (.None, .Some(path)):
+    println("This url only has path \(path). Make sure to add a host!")
+case let (.None, .None):
+    println("This is not a url!")
+}
+// This url consists of host name.com and path /12345
+```
+
+As you can see this is not your average Objective-C way of doing things!
+
+### Return a Function
+
+Any function can also return a function in Swift: 
+
+```swift
+func myFuncThatReturnsAFunc() -> (Int) -> String {
+    return { number in
+        return "The lucky number is \(number)"
+    }
+}
+
+let returnedFunction = myFuncThatReturnsAFunc()
+
+returnedFunction(5) // The lucky number is 5
+```
+
+To make this more readable, you can of course use typealiasing for your return function: 
+
+```swift
+typealias returnedFunctionType = (Int) -> String
+
+func myFuncThatReturnsAFunc() -> returnedFunctionType {
+    return { number in
+        return "The lucky number is \(number)"
+    }
+}
+
+let returnedFunction = myFuncThatReturnsAFunc()
+
+returnedFunction(5) // The lucky number is 5
+```
 
 ## Nested Functions
+And in case you haven't had enough of functions from this post, it's always good to know that in Swift you can have a function inside a function!
 
-## Variables as Functions
-// computed properties
-// lazy properties
-// assign closure to a variable
+```swift
+func myFunctionWithNumber(someNumber: Int) {
+
+    func increment(var someNumber: Int) -> Int {
+        return someNumber + 10
+    }
+    
+    let incrementedNumber = increment(someNumber)
+    println("The incremeted number is \(incrementedNumber)")
+}
+
+myFunctionWithNumber(5)
+// The incremeted number is 15
+``` 
 
 ## @end
-/**
-Conclusion
+Swift functions have a lot of options and a lot of power. As you start writing in Swift, remember: with great power comes great responsibility. Optimize for READABILITY over cleverness! 
 
-With Great Power Comes Great Responsibility
-focus on READABILITY
-ask others to review your code - people come from diff programming backgrounds, so they might have some great insights even if they've never seen Swift!
-summary of best practices
-*/
+Swift best practices haven't fully been established yet and the language is still constantly changing! So get your code reviewed by friends and co-workers. I've found that people who've never seen Swift before sometimes teach me the most about my Swift code.
+
+Happy Swifting!
