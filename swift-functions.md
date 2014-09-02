@@ -162,6 +162,40 @@ let myFunClass = MyFunClass()
 myFunClass.helloWithName("Mr. Roboto", 5, "San Francisco")
 ```
 
+### Instance Methods are Curried Functions
+
+One cool thing to note is that [instance methods are actually curried functions in Swift](http://oleb.net/blog/2014/07/swift-instance-methods-curried-functions/).
+
+> The basic idea behind currying is that a function can be partially applied, meaning that some of its parameter values can be specified (bound) before the function is called. Partial function application yields a new function.
+
+So given that I have a class: 
+
+```swift
+class MyHelloWorldClass {
+    
+    func helloWithName(name: String) -> String {
+        return "hello, \(name)"
+    }
+}
+```
+
+I can create a variable that points to the class's helloWithName function: 
+
+```swift
+let helloWithNameFunc = MyHelloWorldClass.helloWithName
+// MyHelloWorldClass -> (String) -> String
+``` 
+My new **helloWithNameFunc** is of type **MyHelloWorldClass -> (String) -> String**, a function that takes in an instance of my class, and returns another function that takes in a String value and returns a String value. 
+
+So I can actually call my function like this: 
+
+```swift
+let myHelloWorldClassInstance = MyHelloWorldClass()
+
+helloWithNameFunc(myHelloWorldClassInstance)("Mr. Roboto") 
+// hello, Mr. Roboto
+```
+
 ## Init: A Special Note
 A special **init** method is called when a class, struct, or enum is initialized. In Swift, you can define initialization parameters, just like with any other method. 
 
@@ -461,12 +495,30 @@ Note that this is different than an inout parameter - variable parameters do not
 
 ### Functions as Parameters
 
-Just like you can pass in blocks as parameters in Objective-C, you can pass in functions (aka closures) as parameters in Swift: 
+In Objective-C, it is possible to pass in blocks, which are really anonymous functions, as parameters: 
+
+```objective-c
+- (NSString *)luckyNumberForName:(NSString *)name
+                  lotteryHandler:(NSString *(^)(NSString *name, NSInteger number))lotteryHandler
+{
+    NSInteger luckyNumber = arc4random() % 100;
+    return lotteryHandler(name, luckyNumber);
+}
+
+- (void)someOtherFunction
+{
+    [self luckyNumberForName:@"Mr.Roboto" lotteryHandler:^NSString *(NSString *name, NSInteger number) {
+        return [NSString stringWithFormat:@"%@'s lucky number is %li", name, (long)number];
+    }];
+}
+```
+
+In Swift, anonymous functions are called closures, and can be passed in as parameters as well:
 
 ```swift
 func luckyNumberForName(name: String, #lotteryHandler: (String, Int) -> String) -> String {
     let luckyNumber = Int(arc4random() % 100)
-    return completion(name, luckyNumber)
+    return lotteryHandler(name, luckyNumber)
 }
 
 luckyNumberForName("Mr. Roboto", lotteryHandler: {name, number in
@@ -475,7 +527,7 @@ luckyNumberForName("Mr. Roboto", lotteryHandler: {name, number in
 // Mr. Roboto's lucky number is 74
 ```
 
-To make your function definition a bit more readable, consider using **typealiasing** your closure (similar to typedef in Objective-C): 
+To make your function definition a bit more readable, consider **typealiasing** your closure (similar to typedef in Objective-C): 
 
 ```swift
 typealias lotteryOutputHandler = (String, Int) -> String
@@ -491,7 +543,7 @@ luckyNumberForName("Mr. Roboto", lotteryHandler: {name, number in
 // Mr. Roboto's lucky number is 38
 ```
 
-In Objective-C, using blocks as parameters is popular for completion and error handlers in methods that execute an asynchronous operation.
+In Objective-C, using blocks as parameters is popular for completion and error handlers in methods that execute an asynchronous operation. This should continue to be a popular pattern in Swift as well. 
 
 ## Access Controls
 
