@@ -495,25 +495,57 @@ Note that this is different than an inout parameter - variable parameters do not
 
 ### Functions as Parameters
 
-In Objective-C, it is possible to pass in blocks, which are really anonymous functions, as parameters: 
+In Swift, functions can be passed around just like variables. For example, a function can have another function passed in as a parameter:
 
-```objective-c
-- (NSString *)luckyNumberForName:(NSString *)name
-                  lotteryHandler:(NSString *(^)(NSString *name, NSInteger number))lotteryHandler
-{
-    NSInteger luckyNumber = arc4random() % 100;
-    return lotteryHandler(name, luckyNumber);
+```swift
+func luckyNumberForName(name: String, #lotteryHandler: (String, Int) -> String) -> String {
+    let luckyNumber = Int(arc4random() % 100)
+    return lotteryHandler(name, luckyNumber)
 }
 
-- (void)someOtherFunction
-{
-    [self luckyNumberForName:@"Mr.Roboto" lotteryHandler:^NSString *(NSString *name, NSInteger number) {
-        return [NSString stringWithFormat:@"%@'s lucky number is %li", name, (long)number];
-    }];
+func defaultLotteryHandler(name: String, luckyNumber: Int) -> String {
+    return "\(name), your lucky number is \(luckyNumber)"
+}
+
+luckyNumberForName("Mr. Roboto", lotteryHandler: defaultLotteryHandler)
+// Mr. Roboto, your lucky number is 38
+```
+
+Note that only the function reference gets passed in - **defaultLotteryHandler** in this case. The function gets executed later as decided by the receiving function. 
+
+Instance methods can also be passed in a similar way: 
+
+```swift
+func luckyNumberForName(name: String, #lotteryHandler: (String, Int) -> String) -> String {
+    let luckyNumber = Int(arc4random() % 100)
+    return lotteryHandler(name, luckyNumber)
+}
+
+class FunLottery {
+    
+    func defaultLotteryHandler(name: String, luckyNumber: Int) -> String {
+        return "\(name), your lucky number is \(luckyNumber)"
+    }
+    
+}
+
+let funLottery = FunLottery()
+luckyNumberForName("Mr. Roboto", lotteryHandler: funLottery.defaultLotteryHandler)
+// Mr. Roboto, your lucky number is 38
+```
+
+To make your function definition a bit more readable, consider **typealiasing** your function (similar to typedef in Objective-C): 
+
+```swift
+typealias lotteryOutputHandler = (String, Int) -> String
+
+func luckyNumberForName(name: String, #lotteryHandler: lotteryOutputHandler) -> String {
+    let luckyNumber = Int(arc4random() % 100)
+    return lotteryHandler(name, luckyNumber)
 }
 ```
 
-In Swift, anonymous functions are called closures, and can be passed in as parameters as well:
+You can also have a function without a name as a parameter type (similar to blocks in Objective-C): 
 
 ```swift
 func luckyNumberForName(name: String, #lotteryHandler: (String, Int) -> String) -> String {
@@ -527,23 +559,8 @@ luckyNumberForName("Mr. Roboto", lotteryHandler: {name, number in
 // Mr. Roboto's lucky number is 74
 ```
 
-To make your function definition a bit more readable, consider **typealiasing** your closure (similar to typedef in Objective-C): 
-
-```swift
-typealias lotteryOutputHandler = (String, Int) -> String
-
-func luckyNumberForName(name: String, #lotteryHandler: lotteryOutputHandler) -> String {
-    let luckyNumber = Int(arc4random() % 100)
-    return lotteryHandler(name, luckyNumber)
-}
-
-luckyNumberForName("Mr. Roboto", lotteryHandler: {name, number in
-    return "\(name)'s' lucky number is \(number)"
-})
-// Mr. Roboto's lucky number is 38
-```
-
 In Objective-C, using blocks as parameters is popular for completion and error handlers in methods that execute an asynchronous operation. This should continue to be a popular pattern in Swift as well. 
+
 
 ## Access Controls
 
