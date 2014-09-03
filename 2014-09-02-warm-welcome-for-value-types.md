@@ -2,7 +2,7 @@
 
 If you've stuck to Objective-C and languages like Ruby, Python, or JavaScript, the prominence of structs in Swift might seem especially alien. Classes are the traditional unit of structure in object-oriented languages. Indeed, in contrast to structs, Swift classes support implementation inheritance, (limited) reflection, deinitializers, and multiple owners.
 
-If classes are so much more powerful than structs, why use a struct? It's exactly their limited scope that makes them such flexible building blocks. In this article, you'll learn how the use of structs and other value types can radically improve your code's clarity and flexibility.
+If classes are so much more powerful than structs, why use a struct? It's exactly their limited scope that makes them such flexible building blocks. In this article, you'll learn how structs and other value types can radically improve your code's clarity,flexibility, and reliability.
 
 ## Value types and reference types
 
