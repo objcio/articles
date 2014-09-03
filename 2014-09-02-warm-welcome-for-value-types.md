@@ -32,7 +32,7 @@ The distinction between these two categories seems small, but the choice between
 
 Now that we understand the differences between how value and reference types *behave*, let's talk about the differences between how we might use them.
 
-I'm going to talk about reference types exclusively in terms of objects for now, since those are the most relevant example on an architectural level.
+Swift might someday have reference types other than objects, but we'll focus on objects as the exemplar reference types for this discussion.
 
 We reference objects in code the same way we reference objects in the real world. Books often use a real-world metaphor to teach people object-oriented programming: you can make a `Dog` class, then instantiate it to define `fido`. If you pass `fido` around to different parts of the system, they're all still talking about the same `fido`. That makes sense, since if you actually had a dog named Fido, whenever you would talk about him in conversation, you'd be transmitting his *name*---not the dog itself, whatever that would mean. You'd be relying on the listener to have some idea of who Fido is. When you use objects, you're passing "names" of instances around the system.
 
