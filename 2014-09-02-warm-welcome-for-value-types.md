@@ -40,7 +40,7 @@ Values are like data. If you send someone a table of expenses, you're not sendin
 
 A value can be a number, perhaps representing a price. Or a string, like a description. It could be a selection among options---an enum: was this expense for a dinner, for travel, or for materials? It could contain several other values in named positions, like the `CLLocationCoordinate2D` struct, which specifies a latitude and longitude. Or it could be a list of other values... and so on.
 
-Fido might run around and bark on his own accord. He might have special behavior that makes him different from every other dog. He might have relationships established with other dogs. You can't just swap Fido out for another dog---your kids would tell the difference! But the table of expenses exists in isolation. Those strings and numbers don't *do* anything. They aren't going to change out from under you. No matter how many different ways you write the "6" in the first column, it's still just a "6."
+Fido might run around and bark on his own accord. He might have special behavior that makes him different from every other dog. He might have relationships established with others. You can't just swap Fido out for another dog---your kids could tell the difference! But the table of expenses exists in isolation. Those strings and numbers don't *do* anything. They aren't going to change out from under you. No matter how many different ways you write the "6" in the first column, it's still just a "6."
 
 And that's what's so great about value types.
 
