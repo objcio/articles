@@ -25,12 +25,16 @@ Playgrounds provide a great opportunity to document functions and library interf
 
 As a sample, we create our initial array using
 
-    let testArray = [0, 1, 2, 3, 4]
+```swift
+let testArray = [0, 1, 2, 3, 4]
+```
 
 and then want to demonstrate the filter() function, so we write the following:
 
-    let odds = testArray.filter{$0 % 2 == 1}
-    odds
+```swift
+let odds = testArray.filter{$0 % 2 == 1}
+odds
+```
 
 The last line triggers the display of the array that results from this operation: `[1, 3]`. You get syntax, an example, and an illustration of how the function works, all in a live document.
 
@@ -58,28 +62,34 @@ To prototype this process, we'll be using the [AccelerateFunctions.playground](h
 
 The first thing to do is to generate some sample waveforms for us to experiment with. An easy way to do that is by the use of Swift's map() operator:
 
-    let sineArraySize = 64
+```swift
+let sineArraySize = 64
 
-    let frequency1 = 4.0
-    let phase1 = 0.0
-    let amplitude1 = 2.0
-    let sineWave = (0..<sineArraySize).map {
-        amplitude1 * sin(2.0 * M_PI / Double(sineArraySize) * Double($0) * frequency1 + phase1)
-    }
+let frequency1 = 4.0
+let phase1 = 0.0
+let amplitude1 = 2.0
+let sineWave = (0..<sineArraySize).map {
+    amplitude1 * sin(2.0 * M_PI / Double(sineArraySize) * Double($0) * frequency1 + phase1)
+}
+```
 
 For later use in the FFT, our starting waveform array sizes need to be powers of two. Adjusting the sineArraySize to values like 32, 128, or 256 will vary the resolution of the graphs presented later, but won't change the fundamental results of the calculations.
 
 To plot our waveforms, we'll use the new XCPlayground framework (which needs to be imported first) and the following helper function:
 
-    func plotArrayInPlayground<T>(arrayToPlot:Array<T>, title:String) {
-        for currentValue in arrayToPlot {
-            XCPCaptureValue(title, currentValue)
-        }
+```swift
+func plotArrayInPlayground<T>(arrayToPlot:Array<T>, title:String) {
+    for currentValue in arrayToPlot {
+        XCPCaptureValue(title, currentValue)
     }
+}
+```
 
 When we do
 
-    plotArrayInPlayground(sineWave, "Sine wave 1")
+```swift
+plotArrayInPlayground(sineWave, "Sine wave 1")
+```
 
 we see a graph that looks like the following:
 
@@ -87,39 +97,45 @@ we see a graph that looks like the following:
 
 That's a sine wave with a frequency of 4.0, amplitude of 2.0, and phase of 0.0. Let's make this more interesting by creating a second sine wave to add to the first, this time of frequency 1.0, amplitude 1.0, and a phase of pi / 2.0:
 
-    let frequency2 = 1.0
-    let phase2 = M_PI / 2.0
-    let amplitude2 = 1.0
-    let sineWave2 = (0..<sineArraySize).map {
-        amplitude2 * sin(2.0 * M_PI / Double(sineArraySize) * Double($0) * frequency2 + phase2)
-    }
+```swift
+let frequency2 = 1.0
+let phase2 = M_PI / 2.0
+let amplitude2 = 1.0
+let sineWave2 = (0..<sineArraySize).map {
+    amplitude2 * sin(2.0 * M_PI / Double(sineArraySize) * Double($0) * frequency2 + phase2)
+}
+```
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/Sine2.png" style="width:563px" alt="Sine wave 1"/>
 
 Now we want to combine them. This is where Accelerate starts to help us. Adding two arrays of independent floating point values is well-suited to parallel processing. Accelerate's vDSP library has functions for just this sort of thing, so let's put them to use. For the fun of it, let's set up a Swift operator to use for this vector addition. Unfortunately, + is already used for array concatenation (perhaps confusingly so), and ++ is more appropriate as an increment operator, so we'll define a +++ operator for this vector addition:
 
-    infix operator  +++ {}
-    func +++ (a: [Double], b: [Double]) -> [Double] {
-        assert(a.count == b.count, "Expected arrays of the same length, instead got arrays of two different lengths")
-    
-        var result = [Double](count:a.count, repeatedValue:0.0)
-        vDSP_vaddD(a, 1, b, 1, &result, 1, UInt(a.count))
-        return result
-    }
+```swift
+infix operator  +++ {}
+func +++ (a: [Double], b: [Double]) -> [Double] {
+    assert(a.count == b.count, "Expected arrays of the same length, instead got arrays of two different lengths")
+
+    var result = [Double](count:a.count, repeatedValue:0.0)
+    vDSP_vaddD(a, 1, b, 1, &result, 1, UInt(a.count))
+    return result
+}
+```
 
 This sets up an operator which takes in two Swift arrays of Double values, and outputs a single combined array from their element-by-element addition. Within the function, a blank result array is created at the size of our inputs (asserted to be the same for both inputs). Because Swift arrays of scalar values map directly to C arrays, we can just pass our input arrays of Doubles to the vDSP_vaddD() function and prefix our result array with `&`.
 
 To verify that this is actually performing a correct addition, we can graph the results of our sine wave combination using a for loop and our Accelerate function:
 
-    var combinedSineWave = [Double](count:sineArraySize, repeatedValue:0.0)
-    for currentIndex in 0..<sineArraySize {
-        combinedSineWave[currentIndex] = sineWave[currentIndex] + sineWave2[currentIndex]
-    }
-    
-    let combinedSineWave2 = sineWave +++ sineWave2
-    
-    plotArrayInPlayground(combinedSineWave, "Combined wave (loop addition)")
-    plotArrayInPlayground(combinedSineWave2, "Combined wave (Accelerate)")
+```swift
+var combinedSineWave = [Double](count:sineArraySize, repeatedValue:0.0)
+for currentIndex in 0..<sineArraySize {
+    combinedSineWave[currentIndex] = sineWave[currentIndex] + sineWave2[currentIndex]
+}
+
+let combinedSineWave2 = sineWave +++ sineWave2
+
+plotArrayInPlayground(combinedSineWave, "Combined wave (loop addition)")
+plotArrayInPlayground(combinedSineWave2, "Combined wave (Accelerate)")
+```
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/SineCombined.png" style="width:563px" alt="Sine wave 1"/>
 
@@ -129,37 +145,43 @@ Before moving on to the FFT itself, we will need another vector operation to wor
 
 Accelerate's vecLib library has parallel equivalents of many mathematical functions, including square roots in the form of vvsqrt(). This is a great case for the use of function overloading, so let's create a version of sqrt() that works on arrays of Double values:
 
-    func sqrt(x: [Double]) -> [Double] {
-        var results = [Double](count:x.count, repeatedValue:0.0)
-        vvsqrt(&results, x, [Int32(x.count)])
-        return results
-    }
+```swift
+func sqrt(x: [Double]) -> [Double] {
+    var results = [Double](count:x.count, repeatedValue:0.0)
+    vvsqrt(&results, x, [Int32(x.count)])
+    return results
+}
+```
 
 Like with our addition operator, this takes in a Double array, creates a blank Double array for output values, and passes those directly into the vvsqrt() Accelerate function. We can verify that this works by typing the following into the playground:
 
-    sqrt(4.0)
-    sqrt([4.0, 3.0, 16.0])
+```swift
+sqrt(4.0)
+sqrt([4.0, 3.0, 16.0])
+```
 
 You'll see that the standard sqrt() function returns 2.0, and our new overload gives back [2.0, 1.73205080756888, 4.0]. In fact, this is such an easy-to-use overload, you can imagine repeating this for all the vecLib functions to create parallel versions of the math functions (and Mattt Thompson [has done just that](https://github.com/mattt/Surge)). For a 100000000-element array on a 15" mid-2012 i7 MacBook Pro, our Accelerate-based sqrt() runs nearly twice as fast as a simple array iteration using the normal scalar sqrt().
 
 With that done, let's implement the FFT. We're not going to go into extensive detail on the setup of this, but this is our FFT function:
 
-    let fft_weights: FFTSetupD = vDSP_create_fftsetupD(vDSP_Length(log2(Float(sineArraySize))), FFTRadix(kFFTRadix2))
+```swift
+let fft_weights: FFTSetupD = vDSP_create_fftsetupD(vDSP_Length(log2(Float(sineArraySize))), FFTRadix(kFFTRadix2))
+
+func fft(var inputArray:[Double]) -> [Double] {
+    var fftMagnitudes = [Double](count:inputArray.count, repeatedValue:0.0)
+    var zeroArray = [Double](count:inputArray.count, repeatedValue:0.0)
+    var splitComplexInput = DSPDoubleSplitComplex(realp: &inputArray, imagp: &zeroArray)
     
-    func fft(var inputArray:[Double]) -> [Double] {
-        var fftMagnitudes = [Double](count:inputArray.count, repeatedValue:0.0)
-        var zeroArray = [Double](count:inputArray.count, repeatedValue:0.0)
-        var splitComplexInput = DSPDoubleSplitComplex(realp: &inputArray, imagp: &zeroArray)
-        
-        vDSP_fft_zipD(fft_weights, &splitComplexInput, 1, vDSP_Length(log2(CDouble(inputArray.count))), FFTDirection(FFT_FORWARD));
-        vDSP_zvmagsD(&splitComplexInput, 1, &fftMagnitudes, 1, vDSP_Length(inputArray.count));
-    
-        let roots = sqrt(fftMagnitudes) // vDSP_zvmagsD returns squares of the FFT magnitudes, so take the root here
-        var normalizedValues = [Double](count:inputArray.count, repeatedValue:0.0)
-    
-        vDSP_vsmulD(roots, vDSP_Stride(1), [2.0 / Double(inputArray.count)], &normalizedValues, vDSP_Stride(1), vDSP_Length(inputArray.count))
-        return normalizedValues
-    }
+    vDSP_fft_zipD(fft_weights, &splitComplexInput, 1, vDSP_Length(log2(CDouble(inputArray.count))), FFTDirection(FFT_FORWARD));
+    vDSP_zvmagsD(&splitComplexInput, 1, &fftMagnitudes, 1, vDSP_Length(inputArray.count));
+
+    let roots = sqrt(fftMagnitudes) // vDSP_zvmagsD returns squares of the FFT magnitudes, so take the root here
+    var normalizedValues = [Double](count:inputArray.count, repeatedValue:0.0)
+
+    vDSP_vsmulD(roots, vDSP_Stride(1), [2.0 / Double(inputArray.count)], &normalizedValues, vDSP_Stride(1), vDSP_Length(inputArray.count))
+    return normalizedValues
+}
+```
 
 As a first step, we set up the FFT weights that need to be used for a calculation of the array size we're working with. These weights are used later on in the actual FFT calculation, but can be calculated via vDSP_create_fftsetupD() and reused for arrays of a given size. Since this array size remains constant in this document, we calculate the weights once as a global variable and re-use them in each FFT.
 
