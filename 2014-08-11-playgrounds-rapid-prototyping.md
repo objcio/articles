@@ -7,7 +7,7 @@ author: "<a href=\"https://twitter.com/bradlarson\">Brad Larson</a>"
 tags: article
 ---
 
-Many developers enjoy building Mac or iOS applications because of how quickly you can create a viable application using the Cocoa frameworks. Even complex applications can be designed and built by small teams, in large part because of of the capabilities provided by the tools and frameworks on these platforms. Swift playgrounds build on this tradition of rapid development, and they have the potential to change the way that we design and build Mac and iOS applications. 
+Many developers enjoy building Mac or iOS applications because of how quickly you can create a viable application using the Cocoa frameworks. Even complex applications can be designed and built by small teams, in large part because of the capabilities provided by the tools and frameworks on these platforms. Swift playgrounds build on this tradition of rapid development, and they have the potential to change the way that we design and write Mac and iOS applications. 
 
 For those not familiar with the concept, Swift playgrounds are interactive documents where Swift code is compiled and run live as you type. Results of operations are presented in a step-by-step timeline as they execute, and variables can be logged and inspected at any point. Playgrounds can be created within an existing Xcode project, or as standalone bundles that run by themselves.
 
@@ -17,9 +17,9 @@ We'll explore the use of Swift playgrounds for documentation, testing, and rapid
 
 ## Playgrounds for documentation and testing
 
-Swift is a brand-new language, and many people are using playgrounds to understand its new syntax and conventions. In addition to the new language, we were provided with a new standard library. The functions in this standard library at present aren't particularly well documented, so resources have sprung up like [the practicalswift.org list of standard library functions](http://practicalswift.com/2014/06/14/the-swift-standard-library-list-of-built-in-functions/).
+Swift is a brand-new language, and many people are using playgrounds to understand its syntax and conventions. In addition to the language, we were provided with a new standard library. The functions in this standard library at present aren't documented particularly well, so resources have sprung up like [the practicalswift.org list of standard library functions](http://practicalswift.com/2014/06/14/the-swift-standard-library-list-of-built-in-functions/).
 
-However, it's one thing to read about what a function should do and another to see it in action. In particular, many of these functions perform interesting actions on the new Swift collection classes, and it would be good to examine how they act on these collections. 
+However, it's one thing to read about what a function should do and another to see it in action. In particular, many of these functions perform interesting actions on the new Swift collection classes, and it would be informative to examine how they act on these collections. 
 
 Playgrounds provide a great opportunity to document functions and library interfaces by showing syntax and live execution against real data sets. For the case of the collection functions, we've created the [CollectionOperations.playground](https://github.com/BradLarson/PersonalSwiftPlaygrounds), which contains a list of these functions, all run against sample data that can be changed live.
 
@@ -66,6 +66,8 @@ The first thing to do is to generate some sample waveforms for us to experiment 
     let sineWave = (0..<sineArraySize).map {
         amplitude1 * sin(2.0 * M_PI / Double(sineArraySize) * Double($0) * frequency1 + phase1)
     }
+
+For later use in the FFT, our starting waveform array sizes need to be powers of two. Adjusting the sineArraySize to values like 32, 128, or 256 will vary the resolution of the graphs presented later, but won't change the fundamental results of the calculations.
 
 To plot our waveforms, we'll use the new XCPlayground framework (which needs to be imported first) and the following helper function:
 
@@ -138,7 +140,7 @@ Like with our addition operator, this takes in a Double array, creates a blank D
     sqrt(4.0)
     sqrt([4.0, 3.0, 16.0])
 
-You'll see that the standard sqrt() function returns 2.0, and our new overload gives back [2.0, 1.73205080756888, 4.0]. In fact, this is such an easy-to-use overload, you can imagine repeating this for all the vecLib functions to create parallel versions of the math functions. For a 100000000-element array on a 15" mid-2012 i7 MacBook Pro, our Accelerate-based sqrt() runs nearly twice as fast as a simple array iteration using the normal scalar sqrt().
+You'll see that the standard sqrt() function returns 2.0, and our new overload gives back [2.0, 1.73205080756888, 4.0]. In fact, this is such an easy-to-use overload, you can imagine repeating this for all the vecLib functions to create parallel versions of the math functions (and Mattt Thompson [has done just that](https://github.com/mattt/Surge)). For a 100000000-element array on a 15" mid-2012 i7 MacBook Pro, our Accelerate-based sqrt() runs nearly twice as fast as a simple array iteration using the normal scalar sqrt().
 
 With that done, let's implement the FFT. We're not going to go into extensive detail on the setup of this, but this is our FFT function:
 
@@ -159,24 +161,30 @@ With that done, let's implement the FFT. We're not going to go into extensive de
         return normalizedValues
     }
 
-As a first step, we set up the FFT weights that need to be used for a calculation of the array size we're working with. Since this array size remains constant in this document, we calculate the weights once as a global variable and re-use them in each FFT.
+As a first step, we set up the FFT weights that need to be used for a calculation of the array size we're working with. These weights are used later on in the actual FFT calculation, but can be calculated via vDSP_create_fftsetupD() and reused for arrays of a given size. Since this array size remains constant in this document, we calculate the weights once as a global variable and re-use them in each FFT.
 
-Within the FFT function, we set up our input arrays in the format expected for the FFT, run the operation, and then process the outputs by taking their square roots and normalizing the values based on the array size. The results look like this for our individual sine waves:
+Within the FFT function, the fftMagnitudes array is initialized with zeroes at the size of our waveform in preparation for it holding the results of the operation. An FFT operation takes complex numbers as input, but we only care about the real part of that, so we initialize splitComplexInput with the input array as the real components, and zeroes for the imaginary components. vDSP_fft_zipD() and vDSP_zvmagsD() then perform the FFT and load the fftMagnitudes array with squares of the magnitudes from the FFT.
+
+At this point, we use the previously-mentioned Accelerate-based array sqrt() operation to take the square root of the squared magnitudes, returning the actual magnitudes, and normalize the values based on the size of the input array.
+
+The results from this entire operation look like this for the individual sine waves:
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/FFT12.png" style="width:563px" alt="Sine wave 1"/>
 
-and this for our combined sine wave:
+and this for the combined sine wave:
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/FFTCombined.png" style="width:563px" alt="Sine wave 1"/>
 
-As a very simplified explanation of these values: the results represent "bins" of frequencies, starting at the left, with the values in those bins corresponding to the amplitude of the wave detected at that frequency. They are symmetric about the center, so you can ignore the values on the right half of that graph.
+As a very simplified explanation of these values: the results represent "bins" of sine wave frequencies, starting at the left, with the values in those bins corresponding to the amplitude of the wave detected at that frequency. They are symmetric about the center, so you can ignore the values on the right half of that graph.
 
-What you can observe is that for our frequency 4.0, amplitude 2.0 wave, we see a value of 2.0 binned in bin number 4 in the FFT. Likewise, for our frequency 1.0, amplitude 1.0 wave, we get a 1.0 value in bin number 1 of the FFT. The FFT of the combined sine waves, despite the complex shape of that wave, clearly pulls out both waves in their separate bins as if the FFTs themselves were added.
+What you can observe is that for the frequency 4.0, amplitude 2.0 wave, we see a value of 2.0 binned in bin number 4 in the FFT. Likewise, for the frequency 1.0, amplitude 1.0 wave, we see a 1.0 value in bin number 1 of the FFT. The FFT of the combined sine waves, despite the complex shape of that resultant wave, clearly pulls out the amplitude and frequency of both component waves in their separate bins as if the FFTs themselves were added.
 
-Again, this is a simplification of the FFT operation, and there are shortcuts taken in the above FFT code, but the point is that we can explore even a complex signal processing operation easily by step-by-step creation of functions in a playground and testing each operation with immediate graphical feedback. 
+Again, this is a simplification of the FFT operation, and there are shortcuts taken in the above FFT code, but the point is that we can explore even a complex signal processing operation easily by step-by-step creation of functions in a playground and testing each operation with immediate graphical feedback.
 
-At each step in this process we could glance over to the timeline to see graphs of our intermediate arrays as we processed them, something that would take a good amount of effort to set up in a sample application and display in an interface. All of these graphs update live, so you can go back and tweak a frequency or amplitude value for one of our waveforms and see it ripple through these processing steps. That shortens the development cycle and helps to provide a gut feel for how calculations like this behave.
+## The case for rapid prototyping using Swift playgrounds
+
+Hopefully, these examples have demonstrated the utility of Swift playgrounds for experimentation with new libraries and concepts. 
+
+At each step in the last case study, we could glance over to the timeline to see graphs of our intermediate arrays as they were processed. That would take a good amount of effort to set up in a sample application and display in an interface of some kind. All of these graphs also update live, so you can go back and tweak a frequency or amplitude value for one of our waveforms and see it ripple through these processing steps. That shortens the development cycle and helps to provide a gut feel for how calculations like this behave.
 
 This kind of interactive development with immediate feedback makes an excellent case for prototyping even complex algorithms in a playground before deployment in a full application.
-
-
