@@ -30,7 +30,7 @@ The distinction between these two categories seems small, but the choice between
 
 ### Building our intuition
 
-Now that we understand the difference between how value and reference types *behave*, let's talk about the difference between how we might use them.
+Now that we understand the differences between how value and reference types *behave*, let's talk about the differences between how we might use them.
 
 I'm going to talk about reference types exclusively in terms of objects for now, since those are the most relevant example on an architectural level.
 
