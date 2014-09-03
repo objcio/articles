@@ -46,7 +46,7 @@ And that's what's so great about value types.
 
 ## The advantages of value types
 
-Value types existed in Objective-C and C, but Swift allows you to use them in previously impractical scenarios. For instance, the generics system permits abstractions which handle value and reference types interchangeably: you can write an `Array` type which works equally well for `Int`s as for `UIView`s. And enums are vastly more expressive in Swift, since they can now carry values and specify methods. Structs can conform to protocols and specify methods.
+Objective-C and C had value types, but Swift allows you to use them in previously impractical scenarios. For instance, the generics system permits abstractions which handle value and reference types interchangeably: you can write an `Array` type which works equally well for `Int`s as for `UIView`s. And enums are vastly more expressive in Swift, since they can now carry values and specify methods. Structs can conform to protocols and specify methods.
 
 Swift's enhanced support for value types affords a tremendous opportunity: they're an incredibly flexible tool for making your code simpler. You can use them to extract isolated, predictable components from fat classes. Value types enforce---or at least encourage---many properties which work together to create clarity by default.
 
