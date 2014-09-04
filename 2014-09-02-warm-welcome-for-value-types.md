@@ -50,7 +50,7 @@ Objective-C and C had value types, but Swift allows you to use them in previousl
 
 Swift's enhanced support for value types affords a tremendous opportunity: they're an incredibly flexible tool for making your code simpler. You can use them to extract isolated, predictable components from fat classes. Value types enforce---or at least encourage---many properties which work together to create clarity by default.
 
-In this section I'll describe some of the properties that value types encourage. It's worth noting that you *can* make objects which have these properties, but the language provides no pressure to do that. If you see an object in some code, you have no reasonable expectation of these properties; if you see a value type, you do.
+In this section I'll describe some of the properties that value types encourage. It's worth noting that you *can* make objects which have these properties, but the language provides no pressure to do that. If you see an object in some code, you have no reasonable expectation of these properties; if you see a value type, you do. It's true that not *all* value types have these properties---we'll cover that shortly---but these are reasonable generalizations.
 
 ### Value types want to be inert
 
