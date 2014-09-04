@@ -102,7 +102,7 @@ Objects perform side effects like I/O and networking, but data, computations, an
 
 Objects can communicate with other objects, but they generally send values, not references, unless they truly intend to create a persistent connection at the outer, imperative layer.
 
-## A summarizing exhortation
+## A summarizing pitch for value types
 
 Value types enable you to make typical architectures significantly clearer, simpler, and more testable.
 
