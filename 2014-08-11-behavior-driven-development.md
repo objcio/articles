@@ -758,6 +758,6 @@ And with the great tools provided by the iOS community, you should be able to st
 ### Links
 
 If you're interested in the roots of BDD and how it came to be, you should definitely read [this article](http://dannorth.net/introducing-bdd/).
-For those of you who understand TDD, but don't exactly know how this differs from TDD, I recommend [this article](http://blog.mattwynne.net/2012/11/20/tdd-vs-bdd/).
+For those of you who understand TDD, but don't exactly know how this differs from BDD, I recommend [this article](http://blog.mattwynne.net/2012/11/20/tdd-vs-bdd/).
 Last but not least, you can find an example project with the tests presented above [here](https://github.com/objcio/issue-15-bdd).
 
