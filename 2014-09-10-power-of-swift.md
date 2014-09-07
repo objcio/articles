@@ -88,7 +88,7 @@ enum Optional<A> {
 }
 ```
 
-They are very similar, if you change the naming of the cases, the only thing that's different is the associated value. You might wonder what happens if you also add a value to the `Nil` case of the optional:
+They are very similar, if you change the naming of the cases, the only thing that's different is the associated value. If you also add a value to the `Nil` case of the optional, you end up with the `Either` type:
 
 ```swift
 enum Either<A,B> {
@@ -97,13 +97,11 @@ enum Either<A,B> {
 }
 ```
 
-The `Either` type is used a lot in functional programming, when you want to represent a choice between two things.
- 
- TODO <florian>: The `Either` thing could use a bit more explanation/motivation. It starts with "Yought might wonder what happens...". But what happens? :-D. Would like to read a bit more about it.
+The `Either` type is used a lot in functional programming, when you want to represent a choice between two things. For example, if you have function that returns either an integer or an error, you could use `Either<Int,NSError>`. If you would want to store either booleans and strings in a dictionary, you could use `Either<Bool,String>` as the key type.
 
-Knowing when to use enums, and when to use other data-types (such as [classes or structs](TODO link to Andys article)) can be a bit difficult. They are most useful when you have a closed set of possible values. For example, if we design a Swift wrapper around a web API, we could represent the endpoints with an enum. There's a `/zen` endpoint, which doesn't take any parameters. Te fetch a user profile, we have to provide the username, and finally, to display a user's repositories we provide the username and a key that shows whether or not to sort the result ascendingly.
+> Theoretical aside: sometimes enums are so-called *sum types*, because they represent a sum of different types. In the case of `Either`, they represent the sum of `A` and `B`. Structs or tuples are called *product types*, because they represent the product of different types. See also: [algebraic data types](http://en.wikipedia.org/wiki/Algebraic_data_type)
 
-TODO <florian>: I'd already say above that this example is about something GitHub like, otherwise it doesn't make much sense at first.
+Knowing when to use enums, and when to use other data-types (such as [classes or structs](TODO link to Andys article)) can be a bit difficult. They are most useful when you have a closed set of possible values. For example, if we design a Swift wrapper around the Github API, we could represent the endpoints with an enum. There's a `/zen` endpoint, which doesn't take any parameters. Te fetch a user profile, we have to provide the username, and finally, to display a user's repositories we provide the username and a key that shows whether or not to sort the result ascendingly.
 
 ```swift
 enum Github {
@@ -198,8 +196,6 @@ This is a great way of writing functions that are open for extension. By taking 
 
 I think one really big win of Swift is type-safety. As we have seen with the optionals, we can move certain checks from run-time to compile-time, by using types in a smart way. Another example is how arrays work in Swift: an array is generic, and it can only hold elements of the same type. It's not possible to add an integer to an array of strings, eliminating an entire class of bugs. (Note that if you want an array of either strings or integers, you can use the `Either` type above).
 
-TODO <florian>: Ahhh, that would have made a lot of sense above as a motivation what the Either thing is for :-)  
-
 Suppose, again, that we are extending our currency converter, to be a general unit converter. If we would use `Double` to represent the amounts, it can get a bit confusing. For example, `100.0` might mean a hundred dollars, a hundred kilograms, or anything else that's a hundred. What we can do is let the type-system help us by creating different types for different physical quantities. For example, we can define a type that describes money:
 
 ```swift
@@ -275,6 +271,4 @@ extension Array {
 
 There are a lot of interesting new possibilities with Swift. I especially like that the compiler can now check things for us that we used to do manually or by reading the documentation. We can choose to use these possibilities as we see fit. We can still write code using our existing, proving techniques, but we can opt in to some of the new possibilities for specific parts of our code. 
 
-I think Swift will dramatically change the way we write code, in a good way. It will take a few years to make the move from Objective-C, but I am confident that most of us will do it and not look back. Some people will transition fast, and for some it might take a long time. But I am confident that in due time, almost everybody will see the benefits that Swift provides us.
-
-TODO <florian>: There is a double "I am confident" in the above paragraph, maybe there's a better way to phrase it?
+Here is my prediction: I think Swift will dramatically change the way we write code, in a good way. It will take a few years to make the move from Objective-C, but I think that most of us will make the change and not look back. Some people will transition fast, and for some it might take a long time. However, I am confident that in due time, almost everybody will see the benefits that Swift provides us.
