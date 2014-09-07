@@ -8,9 +8,9 @@ author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
 ---
 
 
-When it comes to designing APIs, a lot of common patterns and best practices have evolved over the years. If nothing else, we always had lots of examples to draw from in the from of Apple's Foundation, Cocoa, Cocoa Touch, and other frameworks. Undoubtedly, there are still ambiguities and there's always room for discussion about how an API for a certain use case should ideally look like. Nevertheless, the general patterns have become pretty much second nature to many Objective-C developers.
+When it comes to designing APIs, a lot of common patterns and best practices have evolved over the years. If nothing else, we always had lots of examples to draw from in the form of Apple's Foundation, Cocoa, Cocoa Touch, and many other frameworks. Undoubtedly, there are still ambiguities and there's always room for discussion about how an API for a certain use case should ideally look like. Nevertheless, the general patterns have become pretty much second nature to many Objective-C developers.
        
-With this year's emergence of Swift designing an API poses much more questions than before. For the most part, we could just keep doing what we've been doing and translate existing approaches to Swift. But that's not doing justice to the capabilities Swift has over Objective-C. To quote Swift's creator, [Chris Lattner](https://twitter.com/clattner_llvm):     
+With this year's emergence of Swift designing an API poses much more questions than before. For the most part, we could just keep doing what we've been doing and translate existing approaches to Swift. But that's not doing justice to the added capabilities of Swift compared to Objective-C. To quote Swift's creator, [Chris Lattner](https://twitter.com/clattner_llvm):     
 
 > [...] Swift dramatically expands the design space through the introduction of generics and functional programming concepts.
  
@@ -24,7 +24,7 @@ The goal is to build an API that allows us to safely and easily compose custom f
     let myFilter = blur(blurRadius) >|> colorOverlay(overlayColor)
     let result = myFilter(image)
 
-To achieve this we will make heavy use of Swift's first class functions. The code we're going to develop is available [as a Playground](TODO). 
+This constructs a custom filter that first blurs the image and then applies a color overlay to it. To achieve this we will make heavy use of Swift's first class functions. The code we're going to develop is available [as a Playground](TODO). 
 
 
 ## The Filter Type
@@ -37,7 +37,7 @@ In the API we will develop in this chapter, we'll encapsulate the exact details 
 
 Here we use the [`typealias`](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/TheBasics.html#//apple_ref/doc/uid/TP40014097-CH5-XID_479) keyword to define our own name for the type `CIImage -> CIImage`, which is the type of a function that takes a `CIImage` as its argument and returns a `CIImage`. This is the base type that we are going to build upon.
  
-If you're not used to functional programming it may seem strange to use the name `Filter` for a function type. Usually we'd use such a name for a class, and the temptation to somehow denote the function nature of this type is high. We could name it `FilterFunction` or something similar. However, we consciously chose the name `Filter`, since the key philosophy underlying functional programming is that functions are just values. They're no different from Structs, Int, Tuples, or Classes. It took me some getting used to as well, but after a while it starts to make a lot of sense. 
+If you're not used to functional programming it may seem strange to use the name `Filter` for a function type. Usually we'd use such a name for a class, and the temptation to somehow denote the function nature of this type is high. We could name it `FilterFunction` or something similar. However, we consciously chose the name `Filter`, since the key philosophy underlying functional programming is that functions are just values. They're no different from structs, integers, tuples, or classes. It took me some getting used to as well, but after a while it started to make a lot of sense. 
 
 
 ## Building Filters
@@ -149,17 +149,17 @@ Once again, we assemble images by creating a filter, such as `blur(blurRadius)`,
 
 ### Function Composition
 
-We can do much better though than the example above. The first alternative that comes to mind is to simply combine the two filter calls in the above code in a single expression:
+We can do much better though than the example above. The first alternative that comes to mind is to simply combine the two filter calls into a single expression:
 
     let result = colorOverlay(overlayColor)(blur(blurRadius)(image))
 
-However, this becomes unreadable very quickly with all these parentheses involved. A nicer way to do this is to compose filters by defining a custom operator for filter composition. To do so, we'll start by defining a function that composes filters:
+However, all the parentheses make this unreadable very quickly. A better approach is to compose filters by defining a custom function for this task:
 
     func composeFilters(filter1: Filter, filter2: Filter) -> Filter {
-        return { img in filter1(filter2(img)) }
+        return { img in filter2(filter1(img)) }
     }
 
-The `composeFilters` function takes two filters as arguments and defines a new filter. This composite filter expects an argument `img` of type `CIImage`, and passes it through both `filter2` and `filter1` respectively. We can use function composition to define our own composite filter, like this:
+The `composeFilters` function takes two filters as arguments and defines a new filter. This composite filter expects an argument `img` of type `CIImage`, and passes it through both `filter1` and `filter2` respectively. We can now use function composition to define our own composite filter, like this:
 
     let myFilter = composeFilters(blur(blurRadius), colorOverlay(overlayColor))
     let result = myFilter(image)
@@ -172,19 +172,21 @@ But we can go one step further to make this even more readable by introducing an
         return { img in filter2(filter1(img)) }
     }
 
-The operator definition starts with the keyword `infix`, which specifies that the operator takes a left and a right argument. `associativity left` specifies that an expression like `f1 >|> f2 >|> f3` will be evaluated as `(f1 >|> f2) >|> f3`. 
+The operator definition starts with the keyword `infix`, which specifies that the operator takes a left and a right argument. `associativity left` specifies that an expression like `f1 >|> f2 >|> f3` will be evaluated as `(f1 >|> f2) >|> f3`. By making this operator left associative and applying the left-hand filter first, we can read the sequence of filters applies from left to right, just as Unix pipes. 
 
-The rest is a simple function definition with the name `>|>`, just as the `composeFilters` function we've used above. However, note that we have reversed the arguments to the `>|>` operator (when compared with `composeFilters`). By doing so, we can read the filters that are applied to an image from left to right—like Unix pipes.
+The rest is a simple function identical to the `composeFilters` function we've defined before, the only difference being its name `>|>`. 
 
 Applying the filter composition operator turns the example we've used before into:
 
     let myFilter = blur(blurRadius) >|> colorOverlay(overlayColor)
     let result = myFilter(image)
 
+Working with this operator makes it easier to read and understand the sequence the filters are applied in. It's also much more convenient if we want to reorder the filters. To use a simple analogy, `1 + 2 + 3 + 4` is much clearer and easier to change than `add(add(add(1, 2), 3), 4)`. 
+
 
 ## Custom Operators
 
-A lot of Objective-C developers are very skeptical when it comes to defining custom operators. It was a feature that didn't receive a too warm welcome when Swift was released. Lots of people have been burned by personal experiences or by stories about custom operators overuse (or abuse) in C++.
+Many Objective-C developers are very skeptical towards to defining custom operators. It was a feature that didn't receive a too warm welcome when Swift was first introduced. Lots of people have been burned by custom operator overuse (or abuse) in C++, either by personal experience or by stories from others.
 
 You might look equally skeptical at the `>|>` operator for filter composition we've defined above. After all, if everybody starts to define ones own operators isn't this going to make code really hard to understand? The good thing though is that in functional programming there are a bunch of operations that come back all the time, and therefore defining a custom operator for those operations is not an uncommon thing to do at all. 
 
@@ -199,7 +201,7 @@ With this in mind, we don't actually have to define a special operator to compos
 
 With this definition we can only apply it to arguments of type `Filter`.
  
-However, we can leverage the Swift's [generics](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Generics.html) capability to define a generic function composition operator:
+However, we can leverage Swift's [generics](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Generics.html) feature to define a generic function composition operator:
  
     func >|> <A, B, C>(lhs: A -> B, rhs: B -> C) -> A -> C {
         return { x in rhs(lhs(x)) }
@@ -209,9 +211,9 @@ This is probably pretty hard to read at first -- at least it was for me. But loo
 
 First we take a look at what's between the angled brackets after the function's name. This specifies the generic types this function is going to work with. In this case we have specified three generic types `A`, `B`, and `C`. Since we haven't restricted those types in any way, they can represent anything.
 
-Next, let's inspect the functions arguments: the first argument `lhs` (short for left-hand side) is a function of type `A -> B`, i.e. a function that takes an argument of type `A` and returns a value of type `B`. The second argument `rhs` (right-hand side) is a function of type `B -> C`. The arguments are named `lhs` and `rhs`, because they represent what's to the left and right of the operator, respectively. 
+Next, let's inspect the function's arguments: the first argument `lhs` (short for left-hand side) is a function of type `A -> B`, i.e. a function that takes an argument of type `A` and returns a value of type `B`. The second argument `rhs` (right-hand side) is a function of type `B -> C`. The arguments are named `lhs` and `rhs`, because they represent what's to the left and right of the operator, respectively. 
 
-Rewriting our filter composition operator without using the `Filter` typealias, we quickly see that it was only a special case of the generic operator:
+Rewriting our filter composition operator without using the `Filter` typealias, we quickly see that it was only a special case of the generic function composition operator:
 
     func >|> (filter1: CIImage -> CIImage, filter2: CIImage -> CIImage) -> CIImage -> CIImage
 
@@ -220,4 +222,4 @@ Translating the generic types `A`, `B`, and `C` in our mind to all represent `CI
 
 ## Conclusion
 
-Hopefully the example of wrapping Core Image in a functional API was able to demonstrate that there is a whole different world out there when it comes to API design patterns than what we're used to as Objective-C developers. With Swift we have the tools on our hands now to explore those other patterns and make use of them where it makes sense. 
+Hopefully the example of wrapping Core Image in a functional API was able to demonstrate that there is a whole different world out there when it comes to API design patterns than what we're used to as Objective-C developers. With Swift we now have the tools on our hands to explore those other patterns and make use of them where it makes sense. 
