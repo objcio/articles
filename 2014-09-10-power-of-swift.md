@@ -21,7 +21,7 @@ Why would you use functional programming, then? It's weird, people are not used 
 
 For me, functional programming is just another tool in the toolbox. It's a very powerful tool, that changed the way I think about programming. It can be extremely useful when solving some problems. For most problems, object-oriented programming is great. But for some problems, solving the problem functionally might save you massive amounts of time and energy.
 
-Getting started with functional programming might be a bit painful. For one, you have to let go of old patterns. Because a lot of us spent years thinking in an object-oriented way, this is very difficult. In functional programming, you think of immutable data structures, and functions that convert them. In object-oriented programming, you think about objects that send messages to each other. If you don't immediately get functional programming, it's a good sign. Your brain is probably deeply wired to think of solving problems in a the object-oriented way.
+Getting started with functional programming might be a bit painful. For one, you have to let go of old patterns. Because a lot of us spent years thinking in an object-oriented way, this is very difficult. In functional programming, you think of immutable data structures, and functions that convert them. In object-oriented programming, you think about objects that send messages to each other. If you don't immediately get functional programming, it's a good sign. Your brain is probably deeply wired to think of solving problems in the object-oriented way.
 
 ## Examples
 
@@ -30,8 +30,9 @@ One of my favorite features of Swift are optionals. Optionals allow us to deal w
 For example, consider the following snippet in Objective-C:
 
 ```objective-c
-- (NSAttributedString *)attributedString:(NSString *)input {
-  return [[NSAttributedString alloc] initWithString:input];
+- (NSAttributedString *)attributedString:(NSString *)input 
+{
+    return [[NSAttributedString alloc] initWithString:input];
 }
 ```
 
@@ -40,12 +41,12 @@ It looks harmless, but if `input` is nil, this will crash. This is something you
 Contrast this with the same API in Swift:
 
 ```swift
-Aextension NSAttributedString {
+extension NSAttributedString {
     init(string str: String)
 }
 ```
 
-It might look exactly a literal translation from Objective-C, but Swift does not allow `nil` values to be passed in. If that would have been the case, the API would look like this:
+It might look like an exact translation from Objective-C, but Swift does not allow `nil` values to be passed in. If that would have been the case, the API would look like this:
 
 ```swift
 extension NSAttributedString {
@@ -61,7 +62,7 @@ If you can, avoid optionals. Optionals are an extra mental obstacle for consumer
 
 ```swift
 func parseColorFromHexString(input: String) -> UIColor? {
-  // ...
+    // ...
 }
 ```
 
@@ -69,9 +70,9 @@ In case you need to specify an error message, you could also use an `Either` or 
 
 ## Enums
 
-Enums are a new thing to Swift, and they are quite different from anything we're used to in Objective-C. In Objective-C, we have something called enums, but they only a bit more than glorified integers.
+Enums are a new thing to Swift, and they are quite different from anything we're used to in Objective-C. In Objective-C, we have something called enums, but they're not much more than glorified integers.
 
-Let's consider boolean types. A boolean can have exactly one of two possible values: true or false. It is important to realize that it's not possible to add another possible values: the boolean type is *closed*. The nice thing about booleans being closed, is that in any function that uses the boolean type, we only have to take `true` and `false` into account. 
+Let's consider boolean types. A boolean can have exactly one of two possible values: true or false. It is important to realize that it's not possible to add another possible value: the boolean type is *closed*. The nice thing about booleans being closed, is that in any function that uses the boolean type, we only have to take `true` and `false` into account. 
 
 The same holds for optionals: there are only two cases: the `nil` case, and the case where there's a value. Both optionals and booleans can be defined as an enum in Swift, with only one difference: in the optional enum, there is a case that has an associated value. Let's look at their respective definitions:
 
@@ -96,9 +97,13 @@ enum Either<A,B> {
 }
 ```
 
-The `Either` type is used a lot in functional programming, when you want to represent a choice between two things. 
+The `Either` type is used a lot in functional programming, when you want to represent a choice between two things.
+ 
+ TODO <florian>: The `Either` thing could use a bit more explanation/motivation. It starts with "Yought might wonder what happens...". But what happens? :-D. Would like to read a bit more about it.
 
-Knowing when to use enums, and when to use other data-types (such as classes or structs) can be a bit difficult. They are most useful when you have a closed set of possible values. For example, if we design a Swift wrapper around a web API, we could represent the endpoints with an enum. There's a `/zen` endpoint, which doesn't take any parameters. Te fetch a user profile, we have to provide the username, and finally, to display a user's repositories we provide the username and a key that shows whether or not to sort the result ascendingly.
+Knowing when to use enums, and when to use other data-types (such as [classes or structs](TODO link to Andys article)) can be a bit difficult. They are most useful when you have a closed set of possible values. For example, if we design a Swift wrapper around a web API, we could represent the endpoints with an enum. There's a `/zen` endpoint, which doesn't take any parameters. Te fetch a user profile, we have to provide the username, and finally, to display a user's repositories we provide the username and a key that shows whether or not to sort the result ascendingly.
+
+TODO <florian>: I'd already say above that this example is about something GitHub like, otherwise it doesn't make much sense at first.
 
 ```swift
 enum Github {
@@ -193,6 +198,8 @@ This is a great way of writing functions that are open for extension. By taking 
 
 I think one really big win of Swift is type-safety. As we have seen with the optionals, we can move certain checks from run-time to compile-time, by using types in a smart way. Another example is how arrays work in Swift: an array is generic, and it can only hold elements of the same type. It's not possible to add an integer to an array of strings, eliminating an entire class of bugs. (Note that if you want an array of either strings or integers, you can use the `Either` type above).
 
+TODO <florian>: Ahhh, that would have made a lot of sense above as a motivation what the Either thing is for :-)  
+
 Suppose, again, that we are extending our currency converter, to be a general unit converter. If we would use `Double` to represent the amounts, it can get a bit confusing. For example, `100.0` might mean a hundred dollars, a hundred kilograms, or anything else that's a hundred. What we can do is let the type-system help us by creating different types for different physical quantities. For example, we can define a type that describes money:
 
 ```swift
@@ -247,7 +254,7 @@ you iterate over it. In Swift, this is the case by default. Writing
 multi-threaded code with immutable data is much easier, exactly because of this
 reason.
 
-There is another really big advantage. If you write functions and method that only operate on immutable data, your type signature is a huge source of documentation. In Objective-C, this is often not the case. For example, suppose that you want to use a `CIFilter` on OS X. After instantiating it, you need to call the `setDefaults` method. This is described in the documentation. There are many other classes like this, where you instantiate it, and then you have to call one or more methods before you can use them. The problem is, often it is not clear without reading the documentation which methods to call, and you might up with very strange behavior.
+There is another really big advantage. If you write functions and methods that only operate on immutable data, your type signature is a huge source of documentation. In Objective-C, this is often not the case. For example, suppose that you want to use a `CIFilter` on OS X. After instantiating it, you need to call the `setDefaults` method. This is described in the documentation. There are many other classes like this, where you instantiate it, and then you have to call one or more methods before you can use them. The problem is, often it is not clear without reading the documentation which methods to call, and you might end up with very strange behavior.
 
 When working with immutable data, it is immediately clear from the type signature what's happening. For example, consider the type signature for `map` on optionals. We know that there is an optional `T`, a function that converts `T` into `U`, and the result is an optional `U`. There is no way the original value has changed.
 
@@ -259,7 +266,7 @@ It's the same with `map` on an array. It is defined as an extension on array, so
 
 ```swift
 extension Array {
-  func map<U>(transform: T -> U) -> [U]
+    func map<U>(transform: T -> U) -> [U]
 }
 ```
 
@@ -269,3 +276,5 @@ extension Array {
 There are a lot of interesting new possibilities with Swift. I especially like that the compiler can now check things for us that we used to do manually or by reading the documentation. We can choose to use these possibilities as we see fit. We can still write code using our existing, proving techniques, but we can opt in to some of the new possibilities for specific parts of our code. 
 
 I think Swift will dramatically change the way we write code, in a good way. It will take a few years to make the move from Objective-C, but I am confident that most of us will do it and not look back. Some people will transition fast, and for some it might take a long time. But I am confident that in due time, almost everybody will see the benefits that Swift provides us.
+
+TODO <florian>: There is a double "I am confident" in the above paragraph, maybe there's a better way to phrase it?
