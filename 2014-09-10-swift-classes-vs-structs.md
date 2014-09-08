@@ -54,7 +54,7 @@ And that's what's so great about value types.
 
 ## The Advantages of Value Types
 
-Objective-C and C had value types, but Swift allows you to use them in previously impractical scenarios. For instance, the generics system permits abstractions that handle value and reference types interchangeably: you can write an `Array` type, which works equally well for `Int`s as for `UIView`s. Enums are vastly more expressive in Swift, since they can now carry values and specify methods. Structs can conform to protocols and specify methods.
+Objective-C and C had value types, but Swift allows you to use them in previously impractical scenarios. For instance, the generics system permits abstractions that handle value and reference types interchangeably: `Array` works equally well for `Int`s as for `UIView`s. Enums are vastly more expressive in Swift, since they can now carry values and specify methods. Structs can conform to protocols and specify methods.
 
 Swift's enhanced support for value types affords a tremendous opportunity: value types are an incredibly flexible tool for making your code simpler. You can use them to extract isolated, predictable components from fat classes. Value types enforce—or at least encourage—many properties that work together to create clarity by default.
 
@@ -106,7 +106,7 @@ Think of objects as a thin, imperative layer above the predictable, pure value l
 
 Objects maintain state, defined by values, but those values can be considered and manipulated independently of the object. The value layer doesn't really have state; it just represents and transmutes data. That data may or may not have higher-level meaning as state, depending on the context in which the value's used.
 
-Objects perform side effects like I/O and networking, but data, computations, and non-trivial decisions ultimately driving those side effects all exist at the value layer. The objects are like the membrane conducting those pure, predictable results into the impure realm of side effects.
+Objects perform side effects like I/O and networking, but data, computations, and non-trivial decisions ultimately driving those side effects all exist at the value layer. The objects are like the membrane, channeling those pure, predictable results into the impure realm of side effects.
 
 Objects can communicate with other objects, but they generally send values, not references, unless they truly intend to create a persistent connection at the outer, imperative layer.
 
