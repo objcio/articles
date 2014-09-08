@@ -61,7 +61,7 @@ This is a pretty contrived example, but bear with me. In this case, you'll notic
 [OCMockito](https://github.com/jonreid/OCMockito) is a very lightweight mocking library: 
 
     UIApplication *app = mock([UIApplication class]);
-    AppLinker *linker = [AppLinker alloc] initWithApplication:app];
+    AppLinker *linker = [[AppLinker alloc] initWithApplication:app];
     NSURL *url = [NSURL urlWithString:@"https://google.com"];
     
     [linker doSomething:URL];
@@ -74,7 +74,7 @@ This is a pretty contrived example, but bear with me. In this case, you'll notic
 At the most basic level, we can rewrite the previous test using OCMock in a way that will look very familiar:
 
     id app = OCMClassMock([UIApplication class]);
-    AppLinker *linker = [AppLinker alloc] initWithApplication:app];
+    AppLinker *linker = [[AppLinker alloc] initWithApplication:app];
     NSURL *url = [NSURL urlWithString:@"https://google.com"];
     
     [linker doSomething:url];
@@ -85,7 +85,7 @@ This style of mocking, where you verify that a method was called after your test
 
     id app = OCMClassMock([UIApplication class]);
 
-    AppLinker *linker = [AppLinker alloc] initWithApplication:app];
+    AppLinker *linker = [[AppLinker alloc] initWithApplication:app];
     NSURL *url = [NSURL urlWithString:@"https://google.com"];
 
     OCMExpect([app openURL:url]);
@@ -100,7 +100,7 @@ Because OCMock lets you stub out class methods, you could also test this using O
     id app = OCMClassMock([UIApplication class]);
     OCMStub([app sharedInstance]).andReturn(app);
 
-    AppLinker *linker = [AppLinker alloc] init];
+    AppLinker *linker = [[AppLinker alloc] init];
     NSURL *url = [NSURL urlWithString:@"https://google.com"];
     
     [linker doSomething:url];
@@ -127,7 +127,7 @@ For a simple use case like this, you might not need the full weight of a mock ob
 And then the test:
 
     FakeApplication *app = [[FakeApplication alloc] init];
-    AppLinker *linker = [AppLinker alloc] initWithApplication:app];
+    AppLinker *linker = [[AppLinker alloc] initWithApplication:app];
     NSURL *url = [NSURL urlWithString:@"https://google.com"];
     
     [linker doSomething:url];
