@@ -121,7 +121,7 @@ func +++ (a: [Double], b: [Double]) -> [Double] {
 }
 ```
 
-This sets up an operator that takes in two Swift arrays of Double values and outputs a single combined array from their element-by-element addition. Within the function, a blank result array is created at the size of our inputs (asserted to be the same for both inputs). Because Swift arrays of scalar values map directly to C arrays, we can just pass our input arrays of Doubles to the `vDSP_vaddD()` function and prefix our result array with `&`.
+This sets up an operator that takes in two Swift arrays of `Double` values and outputs a single combined array from their element-by-element addition. Within the function, a blank result array is created at the size of our inputs (asserted to be the same for both inputs). Because Swift arrays of scalar values map directly to C arrays, we can just pass our input arrays of `Doubles` to the `vDSP_vaddD()` function and prefix our result array with `&`.
 
 To verify that this is actually performing a correct addition, we can graph the results of our sine wave combination using a for loop and our Accelerate function:
 
@@ -143,7 +143,7 @@ Sure enough, they're the same.
 
 Before moving on to the FFT itself, we will need another vector operation to work on the results from that calculation. All of the values provided from Accelerate's FFT implementation are squares, so we'll need to take their square root. We need to apply a function like `sqrt()` over each element in that array, so this sounds like another opportunity to use Accelerate.
 
-Accelerate's vecLib library has parallel equivalents of many mathematical functions, including square roots in the form of `vvsqrt()`. This is a great case for the use of function overloading, so let's create a version of `sqrt()` that works on arrays of Double values:
+Accelerate's vecLib library has parallel equivalents of many mathematical functions, including square roots in the form of `vvsqrt()`. This is a great case for the use of function overloading, so let's create a version of `sqrt()` that works on arrays of `Double` values:
 
 ```swift
 func sqrt(x: [Double]) -> [Double] {
@@ -153,7 +153,7 @@ func sqrt(x: [Double]) -> [Double] {
 }
 ```
 
-Like with our addition operator, this takes in a Double array, creates a blank Double array for output values, and passes those directly into the `vvsqrt()` Accelerate function. We can verify that this works by typing the following into the playground:
+Like with our addition operator, this takes in a `Double` array, creates a blank `Double` array for output values, and passes those directly into the `vvsqrt()` Accelerate function. We can verify that this works by typing the following into the playground:
 
 ```swift
 sqrt(4.0)
