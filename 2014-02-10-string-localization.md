@@ -107,7 +107,7 @@ A simple example would be to display a string like "Run 1 out of 3 completed." W
 
 Often translations will need to reorder those format specifiers in order to construct a grammatically correct sentence. Luckily, this can be done easily in the strings file:
 
-    "activity-profile.label.run %lu out of %lu completed" = "Von %2$lu Läufen hast du %$1lu absolviert";
+    "activity-profile.label.run %lu out of %lu completed" = "Von %2$lu Läufen hast du %1$lu absolviert";
 
 Admittedly, this German translation is actually not very good -- I just made it up to demonstrate the reordering of format specifiers...
 
