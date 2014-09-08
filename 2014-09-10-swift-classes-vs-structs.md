@@ -1,4 +1,12 @@
-# A warm welcome to structs and value types
+---
+layout: post
+title:  "A warm welcome to structs and value types"
+category: "16"
+date: "2014-09-10 10:00:00"
+author: "<a href=\"https://twitter.com/andy_matuschak\">Andy Matuschak</a>"
+tags: article
+---
+
 
 If you've stuck to Objective-C and languages like Ruby, Python, or JavaScript, the prominence of structs in Swift might seem especially alien. Classes are the traditional unit of structure in object-oriented languages. Indeed, in contrast to structs, Swift classes support implementation inheritance, (limited) reflection, deinitializers, and multiple owners.
 

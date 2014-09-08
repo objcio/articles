@@ -1,3 +1,13 @@
+---
+layout: post
+title:  "The Many Faces of Swift Functions"
+category: "16"
+date: "2014-09-10 08:00:00"
+author: "<a href=\"https://twitter.com/NatashaTheRobot\">Natasha Murashev</a>"
+tags: article
+---
+
+
 # The Many Faces of Swift Functions
 
 Although Objective-C has some strange-looking syntax compared to other programming languages, the method syntax is pretty straightforward once you get the hang of it. Here is a quick throwback:  

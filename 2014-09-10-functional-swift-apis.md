@@ -2,7 +2,7 @@
 layout: post
 title:  "Functional APIs with Swift"
 category: "16"
-date: "2014-09-10 07:00:00"
+date: "2014-09-10 09:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
 ---
