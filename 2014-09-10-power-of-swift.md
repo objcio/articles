@@ -29,7 +29,7 @@ One of my favorite features of Swift is optionals. Optionals allow us to deal wi
 
 For example, consider the following snippet in Objective-C:
 
-```objective-c
+```objectivec
 - (NSAttributedString *)attributedString:(NSString *)input 
 {
     return [[NSAttributedString alloc] initWithString:input];

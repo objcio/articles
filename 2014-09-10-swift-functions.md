@@ -10,7 +10,7 @@ tags: article
 
 Although Objective-C has some strange-looking syntax compared to other programming languages, the method syntax is pretty straightforward once you get the hang of it. Here is a quick throwback:  
 
-```objective-c
+```objectivec
 
 + (void)mySimpleMethod
 {
@@ -434,7 +434,7 @@ name2
 
 This is a very common pattern in Objective-C for handling error scenarios. `NSJSONSerialization` is just one example: 
 
-```objective-c
+```objectivec
 - (void)parseJSONData:(NSData *)jsonData
 {
     NSError *error = nil;

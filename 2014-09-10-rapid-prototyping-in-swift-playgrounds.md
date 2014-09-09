@@ -40,7 +40,7 @@ The last line triggers the display of the array that results from this operation
 
 This is effective for other Apple or third-party frameworks as well. For example, Scene Kit is an excellent framework that Apple provides for quickly building 3D scenes on Mac and iOS, and you might want to show someone how to get started with it. You could provide a sample application, but that requires a build and compile cycle to demonstrate. 
 
-In the [SceneKitMac.playground](https://github.com/BradLarson/PersonalSwiftPlaygrounds), we've built a fully functional 3D scene with an animating torus. You will need to show the Assistant Editor (View | Assistant Editor | Show Assistant Editor) to display the 3D view, which will automatically render and animate. This requires no compile cycle, and someone could play around with this to change colors, geometry, lighting, or anything else about the scene, and see it be reflected live. It documents and presents an interactive example for how to use this framework.
+In the [SceneKitMac.playground](https://github.com/BradLarson/PersonalSwiftPlaygrounds), we've built a fully functional 3D scene with an animating torus. You will need to show the Assistant Editor (View \| Assistant Editor \| Show Assistant Editor) to display the 3D view, which will automatically render and animate. This requires no compile cycle, and someone could play around with this to change colors, geometry, lighting, or anything else about the scene, and see it be reflected live. It documents and presents an interactive example for how to use this framework.
 
 In addition to documenting functions and their operations, you'll also note that we can verify that a function still operates as it should by looking at the results it provides, or even whether it still is parsed properly when we load the playground. It's not hard to envision adding assertions and creating real unit tests within a playground. Taken one step further, tests could be created for desired conditions, leading to a style of test-driven-development as you type.
 
@@ -58,7 +58,7 @@ Swift presents opportunities to make it much easier to interact with Accelerate 
 
 Let's say you had a series of data samples that made up a sine wave, and you wanted to determine the frequency and amplitude of that sine wave. How would you do this? One way to find these values is by means of a Fourier transform, which can extract frequency and amplitude information from one or many overlapping sine waves. Accelerate provides a version of this, called a Fast Fourier Transform (FFT), for which a great explanation (with an IPython notebook) can be found [here](http://jakevdp.github.io/blog/2013/08/28/understanding-the-fft/).
 
-To prototype this process, we'll be using the [AccelerateFunctions.playground](https://github.com/BradLarson/PersonalSwiftPlaygrounds), so you can follow along using that. Make sure you expose the Assistant Editor (View | Assistant Editor | Show Assistant Editor) to see the graphs generated at each stage.
+To prototype this process, we'll be using the [AccelerateFunctions.playground](https://github.com/BradLarson/PersonalSwiftPlaygrounds), so you can follow along using that. Make sure you expose the Assistant Editor (View \| Assistant Editor \| Show Assistant Editor) to see the graphs generated at each stage.
 
 The first thing to do is to generate some sample waveforms for us to experiment with. An easy way to do that is by the use of Swift's map() operator:
 
@@ -93,7 +93,7 @@ plotArrayInPlayground(sineWave, "Sine wave 1")
 
 We see a graph that looks like the following:
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/Sine1.png" style="width:563px" alt="Sine wave 1"/>
+<img src="{{ site.images_path }}/issue-16/Sine1.png" style="width:563px"/>
 
 That's a sine wave with a frequency of 4.0, amplitude of 2.0, and phase of 0.0. Let's make this more interesting by creating a second sine wave to add to the first, this time of frequency 1.0, amplitude 1.0, and a phase of pi / 2.0:
 
@@ -106,7 +106,7 @@ let sineWave2 = (0..<sineArraySize).map {
 }
 ```
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/Sine2.png" style="width:563px" alt="Sine wave 1"/>
+<img src="{{ site.images_path }}/issue-16/Sine2.png" style="width:563px"/>
 
 Now we want to combine them. This is where Accelerate starts to help us. Adding two arrays of independent floating-point values is well-suited to parallel processing. Accelerate's vDSP library has functions for just this sort of thing, so let's put them to use. For the fun of it, let's set up a Swift operator to use for this vector addition. Unfortunately, + is already used for array concatenation (perhaps confusingly so), and ++ is more appropriate as an increment operator, so we'll define a +++ operator for this vector addition:
 
@@ -137,7 +137,7 @@ plotArrayInPlayground(combinedSineWave, "Combined wave (loop addition)")
 plotArrayInPlayground(combinedSineWave2, "Combined wave (Accelerate)")
 ```
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/SineCombined.png" style="width:563px" alt="Sine wave 1"/>
+<img src="{{ site.images_path }}/issue-16/SineCombined.png" style="width:563px"/>
 
 Sure enough, they're the same.
 
@@ -191,11 +191,11 @@ At this point, we use the previously mentioned Accelerate-based array `sqrt()` o
 
 The results from this entire operation look like this for the individual sine waves:
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/FFT12.png" style="width:563px" alt="Sine wave 1"/>
+<img src="{{ site.images_path }}/issue-16/FFT12.png" style="width:563px"/>
 
 And they look like this for the combined sine wave:
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/FFTCombined.png" style="width:563px" alt="Sine wave 1"/>
+<img src="{{ site.images_path }}/issue-16/FFTCombined.png" style="width:563px"/>
 
 As a very simplified explanation of these values: The results represent 'bins' of sine wave frequencies, starting at the left, with the values in those bins corresponding to the amplitude of the wave detected at that frequency. They are symmetric about the center, so you can ignore the values on the right half of that graph.
 
