@@ -8,8 +8,6 @@ tags: article
 ---
 
 
-# The Many Faces of Swift Functions
-
 Although Objective-C has some strange-looking syntax compared to other programming languages, the method syntax is pretty straightforward once you get the hang of it. Here is a quick throwback:  
 
 ```objective-c
