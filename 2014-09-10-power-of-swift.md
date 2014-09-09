@@ -11,7 +11,7 @@ Before writing anything else, I have to admit I'm very biased: I love Swift. I t
 
 To give some personal background: before being a full-time programmer on the iOS and Mac platforms, I spent a few years doing lots of Haskell (among other functional programming languages). I still think Haskell is one of the most beautiful languages I've worked with. However, I switched to Objective-C because I believed (and still believe) that the iOS platform is the most exciting platform to work on. In the beginning, it was a bit frustrating for me to be working in Objective-C, but I learned to love it.
 
-When Apple announced Swift during WWDC, I got really excited. I haven't been so excited about any new technology announcement in years. After looking at the documentation, I realized that Swift allows us to use all the great experience from functional languages, yet still integrate seamlessly with existing Cocoa APIs. I think the combination of these two features is very unique: there is no other language that melds both things together so well. Looking at a language like Haskell, it's rather hard to call Objective-C APIs, and looking at Objective-C, it's rather hard to do functional programming.
+When Apple announced Swift during WWDC, I got really excited. I haven't been so excited about any new technology announcement in years. After looking at the documentation, I realized that Swift allows us to use all the existing knowledge from functional languages, yet still integrate seamlessly with Cocoa APIs. I think the combination of these two features is very unique: there is no other language that melds both things together so well. Looking at a language like Haskell, it's rather hard to call Objective-C APIs, and looking at Objective-C, it's rather hard to do functional programming.
 
 I learned functional programming during my time at Utrecht University. Because I learned it in the context of academia, I wasn't too overwhelmed by the complicated terminology used: monads, applicative functors, and lots of other things. I think the naming is one big stumbling block for people who want to get into functional programming.
 
@@ -97,7 +97,7 @@ enum Either<A,B> {
 }
 ```
 
-The `Either` type is used a lot in functional programming when you want to represent a choice between two things. For example, if you have function that returns either an integer or an error, you could use `Either<Int,NSError>`. If you would want to store either booleans and strings in a dictionary, you could use `Either<Bool,String>` as the key type.
+The `Either` type is used a lot in functional programming when you want to represent a choice between two things. For example, if you have function that returns either an integer or an error, you could use `Either<Int,NSError>`. If you would want to store either booleans or strings in a dictionary, you could use `Either<Bool,String>` as the key type.
 
 > Theoretical aside: sometimes enums are so-called *sum types*, because they represent a sum of different types. In the case of `Either`, they represent the sum of `A` and `B`. Structs or tuples are called *product types* because they represent the product of different types. See also: [algebraic data types](http://en.wikipedia.org/wiki/Algebraic_data_type).
 
@@ -190,11 +190,11 @@ struct Bitcoin : CurrencySymbol {
 }
 ```
 
-This is a great way of writing functions that are open for extension. By taking in values that should conform to a protocol, rather than concrete types, you leave it up to the user of your API to add more types. You can still use the flexibility of enums, but by combining it with protocols you can be even more expressive. Depending on your use-case, you can now easily choose whether you want an open or a closed API.
+This is a great way of writing functions that are open for extension. By taking in values that should conform to a protocol, rather than concrete types, you leave it up to the user of your API to add more types. You can still use the flexibility of enums, but by combining them with protocols, you can be even more expressive. Depending on your use-case, you can now easily choose whether you want an open or a closed API.
 
 ## Type Safety
 
-I think one really big win of Swift is type safety. As we have seen with the optionals, we can move certain checks from runtime to compile time by using types in a smart way. Another example is how arrays work in Swift: an array is generic, and it can only hold elements of the same type. It's not possible to add an integer to an array of strings, eliminating an entire class of bugs. (Note that if you want an array of either strings or integers, you can use the `Either` type above.)
+I think one really big win of Swift is type safety. As we have seen with the optionals, we can move certain checks from runtime to compile time by using types in a smart way. Another example is how arrays work in Swift: an array is generic, and it can only hold elements of the same type. It's not possible to append an integer value to an array of strings. This eliminates an entire class of possible bugs. (Note that if you want an array of either strings or integers, you can use the `Either` type above.)
 
 Suppose, again, that we are extending our currency converter to be a general unit converter. If we would use `Double` to represent the amounts, it could get a bit confusing. For example, 100.0 might mean 100 dollars, 100 kilograms, or anything else that's 100. What we can do is let the type system help us by creating different types for different physical quantities. For example, we can define a type that describes money:
 
@@ -252,7 +252,7 @@ reason.
 
 There is another really big advantage. If you write functions and methods that only operate on immutable data, your type signature is a huge source of documentation. In Objective-C, this is often not the case. For example, suppose that you want to use a `CIFilter` on OS X. After instantiating it, you need to call the `setDefaults` method. This is described in the documentation. There are many other classes like this, where you instantiate it, and then you have to call one or more methods before you can use them. The problem is, without reading the documentation, often it is not clear which methods to call, and you might end up with very strange behavior.
 
-When working with immutable data, it is immediately clear from the type signature what's happening. For example, consider the type signature for `map` on optionals. We know that there is an optional `T`, a function that converts `T` into `U`, and the result is an optional `U`. There is no way the original value has changed:
+When working with immutable data, it is immediately clear from the type signature what's happening. For example, consider the type signature for `map` on optionals. We know that there is an optional `T` value, and there is a function that converts `T`s into `U`s. The result is an optional `U` value. There is no way the original value has changed:
 
 ```swift
 func map<T, U>(x: T?, f: T -> U) -> U?
