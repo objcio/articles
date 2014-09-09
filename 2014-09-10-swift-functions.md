@@ -32,7 +32,7 @@ Although Objective-C has some strange-looking syntax compared to other programmi
 
 In contrast, while Swift syntax looks a lot more like other programming languages, it can also get a lot more complicated and confusing than Objective-C. 
 
-Before I continue, I want to clarify the difference between a Swift **method** and **function**, as I'll be using both terms throughout this article. Here is the definition of Methods, according to Apple's [Swift Programming Language Book](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/Methods.html):
+Before I continue, I want to clarify the difference between a Swift *method* and *function*, as I'll be using both terms throughout this article. Here is the definition of Methods, according to Apple's [Swift Programming Language Book](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/Methods.html):
 
 > Methods are functions that are associated with a particular type. Classes, structures, and enumerations can all define instance methods, which encapsulate specific tasks and functionality for working with an instance of a given type. Classes, structures, and enumerations can also define type methods, which are associated with the type itself. Type methods are similar to class methods in Objective-C.
 
@@ -49,11 +49,11 @@ func mySimpleFunction() {
 ```
 
 If you've ever programmed in any other language aside from Objective-C, the above function should look very familiar. 
-* The **func** keyword denotes that this is a function.
-* The name of this function is **mySimpleFunction**.
-* There are no parameters passed in—hence the empty **( )**.
+* The `func` keyword denotes that this is a function.
+* The name of this function is `mySimpleFunction`.
+* There are no parameters passed in—hence the empty `( )`.
 * There is no return value.
-* The function execution happens between the **{ }**.
+* The function execution happens between the `{ }`.
 
 Now on to a slightly more complex function: 
 
@@ -63,7 +63,7 @@ func myFunctionName(param1: String, param2: Int) -> String {
 }
 ```
 
-This function takes in one parameter named **param1** of type **String**, and one parameter named **param2** of type **Int**, and returns a **String** value. 
+This function takes in one parameter named `param1` of type `String` and one parameter named `param2` of type `Int` and returns a `String` value. 
 
 ## Calling All Functions
 
@@ -87,9 +87,9 @@ func hello(name: String, age: Int, location: String) {
 hello("Mr. Roboto", 5, "San Francisco")
 ```
 
-From reading just **hello("Mr. Roboto", 5, "San Francisco")**, you would have a hard time knowing what each parameter actually is. 
+From reading just `hello("Mr. Roboto", 5, "San Francisco")`, you would have a hard time knowing what each parameter actually is. 
 
-In Swift, there is a concept of an **external parameter name** to clarify this confusion: 
+In Swift, there is a concept of an *external parameter name* to clarify this confusion: 
 
 ```swift
 func hello(fromName name: String) {
@@ -99,9 +99,9 @@ func hello(fromName name: String) {
 hello(fromName: "Mr. Roboto")
 ```
 
-In the above function, **fromName** is an external parameter, which gets included when the function is called, while **name** is the internal parameter used to reference the parameter inside the function execution. 
+In the above function, `fromName` is an external parameter, which gets included when the function is called, while `name` is the internal parameter used to reference the parameter inside the function execution. 
 
-If you want the external and internal parameter names to be the same, you **don't** have to write out the parameter name twice: 
+If you want the external and internal parameter names to be the same, you don't have to write out the parameter name twice: 
 
 ```swift
 func hello(name name: String) {
@@ -111,7 +111,7 @@ func hello(name name: String) {
 hello(name: "Robot")
 ```
 
-Instead, just add a **#** in front of the parameter name as a shortcut: 
+Instead, just add a `#` in front of the parameter name as a shortcut: 
 
 ```swift
 func hello(#name: String) {
@@ -125,7 +125,7 @@ And of course, the rules for how parameters work are slightly different for Meth
 
 ## Calling On Methods
 
-When encapsulated in a class (or struct or enum), the **first parameter name** of a method is **not** included externally, while all following parameter names are included externally when the method is called:
+When encapsulated in a class (or struct or enum), the first parameter name of a method is *not* included externally, while all following parameter names are included externally when the method is called:
 
 ```swift
 class MyFunClass {
@@ -155,9 +155,9 @@ let myFunClass = MyFunClass()
 myFunClass.helloWithName("Mr. Roboto", age: 5, location: "San Francisco")
 ```
 
-Instead of calling my function "hello," I renamed it to **helloWithName** to make it very clear that the first parameter is a name. 
+Instead of calling my function "hello," I renamed it to `helloWithName` to make it very clear that the first parameter is a name. 
 
-If for some special reason you want to skip the external parameter names in your function (I'd recommend having a very good reason for doing so), use an **_** for the external parameter name: 
+If for some special reason you want to skip the external parameter names in your function (I'd recommend having a very good reason for doing so), use an `_` for the external parameter name: 
 
 ```swift
 class MyFunClass {
@@ -189,13 +189,13 @@ class MyHelloWorldClass {
 }
 ```
 
-I can create a variable that points to the class's "helloWithName" function: 
+I can create a variable that points to the class's `helloWithName` function: 
 
 ```swift
 let helloWithNameFunc = MyHelloWorldClass.helloWithName
 // MyHelloWorldClass -> (String) -> String
 ``` 
-My new **helloWithNameFunc** is of type **MyHelloWorldClass -> (String) -> String**, a function that takes in an instance of my class and returns another function that takes in a String value and returns a String value. 
+My new `helloWithNameFunc` is of type `MyHelloWorldClass -> (String) -> String`, a function that takes in an instance of my class and returns another function that takes in a String value and returns a String value. 
 
 So I can actually call my function like this: 
 
@@ -207,7 +207,7 @@ helloWithNameFunc(myHelloWorldClassInstance)("Mr. Roboto")
 ```
 
 ## Init: A Special Note
-A special **init** method is called when a class, struct, or enum is initialized. In Swift, you can define initialization parameters, just like with any other method: 
+A special `init` method is called when a class, struct, or enum is initialized. In Swift, you can define initialization parameters, just like with any other method: 
 
 ```swift
 class Person {
@@ -223,7 +223,7 @@ Person(name: "Mr. Roboto")
 
 Notice that, unlike other methods, the first parameter name of an init method is required externally when the class is instantiated. 
 
-It is best practice in most cases to add a different external parameter name—**fromName** in this case—to make the initialization more readable: 
+It is best practice in most cases to add a different external parameter name—`fromName` in this case—to make the initialization more readable: 
 
 ```swift
 class Person {
@@ -237,7 +237,7 @@ class Person {
 Person(fromName: "Mr. Roboto")
 ```
 
-And of course, just like with other methods, you can add an **_** if you want your init method to skip the external parameter name. I love the readability and power of this initialization example from the [Swift Programming Language Book](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_306): 
+And of course, just like with other methods, you can add an `_` if you want your init method to skip the external parameter name. I love the readability and power of this initialization example from the [Swift Programming Language Book](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_306): 
 
 ```swift
 struct Celsius {
@@ -370,7 +370,7 @@ I'm a huge fan of default parameters, mostly because it makes code easy to chang
 
 ### Variadic Parameters 
 
-Variadic parameters are simply a more readable version of passing in an array of elements. In fact, if you were to look at the type of the internal parameter **names** in the below example, you'd see that it is of type **[String]** (Array of Strings): 
+Variadic parameters are simply a more readable version of passing in an array of elements. In fact, if you were to look at the type of the internal parameter names in the below example, you'd see that it is of type `[String]` (Array of Strings): 
 
 ```swift
 func helloWithNames(names: String...) {
@@ -392,7 +392,7 @@ helloWithNames("Batman", "Superman", "Wonder Woman", "Catwoman")
 // Hello, Catwoman
 ```
 
-The catch here is to remember that it is possible to pass in **0 values**, just like it is possible to pass in an **empty array**, so don't forget to check for the empty array if needed:
+The catch here is to remember that it is possible to pass in 0 values, just like it is possible to pass in an empty array, so don't forget to check for the empty array if needed:
 
 ```swift
 func helloWithNames(names: String...) {
@@ -409,7 +409,7 @@ helloWithNames()
 // Nobody here!
 ```
 
-Another note about variadic parameters—the variadic parameter must be the **last parameter** in your function's parameter list! 
+Another note about variadic parameters—the variadic parameter must be the *last* parameter in your function's parameter list! 
 
 ### Inout Parameters
 
@@ -521,7 +521,7 @@ luckyNumberForName("Mr. Roboto", lotteryHandler: defaultLotteryHandler)
 // Mr. Roboto, your lucky number is 38
 ```
 
-Note that only the function reference gets passed in—**defaultLotteryHandler** in this case. The function gets executed later as decided by the receiving function. 
+Note that only the function reference gets passed in—`defaultLotteryHandler` in this case. The function gets executed later as decided by the receiving function. 
 
 Instance methods can also be passed in a similar way: 
 
@@ -544,7 +544,7 @@ luckyNumberForName("Mr. Roboto", lotteryHandler: funLottery.defaultLotteryHandle
 // Mr. Roboto, your lucky number is 38
 ```
 
-To make your function definition a bit more readable, consider **typealiasing** your function (similar to typedef in Objective-C): 
+To make your function definition a bit more readable, consider type-aliasing your function (similar to typedef in Objective-C): 
 
 ```swift
 typealias lotteryOutputHandler = (String, Int) -> String
@@ -574,15 +574,13 @@ In Objective-C, using blocks as parameters is popular for completion and error h
 
 ## Access Controls
 
-Swift has three levels of [Access Controls](****): 
+Swift has three levels of [Access Controls](TODO): 
 
-> * Public access enables entities to be used within any source file from their defining module, and also in a source file from another module that imports the defining module. You typically use public access when specifying the public interface to a framework.
+- **Public access** enables entities to be used within any source file from their defining module, and also in a source file from another module that imports the defining module. You typically use public access when specifying the public interface to a framework.
+- **Internal access** enables entities to be used within any source file from their defining module, but not in any source file outside of that module. You typically use internal access when defining an app’s or a framework’s internal structure.
+- **Private access** restricts the use of an entity to its own defining source file. Use private access to hide the implementation details of a specific piece of functionality.
 
-> * Internal access enables entities to be used within any source file from their defining module, but not in any source file outside of that module. You typically use internal access when defining an app’s or a framework’s internal structure.
-
-> * Private access restricts the use of an entity to its own defining source file. Use private access to hide the implementation details of a specific piece of functionality.
-
-By default, every function and variable is **internal**—if you want to change that, you have to use the **private** or **public** keyword in front of every single method and variable: 
+By default, every function and variable is internal—if you want to change that, you have to use the `private` or `public` keyword in front of every single method and variable: 
 
 ```swift
 public func myPublicFunc() {
@@ -784,7 +782,7 @@ let returnedFunction = myFuncThatReturnsAFunc()
 returnedFunction(5) // The lucky number is 5
 ```
 
-To make this more readable, you can of course use typealiasing for your return function: 
+To make this more readable, you can of course use type-aliasing for your return function: 
 
 ```swift
 typealias returnedFunctionType = (Int) -> String
