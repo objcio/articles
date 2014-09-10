@@ -26,7 +26,7 @@ let myFilter = blur(blurRadius) >|> colorOverlay(overlayColor)
 let result = myFilter(image)
 ```
 
-This constructs a custom filter that first blurs the image and then applies a color overlay to it. To achieve this, we will make heavy use of Swift's first-class functions. The code we're going to develop is available [as a Playground](TODO). 
+This constructs a custom filter that first blurs the image and then applies a color overlay to it. To achieve this, we will make heavy use of Swift's first-class functions. The code we're going to develop is available in a [sample project on GitHub](https://github.com/objcio/issue-16-functional-apis). 
 
 
 ## The Filter Type
@@ -105,7 +105,7 @@ Let's define a filter that overlays an image with a solid color of our choice. C
 The two building blocks we're going to use for this are the color generator filter (`CIConstantColorGenerator`) and the source-over compositing filter (`CISourceOverCompositing`). Let's first define a filter to generate a constant color plane:
 
 ```swift
-func colorGenerator(color: NSColor) -> Filter {
+func colorGenerator(color: UIColor) -> Filter {
     return { _ in
         let filter = CIFilter(name:"CIConstantColorGenerator", parameters: [kCIInputColorKey: color])
         return filter.outputImage
@@ -135,7 +135,7 @@ Here we crop the output image to the size of the input image. This is not strict
 Finally, we combine these two filters to create our color overlay filter:
 
 ```swift
-func colorOverlay(color: NSColor) -> Filter {
+func colorOverlay(color: UIColor) -> Filter {
     return { image in
         let overlay = colorGenerator(color)(image)
         return compositeSourceOver(overlay)(image)
@@ -159,7 +159,7 @@ Now we can apply both filters to these by chaining them together:
 
 ```swift
 let blurRadius = 5.0
-let overlayColor = NSColor.redColor().colorWithAlphaComponent(0.2)
+let overlayColor = UIColor.redColor().colorWithAlphaComponent(0.2)
 let blurredImage = blur(blurRadius)(image)
 let overlaidImage = colorOverlay(overlayColor)(blurredImage)
 ```
