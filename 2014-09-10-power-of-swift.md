@@ -7,17 +7,17 @@ tags: article
 author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a>"
 ---
 
-Before writing anything else, I have to admit I'm very biased: I love Swift. I think it's the best thing that happened to the Cocoa ecosystem since I started. I want to let you know why I think this by sharing my experiences with Swift, Objective-C, and Haskell. This article is not really about any best practices (at the moment of writing, Swift is much too young to have any established best practices), but rather about showing some examples where Swift really shines.
+Before writing anything else, I have to admit I'm very biased: I love Swift. I think it's the best thing that happened to the Cocoa ecosystem since I started. I want to let you know why I think this by sharing my experiences with Swift, Objective-C, and Haskell. This article is not really about any best practices (at the moment of writing, Swift is much too young to have any established best practices), but rather about showing some examples of where Swift really shines.
 
-To give some personal background: before being a full-time programmer on the iOS and Mac platforms, I spent a few years doing lots of Haskell (among other functional programming languages). I still think Haskell is one of the most beautiful languages I've worked with. However, I switched to Objective-C because I believed (and still believe) that the iOS platform is the most exciting platform to work on. In the beginning, it was a bit frustrating for me to be working in Objective-C, but I learned to love it.
+To give some personal background: before being a full-time programmer on the iOS and OS X platforms, I spent a few years doing lots of Haskell (among other functional programming languages). I still think Haskell is one of the most beautiful languages I've worked with. However, I switched to Objective-C because I believed (and still believe) that the iOS platform is the most exciting platform to work on. Admittedly, in the beginning it was a bit frustrating for me to be working in Objective-C, but I learned to love it.
 
-When Apple announced Swift during WWDC, I got really excited. I haven't been so excited about any new technology announcement in years. After looking at the documentation, I realized that Swift allows us to use all the existing knowledge from functional languages, yet still integrate seamlessly with Cocoa APIs. I think the combination of these two features is very unique: there is no other language that melds both things together so well. Looking at a language like Haskell, it's rather hard to call Objective-C APIs, and looking at Objective-C, it's rather hard to do functional programming.
+When Apple announced Swift during WWDC, I got really excited. I haven't been so excited about any new technology announcement in years. After looking at the documentation, I realized that Swift allows us to use all the existing knowledge from functional languages, yet still integrate seamlessly with Cocoa APIs. I think the combination of these two features is very unique: there is no other language that melds both things together so well. Looking at a language like Haskell, it's rather difficult to call Objective-C APIs, and looking at Objective-C, it's rather difficult to do functional programming.
 
 I learned functional programming during my time at Utrecht University. Because I learned it in the context of academia, I wasn't too overwhelmed by the complicated terminology used: monads, applicative functors, and lots of other things. I think the naming is one big stumbling block for people who want to get into functional programming.
 
 Not only is the naming different, but also the style. Being Objective-C programmers, we're used to object-oriented programming. And because most languages are either using object-oriented programming or a similar style, we can read most code in most languages. Not so much when reading functional programming—it might look like complete gibberish when you're not used to it.
 
-Why would you use functional programming, then? It's weird, people are not used to it, and it takes quite a while to learn. Also, you can already solve any problem with object-oriented programming, so there's no need to learn anything new.
+Why would you use functional programming, then? It's weird, people are not used to it, and it takes quite a while to learn. Also, you can already solve any problem with object-oriented programming, so there's no need to learn anything new, right?
 
 For me, functional programming is just another tool in the toolbox. It's a very powerful tool that changed the way I think about programming. It can be extremely useful when solving problems. For most problems, object-oriented programming is great. But for others, solving the problem functionally might save you massive amounts of time and energy.
 
@@ -25,7 +25,7 @@ Getting started with functional programming might be a bit painful. For one, you
 
 ## Examples
 
-One of my favorite features of Swift is optionals. Optionals allow us to deal with values that might or might not exist. In Objective-C, we have to be precise in our documentation about whether or not `nil` values are allowed. With optionals, we move this responsibility to the type system. If you have an optional value, it might be nil. If you have a value that's not of the optional type, you know it cannot be nil.
+One of my favorite features of Swift is the use of optionals. Optionals allow us to deal with values that might or might not exist. In Objective-C, we have to be precise in our documentation about whether or not `nil` values are allowed. With optionals, we move this responsibility to the type system. If you have an optional value, it might be nil. If you have a value that's not of the optional type, you know it cannot be nil.
 
 For example, consider the following snippet in Objective-C:
 
@@ -36,7 +36,7 @@ For example, consider the following snippet in Objective-C:
 }
 ```
 
-It looks harmless, but if `input` is nil, this will crash. This is something you can only find out at runtime. Depending on how it is used, you might find it out very quickly, but you might also find out only after you shipped the app, leading to crashes for your customers.
+It looks harmless, but if `input` is nil, this will crash. This is something you can only find out at runtime. Depending on how it is used, you might find it out very quickly, but you might also find out only after you ship the app, leading to crashes for your customers.
 
 Contrast this with the same API in Swift:
 
@@ -66,15 +66,15 @@ func parseColorFromHexString(input: String) -> UIColor? {
 }
 ```
 
-In case you need to specify an error message, you could also use an `Either` or `Result` type, which is not in the standard library. This is very useful when the reason for failure is important. A good example is found in the post [Error handling in Swift](http://nomothetis.svbtle.com/error-handling-in-swift).
+In case you need to specify an error message, you could also use an `Either` or `Result` type, which is not in the standard library. This is very useful when the reason for failure is important. A good example is found in the post, "[Error Handling in Swift](http://nomothetis.svbtle.com/error-handling-in-swift)."
 
 ## Enums
 
-Enums are a new thing to Swift, and they are rather different from anything we're used to in Objective-C. In Objective-C, we have something called enums, but they're not much more than glorified integers.
+Enums are a new thing with Swift, and they are quite different from anything we're used to in Objective-C. In Objective-C, we have something called enums, but they're not much more than glorified integers.
 
 Let's consider boolean types. A boolean can have exactly one of two possible values: true or false. It is important to realize that it's not possible to add another possible value—the boolean type is *closed*. The nice thing about booleans being closed is that in any function that uses the boolean type, we only have to take `true` and `false` into account. 
 
-The same holds true for optionals. There are only two cases: the `nil` case, and the case where there's a value. Both optionals and booleans can be defined as an enum in Swift, with only one difference: in the optional enum, there is a case that has an associated value. Let's look at their respective definitions:
+The same holds true for optionals. There are only two cases: the `nil` case, and the case where there's a value. Both optionals and booleans can be defined as enums in Swift, with only one difference: in the optional enum, there is a case that has an associated value. Let's look at their respective definitions:
 
 ```swift
 enum Boolean {
@@ -101,7 +101,7 @@ The `Either` type is used a lot in functional programming when you want to repre
 
 > Theoretical aside: sometimes enums are so-called *sum types*, because they represent a sum of different types. In the case of `Either`, they represent the sum of `A` and `B`. Structs or tuples are called *product types* because they represent the product of different types. See also: [algebraic data types](http://en.wikipedia.org/wiki/Algebraic_data_type).
 
-Knowing when to use enums and when to use other data-types (such as [classes or structs](/issue-16/swift-classes-vs-structs.html)) can be a bit difficult. They are most useful when you have a closed set of possible values. For example, if we design a Swift wrapper around the GitHub API, we could represent the endpoints with an enum. There's a `/zen` endpoint, which doesn't take any parameters. To fetch a user profile, we have to provide the username, and finally, to display a user's repositories, we provide the username and a key that shows whether or not to sort the result ascendingly:
+Knowing when to use enums and when to use other data types (such as [classes or structs](/issue-16/swift-classes-vs-structs.html)) can be a bit difficult. They are most useful when you have a closed set of possible values. For example, if we design a Swift wrapper around the GitHub API, we could represent the endpoints with an enum. There's a `/zen` endpoint, which doesn't take any parameters. To fetch a user profile, we have to provide the username, and finally, to display a user's repositories, we provide the username and a key that shows whether or not to sort the result ascendingly:
 
 ```swift
 enum Github {
@@ -135,7 +135,7 @@ func symbol(input: Currency) -> String {
 }
 ```
 
-And finally, we can use our `symbol` function to produce a nicely formatted string according to the system's locale:
+And finally, we can use our `symbol` function to produce a nicely formatted string, according to the system's locale:
 
 ```swift
 func format(amount: Double, currency: Currency) -> String {
@@ -190,7 +190,7 @@ struct Bitcoin : CurrencySymbol {
 }
 ```
 
-This is a great way of writing functions that are open for extension. By taking in values that should conform to a protocol, rather than concrete types, you leave it up to the user of your API to add more types. You can still use the flexibility of enums, but by combining them with protocols, you can be even more expressive. Depending on your use-case, you can now easily choose whether you want an open or a closed API.
+This is a great way of writing functions that are open for extension. By taking in values that should conform to a protocol—rather than concrete types—you leave it up to the user of your API to add more types. You can still use the flexibility of enums, but by combining them with protocols, you can be even more expressive. Depending on your use-case, you can now easily choose whether you want an open or a closed API.
 
 ## Type Safety
 
@@ -213,7 +213,7 @@ struct Mass {
 }
 ```
 
-Now there is no way we can accidentally add up `Money` and `Mass`. Depending on the domain of your application, it might be very useful to wrap simple types like this. In addition, reading code will become a lot simpler. Suppose we encounter a function `pounds`:
+Now there is no way we can accidentally add up `Money` and `Mass`. Depending on the domain of your application, it might be very useful to wrap simple types like this. In addition, reading code will become a lot simpler. Suppose we encounter the function `pounds`:
 
 ```swift
 func pounds(input: Double) -> Double
@@ -269,6 +269,6 @@ extension Array {
 
 ## Conclusion
 
-There are a lot of interesting new possibilities with Swift. I especially like that the compiler can now check things that we used to do manually or by reading the documentation. We can choose to use these possibilities as we see fit. We can still write code using our existing, proving techniques, but we can opt in to some of the new possibilities for specific parts of our code. 
+There are a lot of interesting new possibilities with Swift. I especially like that the compiler can now check things that we used to do manually or by reading the documentation. We can choose to use these possibilities as we see fit. We can still write code using our existing, proven techniques, but we can opt in to some of the new possibilities for specific parts of our code. 
 
 Here is my prediction: I think Swift will dramatically change the way we write code, in a good way. It will take a few years to make the move from Objective-C, but I think that most of us will make the change and not look back. Some people will transition fast, and for some it might take a long time. However, I am confident that in due time, almost everybody will see the benefits that Swift provides us with.
