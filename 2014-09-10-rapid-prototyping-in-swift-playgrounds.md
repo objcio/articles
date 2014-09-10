@@ -13,7 +13,7 @@ For those not familiar with the concept, Swift playgrounds are interactive docum
 
 While a lot of attention has been focused on Swift playgrounds for their utility in learning this new language, you only need to look at similar projects like [IPython notebooks](http://ipython.org) to see the broader range of potential applications for interactive coding environments. IPython notebooks are being used today for tasks ranging from [scientific research](https://github.com/ipython/ipython/wiki/Research-at-UC-Berkeley-using-IPython) to [experimenting with machine vision](http://pyvideo.org/video/1796/simplecv-computer-vision-using-python). They're also being used to explore other language paradigms, such as [functional programming with Haskell](https://github.com/gibiansky/IHaskell).
 
-We'll explore the use of Swift playgrounds for documentation, testing, and rapid prototyping. All Swift playgrounds used for this article can be [downloaded here](https://github.com/BradLarson/PersonalSwiftPlaygrounds).
+We'll explore the use of Swift playgrounds for documentation, testing, and rapid prototyping. All Swift playgrounds used for this article can be [downloaded here](https://github.com/objcio/PersonalSwiftPlaygrounds).
 
 ## Playgrounds for Documentation and Testing
 
@@ -21,7 +21,7 @@ Swift is a brand new language, and many people are using playgrounds to understa
 
 However, it's one thing to read about what a function should do and another to see it in action. In particular, many of these functions perform interesting actions on the new Swift collection classes, and it would be informative to examine how they act on these collections. 
 
-Playgrounds provide a great opportunity to document functions and library interfaces by showing syntax and live execution against real data sets. For the case of the collection functions, we've created the [CollectionOperations.playground](https://github.com/BradLarson/PersonalSwiftPlaygrounds), which contains a list of these functions, all run against sample data that can be changed live.
+Playgrounds provide a great opportunity to document functions and library interfaces by showing syntax and live execution against real data sets. For the case of the collection functions, we've created the [CollectionOperations.playground](https://github.com/objcio/PersonalSwiftPlaygrounds), which contains a list of these functions, all run against sample data that can be changed live.
 
 As a sample, we create our initial array using this:
 
@@ -40,7 +40,7 @@ The last line triggers the display of the array that results from this operation
 
 This is effective for other Apple or third-party frameworks as well. For example, Scene Kit is an excellent framework that Apple provides for quickly building 3D scenes on Mac and iOS, and you might want to show someone how to get started with it. You could provide a sample application, but that requires a build and compile cycle to demonstrate. 
 
-In the [SceneKitMac.playground](https://github.com/BradLarson/PersonalSwiftPlaygrounds), we've built a fully functional 3D scene with an animating torus. You will need to show the Assistant Editor (View \| Assistant Editor \| Show Assistant Editor) to display the 3D view, which will automatically render and animate. This requires no compile cycle, and someone could play around with this to change colors, geometry, lighting, or anything else about the scene, and see it be reflected live. It documents and presents an interactive example for how to use this framework.
+In the [SceneKitMac.playground](https://github.com/objcio/PersonalSwiftPlaygrounds), we've built a fully functional 3D scene with an animating torus. You will need to show the Assistant Editor (View \| Assistant Editor \| Show Assistant Editor) to display the 3D view, which will automatically render and animate. This requires no compile cycle, and someone could play around with this to change colors, geometry, lighting, or anything else about the scene, and see it be reflected live. It documents and presents an interactive example for how to use this framework.
 
 In addition to documenting functions and their operations, you'll also note that we can verify that a function still operates as it should by looking at the results it provides, or even whether it still is parsed properly when we load the playground. It's not hard to envision adding assertions and creating real unit tests within a playground. Taken one step further, tests could be created for desired conditions, leading to a style of test-driven-development as you type.
 
@@ -58,7 +58,7 @@ Swift presents opportunities to make it much easier to interact with Accelerate 
 
 Let's say you had a series of data samples that made up a sine wave, and you wanted to determine the frequency and amplitude of that sine wave. How would you do this? One way to find these values is by means of a Fourier transform, which can extract frequency and amplitude information from one or many overlapping sine waves. Accelerate provides a version of this, called a Fast Fourier Transform (FFT), for which a great explanation (with an IPython notebook) can be found [here](http://jakevdp.github.io/blog/2013/08/28/understanding-the-fft/).
 
-To prototype this process, we'll be using the [AccelerateFunctions.playground](https://github.com/BradLarson/PersonalSwiftPlaygrounds), so you can follow along using that. Make sure you expose the Assistant Editor (View \| Assistant Editor \| Show Assistant Editor) to see the graphs generated at each stage.
+To prototype this process, we'll be using the [AccelerateFunctions.playground](https://github.com/objcio/PersonalSwiftPlaygrounds), so you can follow along using that. Make sure you expose the Assistant Editor (View \| Assistant Editor \| Show Assistant Editor) to see the graphs generated at each stage.
 
 The first thing to do is to generate some sample waveforms for us to experiment with. An easy way to do that is by the use of Swift's map() operator:
 
