@@ -243,12 +243,7 @@ However, if you want to create an immutable string, you can do the following:
 let myString = "Hello"
 ```
 
-Having immutable data can greatly help when working with APIs that are called
-by consumers you might not know. For example, if you have a function that takes
-an array, it is very useful to know that the array will not be mutated while
-you iterate over it. In Swift, this is the case by default. Writing
-multithreaded code with immutable data is much easier, exactly because of this
-reason.
+Having immutable data can greatly help when working with APIs that are called by consumers you might not know. For example, if you have a function that takes an array, it is very useful to know that the array will not be mutated while you iterate over it. In Swift, this is the case by default. Writing multithreaded code with immutable data is much easier, exactly because of this reason.
 
 There is another really big advantage. If you write functions and methods that only operate on immutable data, your type signature is a huge source of documentation. In Objective-C, this is often not the case. For example, suppose that you want to use a `CIFilter` on OS X. After instantiating it, you need to call the `setDefaults` method. This is described in the documentation. There are many other classes like this, where you instantiate it, and then you have to call one or more methods before you can use them. The problem is, without reading the documentation, often it is not clear which methods to call, and you might end up with very strange behavior.
 
