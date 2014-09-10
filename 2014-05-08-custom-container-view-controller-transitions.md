@@ -51,9 +51,9 @@ The components of the iOS 7 custom view controller transition API are mostly pro
 
 4. **Transitioning Contexts** defining metadata about the transition, such as properties of the view controllers and views participating in the transition. These objects conform to the `UIViewControllerContextTransitioning` protocol, *and are created and provided by the system*.
 
-5. **Transition Coordinators** providing methods to run other animations parallel to the transition animations. They conform to the `UIViewControllerTransitionCoordinator` protocol.
+5. **Transition Coordinators** providing methods to run other animations in parallel with the transition animations. They conform to the `UIViewControllerTransitionCoordinator` protocol.
 
-As you know, from other reading this publication, there are interactive and non-interactive transitions. In this article, we will concentrate on non-interactive transitions. These are the simplest, so they're a great place to start. This means that we will be dealing with *animation controllers*, *transitioning delegates*, and *transitioning contexts* from the list above.
+As you know, from otherwise reading this publication, there are interactive and non-interactive transitions. In this article, we will concentrate on non-interactive transitions. These are the simplest, so they're a great place to start. This means that we will be dealing with *animation controllers*, *transitioning delegates*, and *transitioning contexts* from the list above.
 
 Enough talk, let’s get our hands dirty…
 
@@ -186,7 +186,7 @@ Instead of always using an `Animator` object, we can now ask our delegate for an
     }
     animator = (animator ?: [[PrivateAnimatedTransition alloc] init]);
 
-If we have a delegate and it returns an animator, we will use that. Otherwise, we will create our own private default animator of class `PrivateAnimatedTransition`. We will implement this next.
+If we have a delegate, and it returns an animator, we will use that. Otherwise, we will create our own private default animator of class `PrivateAnimatedTransition`. We will implement this next.
 
 Although the default animation is somewhat different than that of `Animator`, the code looks surprisingly similar. Here is the full implementation:
 
@@ -250,7 +250,10 @@ Note that we only support non-interactive transitions so far. The next step is s
 
 I will leave that as an exercise for you. It is somewhat more complex because we are basically mimicking the framework behavior, which is all guesswork, really.
 
+**Update:** [Alek Åström](https://twitter.com/MisterAlek) was quick to take on the challenge and has posted a very interesting article, “[Interactive Custom Container View Controller Transitions](http://www.iosnomad.com/blog/2014/5/12/interactive-custom-container-view-controller-transitions)”. As an added bonus, it includes a new exercise…
+
 ## Further Indulgence
 
-- iOS 7 Tech Talks Videos, 2014: [“Architecting Modern Apps, Part 1”](https://developer.apple.com/tech-talks/videos/index.php?id=3#3) (07:23-31:27)
+- iOS 7 Tech Talks Videos, 2014: “[Architecting Modern Apps, Part 1](https://developer.apple.com/tech-talks/videos/index.php?id=3#3)” (07:23-31:27)
 - Full code on [GitHub](https://github.com/objcio/issue-12-custom-container-transitions).
+- Follow-up article by [Alek Åström](https://twitter.com/MisterAlek): “[Interactive Custom Container View Controller Transitions](http://www.iosnomad.com/blog/2014/5/12/interactive-custom-container-view-controller-transitions)”.
