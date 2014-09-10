@@ -101,7 +101,7 @@ The `Either` type is used a lot in functional programming when you want to repre
 
 > Theoretical aside: sometimes enums are so-called *sum types*, because they represent a sum of different types. In the case of `Either`, they represent the sum of `A` and `B`. Structs or tuples are called *product types* because they represent the product of different types. See also: [algebraic data types](http://en.wikipedia.org/wiki/Algebraic_data_type).
 
-Knowing when to use enums and when to use other data-types (such as [classes or structs](TODO link to Andys article)) can be a bit difficult. They are most useful when you have a closed set of possible values. For example, if we design a Swift wrapper around the GitHub API, we could represent the endpoints with an enum. There's a `/zen` endpoint, which doesn't take any parameters. To fetch a user profile, we have to provide the username, and finally, to display a user's repositories, we provide the username and a key that shows whether or not to sort the result ascendingly:
+Knowing when to use enums and when to use other data-types (such as [classes or structs](/issue-16/swift-classes-vs-structs.html)) can be a bit difficult. They are most useful when you have a closed set of possible values. For example, if we design a Swift wrapper around the GitHub API, we could represent the endpoints with an enum. There's a `/zen` endpoint, which doesn't take any parameters. To fetch a user profile, we have to provide the username, and finally, to display a user's repositories, we provide the username and a key that shows whether or not to sort the result ascendingly:
 
 ```swift
 enum Github {
