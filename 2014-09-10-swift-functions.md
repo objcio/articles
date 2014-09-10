@@ -2,7 +2,7 @@
 layout: post
 title:  "The Many Faces of Swift Functions"
 category: "16"
-date: "2014-09-10 08:00:00"
+date: "2014-09-10 09:00:00"
 author: "<a href=\"https://twitter.com/NatashaTheRobot\">Natasha Murashev</a>"
 tags: article
 ---
