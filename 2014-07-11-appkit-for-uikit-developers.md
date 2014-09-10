@@ -169,7 +169,7 @@ If your views are not layer-backed, then naturally, animations will be a CPU-int
 
 As mentioned above, you should never touch the backing layers of layer-backed views in AppKit (see the section "Rules for Modifying Layers on OS X" at the bottom of [this page of the Core Animation Programming Guide](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/CreatingBasicAnimations/CreatingBasicAnimations.html#//apple_ref/doc/uid/TP40004514-CH3-SW18). The layers are managed by AppKit, and — contrary to iOS — the views' geometry properties are not just a reflection of the corresponding layer properties, but AppKit actually syncs the view geometry internally to the layer geometry. 
 
-There are a few different ways you can trigger an animation on a view. First, you can use the [animator proxy](file:///Users/florian/Library/Developer/Shared/Documentation/DocSets/com.apple.adc.documentation.AppleOSX10.9.CoreReference.docset/Contents/Resources/Documents/documentation/Cocoa/Reference/NSAnimatablePropertyContainer_protocol/Introduction/Introduction.html#//apple_ref/occ/intfm/NSAnimatablePropertyContainer/animator):
+There are a few different ways you can trigger an animation on a view. First, you can use the [animator proxy](https://developer.apple.com/library/mac/documentation/cocoa/reference/NSAnimatablePropertyContainer_protocol/Introduction/Introduction.html#//apple_ref/occ/intfm/NSAnimatablePropertyContainer/animator):
 
     view.animator.alphaValue = .5;
     
