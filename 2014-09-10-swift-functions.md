@@ -47,6 +47,7 @@ func mySimpleFunction() {
 ```
 
 If you've ever programmed in any other language aside from Objective-C, the above function should look very familiar. 
+
 * The `func` keyword denotes that this is a function.
 * The name of this function is `mySimpleFunction`.
 * There are no parameters passed in—hence the empty `( )`.
