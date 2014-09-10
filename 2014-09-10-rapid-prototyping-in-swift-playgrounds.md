@@ -7,7 +7,7 @@ author: "<a href=\"https://twitter.com/bradlarson\">Brad Larson</a>"
 tags: article
 ---
 
-Many developers enjoy building Mac or iOS applications because of how quickly one can create a viable application using the Cocoa frameworks. Even complex applications can be designed and built by small teams, in large part because of the capabilities provided by the tools and frameworks on these platforms. Swift playgrounds build on this tradition of rapid development, and they have the potential to change the way that we design and write Mac and iOS applications. 
+Many developers enjoy building OS X or iOS applications because of how quickly one can create a viable application using the Cocoa frameworks. Even complex applications can be designed and built by small teams, in large part because of the capabilities provided by the tools and frameworks on these platforms. Swift playgrounds build on this tradition of rapid development, and they have the potential to change the way that we design and write OS X and iOS applications. 
 
 For those not familiar with the concept, Swift playgrounds are interactive documents where Swift code is compiled and run live as you type. Results of operations are presented in a step-by-step timeline as they execute, and variables can be logged and inspected at any point. Playgrounds can be created within an existing Xcode project or as standalone bundles that run by themselves.
 
@@ -42,7 +42,7 @@ This is effective for other Apple or third-party frameworks as well. For example
 
 In the [SceneKitMac.playground](https://github.com/BradLarson/PersonalSwiftPlaygrounds), we've built a fully functional 3D scene with an animating torus. You will need to show the Assistant Editor (View \| Assistant Editor \| Show Assistant Editor) to display the 3D view, which will automatically render and animate. This requires no compile cycle, and someone could play around with this to change colors, geometry, lighting, or anything else about the scene, and see it be reflected live. It documents and presents an interactive example for how to use this framework.
 
-In addition to documenting functions and their operations, you'll also note that we can verify that a function still operates as it should by looking at the results it provides, or even whether it still is parsed properly when we load the playground. It's not hard to envision adding assertions and creating real unit tests within a playground. Taken one step further, tests could be created for desired conditions, leading to a style of test-driven-development as you type.
+In addition to documenting functions and their operations, you'll also note that we can verify that a function still operates as it should by looking at the results it provides, or even whether it is still parsed properly when we load the playground. It's not hard to envision adding assertions and creating real unit tests within a playground. Taken one step further, tests could be created for desired conditions, leading to a style of test-driven development as you type.
 
 In fact, in the [July 2014 issue of the PragPub magazine](http://www.swaine.com/pragpub/), Ron Jeffries has this to say in his article, "Swift from a TDD Perspective": 
 
@@ -199,9 +199,9 @@ And they look like this for the combined sine wave:
 
 As a very simplified explanation of these values: The results represent 'bins' of sine wave frequencies, starting at the left, with the values in those bins corresponding to the amplitude of the wave detected at that frequency. They are symmetric about the center, so you can ignore the values on the right half of that graph.
 
-What you can observe is that for the frequency 4.0, amplitude 2.0 wave, we see a value of 2.0 binned in bin number 4 in the FFT. Likewise, for the frequency 1.0, amplitude 1.0 wave, we see a 1.0 value in bin number 1 of the FFT. The FFT of the combined sine waves, despite the complex shape of that resultant wave, clearly pulls out the amplitude and frequency of both component waves in their separate bins as if the FFTs themselves were added.
+What you can observe is that for the frequency 4.0, amplitude 2.0 wave, we see a value of 2.0 binned in bin number 4 in the FFT. Likewise, for the frequency 1.0, amplitude 1.0 wave, we see a 1.0 value in bin number 1 of the FFT. The FFT of the combined sine waves, despite the complex shape of that resultant wave, clearly pulls out the amplitude and frequency of both component waves in their separate bins, as if the FFTs themselves were added.
 
-Again, this is a simplification of the FFT operation, and there are shortcuts taken in the above FFT code, but the point is that we can explore even a complex signal processing operation easily using step-by-step creation of functions in a playground and testing each operation with immediate graphical feedback.
+Again, this is a simplification of the FFT operation, and there are shortcuts taken in the above FFT code, but the point is that we can easily explore even a complex signal processing operation using step-by-step creation of functions in a playground and testing each operation with immediate graphical feedback.
 
 ## The Case for Rapid Prototyping Using Swift Playgrounds
 
