@@ -8,7 +8,7 @@ tags: article
 ---
 
 
-If you've stuck to Objective-C, and languages like Ruby, Python, or JavaScript, the prominence of structs in Swift might seem especially alien. Classes are the traditional unit of structure in object-oriented languages. Indeed, in contrast to structs, Swift classes support implementation inheritance, (limited) reflection, deinitializers, and multiple owners.
+If you've stuck to Objective-C—and languages like Ruby, Python, or JavaScript—the prominence of structs in Swift might seem especially alien. Classes are the traditional unit of structure in object-oriented languages. Indeed, in contrast to structs, Swift classes support implementation inheritance, (limited) reflection, deinitializers, and multiple owners.
 
 If classes are so much more powerful than structs, why use structs? Well, it's exactly their limited scope that makes them such flexible building blocks. In this article, you'll learn how structs and other value types can radically improve your code's clarity, flexibility, and reliability.
 
@@ -40,13 +40,13 @@ The distinction between these two categories seems small, but the choice between
 
 Now that we understand the differences between how value and reference types *behave*, let's talk about the differences between how we might use them.
 
-Swift might someday have reference types other than objects, but we'll focus on objects as the exemplar reference types for this discussion.
+Swift might someday have reference types other than objects, but for this discussion, we'll focus on objects as the exemplar reference types.
 
-We reference objects in code the same way we reference objects in the real world. Books often use a real-world metaphor to teach people object-oriented programming: you can make a `Dog` class, then instantiate it to define `fido`. If you pass `fido` around to different parts of the system, they're all still talking about the same `fido`. That makes sense, since if you actually had a dog named Fido, whenever you would talk about him in conversation, you'd be transmitting his *name*—not the dog itself, whatever that would mean. You'd be relying on everyone else having some idea of who Fido is. When you use objects, you're passing "names" of instances around the system.
+We reference objects in code the same way we reference objects in the real world. Books often use a real-world metaphor to teach people object-oriented programming: you can make a `Dog` class, then instantiate it to define `fido`. If you pass `fido` around to different parts of the system, they're all still talking about the same `fido`. That makes sense, since if you actually had a dog named Fido, whenever you would talk about him in conversation, you'd be transmitting his *name*—not the dog itself, whatever that would mean. You'd be relying on everyone else having some idea of who Fido is. When you use objects, you're passing 'names' of instances around the system.
 
-Values are like data. If you send someone a table of expenses, you're not sending them a label which represents that information—you're sending them *the information itself*. Without talking to anyone else, the listener could calculate a total, or write the expenses down to consult later. If the listener prints out the expenses and modifies them, that doesn't modify the table you still have.
+Values are like data. If you send someone a table of expenses, you're not sending that person a label that represents that information—you're sending *the information itself*. Without talking to anyone else, the listener could calculate a total, or write the expenses down to consult later. If the listener prints out the expenses and modifies them, that doesn't modify the table you still have.
 
-A value can be a number, perhaps representing a price, or a string, like a description. It could be a selection among options—an enum: was this expense for a dinner, for travel, or for materials? It could contain several other values in named positions, like the `CLLocationCoordinate2D` struct, which specifies a latitude and longitude. Or it could be a list of other values... and so on.
+A value can be a number, perhaps representing a price, or a string—like a description. It could be a selection among options—an enum: was this expense for a dinner, for travel, or for materials? It could contain several other values in named positions, like the `CLLocationCoordinate2D` struct, which specifies a latitude and longitude. Or it could be a list of other values... and so on.
 
 Fido might run around and bark on his own accord. He might have special behavior that makes him different from every other dog. He might have relationships established with others. You can't just swap Fido out for another dog—your kids could tell the difference! But the table of expenses exists in isolation. Those strings and numbers don't *do* anything. They aren't going to change out from under you. No matter how many different ways you write the "6" in the first column, it's still just a "6."
 
@@ -66,7 +66,7 @@ A value type does not, in general, *behave*. It is typically *inert*. It stores 
 
 And that's great! It's much easier to reason about code that will only execute when directly invoked by a single owner.
 
-By contrast, an object might register itself as a target of a timer. It might receive events from the system. These kinds of interactions require reference types' multiple-owner semantics. Because value types can only have a single owner, and they don't have deinitializers, it's awkward to write value types that perform side effects on their own.
+By contrast, an object might register itself as a target of a timer. It might receive events from the system. These kinds of interactions require reference types' multiple-owner semantics. Because value types can only have a single owner and they don't have deinitializers, it's awkward to write value types that perform side effects on their own.
 
 ### Value Types Want to Be Isolated
 
@@ -78,7 +78,7 @@ If you're accessing a reference to a mutable instance, you have an implicit depe
 
 Because a value type is copied every time it's assigned to a new variable, all of those copies are completely interchangeable.
 
-You can safely store a value that's passed to you, then later use that value as if it were 'new.' No one can compare that instance with another using anything but the data contained within it. Interchangeability also means that it doesn't matter *how* a given value was constructed: as long as it compares equal via `==`, it's equivalent for all purposes.
+You can safely store a value that's passed to you, then later use that value as if it were 'new.' No one can compare that instance with another using anything but the data contained within it. Interchangeability also means that it doesn't matter *how* a given value was constructed—as long as it compares equal via `==`, it's equivalent for all purposes.
 
 So if you use value types to communicate between components in your system, you can readily shift around your graph of components. Do you have a view that paints a sequence of touch samples? You can compensate for touch latency without touching the view's code by making a component that consumes a sequence of touch samples, appends an estimate of where the user's finger will move based on previous samples, and returns a new sequence. You can confidently give your new component's output to the view—it can't tell the difference.
 
@@ -102,7 +102,7 @@ Objects are useful precisely because they do *not* have the properties I describ
 
 That behavior is often complex and difficult to reason about, but some of the details can usually be represented by simple values and isolated functions involving those values. Those details don't need to be entangled with the complex behavior of the object. By separating them, the behavior of the object becomes clearer itself.
 
-Think of objects as a thin, imperative layer above the predictable, pure value layer:
+Think of objects as a thin, imperative layer above the predictable, pure value layer.
 
 Objects maintain state, defined by values, but those values can be considered and manipulated independently of the object. The value layer doesn't really have state; it just represents and transmutes data. That data may or may not have higher-level meaning as state, depending on the context in which the value's used.
 
