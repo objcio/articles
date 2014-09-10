@@ -200,7 +200,7 @@ func >|> (filter1: Filter, filter2: Filter) -> Filter {
 }
 ```
 
-The operator definition starts with the keyword `infix`, which specifies that the operator takes a left and a right argument. `associativity left` specifies that an expression like `f1 >|> f2 >|> f3` will be evaluated as `(f1 >|> f2) >|> f3`. By making this a left-associative operator and applying the left-hand filter first, we can read the sequence of filters applies from left to right, just as Unix pipes. 
+The operator definition starts with the keyword `infix`, which specifies that the operator takes a left and a right argument. `associativity left` specifies that an expression like `f1 >|> f2 >|> f3` will be evaluated as `(f1 >|> f2) >|> f3`. By making this a left-associative operator and applying the left-hand filter first, we can read the sequence of filters from left to right, just as Unix pipes. 
 
 The rest is a simple function identical to the `composeFilters` function we've defined before, the only difference being its name `>|>`. 
 
