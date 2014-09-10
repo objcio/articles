@@ -12,7 +12,7 @@ When it comes to designing APIs, a lot of common patterns and best practices hav
        
 With this year's emergence of Swift, designing an API poses many more questions than before. For the most part, we could just keep doing what we've been doing and translate existing approaches to Swift. But that's not doing justice to the added capabilities of Swift as compared to Objective-C. To quote Swift's creator, [Chris Lattner](https://twitter.com/clattner_llvm):     
 
-> [...] Swift dramatically expands the design space through the introduction of generics and functional programming concepts.
+> Swift dramatically expands the design space through the introduction of generics and functional programming concepts.
  
 In this article, we're going to explore how we can leverage these new tools at our disposal in the realm of API design. We're going to build a wrapper API around Core Image as an example. Core Image is a powerful image processing framework, but its API can be a bit clunky to use at times. The Core Image API is loosely typed—image filters are configured using key-value coding. It is all too easy to make mistakes in the type or name of arguments, which can result in runtime errors. The new API we develop will be safe and modular, exploiting *types* to guarantee the absence of such runtime errors.
 
@@ -200,9 +200,9 @@ func >|> (filter1: Filter, filter2: Filter) -> Filter {
 }
 ```
 
-The operator definition starts with the keyword `infix`, which specifies that the operator takes a left and a right argument. `associativity left` specifies that an expression like `f1 >|> f2 >|> f3` will be evaluated as `(f1 >|> f2) >|> f3`. By making this a left-associative operator and applying the left-hand filter first, we can read the sequence of filters from left to right, just as Unix pipes. 
+The operator definition starts with the keyword `infix`, which specifies that the operator takes a left and a right argument, and `associativity left` specifies that an expression like `f1 >|> f2 >|> f3` will be evaluated as `(f1 >|> f2) >|> f3`. By making this a left-associative operator and applying the left-hand filter first, we can read the sequence of filters from left to right, just as Unix pipes. 
 
-The rest is a simple function identical to the `composeFilters` function we've defined before, the only difference being its name `>|>`. 
+The rest is a simple function identical to the `composeFilters` function we've defined before—the only difference being its name, `>|>`. 
 
 Applying the filter composition operator turns the example we've used before into:
 
@@ -211,7 +211,7 @@ let myFilter = blur(blurRadius) >|> colorOverlay(overlayColor)
 let result = myFilter(image)
 ```
 
-Working with this operator makes it easier to read and understand the sequence the filters are applied in. It's also much more convenient if we want to reorder the filters. To use a simple analogy, `1 + 2 + 3 + 4` is much clearer and easier to change than `add(add(add(1, 2), 3), 4)`. 
+Working with this operator makes it easier to read and understand the sequence the filters are applied in. It's also much more convenient if we want to reorder the filters. To use a simple analogy: `1 + 2 + 3 + 4` is much clearer and easier to change than `add(add(add(1, 2), 3), 4)`. 
 
 
 ## Custom Operators
@@ -245,7 +245,7 @@ This is probably pretty hard to read at first—at least it was for me. But look
 
 First we take a look at what's between the angled brackets after the function's name. This specifies the generic types this function is going to work with. In this case, we have specified three generic types: `A`, `B`, and `C`. Since we haven't restricted those types in any way, they can represent anything.
 
-Next, let's inspect the function's arguments: the first argument, `lhs` (short for left-hand side), is a function of type `A -> B`, i.e. a function that takes an argument of type `A` and returns a value of type `B`. The second argument, `rhs` (right-hand side), is a function of type `B -> C`. The arguments are named `lhs` and `rhs` because they represent what's to the left and right of the operator, respectively. 
+Next, let's inspect the function's arguments: the first argument, `lhs` (short for left-hand side), is a function of type `A -> B`, i.e. a function that takes an argument of type `A` and returns a value of type `B`. The second argument, `rhs` (right-hand side), is a function of type `B -> C`. The arguments are named `lhs` and `rhs` because they represent what is located to the left and right of the operator, respectively. 
 
 Rewriting our filter composition operator without using the `Filter` typealias, we quickly see that it was only a special case of the generic function composition operator:
 
@@ -258,4 +258,4 @@ Translating the generic types `A`, `B`, and `C` in our minds to all represent `C
 
 ## Conclusion
 
-Hopefully the example of wrapping Core Image in a functional API was able to demonstrate that when it comes to API design patterns, there is an entirely different world out there than what we're used to as Objective-C developers. With Swift, we now have the tools in our hands to explore those other patterns and make use of them where it makes sense. 
+Hopefully the example of wrapping Core Image in a functional API was able to demonstrate that, when it comes to API design patterns, there is an entirely different world out there than what we're used to as Objective-C developers. With Swift, we now have the tools in our hands to explore those other patterns and make use of them where it makes sense. 
