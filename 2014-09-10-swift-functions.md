@@ -808,11 +808,11 @@ func myFunctionWithNumber(someNumber: Int) {
     }
     
     let incrementedNumber = increment(someNumber)
-    println("The incremeted number is \(incrementedNumber)")
+    println("The incremented number is \(incrementedNumber)")
 }
 
 myFunctionWithNumber(5)
-// The incremeted number is 15
+// The incremented number is 15
 ``` 
 
 ## @end
