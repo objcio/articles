@@ -185,7 +185,7 @@ func fft(var inputArray:[Double]) -> [Double] {
 
 As a first step, we set up the FFT weights that need to be used for a calculation of the array size we're working with. These weights are used later on in the actual FFT calculation, but can be calculated via `vDSP_create_fftsetupD()` and reused for arrays of a given size. Since this array size remains constant in this document, we calculate the weights once as a global variable and reuse them in each FFT.
 
-Within the FFT function, the `fftMagnitudes` array is initialized with zeroes at the size of our waveform in preparation for it holding the results of the operation. An FFT operation takes complex numbers as input, but we only care about the real part of that, so we initialize `splitComplexInput` with the input array as the real components, and zeroes for the imaginary components. Then `vDSP_fft_zipD() and vDSP_zvmagsD()` perform the FFT and load the `fftMagnitudes` array with squares of the magnitudes from the FFT.
+Within the FFT function, the `fftMagnitudes` array is initialized with zeroes at the size of our waveform in preparation for it holding the results of the operation. An FFT operation takes complex numbers as input, but we only care about the real part of that, so we initialize `splitComplexInput` with the input array as the real components, and zeroes for the imaginary components. Then `vDSP_fft_zipD()` and `vDSP_zvmagsD()` perform the FFT and load the `fftMagnitudes` array with squares of the magnitudes from the FFT.
 
 At this point, we use the previously mentioned Accelerate-based array `sqrt()` operation to take the square root of the squared magnitudes, returning the actual magnitudes, and then normalize the values based on the size of the input array.
 
