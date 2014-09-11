@@ -307,7 +307,7 @@ public struct JSValue : Equatable {
 ```
 
 ## Fancy Parameters
-Compared to Objective-C, Swift has a lot of extra options for what type of parameters can be passed in. Here are some of examples. 
+Compared to Objective-C, Swift has a lot of extra options for what type of parameters can be passed in. Here are some examples. 
 
 ### Optional Parameter Types
 
