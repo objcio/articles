@@ -23,8 +23,7 @@ If you end up with complicated nested callbacks, you should probably revise some
 ## Operation Queues vs. Grand Central Dispatch
 
 Currently, there are two main modern concurrency APIs available on iOS and OS X:
-[operation
-queues](http://developer.apple.com/library/ios/#documentation/Cocoa/Reference/NSOperationQueue_class/Reference/Reference.html)
+[operation queues](http://developer.apple.com/library/ios/#documentation/Cocoa/Reference/NSOperationQueue_class/Reference/Reference.html)
 and [Grand Central Dispatch](https://developer.apple.com/library/ios/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html) (GCD). 
 GCD is a low-level C API, whereas operation queues are implemented
 on top of GCD and provide an Objective-C API. For a more comprehensive
