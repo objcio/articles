@@ -30,7 +30,7 @@ Although Objective-C has some strange-looking syntax compared to other programmi
 
 In contrast, while Swift syntax looks a lot more like other programming languages, it can also get a lot more complicated and confusing than Objective-C. 
 
-Before I continue, I want to clarify the difference between a Swift *method* and *function*, as I'll be using both terms throughout this article. Here is the definition of Methods, according to Apple's [Swift Programming Language Book](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/Methods.html):
+Before I continue, I want to clarify the difference between a Swift *method* and *function*, as I'll be using both terms throughout this article. Here is the definition of methods, according to Apple's [Swift Programming Language Book](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/Methods.html):
 
 > Methods are functions that are associated with a particular type. Classes, structures, and enumerations can all define instance methods, which encapsulate specific tasks and functionality for working with an instance of a given type. Classes, structures, and enumerations can also define type methods, which are associated with the type itself. Type methods are similar to class methods in Objective-C.
 
@@ -85,7 +85,7 @@ func hello(name: String, age: Int, location: String) {
 hello("Mr. Roboto", 5, "San Francisco")
 ```
 
-From reading just `hello("Mr. Roboto", 5, "San Francisco")`, you would have a hard time knowing what each parameter actually is. 
+From reading only `hello("Mr. Roboto", 5, "San Francisco")`, you would have a hard time knowing what each parameter actually is. 
 
 In Swift, there is a concept of an *external parameter name* to clarify this confusion: 
 
@@ -119,9 +119,9 @@ func hello(#name: String) {
 hello(name: "Robot")
 ```
 
-And of course, the rules for how parameters work are slightly different for Methods...
+And of course, the rules for how parameters work are slightly different for methods...
 
-## Calling On Methods
+## Calling on Methods
 
 When encapsulated in a class (or struct or enum), the first parameter name of a method is *not* included externally, while all following parameter names are included externally when the method is called:
 
@@ -172,7 +172,7 @@ myFunClass.helloWithName("Mr. Roboto", 5, "San Francisco")
 
 ### Instance Methods Are Curried Functions
 
-One cool thing to note is that [instance methods are actually curried functions in Swift](http://oleb.net/blog/2014/07/swift-instance-methods-curried-functions/).
+One cool thing to note is that [instance methods are actually curried functions in Swift](http://oleb.net/blog/2014/07/swift-instance-methods-curried-functions/):
 
 > The basic idea behind currying is that a function can be partially applied, meaning that some of its parameter values can be specified (bound) before the function is called. Partial function application yields a new function.
 
@@ -193,7 +193,7 @@ I can create a variable that points to the class's `helloWithName` function:
 let helloWithNameFunc = MyHelloWorldClass.helloWithName
 // MyHelloWorldClass -> (String) -> String
 ``` 
-My new `helloWithNameFunc` is of type `MyHelloWorldClass -> (String) -> String`, a function that takes in an instance of my class and returns another function that takes in a String value and returns a String value. 
+My new `helloWithNameFunc` is of type `MyHelloWorldClass -> (String) -> String`, a function that takes in an instance of my class and returns another function that takes in a string value and returns a string value. 
 
 So I can actually call my function like this: 
 
@@ -368,7 +368,7 @@ I'm a huge fan of default parameters, mostly because it makes code easy to chang
 
 ### Variadic Parameters 
 
-Variadic parameters are simply a more readable version of passing in an array of elements. In fact, if you were to look at the type of the internal parameter names in the below example, you'd see that it is of type `[String]` (Array of Strings): 
+Variadic parameters are simply a more readable version of passing in an array of elements. In fact, if you were to look at the type of the internal parameter names in the below example, you'd see that it is of type `[String]` (array of strings): 
 
 ```swift
 func helloWithNames(names: String...) {
@@ -407,7 +407,7 @@ helloWithNames()
 // Nobody here!
 ```
 
-Another note about variadic parameters—the variadic parameter must be the *last* parameter in your function's parameter list! 
+Another note about variadic parameters: the variadic parameter must be the *last* parameter in your function's parameter list! 
 
 ### Inout Parameters
 
@@ -476,7 +476,7 @@ number1 // 5
 number2 // 2
 ```
 
-For a lot more information on Generics, I recommend taking a look at the [Generics section](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Generics.html) of the Swift Programming Language book. 
+For a lot more information on generics, I recommend taking a look at the [generics section](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Generics.html) of the Swift Programming Language book. 
 
 ### Variable Parameters
 
@@ -572,7 +572,7 @@ In Objective-C, using blocks as parameters is popular for completion and error h
 
 ## Access Controls
 
-Swift has three levels of [Access Controls](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/AccessControl.html): 
+Swift has three levels of [access controls](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/AccessControl.html): 
 
 - **Public access** enables entities to be used within any source file from their defining module, and also in a source file from another module that imports the defining module. You typically use public access when specifying the public interface to a framework.
 - **Internal access** enables entities to be used within any source file from their defining module, but not in any source file outside of that module. You typically use internal access when defining an app’s or a framework’s internal structure.
