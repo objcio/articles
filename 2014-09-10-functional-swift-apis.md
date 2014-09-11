@@ -247,7 +247,7 @@ First we take a look at what's between the angled brackets after the function's 
 
 Next, let's inspect the function's arguments: the first argument, `lhs` (short for left-hand side), is a function of type `A -> B`, i.e. a function that takes an argument of type `A` and returns a value of type `B`. The second argument, `rhs` (right-hand side), is a function of type `B -> C`. The arguments are named `lhs` and `rhs` because they represent what is located to the left and right of the operator, respectively. 
 
-Rewriting our filter composition operator without using the `Filter` typealias, we quickly see that it was only a special case of the generic function composition operator:
+Rewriting our filter composition operator without using the `Filter` type alias, we quickly see that it was only a special case of the generic function composition operator:
 
 ```swift
 func >|> (filter1: CIImage -> CIImage, filter2: CIImage -> CIImage) -> CIImage -> CIImage
