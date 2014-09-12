@@ -92,8 +92,8 @@ They are very similar. If you change the naming of the cases, the only thing tha
 
 ```swift
 enum Either<A,B> {
-    case Left<A>
-    case Right<B>
+    case Left(A)
+    case Right(B)
 }
 ```
 
