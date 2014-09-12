@@ -124,4 +124,4 @@ Finally, a value layer allows you to isolate the active, behaving elements from 
 
 * [Boundaries](https://www.destroyallsoftware.com/talks/boundaries), by Gary Bernhardt, proposes a similar two-level architecture and elaborates on its benefits for concurrency and testing.
 * [Are We There Yet?](http://www.infoq.com/presentations/Are-We-There-Yet-Rich-Hickey), by Rich Hickey, elaborates on the distinctions between value, state, and identity.
-* [The Structure and Interpretation of Computer Programs](http://mitpress.mit.edu/sicp/), by Harry Abelson and Gerald Sussman, illustrates just how much can be represented with simple values.
+* [The Structure and Interpretation of Computer Programs](http://mitpress.mit.edu/sicp/), by Hal Abelson and Gerald Sussman, illustrates just how much can be represented with simple values.
