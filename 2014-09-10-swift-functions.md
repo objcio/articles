@@ -50,7 +50,7 @@ If you've ever programmed in any other language aside from Objective-C, the abov
 
 * The `func` keyword denotes that this is a function.
 * The name of this function is `mySimpleFunction`.
-* There are no parameters passed in—hence the empty `( )`.
+* There are no parameters passed in — hence the empty `( )`.
 * There is no return value.
 * The function execution happens between the `{ }`.
 
@@ -222,7 +222,7 @@ Person(name: "Mr. Roboto")
 
 Notice that, unlike other methods, the first parameter name of an init method is required externally when the class is instantiated. 
 
-It is best practice in most cases to add a different external parameter name—`fromName` in this case—to make the initialization more readable: 
+It is best practice in most cases to add a different external parameter name — `fromName` in this case — to make the initialization more readable: 
 
 ```swift
 class Person {
@@ -365,7 +365,7 @@ And since parameters with a default value can be skipped when the function is ca
 
 > Place parameters with default values at the end of a function’s parameter list. This ensures that all calls to the function use the same order for their non-default arguments, and makes it clear that the same function is being called in each case.
 
-I'm a huge fan of default parameters, mostly because it makes code easy to change and backward compatible. You might start out with two parameters for your specific use case at the time, such as a function to configure a custom `UITableViewCell,` and if another use case comes up that requires another parameter (such as a different text color for your cell's label), just add a new parameter with a default value—all the other places where this function has already been called will be fine, and the new part of your code that needs the parameter can just pass in the non-default value!
+I'm a huge fan of default parameters, mostly because it makes code easy to change and backward compatible. You might start out with two parameters for your specific use case at the time, such as a function to configure a custom `UITableViewCell,` and if another use case comes up that requires another parameter (such as a different text color for your cell's label), just add a new parameter with a default value — all the other places where this function has already been called will be fine, and the new part of your code that needs the parameter can just pass in the non-default value!
 
 ### Variadic Parameters 
 
@@ -500,7 +500,7 @@ name
 // Mr. Roboto
 ```
 
-Note that this is different than an inout parameter—variable parameters do not change the external passed-in variable!
+Note that this is different than an inout parameter — variable parameters do not change the external passed-in variable!
 
 ### Functions as Parameters
 
@@ -520,7 +520,7 @@ luckyNumberForName("Mr. Roboto", lotteryHandler: defaultLotteryHandler)
 // Mr. Roboto, your lucky number is 38
 ```
 
-Note that only the function reference gets passed in—`defaultLotteryHandler` in this case. The function gets executed later as decided by the receiving function. 
+Note that only the function reference gets passed in — `defaultLotteryHandler` in this case. The function gets executed later as decided by the receiving function. 
 
 Instance methods can also be passed in a similar way: 
 
@@ -579,7 +579,7 @@ Swift has three levels of [access controls](https://developer.apple.com/library/
 - **Internal access** enables entities to be used within any source file from their defining module, but not in any source file outside of that module. You typically use internal access when defining an app’s or a framework’s internal structure.
 - **Private access** restricts the use of an entity to its own defining source file. Use private access to hide the implementation details of a specific piece of functionality.
 
-By default, every function and variable is internal—if you want to change that, you have to use the `private` or `public` keyword in front of every single method and variable: 
+By default, every function and variable is internal — if you want to change that, you have to use the `private` or `public` keyword in front of every single method and variable: 
 
 ```swift
 public func myPublicFunc() {
@@ -702,7 +702,7 @@ println("From numbers: 236, 8, 38, 937, 328. The min is \(min). The max is \(max
 
 The tricky part about multiple return values is when the return values can be optional, but there are two ways to handle dealing with optional multiple return values. 
 
-In the above example function, my logic is flawed—it is possible that no values could be passed in, so my program would actually crash if that ever happened. If no values are passed in, I might want to make my whole return value optional: 
+In the above example function, my logic is flawed — it is possible that no values could be passed in, so my program would actually crash if that ever happened. If no values are passed in, I might want to make my whole return value optional: 
 
 ```swift
 func findRangeFromNumbers(numbers: Int...) -> (min: Int, max: Int)? {
