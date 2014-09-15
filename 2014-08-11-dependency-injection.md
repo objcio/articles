@@ -37,7 +37,7 @@ One of the biggest barriers to approaching unit testing for the first time is no
 
 Now as soon as I said DI, many of you thought of dependency injection frameworks or Inversion of Control (IoC) containers. Please set those thoughts aside; we'll return to them in the FAQ.
 
-There are various techniques for taking a dependency and injecting something else in its place. In the Objective-C runtime, swizzling—that is, dynamically replacing one method with another—is certainly one such technique. Some even argue that [swizzling makes DI unnecessary][injectionIsNotAVirtue], and that the techniques below should be avoided. But I'd rather have code that makes dependencies explicit, so that I can see them (and be forced to deal with the code smelling when there are too many dependencies, or the wrong ones).
+There are various techniques for taking a dependency and injecting something else in its place. In the Objective-C runtime, swizzling — that is, dynamically replacing one method with another — is certainly one such technique. Some even argue that [swizzling makes DI unnecessary][injectionIsNotAVirtue], and that the techniques below should be avoided. But I'd rather have code that makes dependencies explicit, so that I can see them (and be forced to deal with the code smelling when there are too many dependencies, or the wrong ones).
 
 [injectionIsNotAVirtue]: http://sharpfivesoftware.com/2013/03/20/dependency-injection-is-not-a-virtue-in-objective-c/
 
@@ -121,7 +121,7 @@ If the dependency is only referenced in a single method, then we can just inject
         return currentReminderId;
     }
 
-Again, this may look odd—and again, remember that `NSUserDefaults` may not quite fit every example. But an `NSDate` parameter would fit well with method injection. (More on this below when we discuss the benefits of each form.)
+Again, this may look odd — and again, remember that `NSUserDefaults` may not quite fit every example. But an `NSDate` parameter would fit well with method injection. (More on this below when we discuss the benefits of each form.)
 
 ### Ambient Context
 
@@ -138,9 +138,9 @@ This final technique falls outside the forms of DI from Seemann's book. Instead,
 
 [Feathers]: http://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052
 
-Step 1—Select one of the calls `[NSUserDefaults standardUserDefaults]`. Use automated refactoring (in either Xcode or AppCode) to extract it to a new method.
+Step 1 — Select one of the calls `[NSUserDefaults standardUserDefaults]`. Use automated refactoring (in either Xcode or AppCode) to extract it to a new method.
 
-Step 2—Change other places where the call is made, replacing them with calls to the new method. (Be careful not to change the new method itself.)
+Step 2 — Change other places where the call is made, replacing them with calls to the new method. (Be careful not to change the new method itself.)
   
 The modified code looks like this:
 
@@ -163,7 +163,7 @@ The modified code looks like this:
 
 With that in place, here's the final step:
 
-Step 3—Create a special **testing subclass**, overriding the extracted method, like this:
+Step 3 — Create a special **testing subclass**, overriding the extracted method, like this:
 
     @interface TestingExample : Example
     @end
@@ -224,8 +224,8 @@ Ambient context may be just what you need. But because it affects global context
 
 Instead of doing your own swizzling, see if someone has already written a library focusing on the ambient context you need. For example:
 
-* Networking—[Nocilla][Nocilla] or [OHHTTPStubs][OHHTTPStubs]
-* NSDate—[TUDelorean][TUDelorean]
+* Networking — [Nocilla][Nocilla] or [OHHTTPStubs][OHHTTPStubs]
+* NSDate — [TUDelorean][TUDelorean]
 
 [Nocilla]: https://github.com/luisobo/Nocilla
 [OHHTTPStubs]: https://github.com/AliSoftware/OHHTTPStubs
