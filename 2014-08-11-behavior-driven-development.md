@@ -264,7 +264,7 @@ The next step is, of course, refactoring our tests. Now that we no longer need t
         });
     });
 
-Note how simple our test has become. We only have a minimalistic setup block where we prepare a data model and call a tested method. By focusing more on the result of behavior, rather than the way it actually works, we have simplified our test suite while still retaining functional test coverage of our object. This is exactly what BDD is about—trying to think about results of behaviors, and not the actual implementation.
+Note how simple our test has become. We only have a minimalistic setup block where we prepare a data model and call a tested method. By focusing more on the result of behavior, rather than the way it actually works, we have simplified our test suite while still retaining functional test coverage of our object. This is exactly what BDD is about — trying to think about results of behaviors, and not the actual implementation.
 
 #### Data Downloader
 
@@ -379,13 +379,13 @@ You can probably gauge that there's something wrong with these tests. Even thoug
     
 We started by stubbing the `makeRequest:completion:` method. We returned a fixture identifier. In the same `describe` block, we defined a cancel `describe` block, which calls the `cancel` method on our `CalendarDataDownloader` object. We then check out whether the fixture string was passed to our mocked network layer `cancelRequestWithIdentifier:` method. 
 
-Note that, at this point, we don't actually need a test that checks whether the network request was made—we would not get an identifier and the `cancelRequestWithIdentifier:` would never be called. However, we retained that test to make sure we know what happened should that functionality break.
+Note that, at this point, we don't actually need a test that checks whether the network request was made — we would not get an identifier and the `cancelRequestWithIdentifier:` would never be called. However, we retained that test to make sure we know what happened should that functionality break.
 
-We've managed to test the exact same behavior without exposing the internal implementation of `CalendarDataDownloader`. Moreover, we've done so with only three tests instead of four. And we've leveraged BDD DSL nesting capabilities to chain simulation of behaviors—we first simulated the download, and then, in the same `describe` block, we simulated the canceling of a request. 
+We've managed to test the exact same behavior without exposing the internal implementation of `CalendarDataDownloader`. Moreover, we've done so with only three tests instead of four. And we've leveraged BDD DSL nesting capabilities to chain simulation of behaviors — we first simulated the download, and then, in the same `describe` block, we simulated the canceling of a request. 
 
 ### Testing View Controllers
 
-It seems that the most common attitude to testing view controllers among iOS developers is that people don't see value in it—which I find odd, as controllers often represent the core aspect of an application. They are the place where all components are glued together. They are the place that connects the user interface with the application logic and model. As a result, damage caused by an involuntary change can be substantial. 
+It seems that the most common attitude to testing view controllers among iOS developers is that people don't see value in it — which I find odd, as controllers often represent the core aspect of an application. They are the place where all components are glued together. They are the place that connects the user interface with the application logic and model. As a result, damage caused by an involuntary change can be substantial. 
 
 This is why I strongly believe that view controllers should be tested as well. However, testing view controllers is not an easy task. The following upload photo and sign-in view controller examples should help with understanding how BDD can be leveraged to simplify building test suites for view controllers.
 
@@ -449,7 +449,7 @@ Let's see how we could test this component. First of all, we'll need to check wh
         });
     });
     
-But this is only half of what actually needs to be tested—we are now sure that the appropriate method will be called when the button is pressed, but we're not sure whether the appropriate action will be taken (in fact, we don't even know whether that method actually exists). So let's test that as well:
+But this is only half of what actually needs to be tested — we are now sure that the appropriate method will be called when the button is pressed, but we're not sure whether the appropriate action will be taken (in fact, we don't even know whether that method actually exists). So let's test that as well:
 
     describe(@"tapping right bar button item", ^{
         beforeEach(^{
@@ -735,7 +735,7 @@ Let's see how our tests look now:
         });
     });
     
-Looks much simpler, doesn't it? Note that by looking for a button with "Sign In" as the title, we also tested whether such a button exists at all. Moreover, by simulating a tap, we tested whether the action is correctly hooked up. And in the end, by asserting that our `SignInManager` should be called, we tested whether or not that part is correctly implemented—all of this using three simple tests.
+Looks much simpler, doesn't it? Note that by looking for a button with "Sign In" as the title, we also tested whether such a button exists at all. Moreover, by simulating a tap, we tested whether the action is correctly hooked up. And in the end, by asserting that our `SignInManager` should be called, we tested whether or not that part is correctly implemented — all of this using three simple tests.
 
 What is also great is that we no longer need to expose any of those properties. As a matter of fact, our interface could be as simple as this:
 
@@ -751,7 +751,7 @@ In these tests, we have leveraged the capabilities of BDD DSL. Note how we used 
 
 ## Conclusion
 
-Behavior-driven development is not as hard as it might initially look. All you need to do is change your mindset a bit—think more of how an object should behave (and how its interface should look) and less of how it should be implemented. By doing so, you will end up with a more robust codebase, along with a great test suite. Moreover, your tests will become less prone to breaking during refactors, and they will focus on testing the contract of your object rather than its internal implementation.
+Behavior-driven development is not as hard as it might initially look. All you need to do is change your mindset a bit — think more of how an object should behave (and how its interface should look) and less of how it should be implemented. By doing so, you will end up with a more robust codebase, along with a great test suite. Moreover, your tests will become less prone to breaking during refactors, and they will focus on testing the contract of your object rather than its internal implementation.
 
 And with the great tools provided by the iOS community, you should be able to start BDDing your apps in no time. Now that you know *what* to test, there's really no excuse, is there?
 
