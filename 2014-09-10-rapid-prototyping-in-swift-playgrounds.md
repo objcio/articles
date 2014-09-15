@@ -50,7 +50,7 @@ In fact, in the [July 2014 issue of the PragPub magazine](http://www.swaine.com/
 
 While the question about code quality is for others to answer, let's take a look at how playgrounds can speed up development through rapid prototyping.
 
-## Prototyping Accelerate—Optimized Signal Processing
+## Prototyping Accelerate — Optimized Signal Processing
 
 The Accelerate framework contains powerful functions for parallel processing of large data sets. These functions take advantage of the vector-processing instructions present in modern CPUs, such as the SSE instruction set in Intel chips, or the NEON ones on ARM. However, for their power, their interfaces can seem opaque and documentation on their use is a little sparse. As a result, not as many developers take advantage of the libraries under Accelerate's umbrella.
 
