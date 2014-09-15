@@ -28,13 +28,13 @@ The remainder of this article will be about testing user behavior. I've provided
 
 The number one principle I apply to testing user experience is to make it appear to your code as if the user has triggered the action. This can be tricky because, as said before, frameworks don't always expose all of the necessary lower-level APIs.
 
-Projects like [KIF][], [Frank][], and [Calabash][] solve this problem, but at the cost of introducing an additional layer of complexity—and we should always use the simplest possible solution that gets the job done. You want your tests to be deterministic. They need to fail or pass consistently. The worst test suites are those that fail at random. I prefer not to use these solutions because, in my experience, they introduce too much complexity at the cost of reliability and stability.
+Projects like [KIF][], [Frank][], and [Calabash][] solve this problem, but at the cost of introducing an additional layer of complexity — and we should always use the simplest possible solution that gets the job done. You want your tests to be deterministic. They need to fail or pass consistently. The worst test suites are those that fail at random. I prefer not to use these solutions because, in my experience, they introduce too much complexity at the cost of reliability and stability.
 
 [KIF]: https://github.com/kif-framework/KIF
 [Frank]: http://www.testingwithfrank.com/
 [Calabash]: http://calaba.sh/
 
-Note that I've used [Specta][] and [Expecta][] in the example project. Technically, this isn't the simplest possible solution—XCTest is. But there are various reasons why [I prefer them](http://www.annema.me/why-i-prefer-testing-with-specta-expecta-and-ocmockito), and I know from experience that they don't affect the reliability and stability of my test. As a matter of fact, I'd wager that they make my tests better (a safe bet to make, since _better_ is ambiguous).
+Note that I've used [Specta][] and [Expecta][] in the example project. Technically, this isn't the simplest possible solution — XCTest is. But there are various reasons why [I prefer them](http://www.annema.me/why-i-prefer-testing-with-specta-expecta-and-ocmockito), and I know from experience that they don't affect the reliability and stability of my test. As a matter of fact, I'd wager that they make my tests better (a safe bet to make, since _better_ is ambiguous).
 
 [Specta]: https://github.com/specta/specta
 [Expecta]: https://github.com/specta/expecta
@@ -92,7 +92,7 @@ To be honest, I'm not 100% certain these 'solutions' can't cause issues. This do
 
 I want to end with view controllers. View controllers are likely the most important component of any iPhone application. They're the abstraction used to mediate between the view and your business logic. In order to test the behavior as best as possible, we're going to have to present the view controllers. However, presenting view controllers in test cases quickly leads me to conclude they weren't built with testing in mind. 
 
-Presenting and dismissing view controllers is the best way to make sure every test has a consistent start state. Unfortunately, doing so in rapid succession—like a test runner does—will quickly result in error messages like:
+Presenting and dismissing view controllers is the best way to make sure every test has a consistent start state. Unfortunately, doing so in rapid succession — like a test runner does — will quickly result in error messages like:
 
 - Warning: Attempt to dismiss from view controller \<UINavigationController: 0x109518bd0\> while a presentation or dismiss is in progress!
 - Warning: Attempt to present \<PresentedViewController: 0x10940ba30\> on \<UINavigationController: 0x109518bd0\> while a presentation is in progress!
