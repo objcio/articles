@@ -38,7 +38,7 @@ pretty difficult to get right.
 When you were a kid playing in the sand, did your parents ever tell you that if you kept digging with your little shovel you would end up in China?
 Mine did, and I made a small demo app called *Tunnel* to test this claim. 
 You can clone the [GitHub
-repo](https://github.com/RickiG/view-controller-containment) and run the
+repo](https://github.com/objcio/issue-1-view-controller-containment) and run the
 app, which will make it easier to understand the example code.
 *(Spoiler: digging through the earth from western Denmark lands you somewhere in the South Pacific Ocean.)*
 
