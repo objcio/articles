@@ -182,7 +182,7 @@ So how does a user grant access for an application that wants to run scripts?
 
 The mechanism is surprisingly simple: your application can only run scripts from a specific folder in the user's account. The only way scripts can get into that folder is if the user copies them there. Essentially, OS X gives you a read-only view of what's in those scripts.
 
-This presents a challenge: the folder is in User > Library > Application Scripts and is named using the application's bundle identifier. For [Scriptinator](https://github.com/chockenberry/Scriptinator), that folder is named in a way only a programmer could love: `com.iconfactory.Scriptinator`. None of this is very user-friendly, especially since the Library folder is hidden by default on OS X.
+This presents a challenge: the folder is in User > Library > Application Scripts and is named using the application's bundle identifier. For [Scriptinator](https://github.com/objcio/issue-14-sandbox-scripting), that folder is named in a way only a programmer could love: `com.iconfactory.Scriptinator`. None of this is very user-friendly, especially since the Library folder is hidden by default on OS X.
 
 One approach to this problem is to implement some code that opens this hidden folder for your customer. For example:
 
@@ -239,7 +239,7 @@ That `Automation.scpt` file that we used to run from inside the application bund
 
 It's important throughout this entire process to let your customer know exactly what's going on. You have to remember that the customer is the one in control of the script, not you. If the customer decides to clear out all his or her scripts from the folder, you need to cope with that. You may need to disable an app feature that requires the script, or explain why the script needs to be installed again.
 
-_Note:_ The [Scriptinator](https://github.com/chockenberry/Scriptinator) sample code includes both of the approaches shown above. For a real world example, take a look at the [Overlay](http://xscopeapp.com/guide#overlay) tool in the free trial version of [xScope](http://xscopeapp.com/). It has a user-friendly setup procedure and sophisticated scripting that lets the app communicate with the customer's web browser. As a bonus, you may find that xScope is a great tool for doing your own development!
+_Note:_ The [Scriptinator](https://github.com/objcio/issue-14-sandbox-scripting) sample code includes both of the approaches shown above. For a real world example, take a look at the [Overlay](http://xscopeapp.com/guide#overlay) tool in the free trial version of [xScope](http://xscopeapp.com/). It has a user-friendly setup procedure and sophisticated scripting that lets the app communicate with the customer's web browser. As a bonus, you may find that xScope is a great tool for doing your own development!
 
 
 Scripting Tasks
