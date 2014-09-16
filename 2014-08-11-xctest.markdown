@@ -20,7 +20,7 @@ We tried to link to the other articles in [this issue](/issue-15/) where it make
 
 ## Why We Are Testing
 
-As the [article about bad practices in testing](/issue-15/bad-testing-practices.html) mentions, many people believe that "the only time a test will give value back is when we want to change our code." There's obviously more to it, and you should read that article. But it is also important to remember that even when writing the first version of any code, most of the time will be spent changing code—as the project evolves, more and more features get added, and we realize that behavior needs to change slightly here and there. So even though you're not yet working on version 1.1 or 2.0, you'll still do a lot of changing, and tests do provide invaluable help at that point in time.
+As the [article about bad practices in testing](/issue-15/bad-testing-practices.html) mentions, many people believe that "the only time a test will give value back is when we want to change our code." There's obviously more to it, and you should read that article. But it is also important to remember that even when writing the first version of any code, most of the time will be spent changing code — as the project evolves, more and more features get added, and we realize that behavior needs to change slightly here and there. So even though you're not yet working on version 1.1 or 2.0, you'll still do a lot of changing, and tests do provide invaluable help at that point in time.
 
 We are still finishing the initial version of our framework, and have just recently passed 1,000 test cases with more than 10 [man months](https://en.wikipedia.org/wiki/Man-hour) of effort spent on the project. Even though we had a clear vision of the project's architecture, we've still had to change and adapt the code along the way. The ever-growing set of test cases have helped us do this.
 
@@ -71,7 +71,7 @@ It's easy to search for this string, and since the method name no longer starts 
 
 ## Given / When / Then
 
-We structure our tests by using the *Given-When-Then* pattern—every test is split into three parts.
+We structure our tests by using the *Given-When-Then* pattern — every test is split into three parts.
 
 The **given** section sets up the environment for the test by creating model objects or bringing the system under test to a certain state. The **when** section contains the code we want to test. In most cases, this is only one method call. In the **then** section, we check the result of our action: Did we get the desired output? Was the object changed? This section consists mainly of assertions.
 
@@ -237,7 +237,7 @@ We found that the best solution to this problem is to consistently use groups, n
 
 <a name="dispatch-group"> </a>
 
-### Don't Be Alone—Join a Group
+### Don't Be Alone — Join a Group
 
 Some of our classes need to use `dispatch_queue_t` internally. Some of our classes enqueue blocks onto an `NSManagedObjectContext`'s private queue.
 
@@ -380,7 +380,7 @@ inside our tests. This is easier to read. Along this pattern, it is possible to 
 
 <a name="fake-transport-session"> </a>
 
-## The Ol’ Switcheroo—Faking the Transport Layer
+## The Ol’ Switcheroo — Faking the Transport Layer
 
 One important question in testing an application is how to test the interaction with the server. The most ideal solution would be to quickly spin up a local copy of the real server, to provision it with fake data, and to run tests directly against it over http.
 
@@ -577,4 +577,4 @@ How important the additional features of BDD frameworks are depends on the size 
 
 ## Summary
 
-Is XCTest the right choice? You will have to judge based on the project at hand. We chose XCTest as part of [KISS](https://en.wikipedia.org/wiki/Keep_it_simple_stupid)—and have a wish list for things we'd like to be different. XCTest has served us well, even though we had to make tradeoffs. But with another testing framework, the tradeoff would have been something else.
+Is XCTest the right choice? You will have to judge based on the project at hand. We chose XCTest as part of [KISS](https://en.wikipedia.org/wiki/Keep_it_simple_stupid) — and have a wish list for things we'd like to be different. XCTest has served us well, even though we had to make tradeoffs. But with another testing framework, the tradeoff would have been something else.

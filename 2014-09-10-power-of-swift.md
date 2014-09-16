@@ -15,7 +15,7 @@ When Apple announced Swift during WWDC, I got really excited. I haven't been so 
 
 I learned functional programming during my time at Utrecht University. Because I learned it in the context of academia, I wasn't too overwhelmed by the complicated terminology used: monads, applicative functors, and lots of other things. I think the naming is one big stumbling block for people who want to get into functional programming.
 
-Not only is the naming different, but also the style. Being Objective-C programmers, we're used to object-oriented programming. And because most languages are either using object-oriented programming or a similar style, we can read most code in most languages. Not so much when reading functional programming—it might look like complete gibberish when you're not used to it.
+Not only is the naming different, but also the style. Being Objective-C programmers, we're used to object-oriented programming. And because most languages are either using object-oriented programming or a similar style, we can read most code in most languages. Not so much when reading functional programming — it might look like complete gibberish when you're not used to it.
 
 Why would you use functional programming, then? It's weird, people are not used to it, and it takes quite a while to learn. Also, you can already solve any problem with object-oriented programming, so there's no need to learn anything new, right?
 
@@ -72,7 +72,7 @@ In case you need to specify an error message, you could also use an `Either` or 
 
 Enums are a new thing with Swift, and they are quite different from anything we're used to in Objective-C. In Objective-C, we have something called enums, but they're not much more than glorified integers.
 
-Let's consider boolean types. A boolean can have exactly one of two possible values: true or false. It is important to realize that it's not possible to add another possible value—the boolean type is *closed*. The nice thing about booleans being closed is that in any function that uses the boolean type, we only have to take `true` and `false` into account. 
+Let's consider boolean types. A boolean can have exactly one of two possible values: true or false. It is important to realize that it's not possible to add another possible value — the boolean type is *closed*. The nice thing about booleans being closed is that in any function that uses the boolean type, we only have to take `true` and `false` into account. 
 
 The same holds true for optionals. There are only two cases: the `nil` case, and the case where there's a value. Both optionals and booleans can be defined as enums in Swift, with only one difference: in the optional enum, there is a case that has an associated value. Let's look at their respective definitions:
 
@@ -92,8 +92,8 @@ They are very similar. If you change the naming of the cases, the only thing tha
 
 ```swift
 enum Either<A,B> {
-    case Left<A>
-    case Right<B>
+    case Left(A)
+    case Right(B)
 }
 ```
 
@@ -113,7 +113,7 @@ enum Github {
 
 Defining API endpoints is a good use case for enums. The list of API endpoints is finite, and we can just define a case for each endpoint. If we do a switch statement on values of this endpoint, we will get a warning if we forget to include case. So if at some point we will add a case, we need to update every function or method that pattern-matches on this enum.
 
-Other people who use our enum cannot just add extra cases to it, unless they have access to the source. This is a very useful limitation. Consider if you could add a case to `Bool` or `Optional`—then all the functions that use it would need to be rewritten.
+Other people who use our enum cannot just add extra cases to it, unless they have access to the source. This is a very useful limitation. Consider if you could add a case to `Bool` or `Optional` — then all the functions that use it would need to be rewritten.
 
 Let's say we are building a currency converter. We could define our currencies as an enum:
 
@@ -180,7 +180,7 @@ func format(amount: Double, currency: CurrencySymbol) -> String {
 }
 ```
 
-Now we have made our code very extensible—any type that conforms to `CurrencySymbol` can now be formatted. For example, if we create a new type that stores bitcoins, we can immediately make it work with our `format` function:
+Now we have made our code very extensible — any type that conforms to `CurrencySymbol` can now be formatted. For example, if we create a new type that stores bitcoins, we can immediately make it work with our `format` function:
 
 ```swift
 struct Bitcoin : CurrencySymbol {
@@ -190,7 +190,7 @@ struct Bitcoin : CurrencySymbol {
 }
 ```
 
-This is a great way of writing functions that are open for extension. By taking in values that should conform to a protocol—rather than concrete types—you leave it up to the user of your API to add more types. You can still use the flexibility of enums, but by combining them with protocols, you can be even more expressive. Depending on your use-case, you can now easily choose whether you want an open or a closed API.
+This is a great way of writing functions that are open for extension. By taking in values that should conform to a protocol — rather than concrete types — you leave it up to the user of your API to add more types. You can still use the flexibility of enums, but by combining them with protocols, you can be even more expressive. Depending on your use-case, you can now easily choose whether you want an open or a closed API.
 
 ## Type Safety
 

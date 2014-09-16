@@ -22,7 +22,7 @@ automated tests. On the positive side, writing automated tests can:
 
 
 Sure, you could say those are true, but I want to give another
-perspective to all those reasons—a unified perspective if you will:
+perspective to all those reasons — a unified perspective if you will:
 
 > The only reason automated tests are valuable is to allow us to modify
   our own code later on.
@@ -34,11 +34,11 @@ In other words:
 Let's see how the classic arguments in favor of writing tests are connected
 to this premise:
 
-- Makes refactoring easier—You can change implementation details with confidence, leaving the public API untouched.
-- Avoids regressions—When do regressions occur? When you change your code.
-- Provides executable specification and documentation—When do you want to know more about how software actually works? When you want to modify it.
-- Reduces the time of creating software—How? By allowing you to modify your code faster, with the confidence that your tests will tell you when something went wrong.
-- Reduces the cost of creating software—Well, time is money.
+- Makes refactoring easier — You can change implementation details with confidence, leaving the public API untouched.
+- Avoids regressions — When do regressions occur? When you change your code.
+- Provides executable specification and documentation — When do you want to know more about how software actually works? When you want to modify it.
+- Reduces the time of creating software — How? By allowing you to modify your code faster, with the confidence that your tests will tell you when something went wrong.
+- Reduces the cost of creating software — Well, time is money.
 
 
 Yes, all the reasons above are true at some point, but the reason that this
@@ -64,7 +64,7 @@ Still, you may be wondering: "What's the big deal about that?"
 Let's answer this question with another question: Why do our tests break when we
 change our code?
 
-We agreed that the main purpose of having tests is so we can change our code with ease. If that's so, then how are all those red tests helping us? Those failing tests are nothing but noise—impediments to getting the job done. So, how do we do testing in a way that will help us?
+We agreed that the main purpose of having tests is so we can change our code with ease. If that's so, then how are all those red tests helping us? Those failing tests are nothing but noise — impediments to getting the job done. So, how do we do testing in a way that will help us?
 
 It depends on the reason why we are changing the code.
 
@@ -81,18 +81,18 @@ your code _does_) you would:
 1. Run the tests and see if those modified tests fail.
 1. Update your code to make all tests pass again.
 
-At the end of this process, we are back at square one—all tests pass,
+At the end of this process, we are back at square one — all tests pass,
 and we are ready to start over if needed.
 
 Because you know exactly which tests failed and which modification of the
 code made them pass, you are confident that you only changed what you
-wanted to change. This is how automated tests help us modify our code—in this case, to change the behavior.
+wanted to change. This is how automated tests help us modify our code — in this case, to change the behavior.
 
 Note that it is OK to see a test failing, as long as it's only a test related to the
 behavior that we are updating.
 
 
-### Refactoring: Changing the Implementation of the Code—Leaving the Behavior Intact
+### Refactoring: Changing the Implementation of the Code — Leaving the Behavior Intact
 
 Again, the starting point should always be green.
 
@@ -104,7 +104,7 @@ list of steps to follow:
 1. Modify your code without touching your tests at all.
 
 Once your code is simpler, faster, or more flexible, your tests should remain
-just as they were—green. When refactoring, tests should only fail in the case that you made a
+just as they were — green. When refactoring, tests should only fail in the case that you made a
 mistake, such as changing the external behavior of your code. When that happens, you
 should reverse that mistake and go back to a green state.
 
@@ -120,15 +120,15 @@ We want our tests to aid in the processes described above. So let's see some spe
 
 ## Good Practices 101
 
-Before jumping into how _not_ to write your tests, I'd like to go over a few good practices really quick. There are five basic rules that every test should obey to be considered a good—or even a _valid_—test. There is a mnemonic for these five rules: F.I.R.S.T. 
+Before jumping into how _not_ to write your tests, I'd like to go over a few good practices really quick. There are five basic rules that every test should obey to be considered a good — or even a _valid_ — test. There is a mnemonic for these five rules: F.I.R.S.T. 
 
 Tests should be:
 
-- **F**ast—tests should be able to be executed often.
-- **I**solated—tests on their own cannot depend on external factors or on the result of another test.
-- **R**epeatable—tests should have the same result every time we run them.
-- **S**elf-verifying—tests should include assertions; no human intervention needed.
-- **T**imely—tests should be written along with the production code.
+- **F**ast — tests should be able to be executed often.
+- **I**solated — tests on their own cannot depend on external factors or on the result of another test.
+- **R**epeatable — tests should have the same result every time we run them.
+- **S**elf-verifying — tests should include assertions; no human intervention needed.
+- **T**imely — tests should be written along with the production code.
 
 To find out more about this set of rules, you can read [this article](http://pragprog.com/magazines/2012-01/unit-tests-are-first) by Tim Ottinger and Jeff Langr.
 
@@ -189,7 +189,7 @@ of that, doing this could be hard to debug. Usually, stubbing libraries rely on 
 get the job done, making it hard to find out why a test is failing.
 
 Also, when we stub a method, we should be doing it according to its contract.
-But a private method has no specified contract—that's mostly why it's
+But a private method has no specified contract — that's mostly why it's
 private, after all. Since the behavior of a private method is subject to
 change without notice, your stub may diverge from reality, but your test
 _will still pass_. Horrendous. Let's see an example:
@@ -277,7 +277,7 @@ the exact same thing or, at least, with the same external behavior; in our
 database example, you could use the `find` method to retrieve a record by ID,
 or use a `where` clause to get the same record. The problem comes when we
 only stub one of those possible mechanisms. If we only stub the `find`
-method—which is the one that our production code uses—but we don't stub
+method — which is the one that our production code uses — but we don't stub
 the other possibilities, like the `where` clause, when we decide to
 refactor our implementation from using `find` to using `where`, our test will
 fail, even though the external behavior of our code hasn't changed.
@@ -370,7 +370,7 @@ state, it behaves like that).
 
 ## Conclusion
 
-Writing tests is an investment—we need to put in time in the form of writing
+Writing tests is an investment — we need to put in time in the form of writing
 and maintaining them. The only way we can justify such an investment is because
 we expect to get that time back. Coupling tests to implementation details will
 reduce the amount of value that our tests will provide, making that investment

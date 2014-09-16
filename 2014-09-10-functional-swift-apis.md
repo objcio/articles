@@ -14,7 +14,7 @@ With this year's emergence of Swift, designing an API poses many more questions 
 
 > Swift dramatically expands the design space through the introduction of generics and functional programming concepts.
  
-In this article, we're going to explore how we can leverage these new tools at our disposal in the realm of API design. We're going to build a wrapper API around Core Image as an example. Core Image is a powerful image processing framework, but its API can be a bit clunky to use at times. The Core Image API is loosely typed—image filters are configured using key-value coding. It is all too easy to make mistakes in the type or name of arguments, which can result in runtime errors. The new API we develop will be safe and modular, exploiting *types* to guarantee the absence of such runtime errors.
+In this article, we're going to explore how we can leverage these new tools at our disposal in the realm of API design. We're going to build a wrapper API around Core Image as an example. Core Image is a powerful image processing framework, but its API can be a bit clunky to use at times. The Core Image API is loosely typed — image filters are configured using key-value coding. It is all too easy to make mistakes in the type or name of arguments, which can result in runtime errors. The new API we develop will be safe and modular, exploiting *types* to guarantee the absence of such runtime errors.
 
 
 ## The Goal
@@ -143,7 +143,7 @@ func colorOverlay(color: UIColor) -> Filter {
 }
 ```
 
-Once again, we return a function that takes an image parameter as its argument. The `colorOverlay` starts by calling the `colorGenerator` filter. The `colorGenerator` filter requires a `color` as its argument and returns a filter, hence the code snippet `colorGenerator(color)` has type `Filter`. The `Filter` type, however, is itself a function from `CIImage` to `CIImage`; we can pass an *additional* argument of type `CIImage` to `colorGenerator(color)` to compute a new overlay `CIImage`. This is exactly what happens in the definition of `overlay`—we create a filter using the `colorGenerator` function and pass the `image` argument to this filter to create a new image. Similarly, the value returned, `compositeSourceOver(overlay)(image)`, consists of a filter, `compositeSourceOver(overlay)`, being constructed and subsequently applied to the `image` argument.
+Once again, we return a function that takes an image parameter as its argument. The `colorOverlay` starts by calling the `colorGenerator` filter. The `colorGenerator` filter requires a `color` as its argument and returns a filter, hence the code snippet `colorGenerator(color)` has type `Filter`. The `Filter` type, however, is itself a function from `CIImage` to `CIImage`; we can pass an *additional* argument of type `CIImage` to `colorGenerator(color)` to compute a new overlay `CIImage`. This is exactly what happens in the definition of `overlay` — we create a filter using the `colorGenerator` function and pass the `image` argument to this filter to create a new image. Similarly, the value returned, `compositeSourceOver(overlay)(image)`, consists of a filter, `compositeSourceOver(overlay)`, being constructed and subsequently applied to the `image` argument.
 
 
 ## Composing Filters
@@ -202,7 +202,7 @@ func >|> (filter1: Filter, filter2: Filter) -> Filter {
 
 The operator definition starts with the keyword `infix`, which specifies that the operator takes a left and a right argument, and `associativity left` specifies that an expression like `f1 >|> f2 >|> f3` will be evaluated as `(f1 >|> f2) >|> f3`. By making this a left-associative operator and applying the left-hand filter first, we can read the sequence of filters from left to right, just as Unix pipes. 
 
-The rest is a simple function identical to the `composeFilters` function we've defined before—the only difference being its name, `>|>`. 
+The rest is a simple function identical to the `composeFilters` function we've defined before — the only difference being its name, `>|>`. 
 
 Applying the filter composition operator turns the example we've used before into:
 
@@ -241,7 +241,7 @@ func >|> <A, B, C>(lhs: A -> B, rhs: B -> C) -> A -> C {
 }
 ```
 
-This is probably pretty hard to read at first—at least it was for me. But looking at all the pieces individually, it becomes clear what this does.
+This is probably pretty hard to read at first — at least it was for me. But looking at all the pieces individually, it becomes clear what this does.
 
 First we take a look at what's between the angled brackets after the function's name. This specifies the generic types this function is going to work with. In this case, we have specified three generic types: `A`, `B`, and `C`. Since we haven't restricted those types in any way, they can represent anything.
 

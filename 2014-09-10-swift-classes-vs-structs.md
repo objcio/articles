@@ -8,7 +8,7 @@ tags: article
 ---
 
 
-If you've stuck to Objective-C—and languages like Ruby, Python, or JavaScript—the prominence of structs in Swift might seem especially alien. Classes are the traditional unit of structure in object-oriented languages. Indeed, in contrast to structs, Swift classes support implementation inheritance, (limited) reflection, deinitializers, and multiple owners.
+If you've stuck to Objective-C — and languages like Ruby, Python, or JavaScript — the prominence of structs in Swift might seem especially alien. Classes are the traditional unit of structure in object-oriented languages. Indeed, in contrast to structs, Swift classes support implementation inheritance, (limited) reflection, deinitializers, and multiple owners.
 
 If classes are so much more powerful than structs, why use structs? Well, it's exactly their limited scope that makes them such flexible building blocks. In this article, you'll learn how structs and other value types can radically improve your code's clarity, flexibility, and reliability.
 
@@ -42,13 +42,13 @@ Now that we understand the differences between how value and reference types *be
 
 Swift might someday have reference types other than objects, but for this discussion, we'll focus on objects as the exemplar reference types.
 
-We reference objects in code the same way we reference objects in the real world. Books often use a real-world metaphor to teach people object-oriented programming: you can make a `Dog` class, then instantiate it to define `fido`. If you pass `fido` around to different parts of the system, they're all still talking about the same `fido`. That makes sense, since if you actually had a dog named Fido, whenever you would talk about him in conversation, you'd be transmitting his *name*—not the dog itself, whatever that would mean. You'd be relying on everyone else having some idea of who Fido is. When you use objects, you're passing 'names' of instances around the system.
+We reference objects in code the same way we reference objects in the real world. Books often use a real-world metaphor to teach people object-oriented programming: you can make a `Dog` class, then instantiate it to define `fido`. If you pass `fido` around to different parts of the system, they're all still talking about the same `fido`. That makes sense, since if you actually had a dog named Fido, whenever you would talk about him in conversation, you'd be transmitting his *name* — not the dog itself, whatever that would mean. You'd be relying on everyone else having some idea of who Fido is. When you use objects, you're passing 'names' of instances around the system.
 
-Values are like data. If you send someone a table of expenses, you're not sending that person a label that represents that information—you're sending *the information itself*. Without talking to anyone else, the listener could calculate a total, or write the expenses down to consult later. If the listener prints out the expenses and modifies them, that doesn't modify the table you still have.
+Values are like data. If you send someone a table of expenses, you're not sending that person a label that represents that information — you're sending *the information itself*. Without talking to anyone else, the listener could calculate a total, or write the expenses down to consult later. If the listener prints out the expenses and modifies them, that doesn't modify the table you still have.
 
-A value can be a number, perhaps representing a price, or a string—like a description. It could be a selection among options—an enum: was this expense for a dinner, for travel, or for materials? It could contain several other values in named positions, like the `CLLocationCoordinate2D` struct, which specifies a latitude and longitude. Or it could be a list of other values... and so on.
+A value can be a number, perhaps representing a price, or a string — like a description. It could be a selection among options — an enum: was this expense for a dinner, for travel, or for materials? It could contain several other values in named positions, like the `CLLocationCoordinate2D` struct, which specifies a latitude and longitude. Or it could be a list of other values... and so on.
 
-Fido might run around and bark on his own accord. He might have special behavior that makes him different from every other dog. He might have relationships established with others. You can't just swap Fido out for another dog—your kids could tell the difference! But the table of expenses exists in isolation. Those strings and numbers don't *do* anything. They aren't going to change out from under you. No matter how many different ways you write the "6" in the first column, it's still just a "6."
+Fido might run around and bark on his own accord. He might have special behavior that makes him different from every other dog. He might have relationships established with others. You can't just swap Fido out for another dog — your kids could tell the difference! But the table of expenses exists in isolation. Those strings and numbers don't *do* anything. They aren't going to change out from under you. No matter how many different ways you write the "6" in the first column, it's still just a "6."
 
 And that's what's so great about value types.
 
@@ -56,9 +56,9 @@ And that's what's so great about value types.
 
 Objective-C and C had value types, but Swift allows you to use them in previously impractical scenarios. For instance, the generics system permits abstractions that handle value and reference types interchangeably: `Array` works equally well for `Int`s as for `UIView`s. Enums are vastly more expressive in Swift, since they can now carry values and specify methods. Structs can conform to protocols and specify methods.
 
-Swift's enhanced support for value types affords a tremendous opportunity: value types are an incredibly flexible tool for making your code simpler. You can use them to extract isolated, predictable components from fat classes. Value types enforce—or at least encourage—many properties that work together to create clarity by default.
+Swift's enhanced support for value types affords a tremendous opportunity: value types are an incredibly flexible tool for making your code simpler. You can use them to extract isolated, predictable components from fat classes. Value types enforce — or at least encourage — many properties that work together to create clarity by default.
 
-In this section, I'll describe some of the properties that value types encourage. It's worth noting that you *can* make objects that have these properties, but the language provides no pressure to do that. If you see an object in some code, you have no reasonable expectation of these properties, whereas if you see a value type, you do. It's true that not *all* value types have these properties—we'll cover that shortly—but these are reasonable generalizations.
+In this section, I'll describe some of the properties that value types encourage. It's worth noting that you *can* make objects that have these properties, but the language provides no pressure to do that. If you see an object in some code, you have no reasonable expectation of these properties, whereas if you see a value type, you do. It's true that not *all* value types have these properties — we'll cover that shortly — but these are reasonable generalizations.
 
 ### Value Types Want to Be Inert
 
@@ -78,9 +78,9 @@ If you're accessing a reference to a mutable instance, you have an implicit depe
 
 Because a value type is copied every time it's assigned to a new variable, all of those copies are completely interchangeable.
 
-You can safely store a value that's passed to you, then later use that value as if it were 'new.' No one can compare that instance with another using anything but the data contained within it. Interchangeability also means that it doesn't matter *how* a given value was constructed—as long as it compares equal via `==`, it's equivalent for all purposes.
+You can safely store a value that's passed to you, then later use that value as if it were 'new.' No one can compare that instance with another using anything but the data contained within it. Interchangeability also means that it doesn't matter *how* a given value was constructed — as long as it compares equal via `==`, it's equivalent for all purposes.
 
-So if you use value types to communicate between components in your system, you can readily shift around your graph of components. Do you have a view that paints a sequence of touch samples? You can compensate for touch latency without touching the view's code by making a component that consumes a sequence of touch samples, appends an estimate of where the user's finger will move based on previous samples, and returns a new sequence. You can confidently give your new component's output to the view—it can't tell the difference.
+So if you use value types to communicate between components in your system, you can readily shift around your graph of components. Do you have a view that paints a sequence of touch samples? You can compensate for touch latency without touching the view's code by making a component that consumes a sequence of touch samples, appends an estimate of where the user's finger will move based on previous samples, and returns a new sequence. You can confidently give your new component's output to the view — it can't tell the difference.
 
 There's no need for a fancy mocking framework to write unit tests that deal with value types. You can directly construct values indistinguishable from the 'live' instances flowing through your app. The touch-predicting component described above is easy to unit test: predictable value types in; predictable value types out; no side effects.
 
@@ -124,4 +124,4 @@ Finally, a value layer allows you to isolate the active, behaving elements from 
 
 * [Boundaries](https://www.destroyallsoftware.com/talks/boundaries), by Gary Bernhardt, proposes a similar two-level architecture and elaborates on its benefits for concurrency and testing.
 * [Are We There Yet?](http://www.infoq.com/presentations/Are-We-There-Yet-Rich-Hickey), by Rich Hickey, elaborates on the distinctions between value, state, and identity.
-* [The Structure and Interpretation of Computer Programs](http://mitpress.mit.edu/sicp/), by Harry Abelson and Gerald Sussman, illustrates just how much can be represented with simple values.
+* [The Structure and Interpretation of Computer Programs](http://mitpress.mit.edu/sicp/), by Hal Abelson and Gerald Sussman, illustrates just how much can be represented with simple values.
