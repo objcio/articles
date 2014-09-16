@@ -24,7 +24,7 @@ aesthetics at all. I have no experience with it, but verifying aesthetics could
 be done with snapshots. Read Orta’s article to learn more [about this
 method](http://www.objc.io/issue-15/snapshot-testing.html).
 
-The remainder of this article will be about testing user behavior. I've provided a project on [GitHub](https://github.com/klaaspieter/objc-io-issue-15-ux-testing) that includes some practical examples. It’s written for iOS using Objective-C, but the underlying principles can be applied to the Mac and other UI frameworks.
+The remainder of this article will be about testing user behavior. I've provided a project on [GitHub](https://github.com/objcio/issue-15-ui-testing) that includes some practical examples. It’s written for iOS using Objective-C, but the underlying principles can be applied to the Mac and other UI frameworks.
 
 The number one principle I apply to testing user experience is to make it appear to your code as if the user has triggered the action. This can be tricky because, as said before, frameworks don't always expose all of the necessary lower-level APIs.
 
