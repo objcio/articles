@@ -25,7 +25,7 @@ b.extend(", world")
 println("a: \(a); b: \(b)") // a: Hello; b: Hello, world
 ```
 
-Instances of reference types (chiefly: classes) can have multiple owners. When assigning a reference to a new variable or passing it to a function, those locations all point to the same instance. This is the behavior you're used to with objects. For instance:
+Instances of reference types (chiefly: classes, functions) can have multiple owners. When assigning a reference to a new variable or passing it to a function, those locations all point to the same instance. This is the behavior you're used to with objects. For instance:
 
 ```swift
 var a = UIView()
@@ -38,9 +38,7 @@ The distinction between these two categories seems small, but the choice between
 
 ### Building Our Intuition
 
-Now that we understand the differences between how value and reference types *behave*, let's talk about the differences between how we might use them.
-
-Swift might someday have reference types other than objects, but for this discussion, we'll focus on objects as the exemplar reference types.
+Now that we understand the differences between how value and reference types *behave*, let's talk about the differences between how we might use them. For this discussion, we'll focus on objects as the exemplar reference types.
 
 We reference objects in code the same way we reference objects in the real world. Books often use a real-world metaphor to teach people object-oriented programming: you can make a `Dog` class, then instantiate it to define `fido`. If you pass `fido` around to different parts of the system, they're all still talking about the same `fido`. That makes sense, since if you actually had a dog named Fido, whenever you would talk about him in conversation, you'd be transmitting his *name* — not the dog itself, whatever that would mean. You'd be relying on everyone else having some idea of who Fido is. When you use objects, you're passing 'names' of instances around the system.
 
