@@ -15,17 +15,15 @@ The first section of this article will concentrate on how different classes and 
 
 The two example projects for this article are available on GitHub:
 
-
-
 - [Layout Animations](https://github.com/objcio/issue-12-CollectionViewAnimations)
 - [Custom Collection View Transitions](https://github.com/objcio/issue-12-CustomCollectionViewTransition)
 
 
-##Collection View Layout Animations
+## Collection View Layout Animations
 
 The standard `UICollectionViewFlowLayout` is very customizable except for its animations; Apple opted for the safe approach and implemented a simple fade animation as default for all layout animations. If you would like to have custom animations, the best way is to subclass the `UICollectionViewFlowLayout` and implement your animations at the appropriate locations. Let's go through a few examples to understand how various methods in your `UICollectionViewFlowLayout` subclasses should work together to deliver custom animations.
 
-###Inserting and Removing Items
+### Inserting and Removing Items
 
 In general, layout attributes are linearly interpolated from the initial state to the final state to compute the collection view animations. However, for the newly inserted or removed items, there are no initial and final attributes to interpolate from. To compute the animations for such cells, the collection view will ask its layout object to provide the initial and final attributes through the `initialLayoutAttributesForAppearingItemAtIndexPath:` and `finalLayoutAttributesForAppearingItemAtIndexPath:` methods. The default Apple implementation returns the layout attributes corresponding to the normal position at the specific index path, but with an `alpha` value of 0.0, resulting in a fade-in or fade-out animation. If you would like to have something fancier, like having your new cells shoot up from the bottom of the screen and rotate while flying into place, you could implement something like this in your layout subclass:
 
@@ -45,7 +43,7 @@ Which results in this:
 
 The corresponding `finalLayoutAttributesForAppearingItemAtIndexPath:` method for the shown animation is very similar, except that it assigns a different transform.
 
-###Responding to Device Rotations
+### Responding to Device Rotations
 
 A device orientation change usually results in a bounds change for a collection view. The layout object is asked if the layout should be invalidated and recomputed with the method `shouldInvalidateLayoutForBoundsChange:`. The default implementation in `UICollectionViewFlowLayout` does the correct thing, but if you are subclassing `UICollectionViewLayout` instead, you should return `YES` on a bounds change:
 
@@ -112,7 +110,7 @@ If the item is not being inserted, the normal attributes as reported by `layoutA
 
 ![Wrong reaction to device rotation]({{site.images_path}}/issue-12/2014-05-01-collectionview-animations-3-correct-rotation.gif)
 
-###Interactive Layout Animations
+### Interactive Layout Animations
 
 Collection views make it quite easy to allow the user to interact with the layout using gesture recognizers. As [suggested](https://developer.apple.com/library/ios/documentation/WindowsViews/Conceptual/CollectionViewPGforIOS/IncorporatingGestureSupport/IncorporatingGestureSupport.html#//apple_ref/doc/uid/TP40012334-CH4-SW1) by Apple, the general approach to add interactivity to a collection view layout follows these steps:
 
@@ -176,7 +174,7 @@ Our layout, on the other hand, keeps track of the pinched item and the desired s
         return attrs;
     }
 
-###Summary
+### Summary
 
 We looked at how to build custom animations in collection view layout by using a few examples. Even though the `UICollectionViewFlowLayout` does not directly allow customization of its animations, it is clearly architected by Apple engineers to be subclassed to implement various custom behavior. Essentially, boundless custom layout and animations can be achieved by correctly reacting to signaling methods such as:
 
@@ -300,6 +298,6 @@ The basic idea is that both the source and the destination collection views have
 
 First, the animation controller makes sure that the destination collection view starts with the exact same frame and layout as the original. Then, it assigns the layout of the source collection view to the destination collection view, making sure that it does not get invalidated. At the same time, the layout is 'copied' into a new layout object, which gets assigned to the original collection view to prevent strange layout bugs when navigating back to the original view controller. We also force a large bottom content inset on the destination collection view to make sure that the layout stays on a single line for the initial positions for the animation. If you look at the logs, you will see the collection view complaining about this temporary condition because the item size plus the insets are larger than the non-scrolling dimension of the collection view. In this state, the behavior of the collection view is not defined, and we are only using this unstable state as the initial state for our transition animation. Finally, the convoluted animation block does its magic by first setting the frame of the destination collection view to its final position, and then performing a non-animated layout change to the final layout inside the updates block of `performBatchUpdates:completion:`, which is followed by the resetting of the content insets to the original values in the completion block.
 
-###In Conclusion
+### In Conclusion
 
 We looked at two different approaches to achieve layout transitions between collection views. The first method, with the help of the built-in `useLayoutToLayoutNavigationTransitions`, looks quite impressive and is very easy to implement, but is limited in cases where it can be used. For the cases where `useLayoutToLayoutNavigationTransitions` is not applicable, a custom animator is required to drive the transition animation. In this post, we have seen an example of how such an animator could be implemented, however, since your app will almost certainly require a completely different animation between two different view hierarchies, as in this example, don't be reluctant about trying out a different approach and seeing if it works.
