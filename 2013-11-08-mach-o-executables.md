@@ -80,7 +80,7 @@ Briefly put, the compiler will process the `helloworld.c` input file and produce
 * Applies semantic analysis to the parse tree
 * Outputs an *Abstract Syntax Tree* (AST)
 
-#####Code Generation and Optimization
+##### Code Generation and Optimization
 
 * Translates an AST into low-level intermediate code (LLVM IR)
 * Responsible for optimizing the generated code

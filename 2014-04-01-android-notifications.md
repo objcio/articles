@@ -69,7 +69,7 @@ What the code looks like run on Android 2.3:
 ![Notifications in Gingerbread 2.3]({{ site.images_path }}/issue-11/gb/gingerbread_resized.png)
 
 
-###Android 3.0 - 3.2
+### Android 3.0 - 3.2
 
 Notifications in Android 3.0 actually took a slight turn for the worse. Android’s tablet version, in response to Apple’s iPad, was a fresh take on how to run Android on a large screen. Instead of a single unified drawer, Android tried to make use of its extra space and provide a separate notification experience, one where you still had a drawer, but you would also receive 'growl-like' notifications. Fortunately for developers, this also came with a brand new API, the `NotificationBuilder`, which allowed us to utilize a [builder pattern](http://en.wikipedia.org/wiki/Builder_pattern) to create our notifications. Even though it’s slightly more involved, the builder abstracts away the complexity of creating notification objects that differ ever so slightly with every new version of the operating system:
 
