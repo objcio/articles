@@ -35,15 +35,14 @@ Here are some key points about receipts:
 Receipt validation is therefore important: verifying receipts helps your to protect your revenue and enforce of your business model directly into your application.
 
 You may wonder Why Apple hasn't provide an API to validate the receipt.
-For the sake of the demonstration, imagine that such method exists (for example `[[NSBundle mainBundle] validateReceipt]`):
-an attacker would simply look for this selector inside the binary and patch it the call to skip the call.
-Moreover, if everyone developer use the same validation method, hacking would be easy as pie.
-The choice of Apple was to use standard cryptography and encoding techniques, and to give hints to implement the parsing and the validation.
+For the sake of the demonstration, imagine that such method exists (for example `[[NSBundle mainBundle] validateReceipt]`).
+An attacker would look for this selector inside the binary and patch the code to skip the call.
+Moreover, if every developer use the same validation method, hacking would be too easy.
+Apple made the choice to use standard cryptography and encoding techniques, and to give hints to let developers implement the parsing and the validation.
 
-The consequence is that you are left to implement validation on your own:
-it is far from easy and require a good understanding of cryptography and of a variety of secure coding techniques.
+This means that you are left to implement validation on your own: it is far from easy and require a good understanding of cryptography and of a variety of secure coding techniques.
 Of course there are several off-the-shelf implementations available (for example [on GitHub][github-?-receipt-validation]), but they are often reference implementation.
-It's important to develop a solution that is unique and secure enough to resist to common attacks.
+So it's important to develop a solution that is unique and secure enough to resist to common attacks.
 
 ## Anatomy of a receipt
 
@@ -137,10 +136,12 @@ The steps to validate a receipt are the following:
 - Parse the receipt to extract attributes such as the bundle identifier, the bundle version, etc.
 - Verify that the bundle identifier found inside the receipt matches the bundle identifier of the application. Do the same for the bundle version.
 - Compute the hash of the GUID of the device. The computed hash is based on a device specific information.
+- Check the expiration date of the receipt if the Volume Purchase Program is used.
+
+So far, if all the checks succeed, validation passes.
 
 **NOTE:** The following sections describe how to perform the various steps of the validation.
-The code snippets are meant to illustrate each step.
-Do not use them as is.
+The code snippets are meant to illustrate each step; do not consider them as the only solution.
 
 ### Locating the receipt
 
@@ -158,26 +159,26 @@ Once located, you must ensure that the receipt is present.
 
 On OS X 10.7 and later or iOS 7 and later, the code is straightforward:
 
-```objectivec
+```
 // OS X 10.7 and later / iOS 7 and later
 NSBundle *mainBundle = [NSBundle mainBundle];
-NSURL *receiptUrl = [mainBundle appStoreReceiptURL];
-NSError *error;
-BOOL isPresent = [receiptUrl checkResourceIsReachableAndReturnError:&error];
+NSURL *receiptURL = [mainBundle appStoreReceiptURL];
+NSError *receiptError;
+BOOL isPresent = [receiptURL checkResourceIsReachableAndReturnError:&receiptError];
 if (!isPresent) {
-	// Validation fails
+    // Validation fails
 }
 ```
 
 But if you target OS X 10.6, the `appStoreReceiptURL` selector is not available. Therefore, you have to manually build the URL to the receipt:
 
-```objectivec
+```
 // OS X 10.6 and later
 NSBundle *mainBundle = [NSBundle mainBundle];
-NSURL *bundleUrl = [mainBundle bundleURL];
-NSURL *receiptUrl = [bundleUrl URLByAppendingPathComponent:@"Contents/_MASReceipt/receipt"];
-NSError *error;
-BOOL isPresent = [receiptUrl checkResourceIsReachableAndReturnError:&error];
+NSURL *bundleURL = [mainBundle bundleURL];
+NSURL *receiptURL = [bundleURL URLByAppendingPathComponent:@"Contents/_MASReceipt/receipt"];
+NSError *receiptError;
+BOOL isPresent = [receiptURL checkResourceIsReachableAndReturnError:&receiptError];
 if (!isPresent) {
 	// Validation fails
 }
@@ -185,19 +186,57 @@ if (!isPresent) {
 
 ### Loading the receipt
 
-In Objective-C, the loading the receipt is pretty straightforward:
+The loading the receipt is pretty straightforward.
+Here is the code to load and parse the PKCS #7 envelop with [OpenSSL][openssl]:
 
-```objectivec
-NSData *receiptData = [NSData dataWithContentsOfURL:receiptUrl];
+```
+// Load the receipt file
+NSData *receiptData = [NSData dataWithContentsOfURL:receiptURL];
+
+// Create a memory buffer to extract the PKCS #7 container
+BIO *receiptBIO = BIO_new(BIO_s_mem());
+BIO_write(receiptBIO, [receiptData bytes], (int) [receiptData length]);
+PKCS7 *receiptPKCS7 = d2i_PKCS7_bio(receiptBIO, NULL);
+if (!receiptPKCS7) {
+    // Validation fails
+}
+
+// Check that the container has a signature
+if (!PKCS7_type_is_signed(receiptPKCS7)) {
+    // Validation fails
+}
+
+// Check that the signed container has actual data
+if (!PKCS7_type_is_data(receiptPKCS7->d.sign->contents)) {
+    // Validation fails
+}
 ```
 
 ### Verifying receipt signature
 
 Once the receipt is loaded, the first thing to do is to make sure that the receipt is authentic and unaltered.
-Here is the code to parse the PKCS #7 envelop with [OpenSSL][openssl]:
+Here is the code to check the PKCS #7 signature with [OpenSSL][openssl]:
 
-```objectivec
-// CODE GOES HERE
+```
+// Load the Apple Root CA (downloaded from https://www.apple.com/certificateauthority/)
+NSURL *appleRootURL = [[NSBundle mainBundle] URLForResource:@"AppleIncRootCertificate" withExtension:@"cer"];
+NSData *appleRootData = [NSData dataWithContentsOfURL:appleRootURL];
+BIO *appleRootBIO = BIO_new(BIO_s_mem());
+BIO_write(appleRootBIO, (const void *) [appleRootData bytes], (int) [appleRootData length]);
+X509 *appleRootX509 = d2i_X509_bio(appleRootBIO, NULL);
+
+// Create a certificate store
+X509_STORE *store = X509_STORE_new();
+X509_STORE_add_cert(store, appleRootX509);
+
+// Be sure to load the digests before the verification
+OpenSSL_add_all_digests();
+
+// Check the signature
+int result = PKCS7_verify(receiptPKCS7, NULL, store, NULL, NULL, 0);
+if (result != 1) {
+    // Validation fails
+}
 ```
 
 ### Parsing the receipt
@@ -205,8 +244,134 @@ Here is the code to parse the PKCS #7 envelop with [OpenSSL][openssl]:
 Once the receipt envelop has been verified, it is time to parse the receipt payload.
 Here is the code to decode the DER-encoded ASN.1 payload with [OpenSSL][openssl]:
 
-```objectivec
-// CODE GOES HERE
+```
+// Get a pointer to the ASN.1 payload
+ASN1_OCTET_STRING *octets = receiptPKCS7->d.sign->contents->d.data;
+const unsigned char *ptr = octets->data;
+const unsigned char *end = ptr + octets->length;
+const unsigned char *str_ptr;
+
+int type = 0, str_type = 0;
+int xclass = 0, str_xclass = 0;
+long length = 0, str_length = 0;
+
+// Store for the receipt information
+NSString *bundleIdString = nil;
+NSString *bundleVersionString = nil;
+NSData *bundleIdData = nil;
+NSData *hashData = nil;
+NSData *opaqueData = nil;
+NSDate *expirationDate = nil;
+
+// Date formatter to handle RFC 3339 dates in GMT time zone
+NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+[formatter setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'"];
+[formatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+
+// Decode payload (a SET is expected)
+ASN1_get_object(&ptr, &length, &type, &xclass, end - ptr);
+if (type != V_ASN1_SET) {
+    // Validation fails
+}
+
+while (ptr < end) {
+    ASN1_INTEGER *integer;
+    
+    // Parse the attribute sequence (a SEQUENCE is expected)
+    ASN1_get_object(&ptr, &length, &type, &xclass, end - ptr);
+    if (type != V_ASN1_SEQUENCE) {
+        // Validation fails
+    }
+    
+    const unsigned char *seq_end = ptr + length;
+    long attr_type = 0;
+    long attr_version = 0;
+    
+    // Parse the attribute type (an INTEGER is expected)
+    ASN1_get_object(&ptr, &length, &type, &xclass, end - ptr);
+    if (type != V_ASN1_INTEGER) {
+        // Validation fails
+    }
+    integer = c2i_ASN1_INTEGER(NULL, &ptr, length);
+    attr_type = ASN1_INTEGER_get(integer);
+    ASN1_INTEGER_free(integer);
+    
+    // Parse the attribute version (an INTEGER is expected)
+    ASN1_get_object(&ptr, &length, &type, &xclass, end - ptr);
+    if (type != V_ASN1_INTEGER) {
+        // Validation fails
+    }
+    integer = c2i_ASN1_INTEGER(NULL, &ptr, length);
+    attr_version = ASN1_INTEGER_get(integer);
+    ASN1_INTEGER_free(integer);
+    
+    // Check the attribute value (an OCTET STRING is expected)
+    ASN1_get_object(&ptr, &length, &type, &xclass, end - ptr);
+    if (type != V_ASN1_OCTET_STRING) {
+        // Validation fails
+    }
+    
+    switch (attr_type) {
+        case 2:
+            // Bundle identifier
+            str_ptr = ptr;
+            ASN1_get_object(&str_ptr, &str_length, &str_type, &str_xclass, seq_end - str_ptr);
+            if (str_type == V_ASN1_UTF8STRING) {
+                // We store both the decoded string and the raw data for later
+                // The raw is data will be used when computing the GUID hash
+                bundleIdString = [[NSString alloc] initWithBytes:str_ptr length:str_length encoding:NSUTF8StringEncoding];
+                bundleIdData = [[NSData alloc] initWithBytes:(const void *)ptr length:length];
+            }
+            break;
+            
+        case 3:
+            // Bundle version
+            str_ptr = ptr;
+            ASN1_get_object(&str_ptr, &str_length, &str_type, &str_xclass, seq_end - str_ptr);
+            if (str_type == V_ASN1_UTF8STRING) {
+                // We store the decoded string for later
+                bundleVersionString = [[NSString alloc] initWithBytes:str_ptr length:str_length encoding:NSUTF8StringEncoding];
+            }
+            break;
+            
+        case 4:
+            // Opaque value
+            opaqueData = [[NSData alloc] initWithBytes:(const void *)ptr length:length];
+            break;
+            
+        case 5:
+            // Computed GUID (SHA-1 Hash)
+            hashData = [[NSData alloc] initWithBytes:(const void *)ptr length:length];
+            break;
+            
+        case 21:
+            // Expiration date
+            str_ptr = ptr;
+            ASN1_get_object(&str_ptr, &str_length, &str_type, &str_xclass, seq_end - str_ptr);
+            if (str_type == V_ASN1_IA5STRING) {
+                // The date is stored as a string that needs to be parsed
+                NSString *dateString = [[NSString alloc] initWithBytes:str_ptr length:str_length encoding:NSASCIIStringEncoding];
+                expirationDate = [formatter dateFromString:dateString];
+            }
+            break;
+            
+            // You can parse more attributes...
+            
+        default:
+            break;
+    }
+    
+    // Move past the value
+    ptr += length;
+}
+
+// Be sure that all information is present
+if (bundleIdString == nil ||
+    bundleVersionString == nil ||
+    opaqueData == nil ||
+    hashData == nil) {
+    // Validation fails
+}
 ```
 
 ### Verifying receipt information
@@ -214,8 +379,16 @@ Here is the code to decode the DER-encoded ASN.1 payload with [OpenSSL][openssl]
 The receipt contains the bundle identifier and the bundle version for which the receipt was issued.
 You need to make sure that these information match the one you are expected.
 
-```objectivec
-// CODE GOES HERE
+```
+// Check the bundle identifier
+if (![bundleIdString isEqualTo:@"io.objc.myapplication"]) {
+    // Validation fails
+}
+
+// Check the bundle version
+if (![bundleVersionString isEqualTo:@"1.0"]) {
+    // Validation fails
+}
 ```
 
 ### Computing GUID hash
@@ -240,164 +413,197 @@ In order to do the hash computation, you need to retrieve the device GUID.
 
 On OS X, the device GUID is the [MAC][wikipedia-mac-address] address of the primary network card. A way to retrieve it is to use the [IOKit framework][apple-iokit]:
 
-```objectivec
+```
 #import <IOKit/IOKitLib.h>
+```
 
-...
-
-CFDataRef guid_cf_data = nil;
-
+```
 // Open a MACH port
 mach_port_t master_port;
 kern_return_t kernResult = IOMasterPort(MACH_PORT_NULL, &master_port);
 if (kernResult != KERN_SUCCESS) {
-    // Error handling
+    // Validation fails
+    return NO;
 }
 
 // Create a search for primary interface
-CFMutableDictionaryRef matching_dict = IOBSDNameMatching(master_port, 0, @"en0");
+CFMutableDictionaryRef matching_dict = IOBSDNameMatching(master_port, 0, "en0");
 if (!matching_dict) {
-    // Error handling
+    // Validation fails
+    return NO;
 }
 
 // Perform the search
+io_iterator_t iterator;
 kernResult = IOServiceGetMatchingServices(master_port, matching_dict, &iterator);
 if (kernResult != KERN_SUCCESS) {
-    // Error handling
+    // Validation fails
+    return NO;
 }
 
 // Iterate over the result
-io_iterator_t iterator;
+CFDataRef guid_cf_data = nil;
 io_object_t service, parent_service;
 while((service = IOIteratorNext(iterator)) != 0) {
     kernResult = IORegistryEntryGetParentEntry(service, kIOServicePlane, &parent_service);
     if (kernResult == KERN_SUCCESS) {
         // Store the result
         if (guid_cf_data) CFRelease(guid_cf_data);
-        guid_cf_data = (CFDataRef) IORegistryEntryCreateCFProperty(parent_service, @"IOMACAddress", NULL, 0);
+        guid_cf_data = (CFDataRef) IORegistryEntryCreateCFProperty(parent_service, CFSTR("IOMACAddress"), NULL, 0);
         IOObjectRelease(parent_service);
     }
-    IOObjectRelease(iterator);
+    IOObjectRelease(service);
+    if (guid_cf_data) {
+        break;
+    }
 }
-IOObjectRelease(service);
+IOObjectRelease(iterator);
 
-NSData *guid_data = [NSData dataWithData:(NSData *)guid_cf_data];
+NSData *guidData = [NSData dataWithData:(__bridge NSData *) guid_cf_data];
 ```
 
 #### Getting the device GUID (iOS)
 
 On iOS, the device GUID is an alphanumeric string that uniquely identifies the device, relative to the application's vendor:
 
-```objectivec
+```
 UIDevice *device = [UIDevice currentDevice];
 NSUUID *uuid = [device identifierForVendor];
 uuid_t uuid;
 [identifier getUUIDBytes:uuid];
-NSData *guid_data = [NSData dataWithBytes:(const void *)uuid length:16];
+NSData *guidData = [NSData dataWithBytes:(const void *)uuid length:16];
 ```
 	
 #### Hash computation
 
-The hash computation must be done on the ASN.1 attribute's values (i.e. the binary data of the OCTET-STRING) and not on the interpreted values.
-Here is the code to decode the DER-encoded ASN.1 payload with [OpenSSL][openssl]:
+The hash computation must be done on the ASN.1 attribute's raw values (i.e. the binary data of the OCTET-STRING) and not on the interpreted values.
+Here is the code to perform the SHA-1 hashing and the comparison with [OpenSSL][openssl]:
 
-```objectivec
-// CODE GOES HERE
+```
+unsigned char hash[20];
+
+// Create a hashing context for computation
+SHA_CTX ctx;
+SHA1_Init(&ctx);
+SHA1_Update(&ctx, [guidData bytes], (size_t) [guidData length]);
+SHA1_Update(&ctx, [opaqueData bytes], (size_t) [opaqueData length]);
+SHA1_Update(&ctx, [bundleIdData bytes], (size_t) [bundleIdData length]);
+SHA1_Final(hash, &ctx);
+
+// Do the comparison
+NSData *computedHashData = [NSData dataWithBytes:hash length:20];
+if (![computedHashData isEqualToData:hashData]) {
+    // Validation fails
+}
 ```
 
 ### Volume Purchase Program
 
 If your app supports the Volume Purchase Program, another check is needed: the receipt’s expiration date. This date can be found in the type 21 attribute.
 
-```objectivec
-// CODE GOES HERE
 ```
-
-So far, if all the checks succeed, validation passes.
-
+// If an expiration date is present, check it
+if (expirationDate) {
+    NSDate *currentDate = [NSDate date];
+    if ([expirationDate compare:currentDate] == NSOrderedAscending) {
+        // Validation fails
+    }
+}
+```
 
 ## Testing
 
 Once the receipt validation is implemented, you need to test it.
 
-
+**TBD**
 
 ### Configuring Test Users
 
 The configuration of the test users is made through the iTunes Connect portal.
 
-
+**TBD**
 
 ### Testing on OS X
 
 Testing on OS X is straightforward.
 
-
+**TBD**
 
 ### Testing on iOS
 
 iOS testing is only possible on a physical device.
 It does not work inside the simulator.
 
-
+**TBD**
 
 ## Security
 
-The receipt validation must be considered as a sensitive code.
+The receipt validation code must be considered as a highly sensitive code.
 If it is bypassed or hacked, you loose the ability to check if the users have the right to use your application or if they have paid for what they have.
 This is why it is important to protect the validation code against attackers.
 
-**Note:** There are many ways of hacking an application, so don't try to be hacker-proof. The rule is simple: make the hack of your application as costly as possible to discourage [script-kiddies][wikipedia-script-kiddie].
+**Note:** There are many ways of attacking an application, so don't try to be fully hacker-proof. The rule is simple: make the hack of your application as costly as possible.
 
 ### Kind of attacks
 
 All attacks begin with an analysis of the target:
 
-- **static analysis:** it is performed on the binaries that compose your application. It uses tools like `strings`, `otool`, dis-assembler, etc.
-- **dynamic analysis:** it is performed by monitoring the behavior of the application at runtime, by attaching a debugger and setting breakpoint on known functions for example.
+- **Static analysis:**
+  it is performed on the binaries that compose your application. It uses tools like `strings`, `otool`, dis-assembler, etc.
+- **Dynamic analysis:**
+  it is performed by monitoring the behavior of the application at runtime, by attaching a debugger and setting breakpoint on known functions for example.
 
 Once the analysis is done, some common attacks can be performed against your application to bypass or hack the receipt validation code:
 
-- **Receipt replacement:** if fail to validate properly the receipt, an attacker can put a receipt from another application that appears to be legitimate.
-- **Strings replacement:** if you fail to hide/obfuscate the strings involved in the validation (i.e. `en0`, `_MASReceipt`, bundle identifier, or bundle version), you give the attacker the ability to replace your strings by his strings.
-- **Code bypass:** if your validation code uses well-know functions or patterns, an attacker can easily locate the place where the application validates the receipt and bypass it by modifying some assembly code.
-- **Shared library swap:** if you are using an external shared library for cryptography (like OpenSSL), an attacker can replace your copy of OpenSSL by his copy and thus bypass anything that relies on the cryptographic functions.
-- **Function override/injection:** this kind of attack consists in patching well-known functions (user or system ones) at runtime by prepending a shared libary to your application. The [mach_override][github-mach-override] project make it very easy.
+- **Receipt replacement:**
+  if you fail to validate properly the receipt, an attacker can put a receipt from another application that appears to be legitimate.
+- **Strings replacement:**
+  if you fail to hide/obfuscate the strings involved in the validation (i.e. `en0`, `_MASReceipt`, bundle identifier, or bundle version), you give the attacker the ability to replace *your* strings *by* his strings.
+- **Code bypass:**
+  if your validation code uses well-know functions or patterns, an attacker can easily locate the place where the application validates the receipt and bypass it by modifying some assembly code.
+- **Shared library swap:**
+  if you are using an external shared library for cryptography (like OpenSSL), an attacker can replace *your* copy of OpenSSL by *his* copy and thus bypass anything that relies on the cryptographic functions.
+- **Function override/injection:**
+  this kind of attack consists in patching well-known functions (user or system ones) at runtime by prepending a shared library to the application's shared library path. The [mach_override][github-mach-override] project make that dead simple.
 
 ### Secure practices
 
 While implementing receipt validation, there are some secure practices to follow.
-Here are a few things to keep in mind:
+Here is a few things to keep in mind:
 
-- **Dos**
- - Validate several times.
-   Validate the receipt at startup and periodically during the application lifetime.
-   The more validation points you have, the more an attacker has to work.
- - Obfuscate strings.
-   Never let the strings used in validation in clear form as it can help an attacker to locate or hack the validation code
- - Obfuscate the result of receipt validation
- - Harden the code flow.
-   By using opaque predicate (condition known at runtime), make your validation code flow hard to follow. You can also use loops, goto statement, static variables, etc.
- - Use static libraries.
-   If you include third-party code, link it statically: it is harder to patch and you can trust called code.
+#### DOs
+- **Validate several times:**
+  validate the receipt at startup and periodically during the application lifetime.
+  The more validation code you have, the more an attacker has to work.
+- **Obfuscate strings:**
+  never let the strings used in validation in clear form as it can help an attacker to locate or hack the validation code. String obfuscation can use xoring, value shifting, bit masking, or anything else that makes the string human-unreadable.
+- **Obfuscate the result of receipt validation:**
+  don't wrap the validation into a simple boolean test; it is easy to bypass. Instead, you can use blocks, function callback, or any indirection that makes the result not obvious.
+- **Harden the code flow:**
+  by using opaque predicate (i.e. condition known at runtime), make your validation code flow hard to follow. Opaque predicate are typically made of function call results which are not known at compile time. You can also use loops, goto statement, static variables, or any control flow structure where you don't need to.
+- **Use static libraries:**
+  if you include third-party code, link it statically whenever it is possible; statically code  is harder to patch and you do not depend on external code that can change.
+- **Tamper-proof the sensitive functions:**
+  make sure that sensitive functions have not been replaced or patched. As a function can have several behaviors based on its input arguments, make calls with some invalid arguments; if it does not return an error, then it may be have been replaced or patched.
 
-- **Don'ts**
- - Avoid Objective-C.
-   Objective-C publishes a lot of runtime information that make it vulnerable to symbol injection/replacement. If you still want to use Objective-C, obfuscate all the selectors and the calls.
- - Don't use shared libraries.
-   A shared library can be swapped or patched.
- - Don't use a separate code.
-   Mix the validation code into your business logic to make it hard to locate and patch.
- - Don't factor receipt validation.
-   Vary and multiply validation code implementations to avoid the pattern detection.
- - Don't underestimate the determination of attackers.
-   With enough time and resources, an attacker will always succeed into cracking your application. You can only make it painful and costly.
+#### DON'Ts
+- **Avoid Objective-C:**
+  Objective-C carries a lot of runtime information that make it vulnerable to symbol analysis/injection/replacement. If you still want to use Objective-C, obfuscate the selectors and the calls.
+- **Don't use shared libraries for secure code:**
+  a shared library can be swapped or patched.
+- **Don't use a separate code:**
+  bury the validation code into your business logic to make it hard to locate and patch.
+- **Don't factor receipt validation:**
+  vary and multiply validation code implementations to avoid the pattern detection.
+- **Don't underestimate the determination of attackers:**
+  with enough time and resources, an attacker will ultimately succeed into cracking your application.
+  What you can do is to make it painful and costly.
 
 
 ## Conclusion
 
-You are now familiar with receipt validation.
-You know the what lies behind and how important it is.
+You are now familiar with receipt validation and know the what lies behind and how important it is.
+Be sure to take some time to implement it properly as it can protect your revenue's streams.
 
 
 
