@@ -224,7 +224,7 @@ With XCTest, we could test it like this:
             [expectation fulfill];
             XCTAssertEqualObjects(result, @"FooBar");
         }]
-        [self waitForExpectationsWithTimeout:0.1 handler::nil];
+        [self waitForExpectationsWithTimeout:0.1 handler:nil];
     }
 
 Most testing frameworks have something like this.
@@ -347,7 +347,7 @@ At the [beginning of this section](#async-testing), we mentioned how
 
 and
 
-        [self waitForExpectationsWithTimeout:0.1 handler::nil];
+        [self waitForExpectationsWithTimeout:0.1 handler:nil];
 
 are some basic building blocks for asynchronous tests.
 
