@@ -1,3 +1,11 @@
+---
+layout: post
+title: Inside code signing
+category: "17"
+date: "2014-10-05 23:00:00"
+author: "<a href=\"https://thomas.kollba.ch/\">Thomas 'toto' Kollbach</a>"
+tags: article
+---
 # Inside code signing
 
 > "Users appreciate code signing."  
