@@ -127,6 +127,7 @@ By using an ASN.1 OCTET-STRING for the attribute's value, it is very easy to emb
 
 ![ASN.1 DER - Receipt's attribute containing an In-App purchase set string](http://f.cl.ly/items/1O3g3b002t1t2r3Y3M3u/ASN.1-DER-Attribute-SET.png "ASN.1 DER - Receipt's attribute containing an In-App purchase set")
 
+
 ## Validating the receipt
 
 The steps to validate a receipt are the following:
@@ -137,8 +138,6 @@ The steps to validate a receipt are the following:
 - Verify that the bundle identifier found inside the receipt matches the bundle identifier of the application. Do the same for the bundle version.
 - Compute the hash of the GUID of the device. The computed hash is based on a device specific information.
 - Check the expiration date of the receipt if the Volume Purchase Program is used.
-
-So far, if all the checks succeed, validation passes.
 
 **NOTE:** The following sections describe how to perform the various steps of the validation.
 The code snippets are meant to illustrate each step; do not consider them as the only solution.
@@ -423,14 +422,12 @@ mach_port_t master_port;
 kern_return_t kernResult = IOMasterPort(MACH_PORT_NULL, &master_port);
 if (kernResult != KERN_SUCCESS) {
     // Validation fails
-    return NO;
 }
 
 // Create a search for primary interface
 CFMutableDictionaryRef matching_dict = IOBSDNameMatching(master_port, 0, "en0");
 if (!matching_dict) {
     // Validation fails
-    return NO;
 }
 
 // Perform the search
@@ -438,7 +435,6 @@ io_iterator_t iterator;
 kernResult = IOServiceGetMatchingServices(master_port, matching_dict, &iterator);
 if (kernResult != KERN_SUCCESS) {
     // Validation fails
-    return NO;
 }
 
 // Iterate over the result
@@ -511,30 +507,76 @@ if (expirationDate) {
 }
 ```
 
+
+## Handling validation result
+
+So far, if all the checks are ok, then the validation passes.
+If any check fails, the receipt must be considered as invalid.
+
+There are several ways to handle an invalid receipt, depending on the platform and the time when the validation is done.
+
+### Handling on OS X
+
+On OS X, a receipt validation **MUST** be performed at application startup, before the main method is called. If the receipt is invalid (missing, incorrect or tampered), the application **MUST** exits with a code **173**. This particular code tells the system that the application needs to retrieve a receipt. Once the new receipt has been issued, the application is restarted.
+
+Note that when the application exit with a code **173**, an App Store credential dialog will be displayed to sign-in. This requires an active Internet connection so the receipt can be issued and retrieved.
+
+You can also perform receipt validation during the lifetime of the application.
+It is up to you to decide how the application will handle an invalid receipt: ignore it, disable features or crash in a bad way.
+
+### Handling on iOS
+
+The receipt validation can be performed at any time. If the receipt is missing, you can trigger a receipt refresh request in order to tells the system that the application needs to retrieve a receipt.
+
+Note that after triggering a receipt refresh, an App Store credential dialog will be displayed to sign-in. This requires an active Internet connection so the receipt can be issued and retrieved.
+
+You can also perform receipt validation during the lifetime of the application.
+It is up to you to decide how the application will handle an invalid receipt: ignore it or disable features.
+
+
 ## Testing
 
-Once the receipt validation is implemented, you need to test it.
+When it comes to testing, the major hurdle is to retrieve a test receipt in sandbox environment.
 
-**TBD**
+Apple is making a distinction between the production and the sandbox environment by looking at the certificate used to sign the application:
+
+- If the application is signed with a developer certificate, then the receipt request will be directed to the sandbox environment.
+- If the application is signed with an Apple certificate, then the receipt request will be directed to the production environment.
+
+It is important to codesign your application with a valid developer certificate; otherwise the `storeagent` daemon (the daemon responsible for communication with the App Store) will not recognize your application as an App Store application.
+
+And with sandbox environment come test users.
 
 ### Configuring Test Users
 
-The configuration of the test users is made through the iTunes Connect portal.
+In order to simulate real users in sandbox environment, you have to define test users.
+The test users behave the same way as real users except that nobody get charged when they make a purchase.
 
-**TBD**
+The configuration of the test users is made through the [iTunes Connect portal][itunes-connect].
+You can define as many as test users you want.
+Each test user requires a valid email address that must not be a real iTunes account.
+If your email provider supports the `+` sign in email addresses, you can use email aliases for the test accounts: foo+us@objc.io, foo+uk@objc.io, and foo+fr@objc.io emails will be sent to foo@objc.io.
 
 ### Testing on OS X
 
-Testing on OS X is straightforward.
+To test on OS X:
 
-**TBD**
+- Launch the application from the Finder. **DO NOT LAUNCH it from Xcode !!!** It is important to launch it from the finder so the `launchd` daemon can trigger the receipt retrieval.
+- The lack of receipt should make the application exit with a code 173. This application's exit trigger the request for a valid receipt. An App Store login window should appear; use the test account credentials to sign-in and retrieve the test receipt.
+- If the credentials are valid and the bundle information match the one you entered, then a receipt is generated and installed in the application bundle. After the receipt is retrieved, the application is re-launched automatically.
+
+Once a receipt has been retrieved, you can now launch the application from Xcode to debug or fine-tune the receipt validation code.
 
 ### Testing on iOS
 
-iOS testing is only possible on a physical device.
-It does not work inside the simulator.
+To test on iOS:
 
-**TBD**
+- Launch the application on a real device. **DO NOT LAUNCH it in the simulator !!!**. The simulator lacks the API required to issue receipts.
+- The lack of receipt should make the application trigger a receipt refresh request. An AppStore login window should appear; use the test account credentials to sign-in and retrieve the test receipt.
+- If the credentials are valid and the bundle information match the one you entered, then a receipt is generated and installed in the application sandbox. After the receipt is retrieved, you can perform another validation to ensure that everything is ok.
+
+Once a receipt has been retrieved, you can now launch the application from Xcode to debug or fine-tune the receipt validation code.
+
 
 ## Security
 
@@ -572,6 +614,7 @@ While implementing receipt validation, there are some secure practices to follow
 Here is a few things to keep in mind:
 
 #### DOs
+
 - **Validate several times:**
   validate the receipt at startup and periodically during the application lifetime.
   The more validation code you have, the more an attacker has to work.
@@ -584,9 +627,10 @@ Here is a few things to keep in mind:
 - **Use static libraries:**
   if you include third-party code, link it statically whenever it is possible; statically code  is harder to patch and you do not depend on external code that can change.
 - **Tamper-proof the sensitive functions:**
-  make sure that sensitive functions have not been replaced or patched. As a function can have several behaviors based on its input arguments, make calls with some invalid arguments; if it does not return an error, then it may be have been replaced or patched.
+  make sure that sensitive functions have not been replaced or patched. As a function can have several behaviors based on its input arguments, make calls with invalid arguments; if it does not return an error or the right return code, then it may be have been replaced or patched.
 
 #### DON'Ts
+
 - **Avoid Objective-C:**
   Objective-C carries a lot of runtime information that make it vulnerable to symbol analysis/injection/replacement. If you still want to use Objective-C, obfuscate the selectors and the calls.
 - **Don't use shared libraries for secure code:**
@@ -621,3 +665,4 @@ Be sure to take some time to implement it properly as it can protect your revenu
 [gnu-libtasn1]: http://www.gnu.org/software/libtasn1/
 [asn1-compiler]: http://lionet.info/asn1c/compiler.html
 [openssl]: https://www.openssl.org/
+[itunes-connect]: http://itunesconnect.apple.com/
