@@ -1,5 +1,4 @@
 ---
-layout: toc
 category: "2"
 date: "2013-07-07 12:00"
 tags: toc
