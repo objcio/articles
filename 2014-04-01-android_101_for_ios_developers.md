@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Android 101 for iOS Developers"
 category: "11"
 date: "2014-04-01 11:00:00"

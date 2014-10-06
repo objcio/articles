@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Importing Large Data Sets
 category: "4"
 date: "2013-09-09 07:00:00"

@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Custom Controls"
 category: "3"
 date: "2013-08-07 07:00:00"

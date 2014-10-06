@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Multitasking in iOS 7"
 category: "5"
 date: "2013-10-07 07:00:00"

@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Interactive Animations"
 category: "12"
 date: "2014-05-08 06:00:00"

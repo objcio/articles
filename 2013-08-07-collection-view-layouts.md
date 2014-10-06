@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Custom Collection View Layouts"
 category: "3"
 date: "2013-08-07 08:00:00"

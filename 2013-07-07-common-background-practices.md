@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Common Background Practices"
 category: "2"
 date: "2013-07-07 09:00:00"

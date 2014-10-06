@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Travis CI for iOS"
 category: "6"
 date: "2013-11-08 07:00:00"

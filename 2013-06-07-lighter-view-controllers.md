@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Lighter View Controllers"
 category: "1"
 date: "2013-06-07 11:00:00"

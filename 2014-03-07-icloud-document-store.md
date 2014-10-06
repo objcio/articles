@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Mastering the iCloud Document Store"
 category: "10"
 date: "2014-03-07 09:00:00"

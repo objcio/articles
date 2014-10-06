@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Getting to Know TextKit"
 category: "5"
 date: "2013-10-07 11:00:00"

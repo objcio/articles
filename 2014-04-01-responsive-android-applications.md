@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Responsive Android Applications"
 category: "11"
 date: "2014-04-01 09:00:00"

@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "AppKit for UIKit Developers"
 category: "14"
 date: "2014-07-11 07:00:00"

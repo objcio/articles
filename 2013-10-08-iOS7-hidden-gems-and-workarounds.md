@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "iOS 7: Hidden Gems and Workarounds"
 category: "5"
 date: "2013-10-07 06:00:00"

@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "The Client App"
 category: "8"
 date: "2014-01-08 08:00:00"

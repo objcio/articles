@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Avoiding Singleton Abuse"
 category: "13"
 date: "2014-06-09 10:00:00"

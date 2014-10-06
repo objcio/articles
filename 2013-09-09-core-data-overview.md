@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Core Data Overview
 category: "4"
 date: "2013-09-09 11:00:00"

@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Data Models and Model Objects
 category: "4"
 date: "2013-09-09 08:00:00"

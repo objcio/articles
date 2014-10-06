@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Android’s Notification Center"
 category: "11"
 date: "2014-04-01 08:00:00"

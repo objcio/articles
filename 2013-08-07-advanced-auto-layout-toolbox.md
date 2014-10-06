@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Advanced Auto Layout Toolbox"
 category: "3"
 date: "2013-08-07 06:00:00"

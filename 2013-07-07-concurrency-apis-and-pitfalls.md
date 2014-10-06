@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Concurrent Programming: APIs and Challenges"
 category: "2"
 date: "2013-07-07 10:00:00"

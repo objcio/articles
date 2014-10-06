@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "View Controller Containment"
 category: "1"
 date: "2013-06-07 08:00:00"

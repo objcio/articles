@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "CocoaPods Under The Hood"
 category: "6"
 date: "2013-11-08 08:00:00"

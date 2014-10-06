@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "The Project"
 category: "8"
 date: "2014-01-08 11:00:00"

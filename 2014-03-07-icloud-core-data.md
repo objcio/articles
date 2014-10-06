@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "iCloud and Core Data"
 category: "10"
 date: "2014-03-07 10:00:00"

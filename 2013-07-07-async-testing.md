@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Testing Concurrent Applications"
 category: "2"
 tags: article

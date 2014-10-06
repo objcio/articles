@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Re-Designing an App for iOS 7"
 category: "5"
 date: "2013-10-07 05:00:00"

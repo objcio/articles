@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "A Networked Core Data Application"
 category: "10"
 date: "2014-03-07 07:00:00"

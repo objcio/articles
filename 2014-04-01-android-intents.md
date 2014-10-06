@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Android Intents"
 category: "11"
 date: "2014-04-01 10:00:00"

@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Fetch Requests
 category: "4"
 date: "2013-09-09 06:00:00"

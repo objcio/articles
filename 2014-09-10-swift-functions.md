@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "The Many Faces of Swift Functions"
 category: "16"
 date: "2014-09-10 09:00:00"

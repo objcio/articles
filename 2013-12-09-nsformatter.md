@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Custom Formatters"
 category: "7"
 date: "2013-12-09 07:00:00"

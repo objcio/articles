@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Mach-O Executables"
 category: "6"
 date: "2013-11-08 09:00:00"

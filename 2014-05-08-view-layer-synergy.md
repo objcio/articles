@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "View-Layer Synergy"
 category: "12"
 date: "2014-05-08 08:00:00"

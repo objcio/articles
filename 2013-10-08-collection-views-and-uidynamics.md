@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "UICollectionView + UIKit Dynamics"
 category: "5"
 date: "2013-10-07 10:00:00"

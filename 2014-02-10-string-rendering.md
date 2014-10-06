@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "String Rendering"
 category: "9"
 date: "2014-02-07 07:00:00"

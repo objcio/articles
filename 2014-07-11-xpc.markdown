@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "XPC"
 category: "14"
 date: "2014-07-11 08:00:00"

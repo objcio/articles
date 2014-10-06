@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Value Objects"
 category: "7"
 date: "2013-12-09 10:00:00"

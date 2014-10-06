@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Thread-Safe Class Design"
 category: "2"
 date: "2013-07-07 07:00:00"

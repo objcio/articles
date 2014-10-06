@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Custom Core Data Migrations
 category: "4"
 date: "2013-09-06 05:00:00"

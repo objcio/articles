@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Communication Patterns"
 category: "7"
 date: "2013-12-09 08:00:00"

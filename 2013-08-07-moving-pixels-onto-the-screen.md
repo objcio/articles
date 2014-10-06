@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Getting Pixels onto the Screen"
 category: "3"
 date: "2013-08-07 10:00:00"

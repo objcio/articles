@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Behaviors in iOS Apps"
 category: "13"
 date: "2014-06-09 09:00:00"

@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "The Foundation Collection Classes"
 category: "7"
 date: "2013-12-09 11:00:00"

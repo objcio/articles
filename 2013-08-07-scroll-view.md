@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Understanding Scroll Views"
 category: "3"
 date: "2013-08-07 09:00:00"

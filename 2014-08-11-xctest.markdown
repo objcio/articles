@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Real-World Testing with XCTest"
 category: "15"
 date: "2014-08-11 10:00:00"

@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "The Build Process"
 category: "6"
 date: "2013-11-08 11:00:00"

@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Animations Explained"
 category: "12"
 date: "2014-05-08 11:00:00"

@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Low-Level Concurrency APIs"
 category: "2"
 date: "2013-07-07 8:00:00"

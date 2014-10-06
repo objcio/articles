@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Animating Collection Views"
 category: "12"
 date: "2014-05-08 07:00:00"

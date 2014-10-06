@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  A Complete Core Data Application
 category: "4"
 date: "2013-09-09 10:00:00"
