@@ -168,7 +168,7 @@ Switching from a local store back to iCloud is just as easy; simply migrate with
 
 External file references is a feature introduced for Core Data in iOS 5 that allows large binary data properties to be automatically stored outside the SQLite database on the file system. In our testing, when this occurs, iCloud does not always know how to resolve the relationship and can throw exceptions. If you plan to use iCloud syncing, consider unchecking this box in your iCloud entities:
   
-![Core Data Modeler Checkbox]({{site.images_path}}/issue-10/allows-external-storage.png)
+![Core Data Modeler Checkbox](/images/issue-10/allows-external-storage.png)
 
 ### Model Versioning
 

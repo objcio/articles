@@ -58,9 +58,9 @@ We create a sample layout file below. This file is used as the view for a login 
             android:hint="Login"/>
     </LinearLayout>
 
-<img src="{{ site.images_path }}/issue-11/image02.png" width="470"> 
+<img src="/images/issue-11/image02.png" width="470"> 
 
-<img style="margin-top:1em;" src="{{ site.images_path }}/issue-11/image01.png">
+<img style="margin-top:1em;" src="/images/issue-11/image01.png">
 
 In the above layout file, `LinearLayout` has been used to align `Views` linearly. We’ve specified three views in the `LinearLayout`: a username `EditText`, a password `EditText`, and a login button. 
 
@@ -84,7 +84,7 @@ The addition of many buckets may seem overwhelming, but Android makes use of a r
 
 Below, you see an example of resource qualifiers for images. In an Android project, we have a `res` folder, which is where we store any resources that the app is going to use. This includes images, but also our layout files, as well as a few other project resources. 
 
-<img src="{{ site.images_path }}/issue-11/image00.png" width="187">
+<img src="/images/issue-11/image00.png" width="187">
 
 Here, `ic_launcher.png` is duplicated in the following three folders: `drawable-hdpi`, `drawable-mdpi`, and `drawable-xhdpi`. We can ask for the image named `ic_launcher` and the system will automatically choose the appropriate image at runtime, depending on the device configuration.
 

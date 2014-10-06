@@ -19,11 +19,11 @@ You could access this from anywhere, at any time. Since the majority of applicat
 
 Notifications in Android 1.6 (Donut): 
 
-![Notifications in Android 1.6]({{ site.images_path }}/issue-11/android-g1-50.jpg) 
+![Notifications in Android 1.6](/images/issue-11/android-g1-50.jpg) 
 
 Notifications in Android 4.4 (KitKat):
 
-![Notifications in Android 4.4]({{ site.images_path }}/issue-11/modern_notes.png)
+![Notifications in Android 4.4](/images/issue-11/modern_notes.png)
 
 
 ## A Brief History
@@ -61,11 +61,11 @@ Code: Function on how notifications were created in 1.5-2.3.
 
 What the code looks like run on Android 1.6:
 
-![Notifications in Donut 1.6]({{ site.images_path }}/issue-11/gb/donut.png) 
+![Notifications in Donut 1.6](/images/issue-11/gb/donut.png) 
 
 What the code looks like run on Android 2.3:
 
-![Notifications in Gingerbread 2.3]({{ site.images_path }}/issue-11/gb/gingerbread_resized.png)
+![Notifications in Gingerbread 2.3](/images/issue-11/gb/gingerbread_resized.png)
 
 
 ### Android 3.0 - 3.2
@@ -95,16 +95,16 @@ Notifications in Android 3.0 actually took a slight turn for the worse. Android�
 
 What a notification looks like when initially received in Honeycomb:
 
-![Honeycomb notifications ticket text]({{ site.images_path }}/issue-11/hc/initially-received-hc.png)
+![Honeycomb notifications ticket text](/images/issue-11/hc/initially-received-hc.png)
 
 
 What a notification looks like when you click on it in the navigation bar:
 
-![Honeycomb notifications tapping notification]({{ site.images_path }}/issue-11/hc/selecting_notification_hc.png)
+![Honeycomb notifications tapping notification](/images/issue-11/hc/selecting_notification_hc.png)
 
 What a notification looks like when you select the clock:
 
-![Honeycomb notifications tapping clock]({{ site.images_path }}/issue-11/hc/selecting_clock_hc.png)
+![Honeycomb notifications tapping clock](/images/issue-11/hc/selecting_clock_hc.png)
 
 
 These redundant notifications led to user confusion about what notifications were representing, and presented many design challenges for the developer, who was trying to get to the right information to the user at the right time.
@@ -126,11 +126,11 @@ If the text is short enough, why do I have to open the app to read it? Big text 
 
 Big text notification contracted:
 
-![Notifications in Cupcake 1.5]({{ site.images_path }}/issue-11/ics/shrunk_text.png)
+![Notifications in Cupcake 1.5](/images/issue-11/ics/shrunk_text.png)
 
 Big text notification expanded:
 
-![Notifications in Cupcake 1.5]({{ site.images_path }}/issue-11/ics/bigtext.png)
+![Notifications in Cupcake 1.5](/images/issue-11/ics/bigtext.png)
 
 
 #### Big Picture Notifications
@@ -142,7 +142,7 @@ These wonderful notifications offer a content-first experience without ever requ
       .setStyle(new Notification.BigPictureStyle().bigPicture(mBitmap))
       .build();
 
-![Big picture notification]({{ site.images_path }}/issue-11/ics/big_pic.png)
+![Big picture notification](/images/issue-11/ics/big_pic.png)
 
 
 #### Roll-Up Notifications
@@ -158,7 +158,7 @@ Roll-up notification is bringing multiple notifications into one. The rollup che
          .setSummaryText("+3 more"))
       .build();
 
-![Rollup notification]({{ site.images_path }}/issue-11/ics/rollup.png)
+![Rollup notification](/images/issue-11/ics/rollup.png)
 
 
 #### Action Notifications
@@ -171,7 +171,7 @@ Adding actions to a notification is just as easy as you’d imagine. The builder
       .addAction(R.drawable.ic_follow, "Follow", mPendingFollowIntent)
       .build();
 
-![Action notification]({{ site.images_path }}/issue-11/ics/actions.png)
+![Action notification](/images/issue-11/ics/actions.png)
 
 These sorts of interactions lent to an application design that put the user in charge, and made performing simple actions incredibly easier, and faster. At a time when Android had suffered from sluggish performance, these sorts of quick actions were greatly welcomed, since you didn’t actually have to open an application to still be able to use it.
 
@@ -179,8 +179,8 @@ These sorts of interactions lent to an application design that put the user in c
 
 It’s no secret to anyone in the tech world right now that Android wear is a fascinating introduction into the wearables space. Whether or not it will succeed as a consumer product is certainly up for debate. What isn’t up for debate is the barrier to entry for developers who want to support Android Wear. Living up to its legacy, Android Wear appears to have gotten notifications correct, in regards to syncing with your device. As a matter of fact, if you phone is connected to an Android Wear device, it will push any notifications created with a builder directly to the device, with no code modification necessary. The ongoing simplicity of the `NotificationBuilder` pattern will ensure that whatever devices that come out and support Android or Android Wear will almost immediately have an breadth of app developers who are already comfortable using the APIs to send and receive data.
 
-<img style="display:inline;" alt="Action notification" src="{{ site.images_path }}/issue-11/watch/picture.png" width="40%">
-<img style="display:inline;margin-left:1em;" alt="Action notification" src="{{ site.images_path }}/issue-11/watch/hunkosis.png" width="40%">
+<img style="display:inline;" alt="Action notification" src="/images/issue-11/watch/picture.png" width="40%">
+<img style="display:inline;margin-left:1em;" alt="Action notification" src="/images/issue-11/watch/hunkosis.png" width="40%">
 
 NotificationBuilder provides out-of-the-box support for Android Wear, no code required!
 
@@ -190,15 +190,15 @@ Even though Android’s `NotificationBuilder` provides an enormous level of cust
 
 Custom music player notification:
 
-![Custom music player notification]({{ site.images_path }}/issue-11/custom/music_player.png) 
+![Custom music player notification](/images/issue-11/custom/music_player.png) 
 
 Custom weather notification:
 
-![Custom weather notification]({{ site.images_path }}/issue-11/custom/weather.jpg) 
+![Custom weather notification](/images/issue-11/custom/weather.jpg) 
 
 Custom battery notification:
 
-![Custom battery notification]({{ site.images_path }}/issue-11/custom/battery_widget.png)
+![Custom battery notification](/images/issue-11/custom/battery_widget.png)
 
 Custom notifications are limited to a subset of view components that are supported by [Remote Views](http://developer.android.com/reference/android/widget/RemoteViews.html), and those view components themselves cannot be extended or overridden too heavily. Regardless of this slight limitation, you can see that you can still create sophisticated notifications using these basic components.
 
@@ -271,7 +271,7 @@ I’ve detailed quite a bit about what notifications in Android have to offer, a
 
 One of the unfortunate problems Android users face is that there is no centralized control for how notifications work. This means that if there is an application prompting you with a notification, short of uninstalling the application, there isn’t much you can do. Starting in Android 4.1, users received a buried binary setting to 'Turn off notifications' for a specific app. This prevents this application from placing *any* notification in the status bar. While it may seem helpful, the user case is actually fairly limited, since rarely do you want to disable all of an application's notifications completely, but rather a single element of it, for instance the LED or the annoying sound.
 
-![Turn off notifications]({{ site.images_path }}/issue-11/disable_notifications.png)
+![Turn off notifications](/images/issue-11/disable_notifications.png)
 Starting in Android 4.1, users received a binary setting to 'Turn off notifications,' but there is still no centralized way to disable LEDs or sounds unless provided explicitly by the developer.
 
 ### What to Display

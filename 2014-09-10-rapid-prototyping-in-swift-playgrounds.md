@@ -92,7 +92,7 @@ plotArrayInPlayground(sineWave, "Sine wave 1")
 
 We see a graph that looks like the following:
 
-<img src="{{ site.images_path }}/issue-16/Sine1.png" style="width:563px"/>
+<img src="/images/issue-16/Sine1.png" style="width:563px"/>
 
 That's a sine wave with a frequency of 4.0, amplitude of 2.0, and phase of 0.0. Let's make this more interesting by creating a second sine wave to add to the first, this time of frequency 1.0, amplitude 1.0, and a phase of pi / 2.0:
 
@@ -105,7 +105,7 @@ let sineWave2 = (0..<sineArraySize).map {
 }
 ```
 
-<img src="{{ site.images_path }}/issue-16/Sine2.png" style="width:563px"/>
+<img src="/images/issue-16/Sine2.png" style="width:563px"/>
 
 Now we want to combine them. This is where Accelerate starts to help us. Adding two arrays of independent floating-point values is well-suited to parallel processing. Accelerate's vDSP library has functions for just this sort of thing, so let's put them to use. For the fun of it, let's set up a Swift operator to use for this vector addition. Unfortunately, + is already used for array concatenation (perhaps confusingly so), and ++ is more appropriate as an increment operator, so we'll define a +++ operator for this vector addition:
 
@@ -136,7 +136,7 @@ plotArrayInPlayground(combinedSineWave, "Combined wave (loop addition)")
 plotArrayInPlayground(combinedSineWave2, "Combined wave (Accelerate)")
 ```
 
-<img src="{{ site.images_path }}/issue-16/SineCombined.png" style="width:563px"/>
+<img src="/images/issue-16/SineCombined.png" style="width:563px"/>
 
 Sure enough, they're the same.
 
@@ -190,11 +190,11 @@ At this point, we use the previously mentioned Accelerate-based array `sqrt()` o
 
 The results from this entire operation look like this for the individual sine waves:
 
-<img src="{{ site.images_path }}/issue-16/FFT12.png" style="width:563px"/>
+<img src="/images/issue-16/FFT12.png" style="width:563px"/>
 
 And they look like this for the combined sine wave:
 
-<img src="{{ site.images_path }}/issue-16/FFTCombined.png" style="width:563px"/>
+<img src="/images/issue-16/FFTCombined.png" style="width:563px"/>
 
 As a very simplified explanation of these values: The results represent 'bins' of sine wave frequencies, starting at the left, with the values in those bins corresponding to the amplitude of the wave detected at that frequency. They are symmetric about the center, so you can ignore the values on the right half of that graph.
 

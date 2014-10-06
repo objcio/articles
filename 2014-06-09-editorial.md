@@ -15,7 +15,7 @@ However, before we take a deeper look at all the new stuff, this month we've pre
 
 Last month we got a chance to sit together with a fantastic group of developers at [UIKonf](http://www.uikonf.com) in Berlin to brainstorm about this topic:
 
-![]({{ site.images_path }}/issue-13/uikonf-meeting.jpg)
+![](/images/issue-13/uikonf-meeting.jpg)
 
 The result of this is five articles addressing very different architectural issues: the [MVVM concept](/issue-13/mvvm.html) by [Ash Furrow](https://twitter.com/ashfurrow), [avoiding singleton abuse](/issue-13/singletons.html) by [Stephen Poletto](https://twitter.com/stephenpoletto), [subclassing versus composition](/issue-13/subclassing.html) by our own [Chris Eidhof](https://twitter.com/chriseidhof), composing [modular behaviors with Interface Builder](/issue-13/behaviors.html) by [Krzystof Zablłocki](https://twitter.com/merowing_), and finally, an alternative perspective to the traditional MVC architecture, called [VIPER](/issue-13/viper.html) by [Conrad Stoll](https://twitter.com/conradstoll) and [Jeff Gilbert](mailto:jeff.gilbert@mutualmobile.com). 
 

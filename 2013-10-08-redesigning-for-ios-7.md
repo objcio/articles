@@ -27,7 +27,7 @@ The new SDK allows you to easily create and use custom animations. Before iOS 7 
 
 In *Grocery List*, we use a slightly modified transition to display a modal controller. But most of the animations and transitions are default. With *Grocery List 2* and the new APIs, we could have added more custom animations as before. But Apple's solution to handle transitions is a good fit to most of our problems. That's why navigating through controllers in our app behaves the same as default apps do. As mentioned before, some of our app's workflows have significantly changed. As a result, we will also use custom animations to support the user better keeping focus.
 
-<img alt="Comparison of the Grocery List and the default view controller push" src="{{site.images_path}}/issue-5/redesign-animations.gif">
+<img alt="Comparison of the Grocery List and the default view controller push" src="/images/issue-5/redesign-animations.gif">
 
 The default animations on iOS 7 will feel new and natural to most of the users, and you don't have to do much to use them and to make your users happy. But adding some custom animations in places where they fit in will improve the overall experience of your app. Just be careful not to overdo it.
 
@@ -37,7 +37,7 @@ After several years of experience with touch devices, Apple discovered that the 
 
 In *Grocery List*, we didn't have any custom gestures. But for our goal to improve some workflows in the next version, we support swiping on a cell from both directions to present different options for a product. And instead of having to go back your navigation stack to get to your lists or templates, you can easily swipe from the right device edge to quickly access the menu.
 
-<img alt="Grocery List 2 gestures" src="{{site.images_path}}/issue-5/redesign-gestures.png">
+<img alt="Grocery List 2 gestures" src="/images/issue-5/redesign-gestures.png">
 
 Buttons and links are visible and recognizable for the user but gestures are not. If you're planning to support your features with gestures, great! But if some features in your app rely on gestures and don't have an equivalent and visible control, always provide a good way to discover them. An interface always should be self-explanatory. If you need introduction screens or videos to describe the basic features of your app, you might be doing something wrong.
 
@@ -53,7 +53,7 @@ We discovered it isn't all about recreating or removing all appearances of real 
 
 *Grocery List* depends heavily on its closeness to the real world. Chalkboard as background, cells like paper, all framed by glossy wood. As nice as it looks, it is a challenging task to place controls you can interact with and to add new features which have to fit within its narrow context. With iOS 7 and its cleaner design, we don't have to be super realistic but can instead focus on improving the interaction to let the user achieve his or her goal. *Grocery List 2* will definitely be using the new design language but trying to keeping its own style.
 
-<img alt="Comparison of the Grocery List and Grocery List 2 interface" src="{{site.images_path}}/issue-5/redesign-interface.png">
+<img alt="Comparison of the Grocery List and Grocery List 2 interface" src="/images/issue-5/redesign-interface.png">
 
 After using iOS 7 on a device for a few weeks, interacting with it seems more convenient then it was with previous versions. The new animations and gestures, and the abstinence of skeuomorphic elements, allow the user to better focus on the content.
 
@@ -63,7 +63,7 @@ The main difference between iOS 6 and iOS 7 is the overall feeling of color. App
 
 Due to the skeuomorphic approach of *Grocery List*, colors could not be adjusted heavily. They were primary defined by the materials that we wanted to imitate. While we like the friendlier look of iOS 7, most build-in apps are mainly white. In *Grocery List 2*, the app will primarily be defined by its color scheme that also fits in the grocery scope. We don't want our app to be seen as just another iOS 7 app; instead we are trying to create a unique appearance.
 
-<img alt="Comparison of colors in a build-in iOS 7 app and Grocery List 2" src="{{site.images_path}}/issue-5/redesign-colors.png">
+<img alt="Comparison of colors in a build-in iOS 7 app and Grocery List 2" src="/images/issue-5/redesign-colors.png">
 
 Colors affect the perception of your app. Don't let your app be all white like the build-in ones. Instead, create your own unique identity. With the clean and new design of iOS 7 and the lack of skeuomorphic elements, you can now use colors that pop to represent what you want to achieve with your app.
 
@@ -75,7 +75,7 @@ Due to the lack of "real" buttons and less chrome around text, text is getting m
 
 In *Grocery List*, we use a slab-serif that matches the skeuomorphic style. Running the app on an iOS 7 device has shown that this font is not the best choice for the next version. We decided to use a custom, sans-serif font that could better support the overall appearance of our app than the default one could.
 
-<img alt="Comparison of the Grocery List and Grocery List 2 fonts" src="{{site.images_path}}/issue-5/redesign-fonts.png">
+<img alt="Comparison of the Grocery List and Grocery List 2 fonts" src="/images/issue-5/redesign-fonts.png">
 
 As content is the fundament of apps, it is important to enhance its legibility and the key to good legibility is good typography. Although Apple's default font, *Helvetica Neue*, is a good choice for most use cases, it is worth considering using a custom font - especially when your app presents lots of text.
 
@@ -85,7 +85,7 @@ Not only has Apple changed the dimensions and outlines of the app icons in iOS 7
 
 From a skeuomorphic app icon with chalkboard and wood to a simple, colorful icon with a coherent symbol, the *Grocery List* app icon does not really fit into the new homescreen. For the next version, we simplified the icon to a shopping basket symbol and chose a background color that we can also use as a main color in the app. This combination helps make the icon pop.
 
-<img alt="Comparison of the Grocery List and Grocery List 2 app icons" src="{{site.images_path}}/issue-5/redesign-app-icon.png">
+<img alt="Comparison of the Grocery List and Grocery List 2 app icons" src="/images/issue-5/redesign-app-icon.png">
 
 With iOS 7, icons will automatically be scaled to fit the new dimensions and result in blurry images. Shadows and lighting might look weird due to the new super-ellipse outline that iOS 7 uses to mask your icon. If you don't plan to update your app to adopt the new iOS 7 style, you should at least update it to add the new icon sizes.
 

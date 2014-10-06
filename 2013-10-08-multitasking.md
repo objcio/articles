@@ -21,7 +21,7 @@ Background Fetch is a kind of smart polling mechanism which works best for apps 
 
 The first step in enabling Background Fetch is to specify that you’ll use the feature in the [`UIBackgroundModes`](https://developer.apple.com/library/ios/documentation/general/Reference/InfoPlistKeyReference/Articles/iPhoneOSKeys.html#//apple_ref/doc/uid/TP40009252-SW22) key in your info plist. The easiest way to do this is to use the new Capabilities tab in Xcode 5’s project editor, which includes a Background Modes section for easy configuration of multitasking options. 
 
-<img alt="A screenshot showing Xcode 5’s new Capabilities tab" src="{{site.images_path}}/issue-5/capabilities-on-bgfetch.jpg">
+<img alt="A screenshot showing Xcode 5’s new Capabilities tab" src="/images/issue-5/capabilities-on-bgfetch.jpg">
 
 Alternatively, you can edit the key manually:
 
@@ -96,7 +96,7 @@ There are two ways you can simulate a background fetch. The easiest method is to
 
 Alternatively, you can use a scheme to change how Xcode runs your app. Under the Xcode menu item Product, choose Scheme and then Manage Schemes. From here, edit or add a new scheme and check the _Launch due to a background fetch event_ checkbox as shown below.
 
-<img alt="A screenshot showing Xcode 5’s scheme editor" src="{{site.images_path}}/issue-5/edit-scheme-simulate-background-fetch.png">
+<img alt="A screenshot showing Xcode 5’s scheme editor" src="/images/issue-5/edit-scheme-simulate-background-fetch.png">
 
 ## Remote Notifications
 

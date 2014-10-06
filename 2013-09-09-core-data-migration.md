@@ -101,11 +101,11 @@ Let’s say we have [a book app with a simple data model](https://github.com/obj
 
 The very first thing we need to do is to add a new model version based on the first data model. For this example, we added an `Author` entity with a many-to-many relationship with `Book`. 
 
-<img src="{{site.images_path}}/issue-4/cdm-model-2.png" width="416" height="291">
+<img src="/images/issue-4/cdm-model-2.png" width="416" height="291">
 
 Now the data model suits our purposes, but we’ll need to migrate any existing data. This is where `NSEntityMigrationPolicy` comes in. We create a subclass of `NSEntityMigrationPolicy` called [`MHWBookToBookPolicy`](https://github.com/objcio/issue-4-core-data-migration/blob/master/BookMigration/MHWBookToBookPolicy.m). In the mapping model, we select the `Book` entity and set it as the custom policy in the Utilities section.
 
-<img src="{{site.images_path}}/issue-4/cdm-book-to-book-policy.png" name="Custom NSEntityMigrationPolicy subclass" width="260" height="308">
+<img src="/images/issue-4/cdm-book-to-book-policy.png" name="Custom NSEntityMigrationPolicy subclass" width="260" height="308">
 
 We also use the user info dictionary to set a `modelVersion` which will come in handy in future migrations.
 
@@ -174,11 +174,11 @@ In a category on `NSMigrationManager`:
 Later on, we want to move the `fileURL` from the `Book` entity into a new entity called `File`.
 We want to rearrange the relationships so that a `User` has a one-to-many relationship with `File`, which in turn has a many-to-one relationship with `Book`. 
 
-<img name="Our 3rd model" src="{{site.images_path}}/issue-4/cdm-model-3.png" width="552" height="260">
+<img name="Our 3rd model" src="/images/issue-4/cdm-model-3.png" width="552" height="260">
 
 In the previous migration, we were only migrating one entity. When we add `File`, things become a bit more tricky. We can’t simply insert a `File` entity when migrating a `Book` and set its relationship with `User`, because the `User` entity hasn’t yet been migrated and has no files-relationship. *We have to think about the order in which the migration is executed*. In the mapping model, it’s possible to rearrange the order of the entity mappings. For this case, we want to put the `UserToUser` mapping above the `BookToBook` mapping. This guarantees that the `User` entity will be migrated before the `Book` entity.
 
-<img name="Mapping model orders are important" src="{{site.images_path}}/issue-4/cdm-mapping-order.png">
+<img name="Mapping model orders are important" src="/images/issue-4/cdm-mapping-order.png">
 
 The approach for adding a `File` entity is similar to when we created the `Author` entity. We’ll create `File` objects when we migrate the `Book` entity in `MHWBookToBookPolicy`. We’ll look at the source instance’s users, create a new `File` object for each user, and establish the relationship:
 

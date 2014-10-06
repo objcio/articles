@@ -76,25 +76,25 @@ We've already seen that approaches to sync can be categorized according to wheth
 
 The Synchronous Peer-to-Peer (S&ndash;P2P) approach was actually the first to be broadly adopted, and used for peripheral devices like iPods and PDAs. S-P2P tends to be simpler to implement, and local networks are fast. iTunes still uses this approach, due to the large quantities of media transfer involved.
 
-![Synchronous Peer-to-Peer]({{ site.images_path }}/issue-10/sp2p.png)
+![Synchronous Peer-to-Peer](/images/issue-10/sp2p.png)
 *Synchronous Peer-to-Peer (S&ndash;P2P)*
 
 The Synchronous Client-Server (S-CS) approach grew in popularity as networks improved and cloud services like [Amazon Web Services](http://aws.amazon.com) (AWS) became popular. S-CS is probably the most common approach to sync in use today. From a implementation standpoint, it is much the same as developing any other web service. Typically a custom cloud app is developed in a language, and with a programming stack unrelated to the client app, such as [Ruby on Rails](http://rubyonrails.org), [Django](https://www.djangoproject.com), or [Node.js](http://nodejs.org). Communication with the cloud is slower than using a local network, but S-CS has the advantage of being 'always on,' and the client can sync from any location with network connectivity.
 
-![Synchronous Client-Server]({{ site.images_path }}/issue-10/scs.png)<br />
+![Synchronous Client-Server](/images/issue-10/scs.png)<br />
 *Synchronous Client-Server (S&ndash;CS)*
 
 With Asynchronous Client-Server (A-CS), the developer adopts an API for data storage, which gives access to a local copy of the data. Sync occurs transparently in the background, with the application code being informed of changes via a callback mechanism. Examples of this approach include the [Dropbox Datastore API](https://www.dropbox.com/developers/datastore), and -- for Core Data developers -- the [Wasabi Sync](http://www.wasabisync.com) service. 
 
 One advantage of the asynchronous _replicate and sync_ approach is that apps continue to work and have access to the user's data when the network is unavailable. Another is that the developer is less burdened with the details of communications and sync, and can focus on other aspects of the app, treating data storage almost as if it were local to the device. 
 
-![Asynchronous Client-Server]({{ site.images_path }}/issue-10/acs.png)<br />
+![Asynchronous Client-Server](/images/issue-10/acs.png)<br />
 *Asynchronous Client-Server (A&ndash;CS)*
 
 The Asynchronous Peer-to-Peer (A-P2P) approach is still in its infancy, and has not seen widespread use. A-P2P places the full burden of piecing together the 'truth' on the client app, without any recourse to direct communication. Developing an A&ndash;P2P framework is complex, and that has led to some well-publicized failures, including early attempts by Apple to add iCloud support to Core Data (recent attempts are much improved). As with A&ndash;CS, each device has a full copy of the data store. The stores are kept in sync by communicating changes between devices via a series of files, typically referred to as _transaction logs_. The logs are moved to the cloud, and from there to other devices by a basic file handling server (e.g.
 iCloud, Dropbox), which has no insight into the file content.
 
-![Asynchronous Peer-to-Peer]({{ site.images_path }}/issue-10/ap2p.png)<br />
+![Asynchronous Peer-to-Peer](/images/issue-10/ap2p.png)<br />
 *Asynchronous Peer-to-Peer (A&ndash;P2P)*
 
 Given the complexities of developing an A-P2P system, you might ask why we should even bother. One major advantage of A-P2P frameworks is that they abstract away the need for an intelligent server. The developer can avoid all server-side development, and can take advantage of the multitude of file transfer services available, many of which are free. And because A-P2P systems are not coupled to a particular service, there is no danger of being locked in to a single vendor.
@@ -140,7 +140,7 @@ Conflict resolution can get tricky, and if you have the choice, you should avoid
 
 Relationships can be particularly troublesome (and that's not a commentary on human interactions). Take a simple one-to-one relationship between entities `A` and `B`. Imagine `Device 1` and `Device 2` both begin with object `A[1]` related to object `B[1]`. `Device 1` creates an object `B[2]`, relates `A[1]` to `B[2]`, and deletes `B[1]`. Concurrently, `Device 2` also deletes `B[1]`, but creates `B[3]` and relates that to `A[1]`. 
 
-![Orphaned object]({{ site.images_path }}/issue-10/orphan.png)<br />
+![Orphaned object](/images/issue-10/orphan.png)<br />
 *Orphaned object arising from conflicting changes to a one-to-one relationship.*
 
 After synchronizing, there will be an extra, orphaned `B` object that is unrelated to any `A`. If there were to be a validation rule requiring the relationship, you would now have an invalid object graph. And this is about the simplest type of relationship you can imagine. There are many other twists and turns possible when relationships are involved.

@@ -55,11 +55,11 @@ Many developers disregard Interface Builder without even learning it, and as suc
 
 Runtime attributes are one of the key features of using Interface Builder. They offer you a way to set up custom classes and even set properties on iOS's built-in classes. For example, have you ever had to set a corner radius on your layer? You can do that straight from Interface Builder by simply specifying runtime attributes for it: 
 
-<img src="{{ site.images_path }}/issue-13/cornerRadius.png" width="260">
+<img src="/images/issue-13/cornerRadius.png" width="260">
 
 When creating behaviors in Interface Builder, you are going to rely heavily on runtime attributes to set up the behavior options. As a result, there will typically be more runtime attributes: 
 
-<img src="{{ site.images_path }}/issue-13/runtimeAttributes.png" width="253">
+<img src="/images/issue-13/runtimeAttributes.png" width="253">
 
 
 ### Behavior Lifetime
@@ -129,13 +129,13 @@ So what kind of things are easiest to implement as behaviors?
 Here's how easy it is to add a parallax animation to a `UIViewController` class (no custom class):
 
 <video style="display:block;max-width:100%;height:auto;border:0;" controls="1">
-  <source src="{{ site.images_path }}/issue-13/parallaxAnimationBehaviour.mov"></source>
+  <source src="/images/issue-13/parallaxAnimationBehaviour.mov"></source>
 </video>
 
 Ever needed to pick an image from your user library or camera?
 
 <video style="display:block;max-width:100%;height:auto;border:0;" controls="1">
-  <source src="{{ site.images_path }}/issue-13/imagePickerBehaviour.mp4"></source>
+  <source src="/images/issue-13/imagePickerBehaviour.mp4"></source>
 </video>
 
 

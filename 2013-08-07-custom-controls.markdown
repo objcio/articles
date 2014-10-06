@@ -81,7 +81,7 @@ Often, the quickest way to render something
 is just by using image views. For example, let's suppose that you want
 to draw round avatars and a border, such as in the picture below:
 
-<img src="{{site.images_path}}/issue-3/issue-3-rounded-corners@2x.png" style="width:396px" alt="Rounded image view"/>
+<img src="/images/issue-3/issue-3-rounded-corners@2x.png" style="width:396px" alt="Rounded image view"/>
 
 To achieve this, we created an image view subclass with the following
 code:

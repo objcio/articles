@@ -17,7 +17,7 @@ Author Note: This article contains several benchmark results, however they are b
 
 First, we need some theoretical background. Performance is usually described with the [Big O Notation](https://en.wikipedia.org/wiki/Big_O_notation). It defines the *limiting behavior* of a function and is often used to characterize algorithms on their performance. O defines the upper bound of the growth rate of the function. To see just how big the difference is, see commonly used O notations and the number of operations needed.
 
-![]({{ site.images_path }}/issue-7/big-o-notation.png)
+![](/images/issue-7/big-o-notation.png)
 
 For example, if you sort an array with 50 elements, and your sorting algorithm has a complexity of O(n^2), there will be 2,500 operations necessary to complete the task. Furthermore, there's also overhead in internal management and calling that method - so it's 2,500 operations times constant. O(1) is the ideal complexity, meaning constant time. [Good sorting algorithms usually need O(n\*log n) time.](http://en.wikipedia.org/wiki/Sorting_algorithm#Comparison_of_algorithms)
 
@@ -359,7 +359,7 @@ Variants of `NSSet` are also `NSCountedSet`, and the non-toll-free counter-varia
 
 `NSMutableSet` has several powerful set methods like `intersectSet:`, `minusSet:`, and `unionSet:`.
 
-![Set-Union]({{ site.images_path }}/issue-7/set.png)
+![Set-Union](/images/issue-7/set.png)
 
 ### Should I Use setWithCapacity:?
 

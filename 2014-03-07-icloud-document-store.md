@@ -216,5 +216,5 @@ For the past few months, Apple has also offered a safe server-side reset of iClo
 [18]:https://developer.icloud.com/
 [19]:http://support.apple.com/kb/HT5824
 
-[image-1]:{{ site.images_path }}/issue-10/Open.png
-[image-2]:{{ site.images_path }}/issue-10/Mobile%20Documents.png
+[image-1]:/images/issue-10/Open.png
+[image-2]:/images/issue-10/Mobile%20Documents.png
