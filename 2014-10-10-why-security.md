@@ -1,4 +1,12 @@
-# Why is security even still a thing?
+---
+layout: post
+title: Why is Security Still a Thing?
+category: "17"
+date: "2014-10-10 09:00:00"
+author: "<a href=\"http://twitter.com/secboffin\">Graham Lee</a>"
+tags: article
+---
+
 
 As this article was being written, systems administrators were rushing to ensure their networks were robust against [CVE 2014-6271](http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-6271), also known as "Shellshock". The vulnerability report describes the ability to get the `bash` shell, installed on most Linux and OS X systems (and, though most people are unlikely to use it there, on iOS too) to run functions under the attacker's control. Considering that security has been a design consideration in software systems at least since the [Compatible Time-Sharing System](http://publications.csail.mit.edu/lcs/pubs/pdf/MIT-LCS-TR-016.pdf) of the 1960s, why isn't it a solved problem yet? Why do software systems still have security problems, and why are we app developers told we have to do something about it?
 

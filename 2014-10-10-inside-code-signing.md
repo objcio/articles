@@ -2,11 +2,10 @@
 layout: post
 title: Inside code signing
 category: "17"
-date: "2014-10-05 23:00:00"
+date: "2014-10-10 10:00:00"
 author: "<a href=\"https://thomas.kollba.ch/\">Thomas 'toto' Kollbach</a>"
 tags: article
 ---
-# Inside code signing
 
 > "Users appreciate code signing."  
 >  – Apple Developer Library: [Code Signing Guide](https://developer.apple.com/library/mac/documentation/Security/Conceptual/CodeSigningGuide/Introduction/Introduction.html)
