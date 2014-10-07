@@ -379,7 +379,7 @@ if (![bundleVersionString isEqualTo:@"1.0"]) {
 - On OS X, the version comes from the `CFBundleShortVersionString` value.
 - On iOS, the version come from the `CFBundleVersion` value.
 
-You should be careful when settings the values as they will be picked up when a receipt is issued.
+You should be careful when setting these values as they will be picked up when a receipt is issued.
 
 ### Computing the GUID hash
 
