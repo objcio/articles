@@ -32,7 +32,7 @@ Verifying receipts is a mechanim that helps you to protect your revenue and to e
 
 You may wonder why Apple hasn't provided an simple API to validate the receipt. For the sake of the demonstration, imagine that such method exists (for example `[[NSBundle mainBundle] validateReceipt]`). An attacker would simply look for this selector inside the binary and patch the code to skip the call. Since every developer would use the same validation method, hacking would be too easy.
 
-Instead, Apple made the choice to use standard cryptography and encoding techniques, and to provide some help in the form of [documentation](https://developer.apple.com/library/ios/releasenotes/General/ValidateAppStoreReceipt/Introduction.html) and [WWDC sessions](https://developer.apple.com/videos/wwdc/2014/#305) for implementing your own receipt validation code. However, this is not an easy process and requires a good understanding of cryptography and of a variety of secure coding techniques.
+Instead, Apple made the choice to use standard cryptography and encoding techniques, and to provide some help in the form of [documentation][apple-receipt-validation] and [WWDC sessions][apple-wwdc-2014-305] for implementing your own receipt validation code. However, this is not an easy process and requires a good understanding of cryptography and of a variety of secure coding techniques.
 
 Of course there are several off-the-shelf implementations available (for example [on GitHub][github-?-receipt-validation]), but they are often just reference implementations and suffer from the same problem outlined above if everybody uses them: it becomes very easy for attackers to crack the validation code. So it's important to develop a solution that is unique and secure enough to resist common attacks.
 
@@ -81,11 +81,11 @@ END
 
 A receipt attribute has three fields:
 
-- **The type field** identifies each attribute by its type. Apple has published a [list of public attributes](https://developer.apple.com/library/ios/releasenotes/General/ValidateAppStoreReceipt/Chapters/ReceiptFields.html#//apple_ref/doc/uid/TP40010573-CH106-SW1) that can be used to extract information from the receipt. You may also find unlisted attributes while parsing a receipt, but it's best to simply ignore them (mostly because they are reserved by Apple for future use).
+- **The type field** identifies each attribute by its type. Apple has published a [list of public attributes][apple-receipt-validation-fields] that can be used to extract information from the receipt. You may also find unlisted attributes while parsing a receipt, but it's best to simply ignore them (mostly because they are reserved by Apple for future use).
 - **The version field** is not used for now.
 - **The value field** contains the data as an array of bytes (even if its name may suggest it, this is _**not**_ a string).
 
-The payload is encoded using DER ([Distinguished Encoding Rules](wikipedia-x690-der)): this kind of encoding provides an unequivocal and compact result for ASN.1 structures. DER uses a pattern of [type-length-value][wikipedia-type-length-value] triplets and byte constants for each type tag.
+The payload is encoded using DER ([Distinguished Encoding Rules][wikipedia-x690-der]): this kind of encoding provides an unequivocal and compact result for ASN.1 structures. DER uses a pattern of [type-length-value][wikipedia-type-length-value] triplets and byte constants for each type tag.
 
 To better illustrate the concept, here are some concrete examples of DER encoded content applied to a receipt. The figure below shows how a receipt module is encoded:
 
@@ -374,6 +374,13 @@ if (![bundleVersionString isEqualTo:@"1.0"]) {
 }
 ```
 
+**IMPORTANT:** When the receipt is issued, the bundle version is taken from the `Info.plist` file:
+
+- On OS X, the version comes from the `CFBundleShortVersionString` value.
+- On iOS, the version come from the `CFBundleVersion` value.
+
+You should be careful when settings the values as they will be picked up when a receipt is issued.
+
 ### Computing the GUID hash
 
 When the receipt is issued, three values are used to generate a SHA-1 hash: the device GUID (only available on the device), an opaque value (the type 4 attribute), and the bundle identifier (the type 2 attribute). A SHA-1 hash is computed on the concatenation of these three values and stored into the receipt (type 5 attribute).
@@ -523,7 +530,7 @@ Test users can be created and configured through [iTunes Connect][itunes-connect
 
 To test receipt validation on OS X, go through the following steps:
 
-- Launch the application from the Finder. *Do **not** launch it from Xcode*, otherwise the `launchd` daemon cannot trigger the receipt retrieval.
+- Launch the application from the Finder. *Do **not** launch it from Xcode, otherwise the `launchd` daemon cannot trigger the receipt retrieval.
 - The missing receipt should make the application exit with code 173. This will trigger the request for a valid receipt. An App Store login window should appear; use the test account credentials to sign-in and retrieve the test receipt.
 - If the credentials are valid and the bundle information match the one you entered, then a receipt is generated and installed in the application bundle. After the receipt is retrieved, the application is re-launched automatically.
 
@@ -533,7 +540,7 @@ Once a receipt has been retrieved, you can now launch the application from Xcode
 
 To test receipt validation on iOS, go through the following steps:
 
-- Launch the application on a real device. *Do **not** launch it in the simulator*. The simulator lacks the API required to issue receipts.
+- Launch the application on a real device. *Do **not** launch it in the simulator. The simulator lacks the API required to issue receipts.
 - The missing receipt should make the application trigger a receipt refresh request. An App Store login window should appear; use the test account credentials to sign-in and retrieve the test receipt.
 - If the credentials are valid and the bundle information match the one you entered, then a receipt is generated and installed in the application sandbox. After the receipt is retrieved, you can perform another validation to ensure that everything is ok.
 
@@ -570,7 +577,7 @@ While implementing receipt validation, there are some secure practices to follow
 - **Validate several times:** validate the receipt at startup and periodically during the application lifetime. The more validation code you have, the more an attacker has to work.
 - **Obfuscate strings:** never let the strings used in validation in clear form as it can help an attacker to locate or hack the validation code. String obfuscation can use xoring, value shifting, bit masking, or anything else that makes the string human-unreadable.
 - **Obfuscate the result of receipt validation:** don't wrap the validation into a simple boolean test; it is easy to bypass. Instead, you can use blocks, function callback, or any indirection that makes the result not obvious.
-- **Harden the code flow:** use an [opaque predicate](http://en.wikipedia.org/wiki/Opaque_predicate) (i.e. a condition only known at runtime) to make your validation code flow hard to follow. Opaque predicates are typically made of function call results which are not known at compile time. You can also use loops, goto statements, static variables, or any control flow structure where you'd usually not need one.
+- **Harden the code flow:** use an [opaque predicate][wikipedia-opaque-predicate] (i.e. a condition only known at runtime) to make your validation code flow hard to follow. Opaque predicates are typically made of function call results which are not known at compile time. You can also use loops, goto statements, static variables, or any control flow structure where you'd usually not need one.
 - **Use static libraries:** if you include third-party code, link it statically whenever it is possible; statically code  is harder to patch and you do not depend on external code that can change.
 - **Tamper-proof the sensitive functions:** make sure that sensitive functions have not been replaced or patched. As a function can have several behaviors based on its input arguments, make calls with invalid arguments; if it does not return an error or the right return code, then it may be have been replaced or patched.
 
@@ -579,19 +586,23 @@ While implementing receipt validation, there are some secure practices to follow
 - **Avoid Objective-C:** Objective-C carries a lot of runtime information that makes it vulnerable to symbol analysis/injection/replacement. If you still want to use Objective-C, obfuscate the selectors and the calls.
 - **Don't use shared libraries for secure code:** a shared library can be swapped or patched.
 - **Don't use separate code:** bury the validation code into your business logic to make it hard to locate and patch.
-- **Don't factor receipt validation:** vary and multiply validation code implementations to avoid pattern detection.
+- **Don't factor receipt validation:** vary, duplicate, and multiply validation code implementations to avoid pattern detection.
 - **Don't underestimate the determination of attackers:** with enough time and resources, an attacker will ultimately succeed in cracking your application. What you can do is to make the process more painful and costly.
 
 
 
 [rfc-2315]: https://www.ietf.org/rfc/rfc2315.txt
 [apple-iokit]: https://developer.apple.com/library/mac/documentation/IOKit/Reference/IOKitLib_header_reference/Reference/reference.html
+[apple-receipt-validation]: https://developer.apple.com/library/ios/releasenotes/General/ValidateAppStoreReceipt/Introduction.html
+[apple-receipt-validation-fields]: https://developer.apple.com/library/ios/releasenotes/General/ValidateAppStoreReceipt/Chapters/ReceiptFields.html#//apple_ref/doc/uid/TP40010573-CH106-SW1
+[apple-wwdc-2014-305]: https://developer.apple.com/videos/wwdc/2014/#305
 [itu-t-x690]: http://www.itu.int/ITU-T/recommendations/rec.aspx?id=9608
 [wikipedia-asn1]: http://en.wikipedia.org/wiki/Abstract_Syntax_Notation_One
 [wikipedia-x690-der]: http://en.wikipedia.org/wiki/X.690#DER_encoding
 [wikipedia-type-length-value]: http://en.wikipedia.org/wiki/Type-length-value
 [wikipedia-mac-address]: http://en.wikipedia.org/wiki/MAC_address
 [wikipedia-script-kiddie]:http://en.wikipedia.org/wiki/Script_kiddie
+[wikipedia-opaque-predicate]: http://en.wikipedia.org/wiki/Opaque_predicate
 [github-mach-override]: https://github.com/rentzsch/mach_override
 [github-?-receipt-validation]: https://github.com/search?utf8=%E2%9C%93&q=receipt+validation
 [gnu-libtasn1]: http://www.gnu.org/software/libtasn1/
