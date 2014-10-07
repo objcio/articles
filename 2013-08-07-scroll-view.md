@@ -6,7 +6,6 @@ author: "<a href=\"http://stablekernel.com\">Joe Conway</a>"
 tags: article
 ---
 
-{% include links-3.md %}
 
 It may be hard to believe, but a [`UIScrollView`](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html) isn't much different than a standard [`UIView`](http://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIView_Class/). Sure, the scroll view has a few more methods, but those methods are really just facades of existing `UIView` properties. Thus, most of the understanding of how a UIScrollView works comes from understanding `UIView` - specifically, the details of the two-step view rendering process.
 

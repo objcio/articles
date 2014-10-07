@@ -6,7 +6,6 @@ author: "<a href=\"http://oleb.net\">Ole Begemann</a>"
 tags: article
 ---
 
-{% include links-3.md %}
 
 Introduced in iOS 6, `UICollectionView` is [the new star among view classes](http://oleb.net/blog/2012/09/uicollectionview/) in UIKit. It shares its API design with `UITableView` but extends the latter in a few fundamental ways. The most powerful feature of `UICollectionView` and the point where it significantly exceeds `UITableView`'s capabilities is its completely flexible layout architecture. In this article, we will implement a fairly complex custom collection view layout and discuss important aspects of the class's design along the way.
 

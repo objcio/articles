@@ -6,7 +6,6 @@ author: "<a href=\"https://twitter.com/steipete\">Peter Steinberger</a>"
 tags: article
 ---
 
-{% include links-2.md %}
 
 
 This article will focus on *practical* tips, design patterns, and anti-patterns with regard to writing thread-safe classes and using Grand Central Dispatch (GCD).

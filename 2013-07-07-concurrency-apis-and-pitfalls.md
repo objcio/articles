@@ -6,7 +6,6 @@ author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
 tags: article
 ---
 
-{% include links-2.md %}
 
 [Concurrency](http://en.wikipedia.org/wiki/Concurrency_%28computer_science%29) describes the concept of running several tasks at the same time. This can either happen in a [time-shared](http://en.wikipedia.org/wiki/Preemption_%28computing%29) manner on a single CPU core, or truly in parallel if multiple CPU cores are available.
 

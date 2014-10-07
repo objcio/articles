@@ -6,7 +6,6 @@ author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
 tags: article
 ---
 
-{% include links-3.md %}
 
 
 How does a pixel get onto the screen? There are many ways to get something onto the display and they involve many different frameworks and many different combinations of functions and methods. Here we'll walk through some of the things that happen behind the scenes. We hope this will help you understand which API works best when you need to determine when and how to debug and fix performance problems. We'll focus on iOS, however most of what is discussed will apply to OS X as well.

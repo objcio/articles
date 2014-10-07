@@ -6,7 +6,6 @@ author: "<a href=\"http://twitter.com/chriseidhof\">Chris Eidhof</a>"
 tags: article
 ---
 
-{% include links-4.md %}
 
 In this article, we will build a small but complete Core Data backed application. 
 The application allows you to create nested lists; each list item can have a sub-list, allowing you to create very deep hierarchies of items.

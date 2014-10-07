@@ -6,7 +6,6 @@ author: "<a href=\"https://twitter.com/danielboedewadt\">Daniel Eggert</a>"
 tags: article
 ---
 
-{% include links-2.md %}
 
 
 In this article we'll talk about some low-level APIs available on both iOS and OS X. Except for `dispatch_once`, we generally discourage using any of this.

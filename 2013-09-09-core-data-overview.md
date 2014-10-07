@@ -6,7 +6,6 @@ author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
 tags: article
 ---
 
-{% include links-4.md %}
 
 
 Core Data is probably one of the most misunderstood Frameworks on OS X and iOS. To help with that, we'll quickly go through Core Data to give you an overview of what it is all about, as understanding Core Data concepts is essential to using Core Data the right way. Just about all frustrations with Core Data originate in misunderstanding what it does and how it works. Let's dive in...

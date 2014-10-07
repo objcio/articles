@@ -6,7 +6,6 @@ author: "<a href=\"http://twitter.com/chriseidhof\">Chris Eidhof</a>"
 tags: article
 ---
 
-{% include links-2.md %}
 
 In this article we will describe best practices for doing common
 tasks in the background. We will look at how to use Core Data concurrently,

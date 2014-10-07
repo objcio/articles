@@ -6,7 +6,6 @@ author: "<a href=\"http://github.com/hwaxxer\">Martin Hwasser</a>"
 tags: article
 ---
 
-{% include links-4.md %}
 
 Custom Core Data migrations are somewhat of an obscure topic. Apple provides little documentation on the subject, and it can be a frightening experience when first ventured into. Given the nature of client side programs, there’s no way to test all the possible permutations of datasets that your users will have. Moreover, it’s very hard to fix any issues that might occur during migration and rollback isn’t an option since you most likely have code that depends on the latest data model. 
 
