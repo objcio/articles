@@ -17,7 +17,7 @@ automated tests. On the positive side, writing automated tests can:
 - Make refactoring easier
 - Avoid regressions
 - Provide executable specification and documentation
-- Reduce the time of creating softwarepr
+- Reduce the time of creating software
 - Reduce the costs of creating software
 
 
