@@ -20,7 +20,7 @@ Unfortunately, that view of the problem is incomplete. Technical countermeasures
 
 ## The Problem Has Changed
 
-In the time since UNIX was designed, computers have become smaller, faster, and better connected. They've also found uses in more and more situations that weren't foreseen when the software that supports those situations was created. Electronic mail as an effectively public, plain-text system was OK when every user of the mail system worked for the same university, and every terminal was owned by that university. Supporting communication between people in different organizations, in different sites, and on different networks is a different problem and requires different solutions.
+In the time since UNIX was designed, computers have become smaller, faster, and better connected. They've also found uses in more and more situations that weren't foreseen when the software that supports those situations was created. Electronic mail as an effectively public, plain-text system was OK when every user of the mail system worked for the same university, and every terminal was owned by that university. Supporting communication between people in different organizations, in different locations, and on different networks is a different problem and requires different solutions.
 
 In one way, iOS is still a multi-user system. Unlike the environment in which UNIX was designed, all of the users have access to the same account that's operated by the phone's owner. Those users are the owner themselves: you, me, all the other app developers whose products are installed on the phone, and Apple.
 
@@ -46,7 +46,7 @@ Apple can limit the ways in which apps can communicate, so that data is only exc
 
 ## You Can't Either (Not Entirely, Anyway)
 
-Similar to operating system features, popularity charts of [mobile app vulnerabilities](https://www.owasp.org/index.php/Projects/OWASP_Mobile_Security_Project_-_Top_Ten_Mobile_Risks) tell you what problems are encountered by _many_ apps, but not which are relevant to _your_ app, or _how_ they manifest. They certainly say nothing about vulnerabilities that are specific to the uses to which _your customers_ are putting _your app_, completing their workflows in their environments.
+Similar to operating system features, popularity charts of [mobile app vulnerabilities](https://www.owasp.org/index.php/Projects/OWASP_Mobile_Security_Project_-_Top_Ten_Mobile_Risks) tell you what problems are encountered by _many_ apps, but not which are relevant to _your_ app, or _how_ they manifest. They certainly say nothing about vulnerabilities that are specific to the uses to which _your customers_ are putting _your app_: vulnerabilities that emerge from the tasks and processes your customers are completing, and the context and environment in which they are doing so.
 
 Security is a part of your application architecture: a collection of constraints that your proposed solution must respect as it respects response time, scale of the customer base, and compatibility with external systems. This means that you have to design it into your application as you design the app to operate within the other constraints.
 
