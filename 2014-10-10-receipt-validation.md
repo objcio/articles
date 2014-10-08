@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Receipt Validation"
 category: "17"
 date: "2014-10-10 09:00:00"

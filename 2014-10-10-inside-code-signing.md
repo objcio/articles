@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Inside Code Signing
 category: "17"
 date: "2014-10-10 10:00:00"
