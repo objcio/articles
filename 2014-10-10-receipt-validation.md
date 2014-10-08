@@ -27,7 +27,7 @@ Here are some key points about receipts:
 
 ## About Validation
 
-Verifying receipts is a mechanim that helps you to protect your revenue and enforce your business model directly in your application.
+Verifying receipts is a mechanism that helps you to protect your revenue and enforce your business model directly in your application.
 
 You may wonder why Apple hasn't provided a simple API to validate the receipt. For the sake of demonstration, imagine that such a method exists (for example, `[[NSBundle mainBundle] validateReceipt]`). An attacker would simply look for this selector inside the binary and patch the code to skip the call. Since every developer would use the same validation method, hacking would be too easy.
 
