@@ -8,55 +8,55 @@ tags: article
 
 ## About Receipts
 
-Receipts were introduced along the release of the Mac App Store, as part of the OS X 10.6.6 update. While iOS has always provided server-side receipts for in-app purchases, it was only with iOS 7 that iOS and OS X share the same receipt format.
+Receipts were introduced alongside the release of the Mac App Store, as part of the OS X 10.6.6 update. While iOS has always provided server-side receipts for in-app purchases, it was only with iOS 7 that iOS and OS X began to share the same receipt format.
 
-A receipt is meant to be a trusted record of the application purchase itself, as well as any in-app purchases that the user has made. Like a physical receipt that you get when shopping in a store, it is the proof that the application or the in-app purchases have been paid for.
+A receipt is meant to be a trusted record of a purchase, along with any in-app purchases that the user has made. Like a physical receipt that you get when shopping in a store, it is the proof that the application or the in-app purchases have been paid for.
 
 Here are some key points about receipts:
 
 - A receipt is created and signed by Apple through the App Store.
 - A receipt is issued for a specific version of an application and a specific device.
 - A receipt is stored **locally** on the device.
-- A receipt is issued **each time** an installation or an update occurs:
-	- When an application is installed, a receipt is issued that matches the application and the device.
-	- When an application is updated, a receipt is issued that matches the new version of the application.
+- A receipt is issued **each time** an installation or an update occurs.
+	- When an application is installed, a receipt that matches the application and the device is issued.
+	- When an application is updated, a receipt that matches the new version of the application is issued.
 - A receipt is issued **each time** a transaction occurs:
-	- When an in-app purchase occurs, a receipt is issued so it can be accessed to verify that purchase.
-	- When previous transactions are restored, a receipt is issued so it can be accessed to verify those purchases.
+	- When an in-app purchase occurs, a receipt is issued so that it can be accessed to verify that purchase.
+	- When previous transactions are restored, a receipt is issued so that it can be accessed to verify those purchases.
 
 
 ## About Validation
 
-Verifying receipts is a mechanim that helps you to protect your revenue and to enforce your business model directly in your application.
+Verifying receipts is a mechanim that helps you to protect your revenue and enforce your business model directly in your application.
 
-You may wonder why Apple hasn't provided an simple API to validate the receipt. For the sake of the demonstration, imagine that such method exists (for example `[[NSBundle mainBundle] validateReceipt]`). An attacker would simply look for this selector inside the binary and patch the code to skip the call. Since every developer would use the same validation method, hacking would be too easy.
+You may wonder why Apple hasn't provided a simple API to validate the receipt. For the sake of demonstration, imagine that such a method exists (for example, `[[NSBundle mainBundle] validateReceipt]`). An attacker would simply look for this selector inside the binary and patch the code to skip the call. Since every developer would use the same validation method, hacking would be too easy.
 
-Instead, Apple made the choice to use standard cryptography and encoding techniques, and to provide some help in the form of [documentation][apple-receipt-validation] and [WWDC sessions][apple-wwdc-2014-305] for implementing your own receipt validation code. However, this is not an easy process and requires a good understanding of cryptography and of a variety of secure coding techniques.
+Instead, Apple made the choice to use standard cryptography and encoding techniques, and to provide some help — in the form of [documentation][apple-receipt-validation] and [WWDC sessions][apple-wwdc-2014-305] — for implementing your own receipt validation code. However, this is not an easy process, and it requires a good understanding of cryptography and of a variety of secure coding techniques.
 
-Of course there are several off-the-shelf implementations available (for example [on GitHub][github-?-receipt-validation]), but they are often just reference implementations and suffer from the same problem outlined above if everybody uses them: it becomes very easy for attackers to crack the validation code. So it's important to develop a solution that is unique and secure enough to resist common attacks.
+Of course, there are several off-the-shelf implementations available (for example, [on GitHub][github-?-receipt-validation]), but they are often just reference implementations and suffer from the same problem outlined above if everybody uses them: it becomes very easy for attackers to crack the validation code. So it's important to develop a solution that is unique and secure enough to resist common attacks.
 
 
-## Anatomy of a receipt
+## Anatomy of a Receipt
 
 Let's take a technical look at the receipt file. Its structure looks like this:
 
 ![Receipt Structure](/images/issue-17/ReceiptStructure@2x.png "Receipt Structure")
 
-A receipt file consist of a signed [PKCS #7][rfc-2315] container that embeds a [DER][wikipedia-x690-der] encoded [ASN.1][itu-t-x690] payload, a certificate chain, and a digital signature.
+A receipt file consist of a signed [PKCS #7][rfc-2315] container that embeds a [DER][wikipedia-x690-der]-encoded [ASN.1][itu-t-x690] payload, a certificate chain, and a digital signature.
 
-- **The payload** is a set of attributes that contains the receipt information; each attribute contains a type, a version and a value. Among the attribute values, you find the bundle identifier and the bundle version for which the receipt was issued.
-- **The certificate chain** is the set of certificates that allows to verify the signature digest -- the leaf certificate is the certificate that has been used to sign the payload.
+- **The payload** is a set of attributes that contains the receipt information; each attribute contains a type, a version, and a value. Among the attribute values, you find the bundle identifier and the bundle version for which the receipt was issued.
+- **The certificate chain** is the set of certificates that allows to verify the signature digest — the leaf certificate is the certificate that has been used to sign the payload.
 - **The signature** is the encrypted digest of the payload. By checking this digest, you can verify that the payload has not been tampered with.
 
 
-### The container
+### The Container
 
 The receipt container is a PKCS #7 envelope, which is signed by Apple with a dedicated certificate. The container's signature guarantees the authenticity and the integrity of the encapsulated payload.
 
 To verify the signature, two checks are needed:
 
-- The certificate chain is validated against the Apple Certificate Authority Root certificate: this is the **authenticity** check.
-- A signature is computed using the certificate chain and compared to the one found in the container: this is the **integrity** check.
+- The certificate chain is validated against the Apple Certificate Authority Root certificate — this is the **authenticity** check.
+- A signature is computed using the certificate chain and compared to the one found in the container — this is the **integrity** check.
 
 
 ### The Payload
@@ -84,24 +84,24 @@ A receipt attribute has three fields:
 - **The version field** is not used for now.
 - **The value field** contains the data as an array of bytes (even if its name may suggest it, this is _**not**_ a string).
 
-The payload is encoded using DER ([Distinguished Encoding Rules][wikipedia-x690-der]): this kind of encoding provides an unequivocal and compact result for ASN.1 structures. DER uses a pattern of [type-length-value][wikipedia-type-length-value] triplets and byte constants for each type tag.
+The payload is encoded using DER ([Distinguished Encoding Rules][wikipedia-x690-der]). This kind of encoding provides an unequivocal and compact result for ASN.1 structures. DER uses a pattern of [type-length-value][wikipedia-type-length-value] triplets and byte constants for each type tag.
 
-To better illustrate the concept, here are some concrete examples of DER encoded content applied to a receipt. The figure below shows how a receipt module is encoded:
+To better illustrate the concept, here are some concrete examples of DER-encoded content applied to a receipt. The figure below shows how a receipt module is encoded:
 
-- The first byte identifies an ASN.1 set
-- The three following bytes encode the length of the set's content
-- The content of the set are the receipt attributes
+- The first byte identifies an ASN.1 set.
+- The three following bytes encode the length of the set's content.
+- The contents of the set are the receipt attributes.
 
 ![ASN.1 DER - Receipt Module](/images/issue-17/ASN.1-DER-Receipt@2x.png "ASN.1 DER - Receipt Module")
 
 The next figure shows how a receipt's attributes are encoded:
 
-- The first byte identifies an ASN.1 sequence
-- The second byte encodes the length of the sequence's content
+- The first byte identifies an ASN.1 sequence.
+- The second byte encodes the length of the sequence's content.
 - The content of the sequence is:
-    - The attribute's type encoded as an ASN.1 INTEGER (the first byte identifies an ASN.1 INTEGER, the second byte encodes its length, and the third byte contains the value)
-    - The attribute's version encoded as an ASN.1 INTEGER (the first byte identifies an ASN.1 INTEGER, the second byte encodes its length, and the third byte contains the value)
-    - The attribute's value encoded as an ASN.1 OCTET-STRING (the first byte identifies an ASN.1 OCTET-STRING, the second byte encodes its length and the remaining bytes contains the data)
+    - The attribute's type encoded as an ASN.1 INTEGER (the first byte identifies an ASN.1 INTEGER, the second byte encodes its length, and the third byte contains the value).
+    - The attribute's version encoded as an ASN.1 INTEGER (the first byte identifies an ASN.1 INTEGER, the second byte encodes its length, and the third byte contains the value).
+    - The attribute's value encoded as an ASN.1 OCTET-STRING (the first byte identifies an ASN.1 OCTET-STRING, the second byte encodes its length, and the remaining bytes contain the data).
 
 ![ASN.1 DER - Receipt's attribute](/images/issue-17/ASN.1-DER-Attribute-OCTETSTRING@2x.png "ASN.1 DER - Receipt's attribute")
 
@@ -116,31 +116,31 @@ By using an ASN.1 OCTET-STRING for the attribute's value, it is very easy to emb
 ![ASN.1 DER - Receipt's attribute containing an In-App purchase set string](/images/issue-17/ASN.1-DER-Attribute-SET@2x.png "ASN.1 DER - Receipt's attribute containing an In-App purchase set")
 
 
-## Validating the receipt
+## Validating the Receipt
 
-The steps to validate a receipt are the following:
+The steps to validate a receipt are as follows:
 
 - Locate the receipt. If no receipt is found, then the validation fails.
-- Verify the receipt authenticity and integrity. The receipt must be properly signed by Apple and not be tampered with.
+- Verify the receipt authenticity and integrity. The receipt must be properly signed by Apple and must not be tampered with.
 - Parse the receipt to extract attributes such as the bundle identifier, the bundle version, etc.
 - Verify that the bundle identifier found inside the receipt matches the bundle identifier of the application. Do the same for the bundle version.
-- Compute the hash of the GUID of the device. The computed hash is based on device specific information.
+- Compute the hash of the GUID of the device. The computed hash is based on device-specific information.
 - Check the expiration date of the receipt if the Volume Purchase Program is used.
 
 **NOTE:** The following sections describe how to perform the various steps of the validation.
-The code snippets are meant to illustrate each step; do not consider them as the only solution.
+The code snippets are meant to illustrate each step; do not consider them the only solutions.
 
 
-### Locating the receipt
+### Locating the Receipt
 
-The location of the receipt differs between OS X and iOS as shown in the following figure:
+The location of the receipt differs between OS X and iOS, as shown in the following figure:
 
 ![Receipt Locations](/images/issue-17/ReceiptLocation@2x.png "Receipt Locations")
 
 On OS X, the receipt file is located inside the application bundle, under the `Contents/_MASReceipt` folder. On iOS, the receipt file is located in the application's data sandbox, under the `StoreKit` folder.
 
-Once located, you must ensure that the receipt is present: if the receipt exists at the right place, it can be loaded.
-If the receipt does not exist, this is considered as a validation failure.
+Once located, you must ensure that the receipt is present: If the receipt exists at the correct place, it can be loaded.
+If the receipt does not exist, this is considered a validation failure.
 
 On OS X 10.7 and later or iOS 7 and later, the code is straightforward:
 
@@ -155,7 +155,7 @@ if (!isPresent) {
 }
 ```
 
-But if you target OS X 10.6, the `appStoreReceiptURL` selector is not available. Therefore, you have to manually build the URL to the receipt:
+But if you target OS X 10.6, the `appStoreReceiptURL` selector is not available, and you have to manually build the URL to the receipt:
 
 ```
 // OS X 10.6 and later
@@ -170,7 +170,7 @@ if (!isPresent) {
 ```
 
 
-### Loading the receipt
+### Loading the Receipt
 
 Loading the receipt is pretty straightforward. Here is the code to load and parse the PKCS #7 envelope with [OpenSSL][openssl]:
 
@@ -197,9 +197,9 @@ if (!PKCS7_type_is_data(receiptPKCS7->d.sign->contents)) {
 }
 ```
 
-### Verifying the receipt signature
+### Verifying the Receipt Signature
 
-Once the receipt is loaded, the first thing to do is to make sure that it is authentic and unaltered. Here is the code to check the PKCS #7 signature with [OpenSSL][openssl]:
+Once the receipt is loaded, the first thing to do is make sure that it is authentic and unaltered. Here is the code to check the PKCS #7 signature with [OpenSSL][openssl]:
 
 ```
 // Load the Apple Root CA (downloaded from https://www.apple.com/certificateauthority/)
@@ -223,9 +223,9 @@ if (result != 1) {
 }
 ```
 
-### Parsing the receipt
+### Parsing the Receipt
 
-Once the receipt envelope has been verified, it is time to parse the receipt's payload. Here's an example of how to  decode the DER-encoded ASN.1 payload with [OpenSSL][openssl]:
+Once the receipt envelope has been verified, it is time to parse the receipt's payload. Here's an example of how to decode the DER-encoded ASN.1 payload with [OpenSSL][openssl]:
 
 ```
 // Get a pointer to the ASN.1 payload
@@ -357,7 +357,7 @@ if (bundleIdString == nil ||
 }
 ```
 
-### Verifying receipt information
+### Verifying Receipt Information
 
 The receipt contains the bundle identifier and the bundle version for which the receipt was issued. You need to make sure that both match the data of your application:
 
@@ -376,11 +376,11 @@ if (![bundleVersionString isEqualTo:@"1.0"]) {
 **IMPORTANT:** When the receipt is issued, the bundle version is taken from the `Info.plist` file:
 
 - On OS X, the version comes from the `CFBundleShortVersionString` value.
-- On iOS, the version come from the `CFBundleVersion` value.
+- On iOS, the version comes from the `CFBundleVersion` value.
 
-You should be careful when setting these values as they will be picked up when a receipt is issued.
+You should be careful when setting these values, as they will be picked up when a receipt is issued.
 
-### Computing the GUID hash
+### Computing the GUID Hash
 
 When the receipt is issued, three values are used to generate a SHA-1 hash: the device GUID (only available on the device), an opaque value (the type 4 attribute), and the bundle identifier (the type 2 attribute). A SHA-1 hash is computed on the concatenation of these three values and stored into the receipt (type 5 attribute).
 
@@ -451,9 +451,9 @@ uuid_t uuid;
 NSData *guidData = [NSData dataWithBytes:(const void *)uuid length:16];
 ```
 	
-#### Hash computation
+#### Hash Computation
 
-Now that we have retrieved the device GUID, we can calculate the hash. The hash computation must be done using the ASN.1 attribute's raw values (i.e. the binary data of the OCTET-STRING) and not on the interpreted values. Here's an example to perform the SHA-1 hashing and the comparison with [OpenSSL][openssl]:
+Now that we have retrieved the device GUID, we can calculate the hash. The hash computation must be done using the ASN.1 attribute's raw values (i.e. the binary data of the OCTET-STRING), and not on the interpreted values. Here's an example to perform the SHA-1 hashing, and the comparison with [OpenSSL][openssl]:
 
 ```
 unsigned char hash[20];
@@ -489,21 +489,21 @@ if (expirationDate) {
 ```
 
 
-## Handling the validation result
+## Handling the Validation Result
 
-So far, if all the checks are ok, then the validation passes. If any check fails, the receipt must be considered as invalid. There are several ways to handle an invalid receipt, depending on the platform and the time when the validation is done.
+So far, if all the checks are OK, then the validation passes. If any check fails, the receipt must be considered invalid. There are several ways to handle an invalid receipt, depending on the platform and the time when the validation is done.
 
 ### Handling on OS X
 
-On OS X, a receipt validation **must** be performed at application startup, before the main method is called. If the receipt is invalid (missing, incorrect or tampered), the application **must** exit with code `173`. This particular code tells the system that the application needs to retrieve a receipt. Once the new receipt has been issued, the application is restarted.
+On OS X, a receipt validation **must** be performed at application startup, before the main method is called. If the receipt is invalid (missing, incorrect, or tampered), the application **must** exit with code `173`. This particular code tells the system that the application needs to retrieve a receipt. Once the new receipt has been issued, the application is restarted.
 
-Note that when the application exits with code `173`, an App Store credential dialog will be displayed to sign-in. This requires an active Internet connection so the receipt can be issued and retrieved.
+Note that when the application exits with code `173`, an App Store credential dialog will be displayed to sign in. This requires an active Internet connection, so the receipt can be issued and retrieved.
 
 You can also perform receipt validation during the lifetime of the application. It is up to you to decide how the application will handle an invalid receipt: ignore it, disable features, or crash in a bad way.
 
 ### Handling on iOS
 
-The receipt validation can be performed at any time. If the receipt is missing, you can trigger a receipt refresh request in order to tell the system that the application needs to retrieve a new receipt. Note that after triggering a receipt refresh, an App Store credential dialog will be displayed to sign-in. This requires an active Internet connection so the receipt can be issued and retrieved.
+On iOS, the receipt validation can be performed at any time. If the receipt is missing, you can trigger a receipt refresh request in order to tell the system that the application needs to retrieve a new receipt. Note that after triggering a receipt refresh, an App Store credential dialog will be displayed to sign in. This requires an active Internet connection, so the receipt can be issued and retrieved.
 
 It is up to you to decide how the application will handle an invalid receipt: ignore it or disable features.
 
@@ -517,11 +517,11 @@ Apple is making a distinction between the production and the sandbox environment
 - If the application is signed with a developer certificate, then the receipt request will be directed to the sandbox environment.
 - If the application is signed with an Apple certificate, then the receipt request will be directed to the production environment.
 
-It is important to codesign your application with a valid developer certificate; otherwise the `storeagent` daemon (the daemon responsible for communicating with the App Store) will not recognize your application as an App Store application.
+It is important to codesign your application with a valid developer certificate; otherwise, the `storeagent` daemon (the daemon responsible for communicating with the App Store) will not recognize your application as an App Store application.
 
 ### Configuring Test Users
 
-In order to simulate real users in the sandbox environment, you have to define test users. The test users behave the same way as real users except that nobody gets charged when they make a purchase.
+In order to simulate real users in the sandbox environment, you have to define test users. The test users behave the same way as real users, except that nobody gets charged when they make a purchase.
 
 Test users can be created and configured through [iTunes Connect][itunes-connect]. You can define as many test users you want. Each test user requires a valid email address that must not be a real iTunes account. If your email provider supports the `+` sign in email addresses, you can use email aliases for the test accounts: foo+us@objc.io, foo+uk@objc.io, and foo+fr@objc.io emails will be sent to foo@objc.io.
 
@@ -530,8 +530,8 @@ Test users can be created and configured through [iTunes Connect][itunes-connect
 To test receipt validation on OS X, go through the following steps:
 
 - Launch the application from the Finder. _Do **not** launch it from Xcode_, otherwise the `launchd` daemon cannot trigger the receipt retrieval.
-- The missing receipt should make the application exit with code 173. This will trigger the request for a valid receipt. An App Store login window should appear; use the test account credentials to sign-in and retrieve the test receipt.
-- If the credentials are valid and the bundle information match the one you entered, then a receipt is generated and installed in the application bundle. After the receipt is retrieved, the application is re-launched automatically.
+- The missing receipt should make the application exit with code 173. This will trigger the request for a valid receipt. An App Store login window should appear; use the test account credentials to sign in and retrieve the test receipt.
+- If the credentials are valid and the bundle information matches the one you entered, then a receipt is generated and installed in the application bundle. After the receipt is retrieved, the application is relaunched automatically.
 
 Once a receipt has been retrieved, you can now launch the application from Xcode to debug or fine-tune the receipt validation code.
 
@@ -540,53 +540,53 @@ Once a receipt has been retrieved, you can now launch the application from Xcode
 To test receipt validation on iOS, go through the following steps:
 
 - Launch the application on a real device. _Do **not** launch it in the simulator_. The simulator lacks the API required to issue receipts.
-- The missing receipt should make the application trigger a receipt refresh request. An App Store login window should appear; use the test account credentials to sign-in and retrieve the test receipt.
-- If the credentials are valid and the bundle information match the one you entered, then a receipt is generated and installed in the application sandbox. After the receipt is retrieved, you can perform another validation to ensure that everything is ok.
+- The missing receipt should make the application trigger a receipt refresh request. An App Store login window should appear; use the test account credentials to sign in and retrieve the test receipt.
+- If the credentials are valid and the bundle information matches the one you entered, then a receipt is generated and installed in the application sandbox. After the receipt is retrieved, you can perform another validation to ensure that everything is OK.
 
 Once a receipt has been retrieved, you can now launch the application from Xcode to debug or fine-tune the receipt validation code.
 
 
 ## Security
 
-The receipt validation code must be considered as highly sensitive code. If it is bypassed or hacked, you loose the ability to check if the user has the right to use your application or if they have paid for what they have. This is why it is important to protect the validation code against attackers.
+The receipt validation code must be considered highly sensitive code. If it is bypassed or hacked, you loose the ability to check if the user has the right to use your application, or if he or she has paid for it. This is why it is important to protect the validation code against attackers.
 
 **Note:** There are many ways of attacking an application, so don't try to be fully hacker-proof. The rule is simple: make the hack of your application as costly as possible.
 
-### Kind of attacks
+### Kind of Attacks
 
 All attacks begin with an analysis of the target:
 
 - **Static analysis** is performed on the binaries that compose your application. It uses tools like `strings`, `otool`, dis-assembler, etc.
-- **Dynamic analysis** is performed by monitoring the behavior of the application at runtime, for example by attaching a debugger and setting breakpoints on known functions.
+- **Dynamic analysis** is performed by monitoring the behavior of the application at runtime, for example, by attaching a debugger and setting breakpoints on known functions.
 
 Once the analysis is done, some common attacks can be performed against your application to bypass or hack the receipt validation code:
 
-- **Receipt replacement:** if you fail to properly validate the receipt, an attacker can use a receipt from another application that appears to be legitimate.
-- **Strings replacement:** if you fail to hide/obfuscate the strings involved in the validation (i.e. `en0`, `_MASReceipt`, bundle identifier, or bundle version), you give the attacker the ability to replace *your* strings *by* his strings.
-- **Code bypass:** if your validation code uses well-know functions or patterns, an attacker can easily locate the place where the application validates the receipt and bypass it by modifying some assembly code.
-- **Shared library swap:** if you are using an external shared library for cryptography (like OpenSSL), an attacker can replace *your* copy of OpenSSL by *his* copy and thus bypass anything that relies on the cryptographic functions.
-- **Function override/injection:** this kind of attack consists of patching well-known functions (user or system ones) at runtime by prepending a shared library to the application's shared library path. The [mach_override][github-mach-override] project makes that dead simple.
+- **Receipt replacement**: if you fail to properly validate the receipt, an attacker can use a receipt from another application that appears to be legitimate.
+- **Strings replacement**: if you fail to hide/obfuscate the strings involved in the validation (i.e. `en0`, `_MASReceipt`, bundle identifier, or bundle version), you give the attacker the ability to replace *your* strings *with* his or her strings.
+- **Code bypass**: if your validation code uses well-known functions or patterns, an attacker can easily locate the place where the application validates the receipt and bypass it by modifying some assembly code.
+- **Shared library swap**: if you are using an external shared library for cryptography (like OpenSSL), an attacker can replace *your* copy of OpenSSL with *his or her* copy and thus bypass anything that relies on the cryptographic functions.
+- **Function override/injection**: this kind of attack consists of patching well-known functions (user or system ones) at runtime by prepending a shared library to the application's shared library path. The [mach_override][github-mach-override] project makes that dead simple.
 
-### Secure practices
+### Secure Practices
 
 While implementing receipt validation, there are some secure practices to follow. Here are a few things to keep in mind:
 
-#### Do's
+#### Dos
 
-- **Validate several times:** validate the receipt at startup and periodically during the application lifetime. The more validation code you have, the more an attacker has to work.
-- **Obfuscate strings:** never let the strings used in validation in clear form as it can help an attacker to locate or hack the validation code. String obfuscation can use xoring, value shifting, bit masking, or anything else that makes the string human-unreadable.
-- **Obfuscate the result of receipt validation:** don't wrap the validation into a simple boolean test; it is easy to bypass. Instead, you can use blocks, function callback, or any indirection that makes the result not obvious.
-- **Harden the code flow:** use an [opaque predicate][wikipedia-opaque-predicate] (i.e. a condition only known at runtime) to make your validation code flow hard to follow. Opaque predicates are typically made of function call results which are not known at compile time. You can also use loops, goto statements, static variables, or any control flow structure where you'd usually not need one.
-- **Use static libraries:** if you include third-party code, link it statically whenever it is possible; statically code  is harder to patch and you do not depend on external code that can change.
-- **Tamper-proof the sensitive functions:** make sure that sensitive functions have not been replaced or patched. As a function can have several behaviors based on its input arguments, make calls with invalid arguments; if it does not return an error or the right return code, then it may be have been replaced or patched.
+- **Validate several times**: validate the receipt at startup and periodically during the application lifetime. The more validation code you have, the more an attacker has to work.
+- **Obfuscate strings**: never let the strings used in validation in clear form as it can help an attacker to locate or hack the validation code. String obfuscation can use xoring, value shifting, bit masking, or anything else that makes the string human-unreadable.
+- **Obfuscate the result of receipt validation**: don't wrap the validation into a simple boolean test; it is easy to bypass. Instead, you can use blocks, function callback, or any indirection that makes the result not obvious.
+- **Harden the code flow**: use an [opaque predicate][wikipedia-opaque-predicate] (i.e. a condition only known at runtime) to make your validation code flow hard to follow. Opaque predicates are typically made of function call results which are not known at compile time. You can also use loops, goto statements, static variables, or any control flow structure where you'd usually not need one.
+- **Use static libraries**: if you include third-party code, link it statically whenever it is possible; static code is harder to patch, and you do not depend on external code that can change.
+- **Tamper-proof the sensitive functions**: make sure that sensitive functions have not been replaced or patched. As a function can have several behaviors based on its input arguments, make calls with invalid arguments; if it does not return an error or the right return code, then it may be have been replaced or patched.
 
 #### Don'ts
 
-- **Avoid Objective-C:** Objective-C carries a lot of runtime information that makes it vulnerable to symbol analysis/injection/replacement. If you still want to use Objective-C, obfuscate the selectors and the calls.
-- **Don't use shared libraries for secure code:** a shared library can be swapped or patched.
-- **Don't use separate code:** bury the validation code into your business logic to make it hard to locate and patch.
-- **Don't factor receipt validation:** vary, duplicate, and multiply validation code implementations to avoid pattern detection.
-- **Don't underestimate the determination of attackers:** with enough time and resources, an attacker will ultimately succeed in cracking your application. What you can do is to make the process more painful and costly.
+- **Avoid Objective-C**: Objective-C carries a lot of runtime information that makes it vulnerable to symbol analysis/injection/replacement. If you still want to use Objective-C, obfuscate the selectors and the calls.
+- **Use shared libraries for secure code**: a shared library can be swapped or patched.
+- **Use separate code**: bury the validation code into your business logic to make it hard to locate and patch.
+- **Factor receipt validation**: vary, duplicate, and multiply validation code implementations to avoid pattern detection.
+- **Underestimate the determination of attackers**: with enough time and resources, an attacker will ultimately succeed in cracking your application. What you can do is make the process more painful and costly.
 
 
 
