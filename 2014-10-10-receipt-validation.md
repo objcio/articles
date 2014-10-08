@@ -41,7 +41,7 @@ Of course there are several off-the-shelf implementations available (for example
 
 Let's take a technical look at the receipt file. Its structure looks like this:
 
-![Receipt Structure](http://f.cl.ly/items/2E0T2T1y2z2L0X1E3F1Y/ReceiptStructure.png "Receipt Structure")
+![Receipt Structure](http://f.cl.ly/items/2k3j0R2q323u0C2x0k0j/ReceiptStructure@2x.png "Receipt Structure")
 
 A receipt file consist of a signed [PKCS #7][rfc-2315] container that embeds a [DER][wikipedia-x690-der] encoded [ASN.1][itu-t-x690] payload, a certificate chain, and a digital signature.
 
@@ -93,7 +93,7 @@ To better illustrate the concept, here are some concrete examples of DER encoded
 - The three following bytes encode the length of the set's content
 - The content of the set are the receipt attributes
 
-![ASN.1 DER - Receipt Module](http://f.cl.ly/items/2Z2W311y2n3P3B1K2T3B/ASN.1-DER-Receipt.png "ASN.1 DER - Receipt Module")
+![ASN.1 DER - Receipt Module](http://f.cl.ly/items/1J0j2V2v3Y061Q411U1b/ASN.1-DER-Receipt@2x.png "ASN.1 DER - Receipt Module")
 
 The next figure shows how a receipt's attributes are encoded:
 
@@ -104,17 +104,17 @@ The next figure shows how a receipt's attributes are encoded:
     - The attribute's version encoded as an ASN.1 INTEGER (the first byte identifies an ASN.1 INTEGER, the second byte encodes its length, and the third byte contains the value)
     - The attribute's value encoded as an ASN.1 OCTET-STRING (the first byte identifies an ASN.1 OCTET-STRING, the second byte encodes its length and the remaining bytes contains the data)
 
-![ASN.1 DER - Receipt's attribute](http://f.cl.ly/items/3X2T2J1I2R1r0n111v0x/ASN.1-DER-Attribute-OCTETSTRING.png "ASN.1 DER - Receipt's attribute")
+![ASN.1 DER - Receipt's attribute](http://f.cl.ly/items/0d1z3W2x1B2X1w3v2F1a/ASN.1-DER-Attribute-OCTETSTRING@2x.png "ASN.1 DER - Receipt's attribute")
 
 By using an ASN.1 OCTET-STRING for the attribute's value, it is very easy to embed various values like UTF-8 strings, ASCII strings, or numbers. The attribute's value can also contain a receipt module in the case of in-app purchases. Some examples are shown in the figures below:
 
-![ASN.1 DER - Receipt's attribute containing an integer](http://f.cl.ly/items/0Y2t0s1i1Z1h3l0f2B3p/ASN.1-DER-Attribute-INTEGER.png "ASN.1 DER - Receipt's attribute containing an integer")
+![ASN.1 DER - Receipt's attribute containing an integer](http://f.cl.ly/items/1O401k1Y3X2k133B3M2Q/ASN.1-DER-Attribute-INTEGER@2x.png "ASN.1 DER - Receipt's attribute containing an integer")
 
-![ASN.1 DER - Receipt's attribute containing an IA5 string](http://f.cl.ly/items/3H372i0S0o2V2J1D0U0K/ASN.1-DER-Attribute-IA5STRING.png "ASN.1 DER - Receipt's attribute containing an IA5 string")
+![ASN.1 DER - Receipt's attribute containing an IA5 string](http://f.cl.ly/items/1b2G0Q2V1l3C0M3G3p05/ASN.1-DER-Attribute-IA5STRING@2x.png "ASN.1 DER - Receipt's attribute containing an IA5 string")
 
-![ASN.1 DER - Receipt's attribute containing an UTF-8 string](http://f.cl.ly/items/0M3S0M2P0l1c2y1A1t1A/ASN.1-DER-Attribute-UTF8STRING.png "ASN.1 DER - Receipt's attribute containing an UTF-8 string")
+![ASN.1 DER - Receipt's attribute containing an UTF-8 string](http://f.cl.ly/items/283k08372P2L3u2D2h2w/ASN.1-DER-Attribute-UTF8STRING@2x.png "ASN.1 DER - Receipt's attribute containing an UTF-8 string")
 
-![ASN.1 DER - Receipt's attribute containing an In-App purchase set string](http://f.cl.ly/items/1O3g3b002t1t2r3Y3M3u/ASN.1-DER-Attribute-SET.png "ASN.1 DER - Receipt's attribute containing an In-App purchase set")
+![ASN.1 DER - Receipt's attribute containing an In-App purchase set string](http://f.cl.ly/items/3p111x2m1M1V1C2a472w/ASN.1-DER-Attribute-SET@2x.png "ASN.1 DER - Receipt's attribute containing an In-App purchase set")
 
 
 ## Validating the receipt
@@ -136,7 +136,7 @@ The code snippets are meant to illustrate each step; do not consider them as the
 
 The location of the receipt differs between OS X and iOS as shown in the following figure:
 
-![Receipt Locations](http://f.cl.ly/items/1d1K2B3I0Z251v080t0W/ReceiptLocation.png "Receipt Locations")
+![Receipt Locations](http://f.cl.ly/items/1r2G0D283A2V1F1E0h29/ReceiptLocation@2x.png "Receipt Locations")
 
 On OS X, the receipt file is located inside the application bundle, under the `Contents/_MASReceipt` folder. On iOS, the receipt file is located in the application's data sandbox, under the `StoreKit` folder.
 
@@ -388,7 +388,7 @@ When the receipt is issued, three values are used to generate a SHA-1 hash: the 
 During the validation, the same computation must be done. If the resulting hash matches, then the receipt is valid.
 The figure below describes the computation:
 
-![GUID Computation](http://f.cl.ly/items/090I1w1A0V1N01262M2a/GUIDComputation.png "GUID Computation")
+![GUID Computation](http://f.cl.ly/items/0z1k2o2l2D3J3y030l0q/GUIDComputation@2x.png "GUID Computation")
 
 In order to compute this hash, you need to retrieve the device GUID.
 
