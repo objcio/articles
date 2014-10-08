@@ -65,6 +65,6 @@ Your mitigation technique also depends on your goals: What are you trying to ach
 
 ## Conclusion
 
-Despite advances and innovations in software security technology and the security capabilities of systems like iOS, risk analysis and designing security countermeasures are still the responsibility of app developers. The specific tasks to which our apps are put, and the environments and systems in which they're deployed, are the sources of particular threats, which are impossible to address generally in operating systems or frameworks.
+Despite advances and innovations in software security technology and the security capabilities of systems like iOS, risk analysis and designing security countermeasures are still the responsibility of app developers. There are threats and risks to the use of our applications that cannot possibly be addressed by operating system vendors or framework developers. These threats are specific to the uses to which our apps are put, and to the environments and systems in which they are deployed.
 
 With the security and cryptography features of the iOS SDK, Apple has led us to the water. It's up to us to drink.
