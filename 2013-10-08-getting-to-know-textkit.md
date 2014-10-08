@@ -387,7 +387,7 @@ My theory: it either used an extremely early version of TextKit or copied half o
 
 [1]:    http://en.wikipedia.org/wiki/Skeuomorph "Skeuomorphism on Wikipedia"
 [2]:    http://en.wikipedia.org/wiki/Glyph "Glyphs on Wikipedia"
-[3]:    https://developer.apple.com/library/ios/documentation/uikit/reference/UIKit_Framework/_index.html
+[3]:    https://developer.apple.com/library/ios/documentation/uikit/reference/uikit_framework/index.html
 [4]:    https://github.com/objcio/issue-5-textkit "TextKitDemo by macguru on GitHub"
 [6]:    https://developer.apple.com/library/ios/documentation/general/conceptual/CocoaEncyclopedia/ClassClusters/ClassClusters.html
 [8]:    http://stackoverflow.com/questions/3760924/set-line-height-in-uitextview/3914228
