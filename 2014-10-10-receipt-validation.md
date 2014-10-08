@@ -530,7 +530,7 @@ Test users can be created and configured through [iTunes Connect][itunes-connect
 
 To test receipt validation on OS X, go through the following steps:
 
-- Launch the application from the Finder. *Do **not** launch it from Xcode, otherwise the `launchd` daemon cannot trigger the receipt retrieval.
+- Launch the application from the Finder. _Do **not** launch it from Xcode_, otherwise the `launchd` daemon cannot trigger the receipt retrieval.
 - The missing receipt should make the application exit with code 173. This will trigger the request for a valid receipt. An App Store login window should appear; use the test account credentials to sign-in and retrieve the test receipt.
 - If the credentials are valid and the bundle information match the one you entered, then a receipt is generated and installed in the application bundle. After the receipt is retrieved, the application is re-launched automatically.
 
@@ -540,7 +540,7 @@ Once a receipt has been retrieved, you can now launch the application from Xcode
 
 To test receipt validation on iOS, go through the following steps:
 
-- Launch the application on a real device. *Do **not** launch it in the simulator. The simulator lacks the API required to issue receipts.
+- Launch the application on a real device. _Do **not** launch it in the simulator_. The simulator lacks the API required to issue receipts.
 - The missing receipt should make the application trigger a receipt refresh request. An App Store login window should appear; use the test account credentials to sign-in and retrieve the test receipt.
 - If the credentials are valid and the bundle information match the one you entered, then a receipt is generated and installed in the application sandbox. After the receipt is retrieved, you can perform another validation to ensure that everything is ok.
 
