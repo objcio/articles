@@ -25,7 +25,7 @@ As an iOS developer, chances are you have a certificate, a public key, and a pri
 
 The main utility to manage the X.509 infrastructure on OS X is the Keychain Access utility. In the "My Certificates" section of your development machine, you will find the certificates you have the private key for. To use a certificate for signing, you need the private key, so that your code signing certificates will show up in this list. If you have a private key for a certificate, you can unfold the certificate to show the private key:
 
-![iOS Developer Certificate in the OS X keychain](http://bitfever.de/~toto/images/objcio/iphone-developer-keychain.png)
+![iOS Developer Certificate in the OS X keychain](/images/issue-17/iphone-developer-keychain.png)
 
 If you export the certificate e.g. for backing it up (which you should really do), it is important to remember to unfold the private key and select both rows. 
 
@@ -38,7 +38,7 @@ $ security find-identity -v -p codesigning
 
 A certificate is — very broadly speaking — a public key combined with a lot of additional information that was itself signed by some authority (also called a Certificate Authority, aka CA) to state that the information in the certificate is correct. In this case, the authority is Apple's authority for developer stuff, the Apple Worldwide Developer Relations CA. This signature expires at some point, which means that anybody checking the certificate will also have to have a clock that is set correctly. This is one of the reasons why setting your system clock back in time can wreck havoc with a lot of things on iOS. 
 
-![iOS Developer Certificate in detail](http://bitfever.de/~toto/images/objcio/ios-dev-certificate.png)
+![iOS Developer Certificate in detail](/images/issue-17/ios-dev-certificate.png)
 
 For iOS development, you usually have two certificates: one prefixed with `iPhone Developer` and one with `iPhone Distribution`. The first one is the one you use to build apps for your devices, and the other one is used to submit apps. This fact is baked into certificates. If you open the certificate in Keychain Utility, you will see a lot of extension entries. Look for the last one, labeled `Apple Developer Certificate (Submission) `, or `Apple Developer Certificate (Development)`, depending on the type of certificate — iOS uses this extension to determine if your app runs in development mode or distribution mode, and based on this, which rules that apply.
 
@@ -46,7 +46,7 @@ In addition to the certificate with the signed public key in it, we also need th
 
 The signing itself is performed by the `codesign` command line tool. If you compile an application with Xcode, it will be signed by calling `codesign` after building the application — and `codesign` is also the tool that gives you so many nice and helpful error messages. You set the code signing identity in the project settings: 
 
-![Set up of the code signing identity in Xcode project settings](http://bitfever.de/~toto/images/objcio/xcode-code-signing-idenity.png)
+![Set up of the code signing identity in Xcode project settings](/images/issue-17/xcode-code-signing-idenity.png)
 
 Note that Xcode only lets you pick code signing identities in this setting if you have a public and private key in your keychain. So if you expect one to be there, but it isn't, the first thing to check is if you have the private key in your keychain next to your certificate. Here, you also see the division between the development and distribution profiles. If you want to debug an app, you need to sign it with a key pair for development. If you want to distribute it either to testers or the App Store, you need to sign it with a key pair for distribution.
 
@@ -182,7 +182,7 @@ A provisioning profile is a container for the information needed by the operatin
 
 A provisioning profile is a collection of all the components needed to determine if a particular app can run on a particular device. Provisioning profiles are used to enable app debugging on development devices, and also for ad-hoc and enterprise distribution. Xcode will embed the provisioning profile you select in the project settings within the app. As mentioned before, this selection has only been possible since Xcode 6. With Xcode 5 and before, the profile was picked by Xcode based on the certificate you chose when signing the app. As you can have multiple provisioning profiles with the same certificate, this can be a non-deterministic process, so it's always a good idea to select your provisioning profile, now that the option exists. 
 
-![Project settings for selecting the provisioning profile](http://bitfever.de/~toto/images/objcio/xcode-provisioning-profile.png)
+![Project settings for selecting the provisioning profile](/images/issue-17/xcode-provisioning-profile.png)
 
 So let's have a closer look at a provisioning profile. If you are looking for a file to play with, look inside `~/Library/MobileDevices/Provisioning Profiles`, which is where Xcode keeps all the profiles downloaded from Apple's developer portal.
 
