@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "A Sync Case Study"
 category: "10"
 date: "2014-03-07 08:00:00"

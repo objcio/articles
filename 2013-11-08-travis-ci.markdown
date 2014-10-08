@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Travis CI for iOS"
 category: "6"
 date: "2013-11-08 07:00:00"
@@ -19,11 +18,11 @@ In this article, I want to show you step by step how to set up your project for 
 
 What I really like about Travis is how well it is embedded in the GitHub web UI. One example is pull requests. Travis will run the build for each request. The pull request on GitHub will look like this if everything is ok:
 
-<img src="{{ site.images_path }}/issue-6/github_ready_to_merge.jpg">
+<img src="/images/issue-6/github_ready_to_merge.jpg">
 
 In case the build doesn't succeed, the page will be colored accordingly on GitHub:
 
-<img src="{{ site.images_path }}/issue-6/github_merge_with_caution.jpg">
+<img src="/images/issue-6/github_merge_with_caution.jpg">
 
 ## Link Travis and GitHub
 
@@ -31,7 +30,7 @@ Let's have a look on how to link your GitHub project with Travis. Sign in on [th
 
 Once signed in, you have to enable your project for Travis. Navigate to the [profile page](https://travis-ci.org/profile), which lists all your GitHub projects. Please note, when you create a new repository later, use the `Sync now` button. Travis only updates the list occasionally.
 
-<img src="{{ site.images_path }}/issue-6/objc_travis_flick.jpg">
+<img src="/images/issue-6/objc_travis_flick.jpg">
 
 Enable your project now by using the switch. Afterward, you should see the Travis hook in your GitHub project settings. The next step is telling Travis what to do once it gets notified of a change.
 
@@ -67,7 +66,7 @@ For `CocoaPods` projects, you have to specify the `workspace` and `scheme` inste
 
 Schemes get created automatically with XCode, but this won't happen on the server. Make sure to declare the schemes as `shared` and add them to the repository. Otherwise it will work locally but not on Travis CI.
 
-<img src="{{ site.images_path }}/issue-6/objc_shared_schemes.jpg">
+<img src="/images/issue-6/objc_shared_schemes.jpg">
 
 The `.travis.yml` for our example project would look like this now:
 
@@ -118,7 +117,7 @@ Download it [from the Apple](http://developer.apple.com/certificationauthority/A
 
 Create a new distribution certificate if you don't have one already. To do this, go to your [Apple Developer Account](https://developer.apple.com/account/overview.action) and follow the steps to create a new certificate for Production (`Certificates` > `Production` > `Add` > `App Store and Ad Hoc`). Make sure to download and install the certificate. Afterward, you should find it in your Keychain with a private key attached to it. Open the application `Keychain Access` on your Mac:
 
-<img src="{{ site.images_path }}/issue-6/dist_cert_keychain.jpg">
+<img src="/images/issue-6/dist_cert_keychain.jpg">
 
 Export the certificate into `scripts/certs/dist.cer` by right-clicking the item and choosing `Export...`. Then export the private key and save it into `scripts/certs/dist.p12`. Enter a password of your choice.
 
@@ -364,7 +363,7 @@ When pushing your project to GitHub, Travis gets triggered instantly. But builds
 
 Travis CI provides you with a fully functional continuous integration environment that builds, tests, and distributes your iOS apps. For open source projects, this service is even free. Community projects benefit from the great GitHub integration. You might have seen [buttons like this](http://about.travis-ci.org/docs/user/status-images/) already:
 
-<img src="{{site.images_path}}/issue-6/TravisExample-iOS.png">
+<img src="/images/issue-6/TravisExample-iOS.png">
 
 Even for commercial projects, their support for private GitHub repositories with Travis Pro opens up an easy and fast way to use continuous integration.
 

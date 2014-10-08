@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "String Localization"
 category: "9"
 date: "2014-02-10 09:00:00"

@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Key-Value Coding and Observing"
 category: "7"
 date: "2013-12-09 09:00:00"

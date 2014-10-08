@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Advanced Auto Layout Toolbox"
 category: "3"
 date: "2013-08-07 06:00:00"
@@ -7,7 +6,6 @@ author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
 tags: article
 ---
 
-{% include links-3.md %}
 
 Auto Layout was introduced in OS X 10.7, and one year later it made its way into iOS 6. Soon apps on iOS 7 will be expected to honor the systemwide font size setting, thus requiring even more flexibility in the user interface layout next to different screen sizes and orientations. Apple is doubling down on Auto Layout, so now is a good time to get your feet wet if you haven't done so yet.
 

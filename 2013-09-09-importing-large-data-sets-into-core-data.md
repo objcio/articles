@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Importing Large Data Sets
 category: "4"
 date: "2013-09-09 07:00:00"
@@ -7,7 +6,6 @@ author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
 tags: article
 ---
 
-{% include links-4.md %}
 
 Importing large data sets into a Core Data application is a common problem. There are several approaches you can take dependent on the nature of the data:
 

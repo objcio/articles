@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Scripting from a Sandbox
 category: "14"
 date: "2014-07-11 10:00:00"
@@ -366,7 +365,7 @@ At this point, you'll see a Standard Suite and System Preferences listed in a tr
 
 When you look at "application," you'll see two things: elements and properties. Elements are collections of objects that are managed by the selected object. The properties list data maintained by the selected object.
 
-<img src="{{ site.images_path }}/issue-14/Scripting_Dictionary.png" />
+<img src="/images/issue-14/Scripting_Dictionary.png" />
 
 
 So an application contains panes. That sounds promising. In a new Script Editor window, create a simple script to show all the pane objects:

@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Behavior-Driven Development"
 category: "15"
 date: "2014-08-11 11:00:00"

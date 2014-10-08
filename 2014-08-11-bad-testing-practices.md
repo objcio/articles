@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Bad Testing Practices
 category: "15"
 date: "2014-08-11 08:00:00"
