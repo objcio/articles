@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "IP, TCP, and HTTP"
 category: "10"
 date: "2014-03-07 06:00:00"

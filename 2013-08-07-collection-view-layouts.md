@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Custom Collection View Layouts"
 category: "3"
 date: "2013-08-07 08:00:00"
@@ -7,7 +6,6 @@ author: "<a href=\"http://oleb.net\">Ole Begemann</a>"
 tags: article
 ---
 
-{% include links-3.md %}
 
 Introduced in iOS 6, `UICollectionView` is [the new star among view classes](http://oleb.net/blog/2012/09/uicollectionview/) in UIKit. It shares its API design with `UITableView` but extends the latter in a few fundamental ways. The most powerful feature of `UICollectionView` and the point where it significantly exceeds `UITableView`'s capabilities is its completely flexible layout architecture. In this article, we will implement a fairly complex custom collection view layout and discuss important aspects of the class's design along the way.
 
@@ -37,7 +35,7 @@ Supplementary and decoration views must be subclasses of [`UICollectionReusableV
 
 As an example of a non-trivial custom collection view layout, consider a week view in a typical calendar app. The calendar displays one week at a time, with the days of the week arranged in columns. Each calendar event will be displayed by a cell in our collection view, positioned and sized so as to represent the event start date/time and duration.
 
-<img src="{{site.images_path}}/issue-3/calendar-collection-view-layout.png" style="width:1024px" alt="Screenshot of our custom calendar collection view layout"/>
+<img src="/images/issue-3/calendar-collection-view-layout.png" style="width:1024px" alt="Screenshot of our custom calendar collection view layout"/>
 
 There are two general types of collection view layouts:
 

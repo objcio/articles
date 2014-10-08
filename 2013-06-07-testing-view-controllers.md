@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Testing View Controllers"
 category: "1"
 date: "2013-06-07 09:00"

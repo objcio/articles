@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Interactive Animations"
 category: "12"
 date: "2014-05-08 06:00:00"
@@ -41,11 +40,11 @@ Core Animation is designed in a way that it decouples the layer's model properti
 
 The bigger problem with `CAAnimation` animations is that they directly operate on the spatial properties of a layer. This means, for example, that you specify that a layer should animate from position `(100, 100)` to position `(300, 300)`. If you want to stop this animation halfway and to animate the layer back to where it came from, things get very complicated. If you simply remove the current animation and add a new animation, then the layer's velocity would be discontinuous.
 
-<img src="{{site.images_path}}/issue-12/abrupt.png" width="600" />
+<img src="/images/issue-12/abrupt.png" width="600" />
 
 What we want to have, though, is a nice, smooth deceleration and acceleration.
 
-<img src="{{site.images_path}}/issue-12/smooth.png" width="600" />
+<img src="/images/issue-12/smooth.png" width="600" />
 
 This only becomes feasible once you start controlling animations *indirectly*, i.e. through simulated forces acting on the view. The new animation needs to take the layer's current velocity *vector* as input in order to produce a smooth result.
 
@@ -57,7 +56,7 @@ Looking at the `UIView` animation API for spring animations (`animateWithDuratio
 So let's take a look at how we can correctly implement interactive and interruptible animations. To do this, we're going to build something like the Control Center panel:
 
 <center><video style="display:block;max-width:100%;height:auto;border:0;" controls="1">
-  <source src="{{site.images_path}}/issue-12/interactive-animation.mov"></source>
+  <source src="/images/issue-12/interactive-animation.mov"></source>
 </video></center>
 
 The panel has two states: opened and closed. You can toggle the states by tapping it, or dragging it up and down. The challenge is to make everything interactive, even while animating. For example, if you tap the panel while it's animating to the opened state, it should animate back to the closed state from its current position. In a lot of apps that use default animation APIs, you'll have to wait until the animation is finished before you can do anything. Or, if you don't have to wait, the animation exhibits a discontinuous velocity curve. We want to work around this.

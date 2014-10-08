@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Fetch Requests
 category: "4"
 date: "2013-09-09 06:00:00"
@@ -7,7 +6,6 @@ author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
 tags: article
 ---
 
-{% include links-4.md %}
 
 A way to get objects out of the store is to use an `NSFetchRequest`. Note, though, that one of the most common mistakes is to fetch data when you don't need to. Make sure you read and understand [Getting to Objects][320]. Most of the time, traversing relationships is more efficient, and using an `NSFetchRequest` is often expensive.
 

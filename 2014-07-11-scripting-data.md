@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Making Your Mac App’s Data Scriptable
 category: "14"
 date: "2014-07-11 11:00:00"

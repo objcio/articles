@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "View Controller Transitions"
 category: "5"
 date: "2013-10-07 09:00:00"

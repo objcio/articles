@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Dependency Injection
 category: "15"
 date: "2014-08-11 09:00:00"

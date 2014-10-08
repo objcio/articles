@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Functional APIs with Swift"
 category: "16"
 date: "2014-09-10 08:00:00"

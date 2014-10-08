@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Dependency Injection, Annotations, and why Java is Better Than you Think it is"
 category: "11"
 date: "2014-04-01 06:00:00"

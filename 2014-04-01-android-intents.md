@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Android Intents"
 category: "11"
 date: "2014-04-01 10:00:00"
@@ -291,7 +290,7 @@ The idea behind an Intent filter is that the system will check for installed app
 
 If your app matches and it's the only one, it will be automatically open. Otherwise, you will see a dialog like this:
 
-![image]({{ site.images_path }}/issue-11/android-dialog-choser.jpg)
+![image](/images/issue-11/android-dialog-choser.jpg)
 
 So how did the official YouTube app end up in that list?
 
@@ -388,11 +387,11 @@ There's no rocket science going on here. The action is designed so an activity c
 
 This is what I see when I use it (the list is longer -- it's a scrollable list):
 
-![image]({{ site.images_path }}/issue-11/android-chooser.gif)
+![image](/images/issue-11/android-chooser.gif)
 
 I have decided to send it to Google Translate. Here's the result:
 
-![image]({{ site.images_path }}/issue-11/android-translate.jpg)
+![image](/images/issue-11/android-translate.jpg)
 
 The results attempting to do it in Google Translate speak in Italian. 
 

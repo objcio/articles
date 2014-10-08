@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Subclassing"
 category: "13"
 date: "2014-06-09 08:00:00"

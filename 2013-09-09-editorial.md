@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Editorial"
 category: "4"
 date: "2013-09-09 12:00:00"
