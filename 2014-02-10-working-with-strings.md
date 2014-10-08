@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Working with Strings"
 category: "9"
 date: "2014-02-10 10:00:00"

@@ -1,10 +1,9 @@
 ---
-layout: post
 title:  "Real-World Testing with XCTest"
 category: "15"
 date: "2014-08-11 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/___asc___\">Arne Schroppe</a> and <a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author: "<a href=\"https://twitter.com/aschroppe\">Arne Schroppe</a> and <a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
 ---
 
 Almost four months ago, our team (Marco, Arne, and Daniel) set out to write the model layer of a new app. We wanted to use testing as part of our development process. After some discussion, we chose [XCTest](https://developer.apple.com/library/prerelease/ios/documentation/DeveloperTools/Conceptual/testing_with_xcode/) as our testing framework.
@@ -526,15 +525,15 @@ The best part about XCTest is that it integrates extremely well with the [Xcode 
 
 While working on a single test or a set of tests inside a test class, the little diamond on the left-hand side gutter, next to the line numbers, lets us run that specific test or set of tests:
 
-![Diamond in Xcode Gutter]({{ site.images_path }}/issue-15/xctest-diamond-in-gutter@2x.png)
+![Diamond in Xcode Gutter](/images/issue-15/xctest-diamond-in-gutter@2x.png)
 
 If the test fails, it turns red:
 
-![Failing Test]({{ site.images_path }}/issue-15/xctest-red-diamon-in-gutter@2x.png)
+![Failing Test](/images/issue-15/xctest-red-diamon-in-gutter@2x.png)
 
 If it passes, it turns green:
 
-![Passing Test]({{ site.images_path }}/issue-15/xctest-green-diamon-in-gutter@2x.png)
+![Passing Test](/images/issue-15/xctest-green-diamon-in-gutter@2x.png)
 
 One of our favorite keyboard shortcuts is ^⌥⌘G, which runs the last test or set of tests again. After clicking on the diamond in the gutter, we can change the test and then simply rerun it without having to take our hands off the keyboard. When debugging tests, that is extremely helpful.
 
@@ -542,11 +541,11 @@ One of our favorite keyboard shortcuts is ^⌥⌘G, which runs the last test or 
 
 The navigators (on the left-hand side of the Xcode window) have a **Test Navigator**, which shows all tests grouped by their classes:
 
-![Test Navigator]({{ site.images_path }}/issue-15/xctest-test-navigator@2x.png)
+![Test Navigator](/images/issue-15/xctest-test-navigator@2x.png)
 
 Groups of tests and individual tests can also be started from this UI. What's more useful, though, is we can filter this list to only show failing tests by enabling the third little icon at the bottom of the navigator:
 
-![Test Navigator with failing tests]({{ site.images_path }}/issue-15/xctest-test-navigator-failing@2x.png)
+![Test Navigator with failing tests](/images/issue-15/xctest-test-navigator-failing@2x.png)
 
 
 ### Continuous Integration

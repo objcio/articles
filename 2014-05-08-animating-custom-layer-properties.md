@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Animating Custom Layer Properties"
 category: "12"
 date: "2014-05-08 10:00:00"
@@ -118,7 +117,7 @@ Now we just need to implement the setter method for our `time` property. This me
     
 The result looks like this:
 
-<img src="{{site.images_path}}/issue-12/clock.gif" width="320px">
+<img src="/images/issue-12/clock.gif" width="320px">
 
 You can check out the project for yourself [on GitHub](https://github.com/objcio/issue-12-custom-layer-property-animations).
 
@@ -314,7 +313,7 @@ So now, all we have to do is draw our clock. We do this by using ordinary Core G
     
 The result looks like this:
 
-<img src="{{site.images_path}}/issue-12/clock2.gif" width="320px">
+<img src="/images/issue-12/clock2.gif" width="320px">
 
 As you can see, unlike the first clock animation, the minute hand actually cycles through a full revolution for each hour that the hour hand moves (like a real clock would), instead of just moving to its final position via the shortest path. That's an advantage of animating in this way; because we are animating the `time` value itself instead of just the positions of the hands, the contextual information is preserved. 
 

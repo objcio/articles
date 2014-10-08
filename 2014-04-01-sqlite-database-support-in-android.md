@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "SQLite Database Support in Android"
 category: "11"
 date: "2014-04-01 07:00:00"

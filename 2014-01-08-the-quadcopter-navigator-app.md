@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "The Navigator App"
 category: "8"
 date: "2014-01-08 09:00:00"

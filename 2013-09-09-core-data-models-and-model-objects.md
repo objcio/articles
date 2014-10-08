@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Data Models and Model Objects
 category: "4"
 date: "2013-09-09 08:00:00"
@@ -7,7 +6,6 @@ author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
 tags: article
 ---
 
-{% include links-4.md %}
 
 
 In this article we are going to have a closer look at Core Data models and managed object classes. It's not meant to be an introduction to the topic, but rather a collection of some lesser-known or often-forgotten aspects which can come in handy when working with Core Data. If you're looking for a more extensive and step-by-step overview, we recommend you read through [Apple's Core Data Programming Guide](https://developer.apple.com/library/mac/documentation/cocoa/Conceptual/CoreData/cdProgrammingGuide.html#//apple_ref/doc/uid/TP30001200-SW1). 

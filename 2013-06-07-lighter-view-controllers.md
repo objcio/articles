@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Lighter View Controllers"
 category: "1"
 date: "2013-06-07 11:00:00"
@@ -197,7 +196,7 @@ controllers, but you can also load separate nib files with your custom
 views. In our example app, we created a [`PhotoCell.xib`](https://github.com/objcio/issue-1-lighter-view-controllers/blob/master/PhotoData/PhotoCell.xib) that
 contains the layout for a photo cell:
 
-<img alt="PhotoCell.xib screenshot" src="{{site.images_path}}/issue-1/photocell.png" style="width: 584px;"> 
+<img alt="PhotoCell.xib screenshot" src="/images/issue-1/photocell.png" style="width: 584px;"> 
 
 As you can see, we created properties on the view (we don't use the
 File's Owner object in this xib) and connect them to specific subviews.

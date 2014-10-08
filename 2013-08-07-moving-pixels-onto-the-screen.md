@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Getting Pixels onto the Screen"
 category: "3"
 date: "2013-08-07 10:00:00"
@@ -7,7 +6,6 @@ author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
 tags: article
 ---
 
-{% include links-3.md %}
 
 
 How does a pixel get onto the screen? There are many ways to get something onto the display and they involve many different frameworks and many different combinations of functions and methods. Here we'll walk through some of the things that happen behind the scenes. We hope this will help you understand which API works best when you need to determine when and how to debug and fix performance problems. We'll focus on iOS, however most of what is discussed will apply to OS X as well.
@@ -22,7 +20,7 @@ There's a lot going on under the hood when pixels have to get onto the screen. B
 
 In a simplified view, the software stack looks somewhat like this:
 
-<img src="{{site.images_path}}/issue-3/pixels-software-stack@2x.png" width="641" height="243" alt="Software Stack"/>
+<img src="/images/issue-3/pixels-software-stack@2x.png" width="641" height="243" alt="Software Stack"/>
 
 
 Just above the display sits the GPU, the *graphics processing unit*. The GPU is a highly concurrent processing unit, which is tailored specifically for parallel computation of graphics. That's how it's possible to update all those pixels and push the result onto the display. Its parallel nature also allows it to do compositing of textures onto each other very efficiently. We'll talk about [compositing][210] in more detail in a bit. The key point is that the GPU is extremely specialized and therefore it is efficient at some kinds of work, i.e. it's very fast and uses less power than the CPU for this work. The 'normal' CPU has a very general purpose; it can do many different things, but compositing, for example, would be way slower on the CPU.
@@ -41,7 +39,7 @@ Each part of this "journey" has its own challenges, and there are tradeoffs to b
 
 &nbsp;
 
-<img src="{{site.images_path}}/issue-3/pixels%2C%20hardware%402x.png" style="width:455px" alt="Graphics Hardware"/>
+<img src="/images/issue-3/pixels%2C%20hardware%402x.png" style="width:455px" alt="Graphics Hardware"/>
 
 A very simplified view of the challenges looks like this: The GPU has textures (bitmaps) that it composites together for each frame (i.e. 60 times a second). Each texture takes up VRAM (video RAM) and therefore there's a limit to how many textures the GPU can hold onto. The GPU is super efficient at compositing, but certain compositing tasks are more complex than others, and there's a limit to how much work the GPU can do in 16.7 ms (1/60 s).
 

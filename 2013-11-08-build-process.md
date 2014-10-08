@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "The Build Process"
 category: "6"
 date: "2013-11-08 11:00:00"
@@ -16,7 +15,7 @@ In this article, we're going to take a high-level tour through the build process
 
 Our first point of attack to learn about the inner workings of the Xcode build process is to have a look at the complete log file. Open the Log Navigator, select a build from the list, and Xcode will show you the log file in a prettified format.
 
-![Xcode build log navigator]({{ site.images_path }}/issue-6/build-log.png)
+![Xcode build log navigator](/images/issue-6/build-log.png)
 
 By default, this view hides a lot of information, but you can reveal the details of each task by selecting it and clicking on the expand button at the right side. Another option is to select one or more tasks from the list and hit Cmd-C. This will copy the full plain text to the clipboard. Last but not least, you also can dump the complete log into the clipboard by selecting "Copy transcript for shown results" from the Editor menu.
 
@@ -113,7 +112,7 @@ Each of these steps will, in turn, call command line tools to do the actual work
 
 When you select a project in Xcode 5, the project editor is presented to you with six tabs at the top: General, Capabilities, Info, Build Settings, Build Phases, and Build Rules.
 
-![Xcode project editor tabs]({{ site.images_path }}/issue-6/project-editor-tabs.png)
+![Xcode project editor tabs](/images/issue-6/project-editor-tabs.png)
 
 For our purpose of understanding the build process, the last three are the most relevant.
 
@@ -122,7 +121,7 @@ For our purpose of understanding the build process, the last three are the most 
 
 Build phases represent the high-level plan of how to get from your code to an executable binary. They describe the different kind of tasks that have to be performed along the way. 
 
-![Xcode build phases]({{ site.images_path }}/issue-6/build-phases.png)
+![Xcode build phases](/images/issue-6/build-phases.png)
 
 First, the target dependencies are established. These tell the build system which targets have to be built before the build of the current target can commence. This is not a "real" build phase. Xcode just presents the GUI together with the build phases.
 
@@ -157,7 +156,7 @@ Build rules specify how different file types should be compiled. Normally you do
 
 A build rule specifies which file type it applies to, how the file should be processed, and where the output should go. Let's say we have created a preprocessor that takes basic Objective-C implementation files as input, parses comments within this file for a language we've created to generate layout constraints, and outputs a `.m` file which includes the generated code. Since we cannot have a build rule which takes a `.m` file as input and output, we're going to use the extension `.mal` and add a custom build rule for that:
 
-![Custom build rule]({{ site.images_path }}/issue-6/custom-build-rule.png)
+![Custom build rule](/images/issue-6/custom-build-rule.png)
 
 This rule specifies that it applies to all files matching `*.mal` and that those files should be processed using a custom script (which calls our preprocessor with the input and output paths as arguments). Finally, the rule tells the build system where it can find the output of this build rule.
 
