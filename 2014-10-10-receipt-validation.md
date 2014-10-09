@@ -10,7 +10,7 @@ tags: article
 
 Receipts were introduced alongside the release of the Mac App Store, as part of the OS X 10.6.6 update. While iOS has always provided server-side receipts for in-app purchases, it was only with iOS 7 that iOS and OS X began to share the same receipt format.
 
-A receipt is meant to be a trusted record of a purchase, along with any in-app purchases that the user has made. Like a physical receipt that you get when shopping in a store, it is the proof that the application or the in-app purchases have been paid for.
+A receipt is meant to be a trusted record of a purchase, along with any in-app purchases that the user has made — much like a paper receipt that you get when shopping in a store.
 
 Here are some key points about receipts:
 
@@ -45,7 +45,7 @@ Let's take a technical look at the receipt file. Its structure looks like this:
 A receipt file consist of a signed [PKCS #7][rfc-2315] container that embeds a [DER][wikipedia-x690-der]-encoded [ASN.1][itu-t-x690] payload, a certificate chain, and a digital signature.
 
 - **The payload** is a set of attributes that contains the receipt information; each attribute contains a type, a version, and a value. Among the attribute values, you find the bundle identifier and the bundle version for which the receipt was issued.
-- **The certificate chain** is the set of certificates that allows to verify the signature digest — the leaf certificate is the certificate that has been used to sign the payload.
+- **The certificate chain** is the set of certificates required to properly verify the signature digest — the leaf certificate is the certificate that has been used to sign the payload.
 - **The signature** is the encrypted digest of the payload. By checking this digest, you can verify that the payload has not been tampered with.
 
 
@@ -517,7 +517,7 @@ Apple is making a distinction between the production and the sandbox environment
 - If the application is signed with a developer certificate, then the receipt request will be directed to the sandbox environment.
 - If the application is signed with an Apple certificate, then the receipt request will be directed to the production environment.
 
-It is important to codesign your application with a valid developer certificate; otherwise, the `storeagent` daemon (the daemon responsible for communicating with the App Store) will not recognize your application as an App Store application.
+It is important to code sign your application with a valid developer certificate; otherwise, the `storeagent` daemon (the daemon responsible for communicating with the App Store) will not recognize your application as an App Store application.
 
 ### Configuring Test Users
 
@@ -556,7 +556,7 @@ The receipt validation code must be considered highly sensitive code. If it is b
 
 All attacks begin with an analysis of the target:
 
-- **Static analysis** is performed on the binaries that compose your application. It uses tools like `strings`, `otool`, dis-assembler, etc.
+- **Static analysis** is performed on the binaries that compose your application. It uses tools like `strings`, `otool`, disassembler, etc.
 - **Dynamic analysis** is performed by monitoring the behavior of the application at runtime, for example, by attaching a debugger and setting breakpoints on known functions.
 
 Once the analysis is done, some common attacks can be performed against your application to bypass or hack the receipt validation code:
@@ -575,10 +575,10 @@ While implementing receipt validation, there are some secure practices to follow
 
 - **Validate several times**: validate the receipt at startup and periodically during the application lifetime. The more validation code you have, the more an attacker has to work.
 - **Obfuscate strings**: never let the strings used in validation in clear form as it can help an attacker to locate or hack the validation code. String obfuscation can use xoring, value shifting, bit masking, or anything else that makes the string human-unreadable.
-- **Obfuscate the result of receipt validation**: don't wrap the validation into a simple boolean test; it is easy to bypass. Instead, you can use blocks, function callback, or any indirection that makes the result not obvious.
+- **Obfuscate the result of receipt validation**: never let the literal strings used in validation in clear form (i.e. "en0," "AppleCertificateRoot," etc.) as it can help an attacker to locate or hack the validation code. In order to obfuscate strings, you can use apply algorithms like xor-ing, value shifting, bit masking, or anything else that makes the result appears as random bytes.
 - **Harden the code flow**: use an [opaque predicate][wikipedia-opaque-predicate] (i.e. a condition only known at runtime) to make your validation code flow hard to follow. Opaque predicates are typically made of function call results which are not known at compile time. You can also use loops, goto statements, static variables, or any control flow structure where you'd usually not need one.
 - **Use static libraries**: if you include third-party code, link it statically whenever it is possible; static code is harder to patch, and you do not depend on external code that can change.
-- **Tamper-proof the sensitive functions**: make sure that sensitive functions have not been replaced or patched. As a function can have several behaviors based on its input arguments, make calls with invalid arguments; if it does not return an error or the right return code, then it may be have been replaced or patched.
+- **Tamper-proof the sensitive functions**: make sure that sensitive functions have not been replaced or patched. As a function can have several behaviors based on its input arguments, make calls with invalid arguments; if the function does not return an error or the correct return code, then it may be have been replaced, patched, or tampered with.
 
 #### Don'ts
 
