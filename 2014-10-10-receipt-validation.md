@@ -497,7 +497,7 @@ So far, if all the checks are OK, then the validation passes. If any check fails
 
 ### Handling on OS X
 
-On OS X, a receipt validation **must** be performed at application startup, before the main method is called. If the receipt is invalid (missing, incorrect, or tampered), the application **must** exit with code `173`. This particular code tells the system that the application needs to retrieve a receipt. Once the new receipt has been issued, the application is restarted.
+On OS X, a receipt validation **must** be performed at application startup, before the main method is called. If the receipt is invalid (missing, incorrect, or tampered with), the application **must** exit with code `173`. This particular code tells the system that the application needs to retrieve a receipt. Once the new receipt has been issued, the application is restarted.
 
 Note that when the application exits with code `173`, an App Store credential dialog will be displayed to sign in. This requires an active Internet connection, so the receipt can be issued and retrieved.
 
@@ -535,7 +535,7 @@ To test receipt validation on OS X, go through the following steps:
 - The missing receipt should make the application exit with code 173. This will trigger the request for a valid receipt. An App Store login window should appear; use the test account credentials to sign in and retrieve the test receipt.
 - If the credentials are valid and the bundle information matches the one you entered, then a receipt is generated and installed in the application bundle. After the receipt is retrieved, the application is relaunched automatically.
 
-Once a receipt has been retrieved, you can now launch the application from Xcode to debug or fine-tune the receipt validation code.
+Once a receipt has been retrieved, you can launch the application from Xcode to debug or fine-tune the receipt validation code.
 
 ### Testing on iOS
 
@@ -545,16 +545,16 @@ To test receipt validation on iOS, go through the following steps:
 - The missing receipt should make the application trigger a receipt refresh request. An App Store login window should appear; use the test account credentials to sign in and retrieve the test receipt.
 - If the credentials are valid and the bundle information matches the one you entered, then a receipt is generated and installed in the application sandbox. After the receipt is retrieved, you can perform another validation to ensure that everything is OK.
 
-Once a receipt has been retrieved, you can now launch the application from Xcode to debug or fine-tune the receipt validation code.
+Once a receipt has been retrieved, you can launch the application from Xcode to debug or fine-tune the receipt validation code.
 
 
 ## Security
 
-The receipt validation code must be considered highly sensitive code. If it is bypassed or hacked, you loose the ability to check if the user has the right to use your application, or if he or she has paid for it. This is why it is important to protect the validation code against attackers.
+The receipt validation code must be considered highly sensitive code. If it is bypassed or hacked, you lose the ability to check if the user has the right to use your application, or if he or she has paid for it. This is why it is important to protect the validation code against attackers.
 
-**Note:** There are many ways of attacking an application, so don't try to be fully hacker-proof. The rule is simple: make the hack of your application as costly as possible.
+**NOTE:** There are many ways of attacking an application, so don't try to be fully hacker-proof. The rule is simple: make the hack of your application as costly as possible.
 
-### Kind of Attacks
+### Kinds of Attacks
 
 All attacks begin with an analysis of the target:
 
@@ -563,11 +563,11 @@ All attacks begin with an analysis of the target:
 
 Once the analysis is done, some common attacks can be performed against your application to bypass or hack the receipt validation code:
 
-- **Receipt replacement**: if you fail to properly validate the receipt, an attacker can use a receipt from another application that appears to be legitimate.
-- **Strings replacement**: if you fail to hide/obfuscate the strings involved in the validation (i.e. `en0`, `_MASReceipt`, bundle identifier, or bundle version), you give the attacker the ability to replace *your* strings *with* his or her strings.
-- **Code bypass**: if your validation code uses well-known functions or patterns, an attacker can easily locate the place where the application validates the receipt and bypass it by modifying some assembly code.
-- **Shared library swap**: if you are using an external shared library for cryptography (like OpenSSL), an attacker can replace *your* copy of OpenSSL with *his or her* copy and thus bypass anything that relies on the cryptographic functions.
-- **Function override/injection**: this kind of attack consists of patching well-known functions (user or system ones) at runtime by prepending a shared library to the application's shared library path. The [mach_override][github-mach-override] project makes that dead simple.
+- **Receipt replacement** — if you fail to properly validate the receipt, an attacker can use a receipt from another application that appears to be legitimate.
+- **Strings replacement** — if you fail to hide/obfuscate the strings involved in the validation (i.e. `en0`, `_MASReceipt`, bundle identifier, or bundle version), you give the attacker the ability to replace *your* strings with *his or her* strings.
+- **Code bypass** — if your validation code uses well-known functions or patterns, an attacker can easily locate the place where the application validates the receipt and bypass it by modifying some assembly code.
+- **Shared library swap** — if you are using an external shared library for cryptography (like OpenSSL), an attacker can replace *your* copy of OpenSSL with *his or her* copy and thus bypass anything that relies on the cryptographic functions.
+- **Function override/injection** — this kind of attack consists of patching well-known functions (user or system ones) at runtime by prepending a shared library to the application's shared library path. The [mach_override][github-mach-override] project makes that dead simple.
 
 ### Secure Practices
 
@@ -575,20 +575,20 @@ While implementing receipt validation, there are some secure practices to follow
 
 #### Dos
 
-- **Validate several times**: validate the receipt at startup and periodically during the application lifetime. The more validation code you have, the more an attacker has to work.
-- **Obfuscate strings**: never leave the strings used in validation in clear form as it can help an attacker to locate or hack the validation code. String obfuscation can use xoring, value shifting, bit masking, or anything else that makes the string human-unreadable.
-- **Obfuscate the result of receipt validation**: never let the literal strings used in validation in clear form (i.e. `"en0"`, `"AppleCertificateRoot"`, etc.) as it can help an attacker to locate or hack the validation code. In order to obfuscate strings, you can use apply algorithms like xor-ing, value shifting, bit masking, or anything else that makes the result appears as random bytes.
-- **Harden the code flow**: use an [opaque predicate][wikipedia-opaque-predicate] (i.e. a condition only known at runtime) to make your validation code flow hard to follow. Opaque predicates are typically made of function call results which are not known at compile time. You can also use loops, goto statements, static variables, or any control flow structure where you'd usually not need one.
-- **Use static libraries**: if you include third-party code, link it statically whenever it is possible; static code is harder to patch, and you do not depend on external code that can change.
-- **Tamper-proof the sensitive functions**: make sure that sensitive functions have not been replaced or patched. As a function can have several behaviors based on its input arguments, make calls with invalid arguments; if the function does not return an error or the correct return code, then it may be have been replaced, patched, or tampered with.
+- **Validate several times** — validate the receipt at startup and periodically during the application lifetime. The more validation code you have, the more an attacker has to work.
+- **Obfuscate strings** — never leave the strings used in validation in clear form, as this can help an attacker locate or hack the validation code. String obfuscation can use xoring, value shifting, bit masking, or anything else that makes the string human unreadable.
+- **Obfuscate the result of receipt validation** — never leave the literal strings used in validation in clear form (i.e. `"en0"`, `"AppleCertificateRoot"`, etc.) as this can help an attacker locate or hack the validation code. In order to obfuscate strings, you can use apply algorithms like xor-ing, value shifting, bit masking, or anything else that makes the result appears as random bytes.
+- **Harden the code flow** — use an [opaque predicate][wikipedia-opaque-predicate] (i.e. a condition only known at runtime) to make your validation code flow hard to follow. Opaque predicates are typically made of function call results which are not known at compile time. You can also use loops, goto statements, static variables, or any control flow structure where you'd usually not need one.
+- **Use static libraries** — if you include third-party code, link it statically whenever it is possible; static code is harder to patch, and you do not depend on external code that can change.
+- **Tamper-proof the sensitive functions** — make sure that sensitive functions have not been replaced or patched. As a function can have several behaviors based on its input arguments, make calls with invalid arguments; if the function does not return an error or the correct return code, then it may be have been replaced, patched, or tampered with.
 
 #### Don'ts
 
-- **Avoid Objective-C**: Objective-C carries a lot of runtime information that makes it vulnerable to symbol analysis/injection/replacement. If you still want to use Objective-C, obfuscate the selectors and the calls.
-- **Use shared libraries for secure code**: a shared library can be swapped or patched.
-- **Use separate code**: bury the validation code into your business logic to make it hard to locate and patch.
-- **Factor receipt validation**: vary, duplicate, and multiply validation code implementations to avoid pattern detection.
-- **Underestimate the determination of attackers**: with enough time and resources, an attacker will ultimately succeed in cracking your application. What you can do is make the process more painful and costly.
+- **Avoid Objective-C** — Objective-C carries a lot of runtime information that makes it vulnerable to symbol analysis/injection/replacement. If you still want to use Objective-C, obfuscate the selectors and the calls.
+- **Use shared libraries for secure code** — a shared library can be swapped or patched.
+- **Use separate code** — bury the validation code into your business logic to make it hard to locate and patch.
+- **Factor receipt validation** — vary, duplicate, and multiply validation code implementations to avoid pattern detection.
+- **Underestimate the determination of attackers** — with enough time and resources, an attacker will ultimately succeed in cracking your application. What you can do is make the process more painful and costly.
 
 
 
