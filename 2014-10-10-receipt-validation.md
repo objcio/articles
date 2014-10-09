@@ -35,7 +35,7 @@ Instead, Apple made the choice to use standard cryptography and encoding techniq
 
 Of course, there are several off-the-shelf implementations available (for example, [on GitHub][github-?-receipt-validation]), but they are often just reference implementations and suffer from the same problem outlined above if everybody uses them: it becomes very easy for attackers to crack the validation code. So it's important to develop a solution that is unique and secure enough to resist common attacks.
 
-In the interest of full disclosure, I'm the author of [Receigen](http://receigen.etiemble.com), a Mac app to generate secure and changing receipt validation code. In this article though, we'll take a look at the mechanics and best practices of receipt validation.
+In the interest of full disclosure, I'm the author of [Receigen](http://receigen.etiemble.com), a Mac app used to generate secure and changing receipt validation code. In this article, we'll take a look at the mechanics and best practices of receipt validation.
         
 
 ## Anatomy of a Receipt
