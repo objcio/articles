@@ -532,7 +532,7 @@ Test users can be created and configured through [iTunes Connect][itunes-connect
 To test receipt validation on OS X, go through the following steps:
 
 - Launch the application from the Finder. _Do **not** launch it from Xcode_, otherwise the `launchd` daemon cannot trigger the receipt retrieval.
-- The missing receipt should make the application exit with code 173. This will trigger the request for a valid receipt. An App Store login window should appear; use the test account credentials to sign in and retrieve the test receipt.
+- The missing receipt should make the application exit with code `173`. This will trigger the request for a valid receipt. An App Store login window should appear; use the test account credentials to sign in and retrieve the test receipt.
 - If the credentials are valid and the bundle information matches the one you entered, then a receipt is generated and installed in the application bundle. After the receipt is retrieved, the application is relaunched automatically.
 
 Once a receipt has been retrieved, you can launch the application from Xcode to debug or fine-tune the receipt validation code.
@@ -576,7 +576,7 @@ While implementing receipt validation, there are some secure practices to follow
 #### Dos
 
 - **Validate several times** — validate the receipt at startup and periodically during the application lifetime. The more validation code you have, the more an attacker has to work.
-- **Obfuscate strings** — never leave the strings used in validation in clear form, as this can help an attacker locate or hack the validation code. String obfuscation can use xoring, value shifting, bit masking, or anything else that makes the string human unreadable.
+- **Obfuscate strings** — never leave the strings used in validation in clear form, as this can help an attacker locate or hack the validation code. String obfuscation can use xor-ing, value shifting, bit masking, or anything else that makes the string human unreadable.
 - **Obfuscate the result of receipt validation** — never leave the literal strings used in validation in clear form (i.e. `"en0"`, `"AppleCertificateRoot"`, etc.) as this can help an attacker locate or hack the validation code. In order to obfuscate strings, you can use apply algorithms like xor-ing, value shifting, bit masking, or anything else that makes the result appears as random bytes.
 - **Harden the code flow** — use an [opaque predicate][wikipedia-opaque-predicate] (i.e. a condition only known at runtime) to make your validation code flow hard to follow. Opaque predicates are typically made of function call results which are not known at compile time. You can also use loops, goto statements, static variables, or any control flow structure where you'd usually not need one.
 - **Use static libraries** — if you include third-party code, link it statically whenever it is possible; static code is harder to patch, and you do not depend on external code that can change.
