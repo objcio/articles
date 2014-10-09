@@ -15,7 +15,7 @@ If you have ever developed an application for iOS, you have probably fought with
 
 Most of the time, code signing seems like a magical machine that is hard to understand. I will try to shed some light on this machine.
 
-While the process and many of the internals are wrapped inside the iOS system and SDK, we can get a glance by looking at the infrastructure used to sign the app, in addition to looking at how OS X code signing works. Since under the hood iOS is very similar to OS X, one can figure out a lot by looking at both places.
+While the process and many of the internals are wrapped inside the iOS system and SDK, we can get a glance by looking at the infrastructure used to sign the app, in addition to looking at how OS X code signing works. Since under the hood, iOS is very similar to OS X, one can figure out a lot by looking both places.
 
 The APIs and technology for signing executable code on OS X appeared on Mac OS X Leopard 10.5 around the time the first iPhone was released. This seems no coincidence, since on the iPhone OS itself, code signing is even more crucial. The iPhone was one of the first mass-market computing platforms after game consoles that relied on code signing from the ground up; iOS simply runs no unsigned code unless the device is jailbroken. Jailbreaking basically disables all the code signing and sandboxing security infrastructure, which is a very dangerous thing to do.  
 
