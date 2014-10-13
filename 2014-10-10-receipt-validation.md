@@ -584,7 +584,7 @@ While implementing receipt validation, there are some secure practices to follow
 
 #### Don'ts
 
-- **Avoid Objective-C** — Objective-C carries a lot of runtime information that makes it vulnerable to symbol analysis/injection/replacement. If you still want to use Objective-C, obfuscate the selectors and the calls.
+- **Use Objective-C** — Objective-C carries a lot of runtime information that makes it vulnerable to symbol analysis/injection/replacement. If you still want to use Objective-C, obfuscate the selectors and the calls.
 - **Use shared libraries for secure code** — a shared library can be swapped or patched.
 - **Use separate code** — bury the validation code into your business logic to make it hard to locate and patch.
 - **Factor receipt validation** — vary, duplicate, and multiply validation code implementations to avoid pattern detection.
