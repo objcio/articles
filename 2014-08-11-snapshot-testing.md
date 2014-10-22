@@ -10,7 +10,7 @@ People have their own motivations to write tests for their applications. This ar
 
 Writing tests for the visual aspects of an app is tricky. There's Apple built-in support for logical testing of objects, but no support for testing the end result of view-based code. This gap in functionality means a lot of people dismiss writing tests due to the difficulty of doing view-based tests.
 
-When Facebook released [`FBSnapshotTestCase`][fbsnapshot] to [CocoaPods][cocoapods], I initially dismissed it for this reason. I'm glad one of my co-workers didn't.
+When Facebook released [`FBSnapshotTestCase`][fbsnapshot] to [CocoaPods][cocoapods], I initially dismissed it for this reason. I'm glad one of my coworkers didn't.
 
 View-based testing means verifying that what the user sees is what you want the user to see. Doing this means being able to ensure that different versions of your views, or different states of your views, continue to look the same. View-based testing can be used to provide a high-level test covering a lot of use cases surrounding an object.
 
