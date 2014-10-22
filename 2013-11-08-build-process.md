@@ -145,7 +145,7 @@ Another nice use of a custom build phase is to watermark your app icon with the 
 
 After that, you can modify the app icon using ImageMagick. For a complete example of how to do this, check out [this GitHub project](https://github.com/krzysztofzablocki/IconOverlaying).
 
-If you'd like to encourage yourself or your code workers to keep your source files concise, you can add a "Run Script" build phase that spits out a warning if a source file exceeds a certain size, in this example 200 lines.
+If you'd like to encourage yourself or your co-workers to keep your source files concise, you can add a "Run Script" build phase that spits out a warning if a source file exceeds a certain size, in this example 200 lines.
 
     find "${SRCROOT}" \( -name "*.h" -or -name "*.m" \) -print0 | xargs -0 wc -l | awk '$1 > 200 && $2 != "total" { print $2 ":1: warning: file more than 200 lines" }'
 
