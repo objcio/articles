@@ -29,3 +29,28 @@ We wish you a successful iOS 7 launch month!
 All the best from Berlin,
 
 Chris, Daniel, and Florian.
+
+
+[100]:/issue-4/importing-large-data-sets-into-core-data.html
+[110]:/issue-4/importing-large-data-sets-into-core-data.html#efficient-importing
+[120]:/issue-4/importing-large-data-sets-into-core-data.html#user-generated-data
+
+[200]:/issue-4/core-data-models-and-model-objects.html
+[210]:/issue-4/core-data-models-and-model-objects.html#managed-objects
+[220]:/issue-4/core-data-models-and-model-objects.html#validation
+[230]:/issue-4/core-data-models-and-model-objects.html#ivars-in-managed-object-classes
+[240]:/issue-4/core-data-models-and-model-objects.html#entity-vs-class-hierarchy
+[250]:/issue-4/core-data-models-and-model-objects.html#creating-objects
+[260]:/issue-4/core-data-models-and-model-objects.html#indexes
+
+[300]:/issue-4/core-data-overview.html
+[310]:/issue-4/core-data-overview.html#complicated-stacks
+[320]:/issue-4/core-data-overview.html#getting-to-objects
+
+[400]:/issue-4/full-core-data-application.html
+
+[500]:/issue-4/SQLite-instead-of-core-data.html
+
+[600]:/issue-4/core-data-fetch-requests.html
+
+[700]:/issue-4/core-data-migration.html

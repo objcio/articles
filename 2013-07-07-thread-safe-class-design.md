@@ -264,3 +264,16 @@ In an old version of PSPDFKit, I used a GCD queue to dispatch writing cached JPG
 There's no way to see how many operations are queued (unless you manually add code to track this), and there's also no built-in way to cancel operations in case of a low-memory notification. Switching to NSOperations made the code a lot more debuggable and allowed all this without writing manual management code. 
 
 Of course there are some caveats; for example you can't set a target queue on your `NSOperationQueue` (like  `DISPATCH_QUEUE_PRIORITY_BACKGROUND` for throttled I/O). But that's a small price for debuggability, and it also prevents you from running into problem like [priority inversion][102]. I even recommend against the nice `NSBlockOperation` API and suggest real subclasses of NSOperation, including an implementation of description. It's more work, but later on, having a way to print all running/pending operations is insanely useful.
+
+
+[90]: /issue-2/editorial.html
+[100]: /issue-2/concurrency-apis-and-pitfalls.html
+[101]: /issue-2/concurrency-apis-and-pitfalls.html#challenges
+[102]: /issue-2/concurrency-apis-and-pitfalls.html#priority_inversion
+[103]: /issue-2/concurrency-apis-and-pitfalls.html#shared_resources
+[104]: /issue-2/concurrency-apis-and-pitfalls.html#dead_locks
+[200]: /issue-2/common-background-practices.html
+[300]: /issue-2/low-level-concurrency-apis.html
+[301]: /issue-2/low-level-concurrency-apis.html#async
+[302]: /issue-2/low-level-concurrency-apis.html#multiple-readers-single-writer
+[400]: /issue-2/thread-safe-class-design.html

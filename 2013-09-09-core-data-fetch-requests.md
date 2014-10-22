@@ -292,3 +292,29 @@ What we would do in this case, is to set a batch size:
 When we run `-[NSManagedObjectContext executeFetchRequest:error:]` with a batch size set, we still get an array back. We can ask it for its count (which will be close to three million for the `StopTime` entity), but Core Data will only populate it with objects as we iterate through the array. And Core Data will get rid of objects again, as they're no longer accessed. Simply put, the array has batches of size 50 (in this case). Core Data will pull in 50 objects at a time. Once more than a certain number of these batches are around, Core Data will release the oldest batch. That way you can loop through all objects in such an array, without having to have all three million objects in memory at the same time.
 
 On iOS, when you use an `NSFetchedResultsController` and you have a lot of objects, make sure that the `fetchBatchSize` is set on your fetch request. You'll have to experiment with what size works well for you. Twice the amount of objects that you'll be displaying at any given point in time is a good starting point.
+
+
+
+[100]:/issue-4/importing-large-data-sets-into-core-data.html
+[110]:/issue-4/importing-large-data-sets-into-core-data.html#efficient-importing
+[120]:/issue-4/importing-large-data-sets-into-core-data.html#user-generated-data
+
+[200]:/issue-4/core-data-models-and-model-objects.html
+[210]:/issue-4/core-data-models-and-model-objects.html#managed-objects
+[220]:/issue-4/core-data-models-and-model-objects.html#validation
+[230]:/issue-4/core-data-models-and-model-objects.html#ivars-in-managed-object-classes
+[240]:/issue-4/core-data-models-and-model-objects.html#entity-vs-class-hierarchy
+[250]:/issue-4/core-data-models-and-model-objects.html#creating-objects
+[260]:/issue-4/core-data-models-and-model-objects.html#indexes
+
+[300]:/issue-4/core-data-overview.html
+[310]:/issue-4/core-data-overview.html#complicated-stacks
+[320]:/issue-4/core-data-overview.html#getting-to-objects
+
+[400]:/issue-4/full-core-data-application.html
+
+[500]:/issue-4/SQLite-instead-of-core-data.html
+
+[600]:/issue-4/core-data-fetch-requests.html
+
+[700]:/issue-4/core-data-migration.html
