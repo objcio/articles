@@ -113,7 +113,7 @@ Depending on what DAW you are using, you should have access to a bunch of audio 
 
 I know, you might be wondering why you would want to create unrealistic sound design. Hear me out.
 
-Your approach to sound design is going to be radically different between a platformer game like Super Mario Bros. and a cinematic game like Heavy Rain. Trying to create realistic sound effects for Mario bashing his head against a brick isn’t going to work as well as the cute 8-bit sounds created when Mario jumps and collects coins.
+Your approach to sound design is going to be radically different between a platform game like Super Mario Bros. and a cinematic game like Heavy Rain. Trying to create realistic sound effects for Mario bashing his head against a brick isn’t going to work as well as the cute 8-bit sounds created when Mario jumps and collects coins.
 
 When you are dealing with a cinematic game, it is vitally important to pay a lot of attention to everything going on in your scene to make sure you are including anything that your player might be hearing. If your game takes place in a forest, think about what sounds you hear when you are walking through the woods. If your game is a first-person shooter where your character is running through a hallway, remember to add footsteps and the appropriate amount of reverb.
 
