@@ -57,7 +57,7 @@ I highly recommend purchasing [Logic Pro X](https://www.apple.com/logic-pro/). L
 
 Similarly, if we jump in the Wayback Machine, we can see that buying a DAW used to be incredibly expensive. The industry standard DAW 10 years ago, [Pro Tools](http://www.avid.com/US/products/pro-tools-software), was prohibitively expensive. If you bought Pro Tools, you also had to buy an external piece of hardware for the software to work. The barebones Pro Tools setup was 2,000 dollars minimum. Pro Tools also did not come with any plugins or functionality. All you could do with a barebones system was record and edit sound. There were no filters, no effects, and no virtual instruments. Everything came separately, and the cost of a tricked-out Pro Tools DAW could run you 10,000 dollars easily.
 
-All of these things that you had to buy in addition to a Pro Tools rig come for free in Logic Pro. Logic Pro comes with a large library of royalty-free special effect sounds and music loop components. If you don’t know how to play an instrument but would still like to put together your own sound track, playing around with the built-in Apple Loops is a good way to explore. Garage Band has some Apple Loops, but not nearly as many.
+All of these things that you had to buy in addition to a Pro Tools rig come for free in Logic Pro. Logic Pro comes with a large library of royalty-free special effect sounds and music loop components. If you don’t know how to play an instrument but would still like to put together your own soundtrack, playing around with the built-in Apple Loops is a good way to explore. Garage Band has some Apple Loops, but not nearly as many.
 
 Logic Pro also includes 20 audio effect plugins to modify pitch, remove noise, and add the reverb that you actually want to include in your sound. These tools are invaluable to crafting a unique set of sounds for your games.
 
@@ -131,7 +131,7 @@ Modifying natural sounds by speeding them up or slowing them down and shifting t
 
 ## Ambient Sounds
 
-One alternative you have to composing or commissioning a sound track is to generate an ambient soundscape for your game.
+One alternative you have to composing or commissioning a soundtrack is to generate an ambient soundscape for your game.
 
 The best example I can think of for this is the game Myst. Myst had some short bits of soundtrack, but one of the big selling points of the game was this idea that you were wandering around this virtual world. Standing on the dock listening to the waves lapping against the shore and hearing the dock creaking under your feet created a far more realistic feel than you would have gotten if the game designers had had a relentless looping soundtrack in the background. 
 
