@@ -26,7 +26,7 @@ To help us think about designing for both of these contexts, it's useful to thin
 
 The key thing about these feedback loops is that they're fractal in nature; at any given moment, there could be any number of nested feedback loops at play. As an example, let's think about what is happenening when you play a game of [Angry Birds](https://www.angrybirds.com).
 
-![http://www.mobygames.com/images/shots/l/467764-angry-birds-iphone-screenshot-how-to-plays.png]()
+![How to play Angry Birds](http://cl.ly/image/2L3u1u3z2C2i)
 
 Let's start at the level of each individual move you make. Flinging an individual bird across the map gives you the satisfaction of accomplishing something, but also gives you feedback: did you destroy the blocks or pigs you thought you would? Did the arc your bird took (still visible on-screen after the bird has landed) mirror what you thought it would? This information informs your future shots.
 
@@ -53,7 +53,7 @@ So how can we add depth and complexity to a game while minimizing the types of i
 ### Hundreds
 The game [Hundreds](http://playhundreds.com)[2] is a great example of adding in new 'verbs' without complicating the way you perform the game's verbs.
 
-![http://www.gamasutra.com/db_area/images/igf/Hundreds/screenshot.jpg]()
+![Hundreds in action](http://cl.ly/image/2p291L2E1j3u)
 
 Initially, the only verb at your disposal is 'touch a bubble to grow it'. As the game progresses, new types of objects are introduced: bubbles that slowly deflate over time, spiky gears that puncture any they touch, ice balls that 'freeze' bubbles in place. It would be easy for this to become overwhelming to the player, but crucially nothing every breaks the input model of "tap an object to do something to it". Even though the number of possible verbs balloons to a pretty large number, they cohere in a way that keeps it simple. The interaction between these elements is very rich — moments such as using the ice balls to freeze the dangerous gears, rendering them harmless, is a particularly great emergent moment — but the fundamental way you interact with the system stays simple.
 
@@ -61,7 +61,7 @@ Initially, the only verb at your disposal is 'touch a bubble to grow it'. As the
 ### Threes
 The puzzle game [Threes](http://asherv.com/threes/)[3] exemplifies the other approach, managing to layer in complexity and strategy without making any changes to the things you can do in the game.
 
-![http://asherv.com/threes/images/THREES_trailer.gif](threes)
+![How to play Threes](http://cl.ly/image/083i3i354600)
 
 Throughout the game, its rules remain completely constant. From beginning to end, the only verb in your toolbelt is "swipe to shift blocks over", with no variation at all. Because of the way the rules of the system create new objects at a predictable rate, complexity emerges naturally as a result of progression. When the screen only has a few low-numbered blocks at the beginning of the game, decisions are easy. When you're balancing building up lower-level numbers with managing a cluster of higher numbers, that same one verb suddenly has a lot more meaning and nuance behind it.
 
