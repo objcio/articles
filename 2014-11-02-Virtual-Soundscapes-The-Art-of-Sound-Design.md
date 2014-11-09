@@ -9,17 +9,17 @@ tags: article
 
 Take a moment to just close your eyes and listen to the world around you. If you are in an office, you probably hear people typing and phones ringing. You might hear the drone of the heater or the air conditioner going on in the background. You hear your coworkers. You hear their footsteps and their conversation about working on a particularly nasty bug.
 
-Sound is all around us. And it is such an integral part of our world that we just absorb and accept all the ambient noises that fill our daily lives. People who have been born hearing impaired and received cochlear implants have been driven insane by all the sounds that we subconsciously absorb and process.
+Sound is all around us. And it is such an integral part of our world that we just absorb and accept all the ambient noises that fill our daily lives, without realizing just how many there are. It's no wonder that people who have been born hearing impaired and later received cochlear implants have been driven insane by all the sounds that we subconsciously absorb and process.
 
-Sound is becoming increasingly important in game development. One of the biggest challenges faced with fully immersive virtual reality is designing a realistic soundscape. If you were in an immersive virtual forest, but didn’t hear the sound of leaves rustling and insects chirping, you wouldn’t feel like it was real. 
+Because it's a large part of our everyday experiences, sound is also becoming increasingly important in game development. But one of the biggest challenges with fully immersive virtual reality is designing a realistic soundscape. If you were in an immersive virtual forest, but didn’t hear the sound of leaves rustling and insects chirping, you wouldn’t feel like it was real. 
 
-In some ways, sound design is a thankless task. If you do everything right, no one will notice, but they sure as heck will notice if you do something wrong. It is painstaking, detail-oriented work that virtually goes unnoticed. However, the joy that you feel when you nail an awesome sound effect or a realistic soundscape totally makes up for the lack of recognition you get for the hard work you put into it. Mostly.
+In some ways, sound design is a thankless task. If you do everything right, no one will notice, but people sure as heck will notice if you do something wrong. As such, it is painstaking, detail-oriented work that is virtually overlooked. However, the joy that you feel when you nail an awesome sound effect or a realistic soundscape makes up for the lack of recognition you get for the hard work you put into it. Mostly.
 
 ## Recording Sound
 
 Recording sound is very similar to functional programming: you want to eliminate side effects. One massive side effect that can ruin your recording is reverb. Reverb is the effect you hear when sound bounces off of reflective surfaces and creates an echo effect. 
 
-If you want a good idea of what reverb is, walk into a large public bathroom and listen to what that sounds like. Bathrooms have lots of nice sound reflecting surfaces and very little sound absorption. Drop something on the floor and talk really loudly. Listen to how this sounds. This is a very distinctive side effect that, if your game does not take place in a bathroom, would sound incredibly out of place.
+If you want a good idea of what reverb is like, walk into a large public bathroom. Bathrooms have lots of nice sound-reflecting surfaces and very little sound absorption. Drop something on the floor and talk really loudly. Listen to how this sounds. This is a very distinctive side effect that, if your game does not take place in a bathroom, would sound incredibly out of place.
 
 Reverb is not something you can “fix in post.” There are no audio filters or plug-ins to eliminate reverb. You can add reverb to a recording, but once you compile and render the recording, you are stuck with it. Trying to take reverb out of a sound file is like trying to remove the eggs from the cake you just pulled out of the oven. It really isn’t going to happen, so you need to make sure that you try to isolate your recording from as much of this as possible before you begin.
 
@@ -27,7 +27,7 @@ You don’t need to go to a professional studio, but if you could, that would be
 
 Also, make sure your microphone is as close to your sound source as possible. You not only want to avoid recording reverb — you also want to avoid recording noise. Anyone who has been on a conference call where the other team is in a room with one recording device in the middle knows that people trying to talk into a microphone that is 10 feet away sound terrible. There is a lot of noise between the microphone and the person, so everything sounds staticky. 
 
-We can’t completely eliminate noise, but fortunately there are tools that can remove noise if you record your sounds properly. One product on the market, [Izotope’s RX 4](https://www.izotope.com/en/products/audio-repair/rx/), can analyze the noise and remove it from your recording. This product is not the only audio repair program on the market. RX 4 costs more than Logic, so even though you can remove noise in post, the cheapest solution is to avoid recording it in the first place. Noise is a side effect. Avoid side effects as much as possible.
+We can’t completely eliminate noise, but fortunately there are tools that can remove noise if you record your sounds properly. One product on the market, [iZotope’s RX 4](https://www.izotope.com/en/products/audio-repair/rx/), can analyze the noise and remove it from your recording. However, RX 4 costs more than Logic, so even though you can remove noise in post, the cheapest solution is to avoid recording it in the first place. Noise is a side effect. Avoid side effects as much as possible.
 
 Additionally, when recording a sound, be sure to do some pre-roll and post-roll recording. Pre-roll is recording a couple of seconds of silence before capturing your sound. Post-roll, like pre-roll, is recording several seconds of silence after
 you finish your recording. This is important, because you want to make sure that you capture all of your sound. Many sounds will have an acoustic tail, and it would be really unfortunate to cut off the end of that tail. Remember that you can always edit more out, but you can't go back and edit more in.
@@ -40,7 +40,7 @@ The first, and only, indispensable tool that you absolutely must buy is a decent
 
 There are several kinds of microphones out on the market, which range from 10 dollars to thousands of dollars. The cheapest and most primitive type of microphone is a dynamic coil microphone. If you were an AV nerd in high school and helped set up the sound for school assemblies, the microphones you worked with were most likely dynamic coil microphones. Dynamic coil microphones are very robust. You can drop them off a building or run them over with a car and they will still work. As such, they tend to not be particularly sensitive and won’t pick up on subtleties and nuances. An external dynamic microphone, even if you steal it from your Rock Band setup, is still a vast improvement over your laptop microphone, but it is the minimum viable product.
 
-Another type of microphone you probably won’t see very often is a ribbon microphone. Ribbon microphones were developed to make up for the weaknesses in dynamic coil microphones. Ribbon microphones are incredibly sensitive, but that increased sensitivity makes them incredibly fragile and expensive. These microphones are great for high-quality vocal recordings, but for our purpose,s they are not ideal.
+Another type of microphone you probably won’t see very often is a ribbon microphone. Ribbon microphones were developed to make up for the weaknesses in dynamic coil microphones. Ribbon microphones are super sensitive, but that increased sensitivity makes them incredibly fragile and expensive. These microphones are great for high-quality vocal recordings, but for our purposes, they are not ideal.
 
 The type of microphone I recommend you invest in is a condenser microphone. Condenser microphones are the best of both worlds. They are far more sensitive than dynamic coil microphones, but they have comparable sensitivity to ribbon microphones. Condensers are more expensive than dynamic coil microphones, but less expensive than ribbon microphones.
 
@@ -50,7 +50,7 @@ A decent USB-connected condenser microphone can be found on Amazon for about 50 
 
 Another thing to keep in mind when picking out a microphone is its polar pattern. Polar patterns are also called pick-up patterns. Not all microphones pick up sounds all around them. The ones that do are called omnidirectional. Omnidirectional microphones are not ideal for our purposes. Even if you are able to isolate your sound source, your microphone will still pick up ambient noise.
 
-A better polar pattern is a cardioid polar pattern. Cardioid patterns are heart shaped and have a dead spot behind them. This pattern really helps you isolate your sound source. There are a few flavors of cardioid: super and hyper. Both of these cardioid patterns pick up a small amount of sound behind them, but both are far better than plain vanilla omnidirectional.
+A better polar pattern is a cardioid polar pattern. Cardioid patterns are heart shaped and have a dead spot behind them. This pattern really helps you isolate your sound source. There are two flavors of cardioid: super and hyper. Both of these cardioid patterns pick up a small amount of sound behind them, but both are far better than plain vanilla omnidirectional.
 
 ## Digital Audio Workstations (DAW)
 
