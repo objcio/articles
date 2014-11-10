@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Advanced Auto Layout Toolbox"
 category: "3"
 date: "2013-08-07 06:00:00"
@@ -7,7 +6,6 @@ author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
 tags: article
 ---
 
-{% include links-3.md %}
 
 Auto Layout was introduced in OS X 10.7, and one year later it made its way into iOS 6. Soon apps on iOS 7 will be expected to honor the systemwide font size setting, thus requiring even more flexibility in the user interface layout next to different screen sizes and orientations. Apple is doubling down on Auto Layout, so now is a good time to get your feet wet if you haven't done so yet.
 
@@ -494,3 +492,21 @@ Keep in mind that these are edge cases. Don't optimize prematurely and avoid Aut
 
 Auto Layout is a powerful technique to create flexible user interfaces, and it's not going away anytime soon. Getting started with Auto Layout can be a bit rough, but there is light at the end of the tunnel. Once you get the hang of it and have all the little tricks to diagnose and fix problems up your sleeve, it actually becomes very logical to work with. 
 
+
+
+[100]:/issue-3/advanced-auto-layout-toolbox.html
+[110]:/issue-3/advanced-auto-layout-toolbox.html#layout-process
+
+[200]:/issue-3/moving-pixels-onto-the-screen.html
+[210]:/issue-3/moving-pixels-onto-the-screen.html#compositing
+[220]:/issue-3/moving-pixels-onto-the-screen.html#pixels
+[230]:/issue-3/moving-pixels-onto-the-screen.html#off-screen-rendering
+[240]:/issue-3/moving-pixels-onto-the-screen.html#planar-data
+[250]:/issue-3/moving-pixels-onto-the-screen.html#concurrent-drawing
+[260]:/issue-3/moving-pixels-onto-the-screen.html#resizable-images
+[270]:/issue-3/moving-pixels-onto-the-screen.html#core-graphics
+
+[300]:/issue-3/collection-view-layouts.html
+[310]:/issue-3/collection-view-layouts.html#layout-attributes-for-...-at-index-path
+
+[400]:/issue-3/custom-controls.html

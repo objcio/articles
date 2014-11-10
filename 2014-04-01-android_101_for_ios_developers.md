@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Android 101 for iOS Developers"
 category: "11"
 date: "2014-04-01 11:00:00"
@@ -103,7 +102,7 @@ The [Fragment](http://developer.android.com/guide/components/fragments.html) con
 
 Tablets are a great fragment use case example: you can place a list fragment on the left and a detail fragment on the right.[^4] Fragments allow you to break up your UI and controller logic into smaller, reusable chunks. But beware! The fragment lifecycle, detailed below, is more nuanced.
 
-<img alt="A multi-pane activity with two fragments" src="{{ site.images_path }}/issue-11/multipane_view_tablet.png">
+<img alt="A multi-pane activity with two fragments" src="/images/issue-11/multipane_view_tablet.png">
  
 Fragments are the new way of structuring apps on Android, just like `UICollectionView` is the new way of structuring list data instead of `UITableview` for iOS.[^5]  While it is initially easier to avoid using fragments and instead use nothing but activities, you could regret this decision later on. That said, resist the urge to give up on activities entirely by swapping fragments on a single activity -- this can leave you in a bind when wanting to take advantage of intents and using multiple fragments on the same activity.
 
@@ -113,7 +112,7 @@ Let's look at a sample `UITableViewController` and a sample `ListFragment` that 
 
 &nbsp;
 
-<img alt="TripDetailsTableViewController" src="{{ site.images_path }}/issue-11/IMG_0095.PNG" width="50%">
+<img alt="TripDetailsTableViewController" src="/images/issue-11/IMG_0095.PNG" width="50%">
 
 &nbsp;
 
@@ -196,7 +195,7 @@ Let's look at a sample `UITableViewController` and a sample `ListFragment` that 
 
 &nbsp;
 
-<img alt="TripDetailFragment" src="{{ site.images_path }}/issue-11/Screenshot_2014-03-25-11-42-16.png" width="50%">
+<img alt="TripDetailFragment" src="/images/issue-11/Screenshot_2014-03-25-11-42-16.png" width="50%">
 
 &nbsp;
 
@@ -301,7 +300,7 @@ In place of Grand Central Dispatch on iOS, on Android we have access to `AsyncTa
 
 One of the primary things to watch out for coming from iOS development is the Android lifecycle. Let's start by looking at the [Activity Lifecycle Documentation](http://developer.android.com/training/basics/activity-lifecycle/index.html):
 
-![Android Activity Lifecycle]({{ site.images_path }}/issue-11/Android-Activity-Lifecycle.png)
+![Android Activity Lifecycle](/images/issue-11/Android-Activity-Lifecycle.png)
 
 In essence, the activity lifecycle is very similar to the UIViewController lifecycle. The primary difference is that the Android OS can be ruthless with destroying activities, and it is very important to make sure that the data and the state of the activity are saved, so that they can be restored from the saved state if they exist in the `onCreate()`. The best way to do this is by using bundled data and restoring from the savedInstanceState and/or Intents. For example, here is the part of the `TripListActivity` from our sample project that is keeping track of the currently shown subway line:
 
@@ -330,7 +329,7 @@ A note on rotation: the lifecycle **completely** resets the view on rotation. Th
 
 The [Fragment Lifecycle](http://developer.android.com/training/basics/fragments/index.html) is similar to the activity lifecycle, with a few additions. 
 
-![Android Fragment Lifecycle]({{ site.images_path }}/issue-11/fragment_lifecycle.png)
+![Android Fragment Lifecycle](/images/issue-11/fragment_lifecycle.png)
 
 One of the problems that can catch developers off guard is regarding issues communicating between fragments and activities. Note that the `onAttach()` happens **before** `onActivityCreated()`. This means that the activity is not guaranteed to exist before the fragment is created. The `onActivityCreated()` method should be used when you set interfaces (delegates) to the parent activity, if needed.
 
@@ -388,7 +387,7 @@ Similar to other parts of Android development, there are pros and cons to specif
 
 ### Subway List View Layout
 
-<img alt="Subway ListView" src="{{ site.images_path }}/issue-11/Screenshot_2014-03-24-13-12-00.png" width="50%">
+<img alt="Subway ListView" src="/images/issue-11/Screenshot_2014-03-24-13-12-00.png" width="50%">
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
@@ -417,9 +416,9 @@ Similar to other parts of Android development, there are pros and cons to specif
 
 Here is the same view on iOS with a `UITableView` and a `UIButton` pinned to the bottom via Auto Layout in Interface Builder:
 
-<img alt="iOS Subway Lines UIViewController" src="{{ site.images_path }}/issue-11/iOS_Screen1.png" width="50%">
+<img alt="iOS Subway Lines UIViewController" src="/images/issue-11/iOS_Screen1.png" width="50%">
 
-![Interface Builder Constraints]({{ site.images_path }}/issue-11/iOSConstraints.png)
+![Interface Builder Constraints](/images/issue-11/iOSConstraints.png)
 
 You'll notice that the Android layout file is much easier to **read** and understand what is going on. There are many parts to laying out views in Android, but we'll cover just a few of the important ones.
 

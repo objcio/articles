@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "From NSURLConnection to NSURLSession"
 category: "5"
 date: "2013-10-07 08:00:00"
@@ -40,7 +39,7 @@ We'll dive into tasks first, and then talk more about session configuration late
 
 `NSURLSessionTask` is an abstract subclass, with three concrete subclasses that are used directly: `NSURLSessionDataTask`, `NSURLSessionUploadTask`, and `NSURLSessionDownloadTask`. These three classes encapsulate the three essential networking tasks of modern applications: fetching data, such as JSON or XML, and uploading and downloading files.
 
-<img alt="NSURLSessionTask class diagram" src="{{site.images_path}}/issue-5/NSURLSession.png" width="612" height="294">
+<img alt="NSURLSessionTask class diagram" src="/images/issue-5/NSURLSession.png" width="612" height="294">
 
 When an `NSURLSessionDataTask` finishes, it has associated data, whereas an `NSURLSessionDownloadTask` finishes with a temporary file path for the downloaded file. `NSURLSessionUploadTask` inherits from `NSURLSessionDataTask`, since the server response of an upload often has associated data. 
 ￼￼￼

@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "XPC"
 category: "14"
 date: "2014-07-11 08:00:00"
@@ -36,7 +35,7 @@ Let us take a look at a trivial sample app: an app that shows multiple images in
 
 The app will look something like this:
 
-![Screen shot of the sample app]({{ site.images_path }}/issue-14/xpc-SuperfamousImages-window@2x.jpg)
+![Screen shot of the sample app](/images/issue-14/xpc-SuperfamousImages-window@2x.jpg)
 
 The `NSTableViewDataSource` will retrieve the images from a class called `ImageSet`, like this:
 
@@ -102,7 +101,7 @@ This way, we have made it dramatically more difficult for someone to find a secu
 
 This might look something like this:
 
-![An App with two Services]({{ site.images_path }}/issue-14/xpc-app-2-services@2x.png)
+![An App with two Services](/images/issue-14/xpc-app-2-services@2x.png)
 
 We could also have designed it so that the app would talk to both services directly and be responsible for moving the data from one service to the other. The amount of flexibility is great. We'll look into how an app [locates services](#service-lookup) later.
 

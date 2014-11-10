@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Importing Large Data Sets
 category: "4"
 date: "2013-09-09 07:00:00"
@@ -7,7 +6,6 @@ author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
 tags: article
 ---
 
-{% include links-4.md %}
 
 Importing large data sets into a Core Data application is a common problem. There are several approaches you can take dependent on the nature of the data:
 
@@ -160,3 +158,29 @@ Note that this example assumes that the `identifier` property is unique across a
 ## Conclusion
 
 When you face the challenge of having to import large data sets into Core Data, try to think out of the box first, before doing a live-import of massive amounts of JSON data. Especially if you're in control of the client and the server side, there are often much more efficient ways of solving this problem. But if you have to bite the bullet and do large background imports, make sure to operate as efficiently and as independently from the main thread as possible. 
+
+
+
+[100]:/issue-4/importing-large-data-sets-into-core-data.html
+[110]:/issue-4/importing-large-data-sets-into-core-data.html#efficient-importing
+[120]:/issue-4/importing-large-data-sets-into-core-data.html#user-generated-data
+
+[200]:/issue-4/core-data-models-and-model-objects.html
+[210]:/issue-4/core-data-models-and-model-objects.html#managed-objects
+[220]:/issue-4/core-data-models-and-model-objects.html#validation
+[230]:/issue-4/core-data-models-and-model-objects.html#ivars-in-managed-object-classes
+[240]:/issue-4/core-data-models-and-model-objects.html#entity-vs-class-hierarchy
+[250]:/issue-4/core-data-models-and-model-objects.html#creating-objects
+[260]:/issue-4/core-data-models-and-model-objects.html#indexes
+
+[300]:/issue-4/core-data-overview.html
+[310]:/issue-4/core-data-overview.html#complicated-stacks
+[320]:/issue-4/core-data-overview.html#getting-to-objects
+
+[400]:/issue-4/full-core-data-application.html
+
+[500]:/issue-4/SQLite-instead-of-core-data.html
+
+[600]:/issue-4/core-data-fetch-requests.html
+
+[700]:/issue-4/core-data-migration.html

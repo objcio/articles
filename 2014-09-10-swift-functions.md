@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "The Many Faces of Swift Functions"
 category: "16"
 date: "2014-09-10 09:00:00"
@@ -818,6 +817,6 @@ myFunctionWithNumber(5)
 ## @end
 Swift functions have a lot of options and a lot of power. As you start writing in Swift, remember: with great power comes great responsibility. Optimize for READABILITY over cleverness! 
 
-Swift best practices haven't been fully established yet, and the language is still constantly changing, so get your code reviewed by friends and co-workers. I've found that people who've never seen Swift before sometimes teach me the most about my Swift code.
+Swift best practices haven't been fully established yet, and the language is still constantly changing, so get your code reviewed by friends and coworkers. I've found that people who've never seen Swift before sometimes teach me the most about my Swift code.
 
 Happy Swifting!

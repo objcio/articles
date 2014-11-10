@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Linguistic Tagging"
 category: "7"
 date: "2013-12-09 06:00:00"

@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  A Complete Core Data Application
 category: "4"
 date: "2013-09-09 10:00:00"
@@ -7,7 +6,6 @@ author: "<a href=\"http://twitter.com/chriseidhof\">Chris Eidhof</a>"
 tags: article
 ---
 
-{% include links-4.md %}
 
 In this article, we will build a small but complete Core Data backed application. 
 The application allows you to create nested lists; each list item can have a sub-list, allowing you to create very deep hierarchies of items.
@@ -582,3 +580,28 @@ these problems were not immediately clear when writing the code, and
 some only became clear when writing the tests. When rewriting the code,
 I was able to move almost all code from the `Store` class into the
 `Item` class, and everything became a lot cleaner.
+
+
+[100]:/issue-4/importing-large-data-sets-into-core-data.html
+[110]:/issue-4/importing-large-data-sets-into-core-data.html#efficient-importing
+[120]:/issue-4/importing-large-data-sets-into-core-data.html#user-generated-data
+
+[200]:/issue-4/core-data-models-and-model-objects.html
+[210]:/issue-4/core-data-models-and-model-objects.html#managed-objects
+[220]:/issue-4/core-data-models-and-model-objects.html#validation
+[230]:/issue-4/core-data-models-and-model-objects.html#ivars-in-managed-object-classes
+[240]:/issue-4/core-data-models-and-model-objects.html#entity-vs-class-hierarchy
+[250]:/issue-4/core-data-models-and-model-objects.html#creating-objects
+[260]:/issue-4/core-data-models-and-model-objects.html#indexes
+
+[300]:/issue-4/core-data-overview.html
+[310]:/issue-4/core-data-overview.html#complicated-stacks
+[320]:/issue-4/core-data-overview.html#getting-to-objects
+
+[400]:/issue-4/full-core-data-application.html
+
+[500]:/issue-4/SQLite-instead-of-core-data.html
+
+[600]:/issue-4/core-data-fetch-requests.html
+
+[700]:/issue-4/core-data-migration.html

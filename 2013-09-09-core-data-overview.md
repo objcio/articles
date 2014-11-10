@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Core Data Overview
 category: "4"
 date: "2013-09-09 11:00:00"
@@ -7,7 +6,6 @@ author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
 tags: article
 ---
 
-{% include links-4.md %}
 
 
 Core Data is probably one of the most misunderstood Frameworks on OS X and iOS. To help with that, we'll quickly go through Core Data to give you an overview of what it is all about, as understanding Core Data concepts is essential to using Core Data the right way. Just about all frustrations with Core Data originate in misunderstanding what it does and how it works. Let's dive in...
@@ -32,7 +30,7 @@ When all components are tied together, we refer to them as the *Core Data Stack*
 
 In between the two parts, in the middle of the stack, sits the Persistent Store Coordinator (PSC), also known to friends as the *central scrutinizer*. It ties together the object graph management part with the persistence part. When one of the two needs to talk to the other, this is coordinated by the PSC.
 
-<img name="Complex core data stack" src="{{site.images_path}}/issue-4/stack-complex.png" width="624" height="652">
+<img name="Complex core data stack" src="/images/issue-4/stack-complex.png" width="624" height="652">
 
 The *object graph management* is where your application's model layer logic will live. Model layer objects live inside a context. In most setups, there's one context and all objects live in that context. Core Data supports multiple contexts, though, for more advanced use cases. Note that contexts are distinct from one another, as we'll see in a bit. The important thing to remember is that objects are tied to their context. Each *managed* object knows which context it's in, and each context knows which objects it is managing.
 
@@ -40,7 +38,7 @@ The other part of the stack is where persistency happens, i.e. where Core Data r
 
 The most common scenario, however, looks like this:
 
-<img name="Simple core data stack" src="{{site.images_path}}/issue-4/stack-simple.png" width="550" height="293">
+<img name="Simple core data stack" src="/images/issue-4/stack-simple.png" width="550" height="293">
 
 ## How the Components Play Together
 
@@ -169,3 +167,28 @@ If Core Data seems daunting, that's most likely because its flexibility allows y
 
 When you're using a simple Core Data stack, and you use managed objects the way we've tried to outline in this issue, you'll quickly learn to appreciate what Core Data can do for you, and how it speeds up your development cycle.
 
+
+
+[100]:/issue-4/importing-large-data-sets-into-core-data.html
+[110]:/issue-4/importing-large-data-sets-into-core-data.html#efficient-importing
+[120]:/issue-4/importing-large-data-sets-into-core-data.html#user-generated-data
+
+[200]:/issue-4/core-data-models-and-model-objects.html
+[210]:/issue-4/core-data-models-and-model-objects.html#managed-objects
+[220]:/issue-4/core-data-models-and-model-objects.html#validation
+[230]:/issue-4/core-data-models-and-model-objects.html#ivars-in-managed-object-classes
+[240]:/issue-4/core-data-models-and-model-objects.html#entity-vs-class-hierarchy
+[250]:/issue-4/core-data-models-and-model-objects.html#creating-objects
+[260]:/issue-4/core-data-models-and-model-objects.html#indexes
+
+[300]:/issue-4/core-data-overview.html
+[310]:/issue-4/core-data-overview.html#complicated-stacks
+[320]:/issue-4/core-data-overview.html#getting-to-objects
+
+[400]:/issue-4/full-core-data-application.html
+
+[500]:/issue-4/SQLite-instead-of-core-data.html
+
+[600]:/issue-4/core-data-fetch-requests.html
+
+[700]:/issue-4/core-data-migration.html

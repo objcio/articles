@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "The Compiler"
 category: "6"
 date: "2013-11-08 10:00:00"

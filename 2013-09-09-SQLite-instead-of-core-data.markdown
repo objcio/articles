@@ -1,5 +1,4 @@
 ---
-layout: post
 title: On Using SQLite and FMDB Instead of Core Data
 category: "4"
 date: "2013-09-09 09:00:00"

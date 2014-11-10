@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "AppKit for UIKit Developers"
 category: "14"
 date: "2014-07-11 07:00:00"
@@ -248,7 +247,7 @@ The Mac supports fully color-calibrated workflows, so anything having to do with
 
 A common task is to use a color in your app that your designers have specified for you. In order to get the correct color, it's important to pick the color from the design template using the same color space as the one you use to programatically specify it. The standard system color picker has a drop-down menu, where you can choose the color space you want to use. We suggest to use the device-independent sRGB color space, and then later use the `+[NSColor colorWithSRGBRed:green:blue:alpha:]` class method to create the color in code.
 
-![]({{ site.images_path }}/issue-14/color-picker.png)
+![](/images/issue-14/color-picker.png)
 
 
 ### Text System

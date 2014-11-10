@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Custom Collection View Layouts"
 category: "3"
 date: "2013-08-07 08:00:00"
@@ -7,7 +6,6 @@ author: "<a href=\"http://oleb.net\">Ole Begemann</a>"
 tags: article
 ---
 
-{% include links-3.md %}
 
 Introduced in iOS 6, `UICollectionView` is [the new star among view classes](http://oleb.net/blog/2012/09/uicollectionview/) in UIKit. It shares its API design with `UITableView` but extends the latter in a few fundamental ways. The most powerful feature of `UICollectionView` and the point where it significantly exceeds `UITableView`'s capabilities is its completely flexible layout architecture. In this article, we will implement a fairly complex custom collection view layout and discuss important aspects of the class's design along the way.
 
@@ -37,7 +35,7 @@ Supplementary and decoration views must be subclasses of [`UICollectionReusableV
 
 As an example of a non-trivial custom collection view layout, consider a week view in a typical calendar app. The calendar displays one week at a time, with the days of the week arranged in columns. Each calendar event will be displayed by a cell in our collection view, positioned and sized so as to represent the event start date/time and duration.
 
-<img src="{{site.images_path}}/issue-3/calendar-collection-view-layout.png" style="width:1024px" alt="Screenshot of our custom calendar collection view layout"/>
+<img src="/images/issue-3/calendar-collection-view-layout.png" style="width:1024px" alt="Screenshot of our custom calendar collection view layout"/>
 
 There are two general types of collection view layouts:
 
@@ -204,3 +202,22 @@ Whenever I use `UICollectionView`, I feel a certain admiration for its clean des
 * [NSHipster on `UICollectionView`](http://nshipster.com/uicollectionview/).
 * [`UICollectionView`: The Complete Guide](http://ashfurrow.com/uicollectionview-the-complete-guide/), e-book by Ash Furrow.
 * [`MSCollectionViewCalendarLayout`](https://github.com/monospacecollective/MSCollectionViewCalendarLayout) by Eric Horacek is an excellent and more complete implementation of a custom layout for a week calendar view.
+
+
+
+[100]:/issue-3/advanced-auto-layout-toolbox.html
+[110]:/issue-3/advanced-auto-layout-toolbox.html#layout-process
+
+[200]:/issue-3/moving-pixels-onto-the-screen.html
+[210]:/issue-3/moving-pixels-onto-the-screen.html#compositing
+[220]:/issue-3/moving-pixels-onto-the-screen.html#pixels
+[230]:/issue-3/moving-pixels-onto-the-screen.html#off-screen-rendering
+[240]:/issue-3/moving-pixels-onto-the-screen.html#planar-data
+[250]:/issue-3/moving-pixels-onto-the-screen.html#concurrent-drawing
+[260]:/issue-3/moving-pixels-onto-the-screen.html#resizable-images
+[270]:/issue-3/moving-pixels-onto-the-screen.html#core-graphics
+
+[300]:/issue-3/collection-view-layouts.html
+[310]:/issue-3/collection-view-layouts.html#layout-attributes-for-...-at-index-path
+
+[400]:/issue-3/custom-controls.html

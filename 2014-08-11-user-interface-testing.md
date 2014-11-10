@@ -1,5 +1,4 @@
 ---
-layout: post
 title: User Interface Testing
 category: "15"
 date: "2014-08-11 06:00:00"

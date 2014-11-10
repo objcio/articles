@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Test Doubles: Mocks, Stubs, and More"
 category: "15"
 date: "2014-08-11 07:00:00"

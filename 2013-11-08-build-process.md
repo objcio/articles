@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "The Build Process"
 category: "6"
 date: "2013-11-08 11:00:00"
@@ -7,7 +6,7 @@ tags: article
 author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
 ---
 
-We are kind of spoiled these days -- we just hit a single button in Xcode which looks like it's supposed to play some music, and a few seconds later, our app is running. It's magical. Until something goes wrong.
+We are kind of spoiled these days — we just hit a single button in Xcode which looks like it's supposed to play some music, and a few seconds later, our app is running. It's magical. Until something goes wrong.
 
 In this article, we're going to take a high-level tour through the build process and discover how all this ties in with the project settings Xcode exposes in its interface. For a deeper look at how each step along the way actually works, I will refer you to the other articles in this issue.
 
@@ -16,7 +15,7 @@ In this article, we're going to take a high-level tour through the build process
 
 Our first point of attack to learn about the inner workings of the Xcode build process is to have a look at the complete log file. Open the Log Navigator, select a build from the list, and Xcode will show you the log file in a prettified format.
 
-![Xcode build log navigator]({{ site.images_path }}/issue-6/build-log.png)
+![Xcode build log navigator](/images/issue-6/build-log.png)
 
 By default, this view hides a lot of information, but you can reveal the details of each task by selecting it and clicking on the expand button at the right side. Another option is to select one or more tasks from the list and hit Cmd-C. This will copy the full plain text to the clipboard. Last but not least, you also can dump the complete log into the clipboard by selecting "Copy transcript for shown results" from the Editor menu.
 
@@ -77,7 +76,7 @@ For this target, there are actually two tasks to process `objective-c-header` fi
     ProcessPCH /.../Pods-SSZipArchive-prefix.pch.pch Pods-SSZipArchive-prefix.pch normal armv7 objective-c ...
     ProcessPCH /.../Pods-SSZipArchive-prefix.pch.pch Pods-SSZipArchive-prefix.pch normal armv7s objective-c ...
 
-The target builds for two architectures -- armv7 and armv7s -- and therefore clang has to process files twice, once for each architecture.
+The target builds for two architectures — armv7 and armv7s — and therefore clang has to process files twice, once for each architecture.
 
 Following the tasks of processing the precompiled header files, we find a couple of other task types for the SSZipArchive target:
 
@@ -113,7 +112,7 @@ Each of these steps will, in turn, call command line tools to do the actual work
 
 When you select a project in Xcode 5, the project editor is presented to you with six tabs at the top: General, Capabilities, Info, Build Settings, Build Phases, and Build Rules.
 
-![Xcode project editor tabs]({{ site.images_path }}/issue-6/project-editor-tabs.png)
+![Xcode project editor tabs](/images/issue-6/project-editor-tabs.png)
 
 For our purpose of understanding the build process, the last three are the most relevant.
 
@@ -122,11 +121,11 @@ For our purpose of understanding the build process, the last three are the most 
 
 Build phases represent the high-level plan of how to get from your code to an executable binary. They describe the different kind of tasks that have to be performed along the way. 
 
-![Xcode build phases]({{ site.images_path }}/issue-6/build-phases.png)
+![Xcode build phases](/images/issue-6/build-phases.png)
 
 First, the target dependencies are established. These tell the build system which targets have to be built before the build of the current target can commence. This is not a "real" build phase. Xcode just presents the GUI together with the build phases.
 
-After a CocoaPods specific *script execution* build phase -- see [Michele's article](/issue-6/cocoapods-under-the-hood.html) for more information about CocoaPods and the build process -- the "Compile Sources" section specifies all the files that have to be compiled. Note that this doesn't say anything about *how* these files have to be compiled. We will learn more about this aspect when looking at build rules and build settings. Files that are in this section will be processed according to those rules and settings.
+After a CocoaPods specific *script execution* build phase — see [Michele's article](/issue-6/cocoapods-under-the-hood.html) for more information about CocoaPods and the build process — the "Compile Sources" section specifies all the files that have to be compiled. Note that this doesn't say anything about *how* these files have to be compiled. We will learn more about this aspect when looking at build rules and build settings. Files that are in this section will be processed according to those rules and settings.
 
 When compilation is complete, the next step is to link everything together. And, lo and behold, that's what we find as the next build phase listed in Xcode: "Link Binary with Libraries." This section lists all static and dynamic libraries that are to be linked with the object files generated by compilation in the previous step. There are important differences between how static and dynamic libraries get handled, but I'll refer you to Daniel's article about [Mach-O executables](/issue-6/mach-o-executables.html) for more details.
 
@@ -146,7 +145,7 @@ Another nice use of a custom build phase is to watermark your app icon with the 
 
 After that, you can modify the app icon using ImageMagick. For a complete example of how to do this, check out [this GitHub project](https://github.com/krzysztofzablocki/IconOverlaying).
 
-If you'd like to encourage yourself or your code workers to keep your source files concise, you can add a "Run Script" build phase that spits out a warning if a source file exceeds a certain size, in this example 200 lines.
+If you'd like to encourage yourself or your coworkers to keep your source files concise, you can add a "Run Script" build phase that spits out a warning if a source file exceeds a certain size, in this example 200 lines.
 
     find "${SRCROOT}" \( -name "*.h" -or -name "*.m" \) -print0 | xargs -0 wc -l | awk '$1 > 200 && $2 != "total" { print $2 ":1: warning: file more than 200 lines" }'
 
@@ -157,7 +156,7 @@ Build rules specify how different file types should be compiled. Normally you do
 
 A build rule specifies which file type it applies to, how the file should be processed, and where the output should go. Let's say we have created a preprocessor that takes basic Objective-C implementation files as input, parses comments within this file for a language we've created to generate layout constraints, and outputs a `.m` file which includes the generated code. Since we cannot have a build rule which takes a `.m` file as input and output, we're going to use the extension `.mal` and add a custom build rule for that:
 
-![Custom build rule]({{ site.images_path }}/issue-6/custom-build-rule.png)
+![Custom build rule](/images/issue-6/custom-build-rule.png)
 
 This rule specifies that it applies to all files matching `*.mal` and that those files should be processed using a custom script (which calls our preprocessor with the input and output paths as arguments). Finally, the rule tells the build system where it can find the output of this build rule.
 

@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Clean table view code"
 category: "1"
 date: "2013-06-07 10:00:00"

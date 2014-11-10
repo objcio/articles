@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Snapshot Testing"
 category: "15"
 date: "2014-08-11 05:00:00"
@@ -11,7 +10,7 @@ People have their own motivations to write tests for their applications. This ar
 
 Writing tests for the visual aspects of an app is tricky. There's Apple built-in support for logical testing of objects, but no support for testing the end result of view-based code. This gap in functionality means a lot of people dismiss writing tests due to the difficulty of doing view-based tests.
 
-When Facebook released [`FBSnapshotTestCase`][fbsnapshot] to [CocoaPods][cocoapods], I initially dismissed it for this reason. I'm glad one of my co-workers didn't.
+When Facebook released [`FBSnapshotTestCase`][fbsnapshot] to [CocoaPods][cocoapods], I initially dismissed it for this reason. I'm glad one of my coworkers didn't.
 
 View-based testing means verifying that what the user sees is what you want the user to see. Doing this means being able to ensure that different versions of your views, or different states of your views, continue to look the same. View-based testing can be used to provide a high-level test covering a lot of use cases surrounding an object.
 
@@ -21,7 +20,7 @@ View-based testing means verifying that what the user sees is what you want the 
 
 Here is an example of a failing test where we have less grid items than expected in a view controller:
 
-<img src="{{site.images_path}}/issue-15/snapshots-reference.png" style="width:100%" alt="Snapshots examples"/>
+<img src="/images/issue-15/snapshots-reference.png" style="width:100%" alt="Snapshots examples"/>
 
 It makes the comparison by drawing both the view or layer and the existing snapshot into two `CGContextRefs` and doing a memory comparison of them with the C function `memcmp()`. This makes it extremely quick, with my tests ranging from 0.013 to 0.086 seconds per image for fullscreen iPad and iPhone images on a MacBook Air.
 

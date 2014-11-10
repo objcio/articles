@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Bad Testing Practices
 category: "15"
 date: "2014-08-11 08:00:00"
@@ -141,7 +140,7 @@ How do we maximize the outcome of our tests? In one sentence:
 
 ### Don't Test Private Methods
 
-[](http://shoulditestprivatemethods.com) Enough said.
+[Enough said](http://shoulditestprivatemethods.com).
 
 Private means private. Period. If you feel the need to test a private
 method, there is something conceptually wrong with that method. Usually

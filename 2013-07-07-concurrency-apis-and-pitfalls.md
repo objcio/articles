@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Concurrent Programming: APIs and Challenges"
 category: "2"
 date: "2013-07-07 10:00:00"
@@ -7,7 +6,6 @@ author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
 tags: article
 ---
 
-{% include links-2.md %}
 
 [Concurrency](http://en.wikipedia.org/wiki/Concurrency_%28computer_science%29) describes the concept of running several tasks at the same time. This can either happen in a [time-shared](http://en.wikipedia.org/wiki/Preemption_%28computing%29) manner on a single CPU core, or truly in parallel if multiple CPU cores are available.
 
@@ -171,7 +169,7 @@ The other important change with GCD is that you as a developer think about work 
 
 GCD exposes five different queues: the main queue running on the main thread, three background queues with different priorities, and one background queue with an even lower priority, which is I/O throttled. Furthermore, you can create custom queues, which can either be serial or concurrent queues. While custom queues are a powerful abstraction, all blocks you schedule on them will ultimately trickle down to one of the system's global queues and its thread pool(s).
 
-<img src="{{site.images_path}}/issue-2/gcd-queues@2x.png" style="width:628px" alt="GCD queues"/>
+<img src="/images/issue-2/gcd-queues@2x.png" style="width:628px" alt="GCD queues"/>
 
 Making use of several queues with different priorities sounds pretty straightforward at first. However, we strongly recommend that you use the default priority queue in almost all cases. Scheduling tasks on queues with different priorities can quickly result in unexpected behavior if these tasks access shared resources. This can lead as far as causing your whole program to come to a grinding halt because some low-priority tasks are blocking a high-priority task from executing. You can read more about this phenomenon, called priority inversion, [below](#priority-inversion).
 
@@ -284,7 +282,7 @@ In order to demonstrate the problem, let's look at a simple example of a resourc
 
 Imagine the hazards that can happen if both threads try to do this simultaneously. For example, thread A and thread B both read the value of the counter from memory; let's say it is `17`. Then thread A increments the counter by one and writes the resulting `18` back to memory. At the same time, thread B also increments the counter by one and writes a `18` back to memory, just after thread A. At this point the data has become corrupted, because the counter holds an `18` after it was incremented twice from a `17`. 
 
-<img src="{{site.images_path}}/issue-2/race-condition@2x.png" style="width:574px" alt="Race condition"/>
+<img src="/images/issue-2/race-condition@2x.png" style="width:574px" alt="Race condition"/>
 
 This problem is called a [race condition](http://en.wikipedia.org/wiki/Race_conditions#Software) and can always happen if multiple threads access a shared resource without making sure that one thread is finished operating on a resource before another one begins accessing it. If you're not only writing a simple integer but a more complex structure to memory, it might even happen that a second thread tries to read from this memory while you're in the midst of writing it, therefore seeing half new and half old or uninitialized data. In order to prevent this, multiple threads need to access shared resources in a mutually exclusive way.
 
@@ -296,7 +294,7 @@ In reality, the situation is even more complicated than this, because modern CPU
 
 [Mutual exclusive](http://en.wikipedia.org/wiki/Mutex) access means that only one thread at a time gets access to a certain resource. In order to ensure this, each thread that wants to access a resource first needs to acquire a [*mutex* lock](http://en.wikipedia.org/wiki/Lock_%28computer_science%29) on it. Once it has finished its operation, it releases the lock, so that other threads get a chance to access it. 
 
-<img src="{{site.images_path}}/issue-2/locking@2x.png" style="width:624px" alt="Mutex locking"/>
+<img src="/images/issue-2/locking@2x.png" style="width:624px" alt="Mutex locking"/>
 
 In addition to ensuring mutual exclusive access, locks must also handle the problem caused by out-of-order execution. If you cannot rely on the CPU accessing the memory in the sequence defined by your program instructions, guaranteeing mutually exclusive access alone is not enough. To work around this side effect of CPU optimization strategies, [memory barriers](http://en.wikipedia.org/wiki/Memory_barrier) are used. Setting a memory barrier makes sure that no out-of-order execution takes place across the barrier.
 
@@ -319,7 +317,7 @@ It is quite common to see code which is supposed to run concurrently, but which 
 
 Mutex locks solve the problem of race conditions, but unfortunately they also introduce a new problem ([amongst others](http://en.wikipedia.org/wiki/Lock_%28computer_science%29#The_problems_with_locks)) at the same time: [dead locks](http://en.wikipedia.org/wiki/Deadlock). A dead lock occurs when multiple threads are waiting on each other to finish and get stuck.
 
-<img src="{{site.images_path}}/issue-2/dead-lock@2x.png" style="width:453px" alt="Dead locks"/>
+<img src="/images/issue-2/dead-lock@2x.png" style="width:453px" alt="Dead locks"/>
 
 Consider the following example code, which swaps the values of two variables:
 
@@ -362,7 +360,7 @@ Priority inversion describes a condition where a lower priority task blocks a hi
 
 The problem can occur when you have a high-priority and a low-priority task share a common resource. When the low-priority task takes a lock to the common resource, it is supposed to finish off quickly in order to release its lock and to let the high-priority task execute without significant delays. Since the high-priority task is blocked from running as long as the low-priority task has the lock, there is a window of opportunity for medium-priority tasks to run and to preempt the low-priority task, because the medium-priority tasks have now the highest priority of all currently runnable tasks. At this moment, the medium-priority tasks hinder the low-priority task from releasing its lock, therefore effectively gaining priority over the still waiting, high-priority tasks.
 
-<img src="{{site.images_path}}/issue-2/priority-inversion@2x.png" style="width:509px" alt="Priority Inversion"/>
+<img src="/images/issue-2/priority-inversion@2x.png" style="width:509px" alt="Priority Inversion"/>
 
 In your own code, things might not be as dramatic as the rebooting that occurred in the Mars rover, as priority inversion happens quite often in a less severe manner.
 
@@ -382,15 +380,14 @@ A safe pattern we recommend is this: pull out the data you want to work on the m
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+[90]: /issue-2/editorial.html
+[100]: /issue-2/concurrency-apis-and-pitfalls.html
+[101]: /issue-2/concurrency-apis-and-pitfalls.html#challenges
+[102]: /issue-2/concurrency-apis-and-pitfalls.html#priority_inversion
+[103]: /issue-2/concurrency-apis-and-pitfalls.html#shared_resources
+[104]: /issue-2/concurrency-apis-and-pitfalls.html#dead_locks
+[200]: /issue-2/common-background-practices.html
+[300]: /issue-2/low-level-concurrency-apis.html
+[301]: /issue-2/low-level-concurrency-apis.html#async
+[302]: /issue-2/low-level-concurrency-apis.html#multiple-readers-single-writer
+[400]: /issue-2/thread-safe-class-design.html

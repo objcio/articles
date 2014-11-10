@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Communicating with the Quadcopter"
 category: "8"
 date: "2014-01-08 10:00:00"

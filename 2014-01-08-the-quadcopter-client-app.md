@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "The Client App"
 category: "8"
 date: "2014-01-08 08:00:00"
@@ -12,7 +11,7 @@ The client app is the component in [this project](/issue-8/the-quadcopter-projec
 
 The app exposes a very simple -- and not very pretty -- interface:
 
-<img title="Screenshot of the client app" src="{{ site.images_path }}/issue-8/client-app.jpg" width="320">
+<img title="Screenshot of the client app" src="/images/issue-8/client-app.jpg" width="320">
 
 
 ## Multipeer Connectivity

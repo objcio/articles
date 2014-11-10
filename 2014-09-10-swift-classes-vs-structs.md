@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "A Warm Welcome to Structs and Value Types"
 category: "16"
 date: "2014-09-10 10:00:00"
