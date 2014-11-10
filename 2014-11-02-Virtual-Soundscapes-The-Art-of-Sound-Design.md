@@ -1,8 +1,7 @@
 ---
-layout: post
 title:  "Virtual Soundscapes: The Art of Sound Design"
-category: "2"
-date: "2014-11-01 09:00:00"
+category: "18"
+date: "2014-11-10 09:00:00"
 author: "<a href=\"http://twitter.com/redqueencoder\">Janie Clayton</a>"
 tags: article
 ---

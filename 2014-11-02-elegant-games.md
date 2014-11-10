@@ -1,13 +1,10 @@
 ---
-layout: post
-title:  "Designing Elegant Mobile Games"
+title: "Designing Elegant Mobile Games"
 category: "18"
-date: "2014-11-02 08:00:00"
+date: "2014-11-10 11:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/lazerwalker">Mike Lazer-Walker</a>"
+author: "<a href=\"https://twitter.com/lazerwalker\">Mike Lazer-Walker</a>"
 ---
-
-# Designing Elegant Mobile Games
 
 The idea of designing mobile games is a funny one. In theory, there isn't anything about making games for smartphones or tablets that's fundamentally different from any other form of game design. The formal properties of games as systems are the same across any genre or platform, and so the design process tends to look relatively similar, whether you're trying to make the next Farmville, Call of Duty, or chess.
 
