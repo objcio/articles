@@ -40,7 +40,7 @@ Apple provides a built-in view controller to facilitate discovering peers and in
     let serviceType = "io.objc.mpc" // Limited to 15 ASCII characters
     window!.rootViewController = MCBrowserViewController(serviceType: serviceType, session: session)
 
-![](http://pics.jpsim.com/objcio-mpc/browser.png)
+![](/images/issue-18/browser.png)
 
 Since `MCBrowserViewController` is not easily customizable, it's likely that you'll want to provide your own mechanism for selecting peers. That brings us to the next approach.
 
@@ -48,7 +48,7 @@ Since `MCBrowserViewController` is not easily customizable, it's likely that you
 
 If your game already requires a mechanism to elect a primary node to coordinate game logic, and secondary nodes to simply attach to the primary one, then you should leverage this information by only advertising from the primary node and browsing from secondary nodes:
 
-![](http://pics.jpsim.com/objcio-mpc/dedicated.gif)
+![](/images/issue-18/dedicated.gif)
 
     // Advertise from the primary node
     advertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: discoveryInfo, serviceType: serviceType)
@@ -66,7 +66,7 @@ However, there are often cases in which it is preferable to establish a connecti
 
 MPC makes it possible to create truly frictionless user experiences. When integrated properly into your app, your users may start communicating immediately after installing the app from the App Store, with no configuration necessary. This is a powerful way to delight them.
 
-![](http://pics.jpsim.com/objcio-mpc/zero-config.gif)
+![](/images/issue-18/zero-config.gif)
 
 To do this, it's possible to both advertise and browse for sessions simultaneously. We'll call this behavior transceiving (transmitting and receiving).
 
