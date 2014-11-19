@@ -158,7 +158,7 @@ The server www.apple.com / 23.63.125.15 is listening on port 80. Our own address
     % sudo tcpdump -c 3 -i en3 -nS host 23.63.125.15
     18:31:29.140787 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [S], seq 1721092979, win 65535, options [mss 1460,nop,wscale 4,nop,nop,TS val 743929763 ecr 0,sackOK,eol], length 0
     18:31:29.150866 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [S.], seq 673593777, ack 1721092980, win 14480, options [mss 1460,sackOK,TS val 1433256622 ecr 743929763,nop,wscale 1], length 0
-    18:31:29.150908 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673593778, win 8235, options [nop,nop,TS val 743929773 ecr 1433256622], length 0
+    18:31:29.150908 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], seq 1721092980, ack 673593778, win 8235, options [nop,nop,TS val 743929773 ecr 1433256622], length 0
 
 That's a lot of information right there. Let's step through this bit by bit.
 
@@ -168,7 +168,7 @@ Next we see `10.0.1.6.52181 > 23.63.125.15.80`. This is the source and destinati
 
 The `Flags` are flags in the TCP segment header: `S` for **SYN**, `.` for **ACK**, `P` for **PUSH**, and `F` for **FIN**. There are a few more we won't see here. Note how these three lines have **SYN**, then **SYN-ACK**, then **ACK**: this is the three-way handshake.
 
-The first line shows the client sending the random sequence number 1721092979 (A) to the server. The second line shows the server sending an acknowledgement for 1721092980 (A+1) and its random sequence number 673593777 (B). Finally, the third line shows the client acknowledging 673593778 (B+1).
+The first line shows the client sending the random sequence number 1721092979 (A) to the server. The second line shows the server sending an acknowledgement for 1721092980 (A+1) and its random sequence number 673593777 (B). Finally, the third line shows the client acknowledging 673593778 (B+1) with its sequence number 1721092980 (A+1).
 
 #### Options
 
