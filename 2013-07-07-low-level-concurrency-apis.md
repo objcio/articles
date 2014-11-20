@@ -346,7 +346,7 @@ Also note how we're switching between different queues in this small and simple 
 
 
 
-### Using dispatch_group_t with Existing API
+### Using dispatch\_group\_t with Existing API
 
 Once you've added groups to your tool belt, you'll be wondering why most async API doesn't take a `dispatch_group_t` as an optional argument. But there's no reason to despair: It's easy to add that yourself, although you have to be more careful to make sure your code is *balanced*.
 
