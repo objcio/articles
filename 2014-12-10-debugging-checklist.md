@@ -129,6 +129,8 @@ Another problem with KVO is that callbacks might arrive on a different thread th
 
 ### Dependent key paths
 
+If you're observing properties that depend on other properties, you need to make sure that you [register dependent keys](https://developer.apple.com/library/ios/DOCUMENTATION/Cocoa/Conceptual/KeyValueObserving/Articles/KVODependentKeys.html). Otherwise, you might not get callbacks when your properties change. Also, when you're 
+
 ## IB
 
 * Outlets
@@ -137,6 +139,7 @@ Another problem with KVO is that callbacks might arrive on a different thread th
 
 ## Misc
 
+* View lifecycle (e.g. rotation)
 * Entitlements / Sandboxing / etc.
 * Did you turn on -Wall
 
