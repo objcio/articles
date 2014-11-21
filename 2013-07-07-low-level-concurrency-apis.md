@@ -696,7 +696,7 @@ Obviously, you can do something similar with `dispatch_once()`.
 
 The `OSAtomicEnqueue()` and `OSAtomicDequeue()` let you implement LIFO queues (also known as stacks) in a thread-safe, lock-free way. For code that has strict latency requirements, this can be a powerful building block.
 
-There's also a `OSAtomicFifoEnqueue()` and `OSAtomicFifoDequeue()` for FIFO queues, but these only have documentation in the header file -- tread carefully when using.
+There's also a `OSAtomicFifoEnqueue()` and `OSAtomicFifoDequeue()` for FIFO queues, but these only have documentation in the header file -- read carefully when using.
 
 ### Spin Locks
 
