@@ -249,7 +249,7 @@ Don't do this, trust me. This will haunt you later as your app gets larger. It's
 
 Remember that this isn't really GCD-specific, but it's a common anti-pattern and just very easy to do with GCD. You can apply the same wisdom for `performSelector:afterDelay:`, where the delay is 0.f for the next runloop.
 
-### Mixing dispatch_sync and dispatch_async in Performance Critical Code
+### Mixing dispatch\_sync and dispatch\_async in Performance Critical Code
 
 That one took me a while to figure out. In [PSPDFKit](http://pspdfkit.com) there is a caching class that uses a LRU list to track image access. When you scroll through the pages, this is called *a lot*. The initial implementation used dispatch_sync for availability access, and dispatch_async to update the LRU position. This resulted in a frame rate far from the goal of 60 FPS. 
 
