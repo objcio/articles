@@ -129,19 +129,26 @@ Another problem with KVO is that callbacks might arrive on a different thread th
 
 ### Dependent key paths
 
-If you're observing properties that depend on other properties, you need to make sure that you [register dependent keys](https://developer.apple.com/library/ios/DOCUMENTATION/Cocoa/Conceptual/KeyValueObserving/Articles/KVODependentKeys.html). Otherwise, you might not get callbacks when your properties change. Also, when you're 
+If you're observing properties that depend on other properties, you need to make sure that you [register dependent keys](https://developer.apple.com/library/ios/DOCUMENTATION/Cocoa/Conceptual/KeyValueObserving/Articles/KVODependentKeys.html). Otherwise, you might not get callbacks when your properties change. A while ago, I created a recursive dependency (a property was dependent on itself) in my dependent key declarations, and strange things happened.
 
-## IB
+## Views
 
-* Outlets
-* actions
-* Retaining objects
+### Outlets and Actions
+
+A common mistake when using Interface Builder is to forget to wire up outlets and actions. This is now often indicated in the code (you can see small circles next to outlets and actions). Also, it's very possible to add unit tests that test whether everything is connected as you expect (but it might be too much of a maintenance burden).
+
+### Retaining objects
+
+When you use Interface Builder, you need to make sure that your object graph that you load from a nib file stays retained. There are [good pointers by Apple](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/LoadingResources/CocoaNibs/CocoaNibs.html#//apple_ref/doc/uid/10000051i-CH4-SW6) on this. Be sure to read that section and follow their advice, otherwise your objects might either disappear underneath you, or get over-retained. There are differences between plain xib files and Storyboards, be sure to account for that.
+
+### View Lifecycle
+
+When dealing with views, there are many potential bugs that can arise. One common mistake is to work with views when they are not initialized yet. Alternatively, you might work with initialized views that don't have a size yet. The key here is to do things at the right point in [the view lifecycle](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIViewController_Class/Reference/Reference.html#//apple_ref/doc/uid/TP40006926-CH3-SW58). Investing the time in exactly understanding how this works will almost certainly pay off in decreased debugging time.
+
+When you port an existing app to the iPad, this might also be a common source of bugs. All of a sudden, you might need to worry about whether a view controller is a child view controller, how it responds to rotation events, and many other subtle differences. Here, auto layout might be helpful, as it can automatically respond to many of these changes.
+
+One common mistake that we keep making is creating a view, adding some constraints and then adding it to the superview. In order for most constraints to work, the view needs to be in the superview hierarchy. When you debugging constraints that don't show up, this is one of the first things I check.
 
 ## Misc
 
-* View lifecycle (e.g. rotation)
-* Entitlements / Sandboxing / etc.
-* Did you turn on -Wall
-
-???
-* malloc
+* Check Peter's email
