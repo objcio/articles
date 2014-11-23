@@ -120,7 +120,7 @@ We see that the object address is the same, so our poor dimming view really is c
 2014-11-22 19:24:52.209 PSPDFCatalog[84210:1084883] <UINavigationController: 0x7fd673789da0> dismissed.
 ```
 
-Both times, the dimming view calls dismiss on our main navigation controller. Reading the documentation of `dismissViewControllerAnimated:completion:`, it's documeted that it forwards the dismiss request to it's immediate presented child controller, if there is one. So the first time, the dimiss request goes to the popover, and the second time the navigation controller itself gets dismissed.
+Both times, the dimming view calls dismiss on our main navigation controller. Reading the documentation of `dismissViewControllerAnimated:completion:`, it's documented that it forwards the dismiss request to it's immediate presented child controller, if there is one. So the first time, the dismiss request goes to the popover, and the second time the navigation controller itself gets dismissed.
 
 ### Finding a workaround
 
@@ -150,7 +150,7 @@ Now please don't stop here. You should always properly document such workarounds
 // The UIPopoverController is the default delegate for the UIPopoverPresentationController
 // of it's contentViewController.
 //
-// There is a bug when someone double-tappes on the dimming view, the presentation controller invokes
+// There is a bug when someone double-taps on the dimming view, the presentation controller invokes
 // dismissViewControllerAnimated:completion: twice, thus also potentially dismissing the parent controller.
 //
 // Simply implementing this delegate runs a different code path that properly checks for dismissing.
