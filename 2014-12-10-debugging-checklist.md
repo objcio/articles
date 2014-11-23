@@ -13,9 +13,10 @@ hard to find or reproduce. As a first step, it is always useful to find a way
 to reproduce the bug. Once you have a way to reproduce it consistently, you can
 get to the next stage: finding the bug.
 
-In this article, we try to sketch a number of common problems that we find when
+In this article, we try to sketch a number of common problems that we usually run into when
 debugging. You could use this as a checklist when you encounter a bug, and
-maybe by checking some of these things you'll find that bug way sooner. This article is about the kind of bugs that we experienced ourselves.
+maybe by checking some of these things you'll find that bug way sooner.
+And hopefully, some of the techniques help to prevent the bugs in the first place.
 
 We'll start of with a couple of very common sources of bugs that happen to us a lot.
 
@@ -49,9 +50,7 @@ Meanwhile, there are many different devices with different capabilities. If you 
 
 Mutability is also a common source of bugs that can be very hard to track down. For example, if you share an object between two threads, and they both modify it at the same time, you might get very unexpected behavior. The tough thing about these kinds of bugs is that they can be very hard to reproduce.
 
-One way to deal with this is to have immutable objects. This way, once you have access to an object you know that it'll never change it's state. 
-
-TODO reference to other articles?
+One way to deal with this is to have immutable objects. This way, once you have access to an object you know that it'll never change it's state. There is so much to say about this, we'd rather link to [A Warm Welcome to Structs and Value Types](/issue-16/swift-classes-vs-structs.html), [Value Objects](/issue-7/value-objects.html), [Object Mutability](https://developer.apple.com/library/mac/documentation/General/Conceptual/CocoaEncyclopedia/ObjectMutability/ObjectMutability.html) and [About Mutability](http://www.bignerdranch.com/blog/about-mutability/).
 
 ## Nullability
 
@@ -66,11 +65,15 @@ NSString *name = @"";
 NSAttributedString *string = [[NSAttributedString alloc] initWithString:name];
 ```
 
-If `myObject` is nil, this code will crash. The tricky thing is when this is an edge-case that you might not discover (e.g. `myObject` is non-nil in most of the cases). When writing your own methods, you can add a custom attribute to inform the compiler about whether you expect nil parameters:
+If `name` is nil, this code will crash. The tricky thing is when this is an edge-case that you might not discover (e.g. `myObject` is non-nil in most of the cases). When writing your own methods, you can add a custom attribute to inform the compiler about whether you expect nil parameters:
 
 ```objectivec
-* TODO insert example
+- (void)doSomethingWithRequiredString:(NSString *)requiredString
+                                  bar:(NSString *)optionalString
+        __attribute((nonnull(1)));
 ```
+
+(Source: [StackOverflow](http://stackoverflow.com/a/19186298))
 
 Adding this attribute will give a compiler warning when you try to pass in a nil parameter. This is nice, because now you don't have to think about this edge-case anymore: you can leverage the compiler infrastructure to have this checked for you.
 
@@ -86,9 +89,9 @@ Another possible way around this is to invert the flow of messages. For example,
 @end
 ```
 
-The nice thing about the above code is that you can now safely construct an `attributedString`. You could write `[@"John" attributedString]`, but you can also send this message to nil (`[nil attributedString]`) and rather than a crash, you get a nil result. For more background, see Graham Lee's article on inverting messaging.
+The nice thing about the above code is that you can now safely construct an `attributedString`. You could write `[@"John" attributedString]`, but you can also send this message to nil (`[nil attributedString]`) and rather than a crash, you get a nil result. For some more ideas about this, see Graham Lee's article on [reversing the polarity of the message flow](http://www.sicpers.info/2014/10/reversing-the-polarity-of-the-message-flow/)
 
-TODO link
+If you want to capture more constraints that need to be true (e.g. a parameter should always be a certain class) you can use [`NSParameterAssert`](https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Miscellaneous/Foundation_Functions/#//apple_ref/c/macro/NSParameterAssert) as well.
 
 ### Are you sure you can send the message to nil?
 
@@ -108,12 +111,6 @@ If `greeting` contains the string `"objc.io"`, a message is logged. If `greeting
 
 Sometimes when working with an object, you might end up working with a half-initialized object. Because it's uncommon to do any work in `init`, sometimes you need to call some methods on the object before you can start working with it. If you forget to call these methods, the class might not be initialized completely and weird behavior might occur. Therefore, always make sure that after the designated initializer is run, the class is in a usable state. If you absolutely need your designated initializer to run, and can't construct a working class using just the `init` method, you can still override the `init` method and crash. This way, when you do accidently instantiate an object using `init` you'll hopefully find out about it early.
 
-## Architecture
-
-* Archictecture: 32bit vs 64bit
-  * Things like CGFloat
-  * Do you have a broken format string?
-
 ## Key-Value Observing
 
 Another common source of bugs is when you're using Key-Value Observing (KVO) incorrectly. Unfortunately, it's not that hard to make mistakes, but luckily, there are a couple of ways to avoid them.
@@ -123,7 +120,7 @@ Another common source of bugs is when you're using Key-Value Observing (KVO) inc
 An easy-to-make mistake is adding an observer, but then never cleaning it up. This way, KVO will keep sending messages, but the receiver might have dealloc'ed, so there will be a crash. One way around this is to use a full-blown framework like [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa), but there are some lighter approaches as well.
 
 One way is to, whenever you create a new observer, immediately write a line in dealloc that removes it. However, this process can be automated. Rather than adding the observer directly, you can create a custom object that adds it for you. This custom object adds the observer, and removes it in its own dealloc. The advantage of this is that the lifetime of your observer is the same as the lifetime of the object. This means that creating this object adds the observer. You can then store it in a property, and whenever the containing object is dealloc'ed, the property will automatically be set to nil, thus removing the observer.
-A slightly longer explanation of this technique, including sample code, can be found [here](http://chris.eidhof.nl/posts/lightweight-key-value-observing.html). A tiny library that does this is [THObserversAndBinders](https://github.com/th-in-gs/THObserversAndBinders).
+A slightly longer explanation of this technique, including sample code, can be found [here](http://chris.eidhof.nl/posts/lightweight-key-value-observing.html). A tiny library that does this is [THObserversAndBinders](https://github.com/th-in-gs/THObserversAndBinders), or you could look at Facebook's [KVOController](https://github.com/facebook/KVOController).
 
 Another problem with KVO is that callbacks might arrive on a different thread than you expected (just like we described in the beginning). Again, by using an object to deal with this (as described above) you can make sure that all callbacks get delivered on a specific thread.
 
@@ -137,6 +134,8 @@ If you're observing properties that depend on other properties, you need to make
 
 A common mistake when using Interface Builder is to forget to wire up outlets and actions. This is now often indicated in the code (you can see small circles next to outlets and actions). Also, it's very possible to add unit tests that test whether everything is connected as you expect (but it might be too much of a maintenance burden).
 
+Here you could also use asserts like [`NSAssert`](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Miscellaneous/Foundation_Functions/#//apple_ref/c/macro/NSAssert) to verify that your outlets are not nil, to make sure you fail fast whenever this happens.
+
 ### Retaining objects
 
 When you use Interface Builder, you need to make sure that your object graph that you load from a nib file stays retained. There are [good pointers by Apple](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/LoadingResources/CocoaNibs/CocoaNibs.html#//apple_ref/doc/uid/10000051i-CH4-SW6) on this. Be sure to read that section and follow their advice, otherwise your objects might either disappear underneath you, or get over-retained. There are differences between plain xib files and Storyboards, be sure to account for that.
@@ -147,8 +146,8 @@ When dealing with views, there are many potential bugs that can arise. One commo
 
 When you port an existing app to the iPad, this might also be a common source of bugs. All of a sudden, you might need to worry about whether a view controller is a child view controller, how it responds to rotation events, and many other subtle differences. Here, auto layout might be helpful, as it can automatically respond to many of these changes.
 
-One common mistake that we keep making is creating a view, adding some constraints and then adding it to the superview. In order for most constraints to work, the view needs to be in the superview hierarchy. When you debugging constraints that don't show up, this is one of the first things I check.
+One common mistake that we keep making is creating a view, adding some constraints and then adding it to the superview. In order for most constraints to work, the view needs to be in the superview hierarchy. Luckily, most of the time this will crash your code so you'll find the bug fast.
 
-## Misc
+### Finally
 
-* Check Peter's email
+The techniques above are hopefully helpful to get rid of bugs or prevent them completely. There is also automated help available: turnin on all warning messages in clang can show you a lot of possible bugs, and running the static analyzer will almost certainly find some bugs (unless you run it on a regular basis).
