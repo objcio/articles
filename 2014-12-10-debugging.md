@@ -4,7 +4,7 @@ Nobody writes perfect code, and debugging is something everyone of us should be 
 
 ### The issue
 
-We received a bug report where quickly tapping on a button that presented a popover dismissed the popover but also the *parent* view controller. The first part of reproducing the issue was covered since we got a sample that showed the exact issue.
+We received a bug report where quickly tapping on a button that presented a popover dismissed the popover but also the *parent* view controller. Thankfully a sample was included, so the first part of reproducing the bug was already taken care of.
 
 ![](dismiss-issue-animated.gif)
 
@@ -12,14 +12,16 @@ My first guess was that we might have code that dismisses the view controller, a
 
 ![](xcode-view-debugging.png)
 
-Xcode added the "Debug View Hierarchy" feature in Xcode 6 and it's likely that Apple got inspired by the popular [Reveal](http://revealapp.com/) and [Spark Inspector](http://sparkinspector.com/), which basically do the same and are even better in many ways, like allowing to actually edit properties in the views.
+Apple added the [Debug View Hierarchy](https://developer.apple.com/library/ios/recipes/xcode_help-debugger/using_view_debugger/using_view_debugger.html) feature in Xcode 6 and it's likely that they got inspired by the popular [Reveal](http://revealapp.com/) and [Spark Inspector](http://sparkinspector.com/), which in many ways are still better and more feature-rich than the Xcode feature.
 
-Before there was visual debugging, the common way to inspect the hierarchy was using `po [[UIWindow keyWindow] recursiveDescription]` in *lldb*, which prints out [the whole view hierarchy in text form](https://gist.github.com/steipete/5a3c7a3b6e80d2b50c3b). 
+### Using lldb
 
-Similar to inspecting the view hiararchy, we can also inspect the view controller hierarchy using `po [[[UIWindow keyWindow] rootViewController] _printHierarchy]`. This is a private helper on `UIViewController` that Apple silently added in iOS 8.
+Before there was visual debugging, the common way to inspect the hierarchy was using `po [[UIWindow keyWindow] recursiveDescription]` in lldb, which prints out [the whole view hierarchy in text form](https://gist.github.com/steipete/5a3c7a3b6e80d2b50c3b). 
+
+Similar to inspecting the view hiararchy, we can also inspect the view controller hierarchy using `po [[[UIWindow keyWindow] rootViewController] _printHierarchy]`. This is a [private helper](https://github.com/nst/iOS-Runtime-Headers/blob/a8f9f7eb4882c9dfc87166d876c547b75a24c5bb/Frameworks/UIKit.framework/UIViewController.h#L365) on `UIViewController` that Apple silently added in iOS 8.
 
 ```
-lldb) po [[[UIWindow keyWindow] rootViewController] _printHierarchy]
+(lldb) po [[[UIWindow keyWindow] rootViewController] _printHierarchy]
 <PSPDFNavigationController 0x7d025000>, state: disappeared, view: <UILayoutContainerView 0x7b3218d0> not in the window
    | <PSCatalogViewController 0x7b3100d0>, state: disappeared, view: <UITableView 0x7c878800> not in the window
    + <UINavigationController 0x8012c5d0>, state: appeared, view: <UILayoutContainerView 0x8012b7a0>, presented with: <_UIFullscreenPresentationController 0x80116c00>
@@ -60,9 +62,9 @@ Let's first figure out what code is actually dismissing our view controller. The
 
 With lldb's `bt` command you can print the breakpoint. `bt all` will do the same, but printing the state of all threads, not just the current one.
 
-When we inspect the stack trace, we notice that it's actually too late, as we're called back from an already scheduled animation. We need to add our breakpoints earlier. In this case we are interested in calls to `-[UIViewController dismissViewControllerAnimated:completion:]`. We add a *symbolic breakpoint* to Xcode's breakpoint list and run the sample again. 
+Looking at the stack trace, we notice that it's actually too late, as we're called from an already scheduled animation. We need to add a breakpoint earlier. In this case we are interested in calls to `-[UIViewController dismissViewControllerAnimated:completion:]`. We add a *symbolic breakpoint* to Xcode's breakpoint list and run the sample again. 
 
-The Xcode breakpoint interface is very powerful, allowing you to add [conditions, skip counts or even custom actions like playing a sound effect and automatically continuing]((http://www.peterfriese.de/debugging-tips-for-ios-developers/)). We don't need these features here, but they can save quite some time.
+The Xcode breakpoint interface is very powerful, allowing you to add [conditions, skip counts or even custom actions like playing a sound effect and automatically continuing](http://www.peterfriese.de/debugging-tips-for-ios-developers/). We don't need these features here, but they can save quite some time.
 
 ```
 (lldb) bt
