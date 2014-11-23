@@ -92,7 +92,15 @@ In the **x86-64** architecture (iPhone Simulator for devices that have an arm64 
 
 The **armv7** architecture generally places variables in `$r0`, `$r1`, `$r2`, `$r3` then moves the rest on the stack `$sp`.
 
-**Arm64** is similar, however since there are more registers available, the whole range of `$x0` to `$x7` is used to pass variables to the function, before falling back to `$sp`.
+```
+(lldb) po $r0
+<PSPDFViewController: 0x15a1ca00 document:<PSPDFDocument 0x15616e70 UID:amazondynamososp2007_0c7fb1fc6c0841562b090b94f0c1c890 files:1 pageCount:16 isValid:1> page:0>
+
+(lldb) p (SEL)$r1
+(SEL) $1 = "dismissViewControllerAnimated:completion:"
+```
+
+**Arm64** is similar to armv7, however since there are more registers available, the whole range of `$x0` to `$x7` is used to pass over variables, before falling back to `$sp`.
 
 You can learn more about stack layout for [x86](http://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/), [x86-64](http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/) and of course in [AMD's official ABI draft](http://www.x86-64.org/documentation/abi.pdf).
 
