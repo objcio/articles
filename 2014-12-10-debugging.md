@@ -84,13 +84,15 @@ The Xcode breakpoint interface is very powerful, allowing you to add [conditions
     frame #22: 0x000a119d PSPDFCatalog`main(argc=1, argv=0xbffcd65c) + 141 at main.m:15
 ```
 
+Now we're talking! As expected, the fullscreen `UIDimmingView` receives our touch and processes it in `handleSingleTap:`, then forwarding it to `UIPopoverPresentationController`'s `dimmingViewWasTapped:`, which dismisses the controller (as it should). However, when we tap quickly, this breakpoint is called twice. Is there a second dimming view? Is it called on the same instance? We only have the assembly on this breakpoint, so calling `po self` will not work.
+
 ### Calling Conventions 101
 
-Now we're talking! As expected, the fullscreen `UIDimmingView` receives our touch and processes it in `handleSingleTap:`, then forwarding it to `UIPopoverPresentationController`'s `dimmingViewWasTapped:`, which dismisses the controller (as it should). However, when we tap quickly, this breakpoint is called twice. Is there a second dimming view? Is it called on the same instance? We only have the assembly on this breakpoint, so calling `po self` will not work. With some basic knowledge of assembly and function calling conventions, we can still get it. The [iOS ABI Function Call Guide](http://developer.apple.com/library/ios/#documentation/Xcode/Conceptual/iPhoneOSABIReference/Introduction/Introduction.html) and the [Mac OS X ABI Function Call Guide](http://developer.apple.com/library/mac/#documentation/DeveloperTools/Conceptual/LowLevelABI/000-Introduction/introduction.html) that is used in the iOS Simulator are both great resources.
+With some basic knowledge of assembly and function calling conventions, we can still get the value of `self`. The [iOS ABI Function Call Guide](http://developer.apple.com/library/ios/#documentation/Xcode/Conceptual/iPhoneOSABIReference/Introduction/Introduction.html) and the [Mac OS X ABI Function Call Guide](http://developer.apple.com/library/mac/#documentation/DeveloperTools/Conceptual/LowLevelABI/000-Introduction/introduction.html) that is used in the iOS Simulator are both great resources.
 
-Right now, we're simply interested in the value of `self`. We know that every Objective-C method has two implicit parameters: `self` and `_cmd`. So what we need is the first object on the stack. For the **32-bit** architecture, the stack is saved in $esp, so you can use `po *(int*)($esp+4)` to get self, and `p (SEL)*(int*)($esp+8)` to get _cmd in Objective-C methods. The first value in $esp is the return address. Subsequent variables are in `$esp+12`, `$esp+16` and so on.
+We know that every Objective-C method has two implicit parameters: `self` and `_cmd`. So what we need is the first object on the stack. For the **32-bit** architecture, the stack is saved in $esp, so you can use `po *(int*)($esp+4)` to get self, and `p (SEL)*(int*)($esp+8)` to get `_cmd` in Objective-C methods. The first value in `$esp` is the return address. Subsequent variables are in `$esp+12`, `$esp+16` and so on.
 
-In the **x86-64** architecture (iPhone Simulator for devices that have an arm64 chip), there are many more registers available, so variables are placed in `$rdi`, `$rsi`, `$rdx`, `$rxc`, `$r8`, `$r9`. All subsequent variables land on the stack in `$rbp`, starting with `$rbp+16`, `$rbp+24`, etc.
+The **x86-64** architecture (iPhone Simulator for devices that have an arm64 chip), offers many more registers, so variables are placed in `$rdi`, `$rsi`, `$rdx`, `$rxc`, `$r8`, `$r9`. All subsequent variables land on the stack in `$rbp`, starting with `$rbp+16`, `$rbp+24`, etc.
 
 The **armv7** architecture generally places variables in `$r0`, `$r1`, `$r2`, `$r3` then moves the rest on the stack `$sp`.
 
@@ -102,9 +104,9 @@ The **armv7** architecture generally places variables in `$r0`, `$r1`, `$r2`, `$
 (SEL) $1 = "dismissViewControllerAnimated:completion:"
 ```
 
-**Arm64** is similar to armv7, however since there are more registers available, the whole range of `$x0` to `$x7` is used to pass over variables, before falling back to `$sp`.
+**Arm64** is similar to armv7, however since there are more registers available, the whole range of `$x0` to `$x7` is used to pass over variables, before falling back to the stack register `$sp`.
 
-You can learn more about stack layout for [x86](http://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/), [x86-64](http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/) and of course in [AMD's official ABI draft](http://www.x86-64.org/documentation/abi.pdf).
+You can learn more about stack layout for [x86](http://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/), [x86-64](http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/) and of course in the [AMD64 ABI Draft](http://www.x86-64.org/documentation/abi.pdf).
 
 ### Using the runtime
 
@@ -113,7 +115,9 @@ Another way is to hook into the function to add a log statement. We could swizzl
 ```objc
 #import "Aspects.h"
 
-[UIPopoverPresentationController aspect_hookSelector:NSSelectorFromString(@"dimmingViewWasTapped:") withOptions:0 usingBlock:^(id <AspectInfo> info, UIView *tappedView) {
+[UIPopoverPresentationController aspect_hookSelector:NSSelectorFromString(@"dimmingViewWasTapped:") 
+                                         withOptions:0 
+                                          usingBlock:^(id <AspectInfo> info, UIView *tappedView) {
     NSLog(@"%@ dimmingViewWasTapped:%@", info.instance, tappedView);
 } error:NULL];
 ```
@@ -130,7 +134,9 @@ PSPDFCatalog[84049:1079574] <UIPopoverPresentationController: 0x7fd09f91c530> di
 We see that the object address is the same, so our poor dimming view really is called twice. We can use Aspects again to see on what controller the dismiss is actually called:
 
 ```objc
-[UIViewController aspect_hookSelector:@selector(dismissViewControllerAnimated:completion:) withOptions:0 usingBlock:^(id <AspectInfo> info) {
+[UIViewController aspect_hookSelector:@selector(dismissViewControllerAnimated:completion:)
+                          withOptions:0
+                           usingBlock:^(id <AspectInfo> info) {
     NSLog(@"%@ dismissed.", info.instance);
 } error:NULL];
 ```
