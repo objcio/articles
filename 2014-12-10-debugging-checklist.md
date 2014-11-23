@@ -32,7 +32,7 @@ This is mostly an Objective-C problem, in Swift there's a stronger type-system w
 
 For example, in [Deckset](http://www.decksetapp.com), we were adding a new feauture that had to do with fonts. One of the objects had a `fonts` array property, and I assumed the objects in the array were of type `NSFont`. As it turned out, the array contained `NSString` objects (the font names). It took quite a while to figure this out, because mostly things worked as expected. In Objective-C, one way to check this is by having assertions. Another way to help yourself is to encode type-information in the name (e.g. this array could have been named `fontNames`). In Swift, these errors can be prevented by having precise types (e.g. `[NSFont]` rather than `[AnyObject]`).
 
-When unsure about whether the object is of the right type, you can always print it in the debugger. You can even have assertions that check whether or not an object is the right class using `isKindOfClass:`. In Swift, rather than force-casting with the `as` keyword, rely on having optionals and use `as?` to typecast whenever you need to. This will let you minimize the chances of errors.
+When unsure about whether the object is of the right type, you can always print it in the debugger. It is also useful to have assertions that check whether or not an object is the right class using `isKindOfClass:`. In Swift, rather than force-casting with the `as` keyword, rely on having optionals and use `as?` to typecast whenever you need to. This will let you minimize the chances of errors.
 
 ### Build-specific settings
 
