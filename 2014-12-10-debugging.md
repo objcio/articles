@@ -162,7 +162,7 @@ Now please don't stop here. You should always properly document such workarounds
 
 Writing radars is actually quite a fun challenge, and takes not as much time as you might think. With an example you'll help out the (overloaded) Apple engineers and without it, they most likely push back and don't even consider the radar. I managed to create a sample in about 50 LOC including some comments and the workaround. The "Single View Template" is usually the quickest way to create an example.
 
-Now we all know that Apple's RadarWeb application isn't great, however you don't have to use it. (QuickRadar)[http://www.quickradar.com/] is a great Mac frontent that can submit the radar for you, and also automatically sending a copy to [OpenRadar](http://openradar.appspot.com). Furthermore, it makes duping radars extremely convenient. You should download it right away and dupe rdar://19053416, if you feel like this bug should be fixed.
+Now we all know that Apple's RadarWeb application isn't great, however you don't have to use it. (QuickRadar)[http://www.quickradar.com/] is a great Mac frontend that can submit the radar for you, and also automatically sending a copy to [OpenRadar](http://openradar.appspot.com). Furthermore, it makes duping radars extremely convenient. You should download it right away and dupe rdar://19053416, if you feel like this bug should be fixed.
 
 
 Not every issue can be solved with such a simple workaround, however many of these steps will help you find better solutions to issues, or at least improve your understanding why something is happening. 
