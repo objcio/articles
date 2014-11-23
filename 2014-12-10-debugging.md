@@ -2,19 +2,17 @@
 
 Nobody writes perfect code, and debugging is something everyone of us should be able to do well. Instead of a random list of tips, I'll walk you through a bug that turned out to be a regression in UIKit, and show you the workflow I used to understand, isolate and ultimately work around the issue.
 
-![](dismiss-issue-animated.gif)
-
-### Backstory
+### The issue
 
 We received a bug report where quickly tapping on a button that presented a popover dismissed the popover but also the *parent* view controller. The first part of reproducing the issue was covered since we got a sample that showed the exact issue.
 
-### Understanding the bug
+![](dismiss-issue-animated.gif)
 
 My first guess was that we might have code that dismisses the view controller, and we wrongfully dismiss the parent. However, when using Xcode's integrated view debugging feature, it was clear that there was a global `UIDimmingView` that was the first responder for touch input.
 
 ![](xcode-view-debugging.png)
 
-Xcode added the "Debug View Hierarchy" feature in Xcode 6 and it's likely that Apple got inspired by the popular Reveal and SparkInspector, which basically do the same and are even better in many ways, like allowing to actually edit properties in the views.
+Xcode added the "Debug View Hierarchy" feature in Xcode 6 and it's likely that Apple got inspired by the popular [Reveal](http://revealapp.com/) and [Spark Inspector](http://sparkinspector.com/), which basically do the same and are even better in many ways, like allowing to actually edit properties in the views.
 
 Before there was visual debugging, the common way to inspect the hierarchy was using `po [[UIWindow keyWindow] recursiveDescription]` in *lldb*, which prints out [the whole view hierarchy in text form](https://gist.github.com/steipete/5a3c7a3b6e80d2b50c3b). 
 
