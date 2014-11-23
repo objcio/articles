@@ -154,7 +154,7 @@ My first attempt was to set this to the main view controller that creates the po
 
 ### Reporting a Radar
 
-Now please don't stop here. You should always properly document such workarounds, and most importantly file a radar with Apple.
+Now please don't stop here. You should always properly document such workarounds, and most importantly file a radar with Apple. As an additional benefit, this allows you to verify that you actually understood the bug and no other side-effects from your application play a rule - and if you drop an iOS version it's easy to go back and test if the radar is still valid.
 
 ```
 // The UIPopoverController is the default delegate for the UIPopoverPresentationController
@@ -170,7 +170,7 @@ Now please don't stop here. You should always properly document such workarounds
 }
 ```
 
-Writing radars is actually quite a fun challenge, and takes not as much time as you might think. With an example you'll help out the (overloaded) Apple engineers and without it, they most likely push back and don't even consider the radar. I managed to create a sample in about 50 LOC including some comments and the workaround. The "Single View Template" is usually the quickest way to create an example.
+Writing radars is actually quite a fun challenge, and takes not as much time as you might think. With an example you'll help out some overworked Apple engineer and without it, they most likely push back and don't even consider the radar. I managed to create a sample in about 50 LOC including some comments and the workaround. The "Single View Template" is usually the quickest way to create an example.
 
 Now we all know that Apple's RadarWeb application isn't great, however you don't have to use it. (QuickRadar)[http://www.quickradar.com/] is a great Mac frontend that can submit the radar for you, and also automatically sending a copy to [OpenRadar](http://openradar.appspot.com). Furthermore, it makes duping radars extremely convenient. You should download it right away and dupe rdar://19053416, if you feel like this bug should be fixed.
 
@@ -189,4 +189,5 @@ Not every issue can be solved with such a simple workaround, however many of the
 *  [Chisel - a collection of LLDB commands to assist debugging iOS apps](https://github.com/facebook/chisel)
 *  [Where the top of the stack is on x86](http://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/)
 *  [Stack frame layout on x86-64](http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64)
-*  [AMD's official ABI draft](http://www.x86-64.org/documentation/abi.pdf)
+*  [AMD64 ABI draft](http://www.x86-64.org/documentation/abi.pdf)
+*  [ARM 64-bit Architecture](http://infocenter.arm.com/help/topic/com.arm.doc.ihi0055b/IHI0055B_aapcs64.pdf)
