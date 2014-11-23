@@ -82,9 +82,21 @@ The Xcode breakpoint interface is very powerful, allowing you to add [conditions
     frame #22: 0x000a119d PSPDFCatalog`main(argc=1, argv=0xbffcd65c) + 141 at main.m:15
 ```
 
-Now we're talking! As expected, the fullscreen `UIDimmingView` receives our touch and processes it in `handleSingleTap:`, then forwarding it to `UIPopoverPresentationController`'s `dimmingViewWasTapped:`, which dismisses the controller (as it should). However, when we tap quickly, this breakpoint is called twice. Is there a second dimming view? Is it called on the same instance? We only have the assembly on this breakpoint, so calling `po self` will not work. With some basic knowledge of assembly and function calling conventions, we can still get it. The [iOS ABI Function Call Guide](http://developer.apple.com/library/ios/#documentation/Xcode/Conceptual/iPhoneOSABIReference/Introduction/Introduction.html) and the [Mac OS X ABI Function Call Guide](http://developer.apple.com/library/mac/#documentation/DeveloperTools/Conceptual/LowLevelABI/000-Introduction/introduction.html) that is used in the iOS Simulator are both great resources and will improve your debugging skills.
+### Calling Conventions 101
 
-For the 32-bit architecture, the stack is saved in $esp, so you can use `po *(int*)($esp+4)` to get self, and `p (SEL)*(int*)($esp+8)` to get _cmd in Objective-C methods. The first value in $esp is the return address.
+Now we're talking! As expected, the fullscreen `UIDimmingView` receives our touch and processes it in `handleSingleTap:`, then forwarding it to `UIPopoverPresentationController`'s `dimmingViewWasTapped:`, which dismisses the controller (as it should). However, when we tap quickly, this breakpoint is called twice. Is there a second dimming view? Is it called on the same instance? We only have the assembly on this breakpoint, so calling `po self` will not work. With some basic knowledge of assembly and function calling conventions, we can still get it. The [iOS ABI Function Call Guide](http://developer.apple.com/library/ios/#documentation/Xcode/Conceptual/iPhoneOSABIReference/Introduction/Introduction.html) and the [Mac OS X ABI Function Call Guide](http://developer.apple.com/library/mac/#documentation/DeveloperTools/Conceptual/LowLevelABI/000-Introduction/introduction.html) that is used in the iOS Simulator are both great resources.
+
+Right now, we're simply interested in the value of `self`. We know that every Objective-C method has two implicit parameters: `self` and `_cmd`. So what we need is the first object on the stack. For the **32-bit** architecture, the stack is saved in $esp, so you can use `po *(int*)($esp+4)` to get self, and `p (SEL)*(int*)($esp+8)` to get _cmd in Objective-C methods. The first value in $esp is the return address. Subsequent variables are in `$esp+12`, `$esp+16` and so on.
+
+In the **x86-64** architecture (iPhone Simulator for devices that have an arm64 chip), there are many more registers available, so variables are placed in `$rdi`, `$rsi`, `$rdx`, `$rxc`, `$r8`, `$r9`. All subsequent variables land on the stack in `$rbp`, starting with `$rbp+16`, `$rbp+24`, etc.
+
+The **armv7** architecture generally places variables in `$r0`, `$r1`, `$r2`, `$r3` then moves the rest on the stack `$sp`.
+
+**Arm64** is similar, however since there are more registers available, the whole range of `$x0` to `$x7` is used to pass variables to the function, before falling back to `$sp`.
+
+You can learn more about stack layout for [x86](http://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/), [x86-64](http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/) and of course in [AMD's official ABI draft](http://www.x86-64.org/documentation/abi.pdf).
+
+### Using the runtime
 
 Another way is to hook into the function to add a log statement. We could swizzle the class and then call our own code on it. Manually swizzling just to be able to debug more conveniently however isn't really time efficent. A while back I wrote a small library called [*Aspects*](http://github.com/steipete/Aspects) that does exactly that. It can be used in production code but I mostly use it for debugging and to write test cases. (If you're curious about Aspects, you can [learn more here.](https://speakerdeck.com/steipete/building-aspects))
 
@@ -175,3 +187,6 @@ Not every issue can be solved with such a simple workaround, however many of the
 *  [Building Aspects](https://speakerdeck.com/steipete/building-aspects)
 *  [Event Delivery: The Responder Chain](https://developer.apple.com/library/ios/documentation/EventHandling/Conceptual/EventHandlingiPhoneOS/event_delivery_responder_chain/event_delivery_responder_chain.html)
 *  [Chisel - a collection of LLDB commands to assist debugging iOS apps](https://github.com/facebook/chisel)
+*  [Where the top of the stack is on x86](http://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/)
+*  [Stack frame layout on x86-64](http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64)
+*  [AMD's official ABI draft](http://www.x86-64.org/documentation/abi.pdf)
