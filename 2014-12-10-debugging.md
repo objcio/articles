@@ -150,7 +150,7 @@ Both times, the dimming view calls dismiss on our main navigation controller. Re
 
 ### Finding a workaround
 
-We now know what is happening - now let's move to the *why*. Since UIKit is closed source, we have to use *Hopper* to disassemble UIKit and take a closer look what's going on in `UIPopoverPresentationController`. You'll find the binary under `/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/UIKit.framework`. Use File ->  Read Executable to Disassemble... and select this in Hopper, and watch how it crawls through the binary and symbolicates code. The 32-bit disassembler is the most mature one, so you'll get the best results selecting the 32-bit file slice.
+We now know what is happening - now let's move to the *why*. UIKit is closed source, but we can use a disassembler like [Hopper](http://www.hopperapp.com/) to read the UIKit assembly and take a closer look what's going on in `UIPopoverPresentationController`. You'll find the binary under `/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/UIKit.framework`. Use File ->  Read Executable to Disassemble... and select this in Hopper, and watch how it crawls through the binary and symbolicates code. The 32-bit disassembler is the most mature one, so you'll get the best results selecting the 32-bit file slice. [IDA by Hex-Rays](https://www.hex-rays.com/products/ida/) is another very powerful and expensive disassembler, which often provides even better results.
 
 ![](hopper-dimmingView.png)
 
@@ -199,6 +199,7 @@ Not every issue can be solved with such a simple workaround, however many of the
 *  [iOS Runtime Headers](https://github.com/nst/iOS-Runtime-Headers)
 *  [Debugging Tips for iOS Developers](http://www.peterfriese.de/debugging-tips-for-ios-developers/)
 *  [Hopper - a reverse engineering tool](http://www.hopperapp.com/)
+*  [IDA by Hex-Rays](https://www.hex-rays.com/products/ida/)
 *  [Aspects - Delightful, simple library for aspect oriented programming.](http://github.com/steipete/Aspects)
 *  [Building Aspects](https://speakerdeck.com/steipete/building-aspects)
 *  [Event Delivery: The Responder Chain](https://developer.apple.com/library/ios/documentation/EventHandling/Conceptual/EventHandlingiPhoneOS/event_delivery_responder_chain/event_delivery_responder_chain.html)
