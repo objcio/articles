@@ -79,7 +79,7 @@ os_trace("Received %d creates, %d updates, %d deletes", created, updated, delete
 os_trace("Processed %d records in %g seconds", count, time);
 ```
 
-One caveat that I stumbled upon while experimenting with this API is that trace messages don't show up in crash reports if not at least one is sent from the crashing thread. I don't know if that's a bug or intended behavior.
+One caveat that I stumbled upon while experimenting with this API is that trace messages don't show up in crash reports if no trace messages are sent from the crashing thread.
 
 
 ### Trace Message Variants
