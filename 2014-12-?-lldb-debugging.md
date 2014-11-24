@@ -1,5 +1,5 @@
 ---
-title:  "Dancing in the Debugger - A Waltz with LLDB"
+title:  "Dancing in the Debugger — A Waltz with LLDB"
 category: "19"
 date: "2014-011-20 00:00:00"
 tags: article
@@ -38,7 +38,7 @@ This article is intended to challenge your knowledge of debugging, explain the b
 
 ## LLDB
 
-[LLDB](http://lldb.llvm.org/) is an [open-source](http://lldb.llvm.org/source.html) debugger that features a REPL along with C++ and Python plugins. It comes bundled inside Xcode and lives in the console at the bottom of the window. A debugger allows you to pause a program, inspect values, and move through it incrementally, observing every detail of its execution. ([Here](http://eli.thegreenplace.net/2011/01/23/how-debuggers-work-part-1.html) is one explanation of how debuggers work in general.)
+[LLDB](http://lldb.llvm.org/) is an [open-source](http://lldb.llvm.org/source.html) debugger that features a REPL along with C++ and Python plugins. It comes bundled inside Xcode and lives in the console at the bottom of the window. A debugger allows you to pause a program at a specific moment of its execution, inspect the values of variables, execute custom instructions, and then manipulate the advancement of the program as you see fit. ([Here](http://eli.thegreenplace.net/2011/01/23/how-debuggers-work-part-1.html) is one explanation of how debuggers work in general.)
 
 It's likely that you have used a debugger before, even if only in Xcode's UI to add breakpoints. But with a few tricks, there are some pretty cool things that you can do. The [GDB to LLDB](http://lldb.llvm.org/lldb-gdb.html) reference is a great bird's-eye view of the available commands, and you might also want to install [Chisel](https://github.com/facebook/chisel), an open-source collection of LLDB plugins that make debugging even more fun!
 
@@ -64,7 +64,7 @@ Printing values is easy; just try the `print` command:
 
 LLDB actually does prefix matching, so you would be fine to try `prin`, `pri`, or `p`. You can't use `pr`, since it can't disambiguate it from the `process` command (luckily for us, `p` has been disambiguated).
 
-You'll also notice that the result has a `$0` in it. You can actually use this reference the result! Try `print $0 + 7` and you'll see `106`. Anything starting with a dollar sign is in LLDB's namespace and exists to help you.
+You'll also notice that the result has a `$0` in it. You can actually use this to reference the result! Try `print $0 + 7` and you'll see `106`. Anything starting with a dollar sign is in LLDB's namespace and exists to help you.
 
 ### _expression_
 
@@ -78,9 +78,9 @@ Note: From now on, we be lazy with the number of characters, and replace `print`
 
 ### What is the _print_ Command?
 
-Here's a fun expression to consider: `p count = 18`. If we execute that command and then print it, just like the expression command.
+Here's a fun expression to consider: `p count = 18`. If we execute that command and then print the contents of `count`, we’ll see that it behave exactly as if we had run `expression count = 18`. 
 
-The difference is that the `print` command takes no arguments. Consider `e -h +17`. It is not clear if it means to execute `+17` as input, but with the `-h` flag, or if it intends to compute the difference between `17` and `h`. It finds that hyphen quite confusing indeed; you may not get the result that you like. 
+The difference is that the `print` command takes no arguments, unlike the `expression` command. Consider `e -h +17`. It is not clear if it means to execute `+17` as input, but with the `-h` flag, or if it intends to compute the difference between `17` and `h`. It finds that hyphen quite confusing indeed; you may not get the result that you like. 
 
 Luckily, the solution is quite simple. Use `--` to signify the end of the flags and the beginning of the input. Then if you want the `-h` flag, you would do `e -h -- +17`, and if you want the difference, you would do `e -- -h +17`. Since passing no flags is quite common, there is an alias for `e --`. It is called `print`.
 
@@ -295,7 +295,7 @@ To create a breakpoint in the debugger, use the `breakpoint set` command:
 	(lldb) breakpoint set -f main.m -l 16
 	Breakpoint 1: where = DebuggerDance`main + 27 at main.m:16, address = 0x000000010a3f6cab
 	
-The shortest abbreviation you can use is `br`. As it turns out, `b` is an entirely different command (an alias for `_regexp-break`). But it lets you do similarly:
+The shortest abbreviation you can use is `br`. As it turns out, `b` is an entirely different command (an alias for `_regexp-break`), but it is robust enough to allow the same breakpoint as above:
 
     (lldb) b main.m:17
     Breakpoint 2: where = DebuggerDance`main + 52 at main.m:17, address = 0x000000010a3f6cc4
@@ -387,7 +387,7 @@ This checkbox is the same as having the last breakpoint action be `continue`, bu
 
 	  1.1: where = DebuggerDance`isEven + 16 at main.m:4, address = 0x00000001083b5d00, resolved, hit count = 0
 	  
-Automatically continuing after evaluating a breakpoint allows you to modify your program solely through the use of breakpoints! You could stop at a line, run an `expression` command, to change a variable, and then continue.
+Automatically continuing after evaluating a breakpoint allows you to modify your program solely through the use of breakpoints! You could stop at a line, run an `expression` command to change a variable, and then continue.
 
 #### Examples
 
@@ -470,7 +470,7 @@ Then modify it in the debugger to change its background color:
     
 However, you won't see any changes until you continue the program again. This is because the changes need to be sent over to the render server and then the display will be updated.
 
-However the render server is actually another process (called `backboardd`), and even though our app, our process, is interrupted, `backboardd` is not!
+The render server is actually another process (called `backboardd`), and even though the containing process of what we are debugging is interrupted, `backboardd` is not!
 
 That means that without continuing you can execute the following:
 
@@ -531,17 +531,16 @@ This was added to [Chisel](https://github.com/facebook/chisel) as `wivar $myView
 
 ### Symbolic Breakpoints on Non-Overridden Methods
 
-Imagine that you want to know when `-[MyViewController viewDidAppear:]` is called but that `MyViewController` does not implement that method, but that it's superclass does:
+Imagine that you want to know when `-[MyViewController viewDidAppear:]` is called. What would happen if `MyViewController` didn't actually implement that method, but its superclass did? We can try setting a breakpoint and see:
 
 	(lldb) b -[MyViewController viewDidAppear:]
 	Breakpoint 1: no locations (pending).
 	WARNING:  Unable to resolve breakpoint to any actual locations.
 	
-Since LLDB is looking for a *symbol*, it won't find it, and your breakpoint would never hit. What you need to do is set a condition, `[self isKindofClass:[MyViewController class]]`, and then put the breakpoint on `UIViewController`. Unfortunately this won't work.
+Since LLDB is looking for a *symbol*, it won't find it, and your breakpoint will never fire. What you need to do is set a condition, `[self isKindofClass:[MyViewController class]]`, and then put the breakpoint on `UIViewController`. Normally, putting a condition like this will work, however, here it doesn’t since we don’t own the implementation of the superclass.
 
-`viewDidAppear:` is a method that Apple wrote and there are no symbols for it; there is not `self`. You'd actually have to know **where** `self` is (in the registers, on the stack, etc.) to pull this off. And since there are now four architectures to think about (x86, x86-64, armv7, armv64), you have to know the calling conventions of all of these. Oof! You can imagine taking the time to learn each of these instruction sets and then writing a command that will set the correct breakpoint for you on the correct super class. In [Chisel](https://github.com/facebook/chisel), this has been implemented as `bmessage`.
+`viewDidAppear:` is a method that Apple wrote, and thus, there are no symbols for it; there is not `self` when inside that method. If you wanted to use `self` in a symbolic breakpoint, you would have to know where it is (it could be in the registers or on the stack; in x86 you’ll find it at `$esp+4`) This is a pain though, because there are already at least four architectures you’d have to know (x86, x86-64, armv7, armv64). Oof! You can imagine taking the time to learn the instruction set and calling convention for each, and then writing a command that will set a breakpoint for you on the correct super class and with the correct condition. Luckily, this has already been done in [Chisel](https://github.com/facebook/chisel), and is called `message`:
 
-On x86-64 (a 64-bit iOS Simulator), `self` is stored in the `rdi` register. Luckily, we don't even have to learn that and can just use the command:
 
 	(lldb) bmessage -[MyViewController viewDidAppear:]
 	Setting a breakpoint at -[UIViewController viewDidAppear:] with condition (void*)object_getClass((id)$rdi) == 0x000000010e2f4d28
@@ -549,7 +548,7 @@ On x86-64 (a 64-bit iOS Simulator), `self` is stored in the `rdi` register. Luck
 
 ### LLDB and Python
 
-LLDB has full, built-in [Python support](http://lldb.llvm.org/python-reference.html). If you type `script` in LLDB, it will open a Python REPL. You can add any python after the command to have it executed without entering the REPL:
+LLDB has full, built-in [Python support](http://lldb.llvm.org/python-reference.html). If you type `script` in LLDB, it will open a Python REPL. If you type `script` in LLDB, it will open a Python REPL. You can also pass a line of Python to the `script command` and have it executed without entering the REPL:
 
     (lldb) script import os
     (lldb) script os.system("open http://www.objc.io/")
