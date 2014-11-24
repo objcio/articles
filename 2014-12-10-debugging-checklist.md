@@ -28,7 +28,7 @@ Another solution is to keep the places where threading happens very isolated. As
 
 ### Is This Object Really the Right Class?
 
-This is mostly an Objective-C problem; in Swift, there's a stronger type system with way stronger guarantees about the type of an object or value. However, in Objective-C, it's fairly common to accidentally have objects of the wrong class.
+This is mostly an Objective-C problem; in Swift, there's a stronger type system with more precise guarantees about the type of an object or value. However, in Objective-C, it's fairly common to accidentally have objects of the wrong class.
 
 For example, in [Deckset](http://www.decksetapp.com), we were adding a new feature that had to do with fonts. One of the objects had a `fonts` array property, and I assumed the objects in the array were of type `NSFont`. As it turned out, the array contained `NSString` objects (the font names). It took quite a while to figure this out, because, for the most part, things worked as expected. In Objective-C, one way to check this is by having assertions. Another way to help yourself is to encode type information in the name (e.g. this array could have been named `fontNames`). In Swift, these errors can be prevented by having precise types (e.g. `[NSFont]` rather than `[AnyObject]`).
 
