@@ -12,7 +12,7 @@ My first guess was that we might have code that dismisses the view controller, a
 
 ![](xcode-view-debugging.png)
 
-Apple added the [Debug View Hierarchy](https://developer.apple.com/library/ios/recipes/xcode_help-debugger/using_view_debugger/using_view_debugger.html) feature in Xcode 6, and it's likely that Apple got inspired by the popular [Reveal](http://revealapp.com/) and [Spark Inspector](http://sparkinspector.com/), which in many ways are still better and more feature rich than the Xcode feature.
+Apple added the [Debug View Hierarchy](https://developer.apple.com/library/ios/recipes/xcode_help-debugger/using_view_debugger/using_view_debugger.html) feature in Xcode 6, and it's likely that Apple got inspired by the popular [Reveal](http://revealapp.com/) and [Spark Inspector](http://sparkinspector.com/) apps, which in many ways are still better and more feature rich than the Xcode feature.
 
 ### Using LLDB
 
@@ -60,9 +60,9 @@ Let's first figure out what code is actually dismissing our view controller. The
 (lldb) 
 ```
 
-With LLDB's `bt` command, you can print the breakpoint. `bt all` will do the same, but printing the state of all threads, not just the current one.
+With LLDB's `bt` command, you can print the breakpoint. `bt all` will do the same, but it prints the state of all threads, and not just the current one.
 
-Looking at the stack trace, we notice that it's actually too late, as we're called from an already scheduled animation. We need to add a breakpoint earlier. In this case, we are interested in calls to `-[UIViewController dismissViewControllerAnimated:completion:]`. We add a *symbolic breakpoint* to Xcode's breakpoint list and run the sample again. 
+Looking at the stack trace, we notice that the view controller is already dismissing, as we're called from an scheduled animation, so we need to add a breakpoint earlier. In this case, we are interested in calls to `-[UIViewController dismissViewControllerAnimated:completion:]`. We add a *symbolic breakpoint* to Xcode's breakpoint list and run the sample again. 
 
 The Xcode breakpoint interface is very powerful, allowing you to add [conditions, skip counts, or even custom actions like playing a sound effect and automatically continuing](http://www.peterfriese.de/debugging-tips-for-ios-developers/). We don't need these features here, but they can save quite a bit of time:
 
@@ -110,7 +110,7 @@ You can learn more about stack layout for [x86](http://eli.thegreenplace.net/201
 
 ### Using the Runtime
 
-Another way is to hook into the function to add a log statement. We could swizzle the class and then call our own code on it. However, manually swizzling just to be able to debug more conveniently isn't really time efficent. A while back, I wrote a small library called [*Aspects*](http://github.com/steipete/Aspects) that does exactly that. It can be used in production code, but I mostly use it for debugging and to write test cases. (If you're curious about Aspects, you can [learn more here.](https://speakerdeck.com/steipete/building-aspects))
+Another technique to track method execution is overriding the methods with a log statement before calling super. However, manually swizzling just to be able to debug more conveniently isn't really time efficent. A while back, I wrote a small library called [*Aspects*](http://github.com/steipete/Aspects) that does exactly that. It can be used in production code, but I mostly use it for debugging and to write test cases. (If you're curious about Aspects, you can [learn more here.](https://speakerdeck.com/steipete/building-aspects))
 
 ```objc
 #import "Aspects.h"
@@ -154,7 +154,7 @@ We now know what is happening — now let's move to the *why*. UIKit is closed s
 
 ![](hopper-dimmingView.png)
 
-Some basics in assembly are quite useful when reading through the code, however, you can also use the Pseudo-Code view to get something more C-like:
+Some basics in assembly are quite useful when reading through the code, however, you can also use the pseudo-code view to get something more C-like:
 
 ![](pseudo-code.png)
 
@@ -166,7 +166,7 @@ Reading the pseudo-code is quite eye-opening. There are two code paths — one i
 }
 ```
 
-My first attempt was to set this to the main view controller that creates the popover. However, that broke `UIPopoverController`. While not documented, the popover controller sets itself as the delegate in `_setupPresentationController`, and taking the delegate away will break things. Instead, I used a `UIPopoverController` subclass and added the above method directly. We rely on undocumented behavior here that the delegate is set by the system, however, since the method returns the documented default, and is purely to work around an UIKit regression, that's OK.
+My first attempt was to set this to the main view controller that creates the popover. However, that broke `UIPopoverController`. While not documented, the popover controller sets itself as the delegate in `_setupPresentationController`, and taking the delegate away will break things. Instead, I used a `UIPopoverController` subclass and added the above method directly. The connection between these two classes is not documented, and our fix relies on this undocumented behavior; however, the implementation matches the default and exists purely to work around this issue, so it's future-proof code.
 
 ### Reporting a Radar
 
@@ -186,9 +186,9 @@ Now please don't stop here. You should always properly document such workarounds
 }
 ```
 
-Writing radars is actually quite a fun challenge, and takes not as much time as you might think. With an example, you'll help out some overworked Apple engineer, and without it, they most likely push back and don't even consider the radar. I managed to create a sample in about 50 LOC, including some comments and the workaround. The Single View Template is usually the quickest way to create an example.
+Writing radars is actually quite a fun challenge, and takes not as much time as you might think. With an example, you'll help out some overworked Apple engineer, and without it, the engineers will most likely push back and don't even consider the radar. I managed to create a sample in about 50 LOC, including some comments and the workaround. The Single View Template is usually the quickest way to create an example.
 
-Now, we all know that Apple's RadarWeb application isn't great, however, you don't have to use it. (QuickRadar)[http://www.quickradar.com/] is a great Mac front-end that can submit the radar for you, and also automatically sending a copy to [OpenRadar](http://openradar.appspot.com). Furthermore, it makes duping radars extremely convenient. You should download it right away and dupe rdar://19053416 if you feel like this bug should be fixed.
+Now, we all know that Apple's RadarWeb application isn't great, however, you don't have to use it. (QuickRadar)[http://www.quickradar.com/] is a great Mac front-end that can submit the radar for you, and also automatically sends a copy to [OpenRadar](http://openradar.appspot.com). Furthermore, it makes duping radars extremely convenient. You should download it right away and dupe rdar://19053416 if you feel like this bug should be fixed.
 
 
 Not every issue can be solved with such a simple workaround, however, many of these steps will help you find better solutions to issues, or at least improve your understanding of why something is happening. 
