@@ -200,7 +200,7 @@ Not every issue can be solved with such a simple workaround, however, many of th
 *  [Debugging Tips for iOS Developers](http://www.peterfriese.de/debugging-tips-for-ios-developers/)
 *  [Hopper — a reverse engineering tool](http://www.hopperapp.com/)
 *  [IDA by Hex-Rays](https://www.hex-rays.com/products/ida/)
-*  [Aspects — Delightful, simple library for aspect-oriented programming.](http://github.com/steipete/Aspects)
+*  [Aspects — Delightful, simple library for aspect oriented programming.](http://github.com/steipete/Aspects)
 *  [Building Aspects](https://speakerdeck.com/steipete/building-aspects)
 *  [Event Delivery: The Responder Chain](https://developer.apple.com/library/ios/documentation/EventHandling/Conceptual/EventHandlingiPhoneOS/event_delivery_responder_chain/event_delivery_responder_chain.html)
 *  [Chisel — a collection of LLDB commands to assist debugging iOS apps](https://github.com/facebook/chisel)
