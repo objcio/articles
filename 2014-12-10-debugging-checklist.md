@@ -44,7 +44,7 @@ These kinds of bugs can be hard to detect during development. As such, you shoul
 
 ### Different Devices
 
-Meanwhile, there are many different devices with different capabilities. If you only have test on a limited number of devices, this is a potential cause of bugs. The classic scenario is just testing on the simulator without having the real device. But even when you do test with a real device, you need to account for different capabilities. For example, when dealing with the built-in camera, always use methods like `isSourceTypeAvailable:` to check whether you can use a specific input source. You might have a working camera on your device, but it might not be available on the user's device. 
+Meanwhile, there are many different devices with different capabilities. If you have only tested on a limited number of devices, this is a potential cause of bugs. The classic scenario is just testing on the simulator without having the real device. But even when you do test with a real device, you need to account for different capabilities. For example, when dealing with the built-in camera, always use methods like `isSourceTypeAvailable:` to check whether you can use a specific input source. You might have a working camera on your device, but it might not be available on the user's device. 
 
 ### Mutability
 
@@ -56,7 +56,7 @@ One way to deal with this is to have immutable objects. This way, once you have 
 
 As Objective-C programmers, we sometimes make fun of Java programmers because of their `NullPointerException`s. For the most part, we can safely send messages to nil and not have any problems. Still, there are some tricky bugs that might arise out of this. If you are writing Swift instead of Objective-C, you can safely skip most of this section, because Swift optionals are a solution to many of these problems.
 
-### Does the Method You Call Take nil Parameters?
+### Does the Method You Call Take `nil` Parameters?
 
 This is a common source of bugs. Some methods will crash when you call them with a nil parameter. For example, consider the following fragment:
 
@@ -93,7 +93,7 @@ The nice thing about the above code is that you can now safely construct an `att
 
 If you want to capture more constraints that need to be true (e.g. a parameter should always be a certain class), you can use [`NSParameterAssert`](https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Miscellaneous/Foundation_Functions/#//apple_ref/c/macro/NSParameterAssert) as well.
 
-### Are You Sure You Can Send the Message to nil?
+### Are You Sure You Can Send the Message to `nil`?
 
 This is a rather uncommon source of bugs, but it happened to us in a real app. Sometimes when dealing with scalar values, sending a message to nil might produce an unexpected result. Consider the following innocent-looking snippet of code:
 
