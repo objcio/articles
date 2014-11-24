@@ -1,6 +1,6 @@
 # Debugging Code
 
-Nobody writes perfect code, and debugging is something every one of us should be able to do well. Instead of providing a random list of tips, I'll walk you through a bug that turned out to be a regression in UIKit, and show you the workflow I used to understand, isolate, and ultimately work around the issue.
+Nobody writes perfect code, and debugging is something every one of us should be able to do well. Instead of providing a random list of tips about the topic, I'll walk you through a bug that turned out to be a regression in UIKit, and show you the workflow I used to understand, isolate, and ultimately work around the issue.
 
 ### The Issue
 
@@ -12,7 +12,7 @@ My first guess was that we might have code that dismisses the view controller, a
 
 ![](xcode-view-debugging.png)
 
-Apple added the [Debug View Hierarchy](https://developer.apple.com/library/ios/recipes/xcode_help-debugger/using_view_debugger/using_view_debugger.html) feature in Xcode 6, and it's likely that Apple got inspired by the popular [Reveal](http://revealapp.com/) and [Spark Inspector](http://sparkinspector.com/) apps, which in many ways are still better and more feature rich than the Xcode feature.
+Apple added the [Debug View Hierarchy](https://developer.apple.com/library/ios/recipes/xcode_help-debugger/using_view_debugger/using_view_debugger.html) feature in Xcode 6, and it's likely that this move was inspired by the popular [Reveal](http://revealapp.com/) and [Spark Inspector](http://sparkinspector.com/) apps, which, in many ways, are still better and more feature rich than the Xcode feature.
 
 ### Using LLDB
 
@@ -62,7 +62,7 @@ Let's first figure out what code is actually dismissing our view controller. The
 
 With LLDB's `bt` command, you can print the breakpoint. `bt all` will do the same, but it prints the state of all threads, and not just the current one.
 
-Looking at the stack trace, we notice that the view controller is already dismissing, as we're called from an scheduled animation, so we need to add a breakpoint earlier. In this case, we are interested in calls to `-[UIViewController dismissViewControllerAnimated:completion:]`. We add a *symbolic breakpoint* to Xcode's breakpoint list and run the sample again. 
+Looking at the stack trace, we notice that the view controller is already dismissing, as we're called from a scheduled animation, so we need to add a breakpoint earlier. In this case, we are interested in calls to `-[UIViewController dismissViewControllerAnimated:completion:]`. We add a *symbolic breakpoint* to Xcode's breakpoint list and run the sample again. 
 
 The Xcode breakpoint interface is very powerful, allowing you to add [conditions, skip counts, or even custom actions like playing a sound effect and automatically continuing](http://www.peterfriese.de/debugging-tips-for-ios-developers/). We don't need these features here, but they can save quite a bit of time:
 
@@ -88,7 +88,7 @@ Now we're talking! As expected, the fullscreen `UIDimmingView` receives our touc
 
 ### Calling Conventions 101
 
-With some basic knowledge of assembly and function-calling conventions, we can still get the value of `self`. The [iOS ABI Function Call Guide](http://developer.apple.com/library/ios/#documentation/Xcode/Conceptual/iPhoneOSABIReference/Introduction/Introduction.html), and the [Mac OS X ABI Function Call Guide](http://developer.apple.com/library/mac/#documentation/DeveloperTools/Conceptual/LowLevelABI/000-Introduction/introduction.html) that is used in the iOS Simulator, are both great resources.
+With some basic knowledge of assembly and function-calling conventions, we can still get the value of `self`. The [iOS ABI Function Call Guide](http://developer.apple.com/library/ios/#documentation/Xcode/Conceptual/iPhoneOSABIReference/Introduction/Introduction.html) and the [Mac OS X ABI Function Call Guide](http://developer.apple.com/library/mac/#documentation/DeveloperTools/Conceptual/LowLevelABI/000-Introduction/introduction.html) that is used in the iOS Simulator are both great resources.
 
 We know that every Objective-C method has two implicit parameters: `self` and `_cmd`. So what we need is the first object on the stack. For the **32-bit** architecture, the stack is saved in `$esp`, so you can use `po *(int*)($esp+4)` to get `self`, and `p (SEL)*(int*)($esp+8)` to get `_cmd` in Objective-C methods. The first value in `$esp` is the return address. Subsequent variables are in `$esp+12`, `$esp+16`, and so on.
 
@@ -106,11 +106,11 @@ The **armv7** architecture generally places variables in `$r0`, `$r1`, `$r2`, `$
 
 **Arm64** is similar to armv7, however, since there are more registers available, the whole range of `$x0` to `$x7` is used to pass over variables, before falling back to the stack register `$sp`.
 
-You can learn more about stack layout for [x86](http://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/), [x86-64](http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/), and of course in the [AMD64 ABI Draft](http://www.x86-64.org/documentation/abi.pdf).
+You can learn more about stack layout for [x86](http://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/) and [x86-64](http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/), and also by reading the [AMD64 ABI Draft](http://www.x86-64.org/documentation/abi.pdf).
 
 ### Using the Runtime
 
-Another technique to track method execution is overriding the methods with a log statement before calling super. However, manually swizzling just to be able to debug more conveniently isn't really time efficent. A while back, I wrote a small library called [*Aspects*](http://github.com/steipete/Aspects) that does exactly that. It can be used in production code, but I mostly use it for debugging and to write test cases. (If you're curious about Aspects, you can [learn more here.](https://speakerdeck.com/steipete/building-aspects))
+Another technique to track method execution is overriding the methods with a log statement before calling super. However, manually swizzling just to be able to debug more conveniently isn't really time efficient. A while back, I wrote a small library called [*Aspects*](http://github.com/steipete/Aspects) that does exactly that. It can be used in production code, but I mostly use it for debugging and to write test cases. (If you're curious about Aspects, you can [learn more here.](https://speakerdeck.com/steipete/building-aspects))
 
 ```objc
 #import "Aspects.h"
@@ -122,7 +122,7 @@ Another technique to track method execution is overriding the methods with a log
 } error:NULL];
 ```
 
-This hooks into `dimmingViewWasTapped:`, which is private — thus we use `NSSelectorFromString`. You can verify that this method exists, and also look up all other private and public methods of pretty much every framework class, by using the [iOS-Runtime-Headers](https://github.com/nst/iOS-Runtime-Headers). This project uses the fact that one can't really hide methods at runtime to query all classes and create a more complete header than what Apple gives us. (Of course, actually calling private API is not a good idea — this is just to better understand what's going on.)
+This hooks into `dimmingViewWasTapped:`, which is private — thus we use `NSSelectorFromString`. You can verify that this method exists, and also look up all other private and public methods of pretty much every framework class, by using the [iOS Runtime Headers](https://github.com/nst/iOS-Runtime-Headers). This project uses the fact that one can't really hide methods at runtime to query all classes and create a more complete header than what Apple gives us. (Of course, actually calling a private API is not a good idea — this is just to better understand what's going on.)
 
 With the log message in the hooked method, we get the following output:
 
@@ -150,11 +150,11 @@ Both times, the dimming view calls dismiss on our main navigation controller. Re
 
 ### Finding a Workaround
 
-We now know what is happening — now let's move to the *why*. UIKit is closed source, but we can use a disassembler like [Hopper](http://www.hopperapp.com/) to read the UIKit assembly and take a closer look what's going on in `UIPopoverPresentationController`. You'll find the binary under `/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/UIKit.framework`. Use File -> Read Executable to Disassemble... and select this in Hopper, and watch how it crawls through the binary and symbolicates code. The 32-bit disassembler is the most mature one, so you'll get the best results selecting the 32-bit file slice. [IDA by Hex-Rays](https://www.hex-rays.com/products/ida/) is another very powerful and expensive disassembler, which often provides even better results:
+We now know what is happening — so let's move to the *why*. UIKit is closed source, but we can use a disassembler like [Hopper](http://www.hopperapp.com/) to read the UIKit assembly and take a closer look what's going on in `UIPopoverPresentationController`. You'll find the binary under `/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/UIKit.framework`. Use File -> Read Executable to Disassemble... and select this in Hopper, and watch how it crawls through the binary and symbolicates code. The 32-bit disassembler is the most mature one, so you'll get the best results selecting the 32-bit file slice. [IDA by Hex-Rays](https://www.hex-rays.com/products/ida/) is another very powerful and expensive disassembler, which often provides even better results:
 
 ![](hopper-dimmingView.png)
 
-Some basics in assembly are quite useful when reading through the code, however, you can also use the pseudo-code view to get something more C-like:
+Some basics in assembly are quite useful when reading through the code. However, you can also use the pseudo-code view to get something more C-like:
 
 ![](pseudo-code.png)
 
@@ -170,7 +170,7 @@ My first attempt was to set this to the main view controller that creates the po
 
 ### Reporting a Radar
 
-Now please don't stop here. You should always properly document such workarounds, and most importantly, file a radar with Apple. As an additional benefit, this allows you to verify that you actually understood the bug and no other side effects from your application play a rule — and if you drop an iOS version, it's easy to go back and test if the radar is still valid:
+Now please don't stop here. You should always properly document such workarounds, and most importantly, file a radar with Apple. As an additional benefit, this allows you to verify that you actually understood the bug, and that no other side effects from your application play a rule — and if you drop an iOS version, it's easy to go back and test if the radar is still valid:
 
 ```
 // The UIPopoverController is the default delegate for the UIPopoverPresentationController
@@ -186,9 +186,9 @@ Now please don't stop here. You should always properly document such workarounds
 }
 ```
 
-Writing radars is actually quite a fun challenge, and takes not as much time as you might think. With an example, you'll help out some overworked Apple engineer, and without it, the engineers will most likely push back and don't even consider the radar. I managed to create a sample in about 50 LOC, including some comments and the workaround. The Single View Template is usually the quickest way to create an example.
+Writing radars is actually quite a fun challenge, and takes not as much time as you might think. With an example, you'll help out some overworked Apple engineer, and without it, the engineers will most likely push back and not even consider the radar. I managed to create a sample in about 50 LOC, including some comments and the workaround. The Single View Template is usually the quickest way to create an example.
 
-Now, we all know that Apple's RadarWeb application isn't great, however, you don't have to use it. (QuickRadar)[http://www.quickradar.com/] is a great Mac front-end that can submit the radar for you, and also automatically sends a copy to [OpenRadar](http://openradar.appspot.com). Furthermore, it makes duping radars extremely convenient. You should download it right away and dupe rdar://19053416 if you feel like this bug should be fixed.
+Now, we all know that Apple's RadarWeb application isn't great, however, you don't have to use it. [QuickRadar](http://www.quickradar.com/) is a great Mac front-end that can submit the radar for you, and also automatically sends a copy to [OpenRadar](http://openradar.appspot.com). Furthermore, it makes duping radars extremely convenient. You should download it right away and dupe rdar://19053416 if you feel like this bug should be fixed.
 
 
 Not every issue can be solved with such a simple workaround, however, many of these steps will help you find better solutions to issues, or at least improve your understanding of why something is happening. 
