@@ -7,15 +7,15 @@ author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
 ---
 
 
-Activity tracing is a new technology in iOS 8 and OS X 10.10. This year's WWDC had an excellent [session][wwdcsession] about it, but we thought it would be a good idea to give another overview here, since it is not widely known yet.
+Tracking down crashes in asynchronous code is often hard, because the stack trace is confined to the crashed thread and you're missing contextual information. At the same time, writing asynchronous code has become significantly easier with technologies APIs like [libdispatch](TODO link Daniel's GCD article), operation queues, and [XPC](TODO link Daniel's XPC article).
 
-Activity tracing is a technique that allows you to augment crash reports with very useful information about the context and the events leading up to the crash, especially while using asynchronous APIs like libdispatch, `NSOperationQueue` or XPC.
+Activity tracing is a new technology introduced in iOS 8 and OS X 10.10 that aims to alleviate this problem. This year's WWDC had an excellent [session][wwdcsession] about it, but we thought it would be a good idea to give another overview here, since it is not widely known yet.
 
 The basic idea is that work done in response to user interactions or other events is grouped under an activity, no matter if the work is done synchronously or if it's dispatched to other queues or processes. For example, if the user triggers a refresh in your app, you'll know that this particular user interaction caused a subsequent crash, even if it happens on a different queue and several other code paths could have lead to the crashing code as well.
 
 Activity tracing has three different parts to it: activities, breadcrumbs, and trace messages. We'll go into those in more detail below, but here's the gist of it: activities allow you to trace back the crashing code to its originating event in a cross-queue and cross-process manner. With breadcrumbs you can leave a trail of meaningful events across activities leading up to a crash. And finally, trace messages allow you to add further detail to the current activity. All this information will show up in the crash report in case anything goes wrong.
 
-Before we go into more detail, let me just quickly mention a potential pitfall when trying to get activity tracing to work: If the activity messages are not showing up, check the `system.log` for any messages like "Signature Validation Failed" from the `diagnosticd` daemon -- you might be running into code signing issues.
+Before we go into more detail, let me just quickly mention a potential pitfall when trying to get activity tracing to work: If the activity messages are not showing up, check the `system.log` for any messages like "Signature Validation Failed" from the `diagnosticd` daemon -- you might be running into code signing issues. Also, note that on iOS activity tracing only works on a real device, not in the Simulator.
 
 
 ## Activities
@@ -70,38 +70,158 @@ Trace messages are used to add additional information to activities, very simila
 os_trace("my message");
 ```
 
-Trace messages can do more than that though. The first argument to `os_trace` is a format string, similar to what you'd use with `printf` or `NSLog`. However, there are some restrictions to that: the format string can be a maximum of 100 characters long and can contain placeholder for up to seven *scalar* values. This means that you cannot log strings. 
+Trace messages can do more than that though. The first argument to `os_trace` is a format string, similar to what you'd use with `printf` or `NSLog`. However, there are some restrictions to that: the format string can be a maximum of 100 characters long and can contain placeholder for up to seven *scalar* values. This means that you cannot log strings. If you try to nevertheless, the strings will be replaced by a placeholder.
+
+Here are two examples of using format strings with `os_trace`:
+
+```
+os_trace("Received %d creates, %d updates, %d deletes", created, updated, deleted);
+os_trace("Processed %d records in %g seconds", count, time);
+```
+
+One caveat that I stumbled upon while experimenting with this API is that trace messages don't show up in crash reports if not at least one is sent from the crashing thread. I don't know if that's a bug or intended behavior§
 
 
-Format strings. No string arguments. Max. 7 scalar arguments.
+### Trace Message Variants
 
-error/failure variants.
+There are several variants to the basic `os_trace` API. First, there's `os_trace_debug`, which you can use to output trace messages that only show up in debug mode. This can be helpful to reduce the amount of trace messages in production, so that you will only see the most meaningful ones and don't flood the limited ring buffer that's used to store those messages with less useful messages. To enable debug mode, set the environment variable `OS_ACTIVITY_MODE` to `debug`.
 
-Trace messages don't show up if not at least one is created on another queue.
+Additionally, there are two more variants of these macros to output trace messages: `os_trace_error` and `os_trace_fault`. The first one can be used to indicate unexpected errors, the second one to indicate catastrophic failures, i.e. that you're about to crash.
 
-Debug trace messages, OS_ACTIVITY_MODE=debug
+As discussed above, the standard `os_trace` API only accepts a constant format string of limited length and scalar values. This is done for privacy, security, and performance reasons. However, there are situations where you'd like to see more data when debugging a problem. This is where payload trace messages come in.
 
-payload trace messages, OS_ACTIVITY_MODE=stream
+The API for this is `os_trace_with_payload`, and may seem a bit weird at first: similar to `os_trace` it takes a format string, a variable number of value arguments, and a block with a parameter of type `xpc_object_t`. This block will not be called in production mode and therefore poses no overhead. When debugging though, you can store whatever data you want in the dictionary that the block receives as first and only argument:
+
+```
+os_trace_with_payload("logged in: %d", guid, ^(xpc_object_t xdict) {
+    xpc_dictionary_set_string(xdict, "name", username);
+});
+
+```
+
+The reason that the argument to the block is an XPC object is that activity tracing works with the `diagnosticd` daemon under the hood to collect the data. By setting values in this dictionary using the `xpc_dictionary_*` APIs, you're communicating with this daemon. To inspect the payload data, you can use the `ostraceutil` command line utility, which we will look at in more detail below.
+
+You can use payloads with all previously discussed variants of the `os_trace` macro. Next to `os_trace_with_payload` (which we used above) there's also `os_trace_debug_with_payload`, `os_trace_error_with_payload`, and `os_trace_fault_with_payload`.
 
 
 ## Inspecting Activity Tracing
 
-thread info: only shows info from current thread
+There are two ways how you can get to the output of activity tracing other than crash reports. First, activity tracing is integrated into the debugger. By typing `thread info` into the lldb console, you can inspect the current activity and the trace messages from the current thread:
 
-ostraceutil
+```
+(lldb) thread info
+thread #1: tid = 0x19514a, 0x000000010000125b ActivityTracing2`__24-[ViewController crash:]_block_invoke_4(.block_descriptor=<unavailable>) + 27 at ViewController.m:26, queue = 'com.apple.main-thread', activity = 'crash button pressed', 1 messages, stop reason = EXC_BAD_ACCESS (code=1, address=0x0)
 
-crash reports
+  Activity 'crash button pressed', 0x8e700000005
+
+  Current Breadcrumb: button pressed
+
+  1 trace messages:
+    message1
+```
+
+Another option is to use the `ostraceutil` command line utility. Executing
+
+```
+sudo ostraceutil -diagnostic -process 16849 -quiet
+```
+
+from the command line yields the following information (shortened):
+
+```
+Process:
+==================
+PID: 16992
+Image_uuid: FE5A6C31-8710-330A-9203-CA56366876E6
+Image_path: [...]
+
+Application Breadcrumbs:
+==================
+Timestamp: 59740.861604, Breadcrumb ID = 6768, Name = 'Opened theme picker', Activity ID: 0x000008e700000001
+Timestamp: 59742.202451, Breadcrumb ID = 6788, Name = 'button pressed', Activity ID: 0x000008e700000005
+
+Activity:
+==================
+Activity ID: 0x000008e700000005
+Activity Name: crash button pressed
+Image Path: [...]
+Image UUID: FE5A6C31-8710-330A-9203-CA56366876E6
+Offset: 0x1031
+Timestamp: 59742.202350
+Reason: none detected
+
+Messages:
+==================
+Timestamp: 59742.202508
+FAULT
+Activity ID: 0x000008e700000005
+Trace ID: 0x0000c10000001ac0
+Thread: 0x1951a8
+Image UUID: FE5A6C31-8710-330A-9203-CA56366876E6
+Image Path: [...]
+Offset: 0x118d
+Message: 'payload message'
+----------------------
+Timestamp: 59742.202508
+RELEASE
+Trace ID: 0x0000010000001aad
+Offset: 0x114c
+Message: 'message2'
+----------------------
+Timestamp: 59742.202350
+RELEASE
+Trace ID: 0x0000010000001aa4
+Thread: 0x19514a
+Offset: 0x10b2
+Message: 'message1'
+```
+
+The output is more extensive than the one from the lldb console, since it also contains the breadcrumb trail as well as the trace messages from all threads.
+
+Instead of using `ostraceutil` with the `-diagnostic` flag, we can also use the `-watch` flag to put it into a live mode where we can see the trace messages and breadcrumbs coming in as they happen. In this mode we can also see the payload data of trace messages:
+
+```
+[...]
+----------------------
+Timestamp: 60059.327207
+FAULT
+Trace ID: 0x0000c10000001ac0
+Offset: 0x118d
+Message: 'payload message'
+Payload: '<dictionary: 0x7fd2b8700540> { count = 1, contents =
+	"test-key" => <string: 0x7fd2b87000c0> { length = 10, contents = "test-value" }
+}'
+----------------------
+[...]
+```
 
 
 ## Activity Tracing and Swift
 
-At the time of writing, activity tracing is not accessible from Swift. Surely though it's just a matter of time until this will change.
+At the time of writing, activity tracing is not accessible from Swift.
 
-If you want to use it now within a Swift project, you would have to create an Objective-C Wrapper around it and make this API accessible in Swift using the bridging header. Note though that activity tracing macros expect strings to be constants, i.e. you can't pass a string argument of your wrapper function to the activity tracing API.
+If you want to use it now within a Swift project, you would have to create an Objective-C Wrapper around it and make this API accessible in Swift using the bridging header. Note though that activity tracing macros expect strings to be constants, i.e. you can't pass a string argument of your wrapper function to the activity tracing API. To illustrate this point, the following doesn't work:
+
+```
+void sendTraceMessage(const char *msg) {
+    os_trace(msg); // this doesn't work!
+}
+```
+
+One possible workaround is to define specific helper functions like this:
+
+```
+void traceLogin(int guid) {
+    os_trace("Login: %d", guid);
+}
+```
 
 
 ## Conclusion
 
+Activity tracing is a very welcome addition to our debugging toolbelt and makes diagnosing crashes in asynchronous code so much easier. We really should make it a habit to add activities, breadcrumbs, and trace messages to our code.
+
+The most painful point at this time is the missing Swift integration, at least for those of us who already use Swift in production code. Hopefully though this is just a matter of (a not too long) time until this will change.
 
 
 [wwdcsession]: https://developer.apple.com/videos/wwdc/2014/#714
