@@ -34,11 +34,11 @@ Building software is complicated and bugs will always appear. A common fix cycle
 
 It doesn't have to be that way. You can use the debugger! And even if you already know how to inspect values, there is a lot more it is capable of.
 
-This article is intended to challenge your knowledge of debugging, explain the basics in a bit more detail than you likely know, and then show you a collection of fun examples. Let's take it for a spin and see where we end up.
+This article intends to challenge your knowledge of debugging, explain the basics in a bit more detail than you likely know, and then show you a collection of fun examples. Let's take it for a spin and see where we end up.
 
 ## LLDB
 
-[LLDB](http://lldb.llvm.org/) is an [open-source](http://lldb.llvm.org/source.html) debugger that features a REPL along with C++ and Python plugins. It comes bundled inside Xcode and lives in the console at the bottom of the window. A debugger allows you to pause a program at a specific moment of its execution, inspect the values of variables, execute custom instructions, and then manipulate the advancement of the program as you see fit. ([Here](http://eli.thegreenplace.net/2011/01/23/how-debuggers-work-part-1.html) is one explanation of how debuggers work in general.)
+[LLDB](http://lldb.llvm.org/) is an [open-source](http://lldb.llvm.org/source.html) debugger that features a REPL, along with C++ and Python plugins. It comes bundled inside Xcode and lives in the console at the bottom of the window. A debugger allows you to pause a program at a specific moment of its execution, inspect the values of variables, execute custom instructions, and then manipulate the advancement of the program as you see fit. ([Here](http://eli.thegreenplace.net/2011/01/23/how-debuggers-work-part-1.html) is one explanation of how debuggers work in general.)
 
 It's likely that you have used a debugger before, even if only in Xcode's UI to add breakpoints. But with a few tricks, there are some pretty cool things that you can do. The [GDB to LLDB](http://lldb.llvm.org/lldb-gdb.html) reference is a great bird's-eye view of the available commands, and you might also want to install [Chisel](https://github.com/facebook/chisel), an open-source collection of LLDB plugins that make debugging even more fun!
 
@@ -54,7 +54,7 @@ The program will pause its execution at that line and the console will open, all
 
 ### _help_
 
-The easiest command to try is `help`, which will list all the commands. And if you ever forget what a command does or want to know more, then you can read all the details with `help <command>`, e.g. `help print` or `help thread`. If you ever forget what the `help` command does, then you can try `help help`, but if you know to do that, then maybe you haven't entirely forgotten what the command does after all. &#128539;
+The easiest command to try is `help`, which will list all the commands. And if you ever forget what a command does or want to know more, then you can read all the details with `help <command>`, e.g. `help print` or `help thread`. If you ever forget what the `help` command does, then you can try `help help`, but if you know enough to do that, then maybe you haven't entirely forgotten what the command does after all. &#128539;
 
 ### _print_
 
@@ -62,7 +62,7 @@ Printing values is easy; just try the `print` command:
 
 <img src="http://cl.ly/YdWf/Image%202014-11-20%20at%2010.09.38%20PM.png" width=600" />
 
-LLDB actually does prefix matching, so you would be fine to try `prin`, `pri`, or `p`. You can't use `pr`, since it can't disambiguate it from the `process` command (luckily for us, `p` has been disambiguated).
+LLDB actually does prefix matching, so you would be fine to try `prin`, `pri`, or `p`. You can't use `pr`, since LLDB can't disambiguate it from the `process` command (luckily for us, `p` has been disambiguated).
 
 You'll also notice that the result has a `$0` in it. You can actually use this to reference the result! Try `print $0 + 7` and you'll see `106`. Anything starting with a dollar sign is in LLDB's namespace and exists to help you.
 
@@ -74,13 +74,13 @@ What if you want to modify a value? _Modify_, you say? Yes, modify! That's where
 
 This doesn't just modify the value in the debugger. It actually modifies the value in the program! If you resume the program at this point, it will print `42 red balloons`. Magic.
 
-Note: From now on, we be lazy with the number of characters, and replace `print` and `expression` with `p` and `e`, respectively.
+Note that from now on, we will be lazy with the number of characters, and replace `print` and `expression` with `p` and `e`, respectively.
 
 ### What is the _print_ Command?
 
-Here's a fun expression to consider: `p count = 18`. If we execute that command and then print the contents of `count`, we’ll see that it behave exactly as if we had run `expression count = 18`. 
+Here's a fun expression to consider: `p count = 18`. If we execute that command and then print the contents of `count`, we’ll see that it behaves exactly as if we had run `expression count = 18`. 
 
-The difference is that the `print` command takes no arguments, unlike the `expression` command. Consider `e -h +17`. It is not clear if it means to execute `+17` as input, but with the `-h` flag, or if it intends to compute the difference between `17` and `h`. It finds that hyphen quite confusing indeed; you may not get the result that you like. 
+The difference is that the `print` command takes no arguments, unlike the `expression` command. Consider `e -h +17`. It is not clear if it means to execute `+17` as input, only with the `-h` flag, or if it intends to compute the difference between `17` and `h`. It finds that hyphen quite confusing indeed; you may not get the result that you like. 
 
 Luckily, the solution is quite simple. Use `--` to signify the end of the flags and the beginning of the input. Then if you want the `-h` flag, you would do `e -h -- +17`, and if you want the difference, you would do `e -- -h +17`. Since passing no flags is quite common, there is an alias for `e --`. It is called `print`.
 
@@ -138,18 +138,18 @@ Hexadecimal:
     (lldb) p/x 16
     0x10
     
-Binary (the `t` stands for "**t**wo"):
+Binary (the `t` stands for **t**wo):
 
     (lldb) p/t 16
     0b00000000000000000000000000010000
     (lldb) p/t (char)16
     0b00010000
     
-You can also do `p/c` for a character or `p/s` for a string, as a null-terminated `char *`. [Here](https://sourceware.org/gdb/onlinedocs/gdb/Output-Formats.html) is the complete list of formats.
+You can also do `p/c` for a character, or `p/s` for a string, as a null-terminated `char *`. [Here](https://sourceware.org/gdb/onlinedocs/gdb/Output-Formats.html) is the complete list of formats.
 
 ### Variables
 
-Now that you can print objects and simple types, and modify them in the debugger with the `expression` command, let's use some variables to reduce how much typing we need to do. Just as you might declare a variable in C as `int a = 0`, you can do the same thing in LLDB. However, the variable **must** start with a dollar sign to be used:
+Now that you can print objects and simple types, and modify them in the debugger with the `expression` command, let's use some variables to reduce how much typing we need to do. Just as you might declare a variable in C as `int a = 0`, you can do the same thing in LLDB. However, to be used, the variable **must** start with a dollar sign:
 
     (lldb) e int $a = 2
     (lldb) p $a * 19
@@ -170,7 +170,7 @@ Awww. LLDB couldn't figure out the types involved. This happens at times. Just g
     (lldb) p/d (char)[[$array objectAtIndex:$a] characterAtIndex:0]
     77
     
-Variables make the debugger much easier to work with. Who would have thunk. &#128521;
+Variables make the debugger much easier to work with. Who would have thunk? &#128521;
     
 ### Flow Control
 
@@ -182,7 +182,7 @@ Then there are four buttons in the debug bar that you can use to control the flo
 
 The buttons are, in order from left to right: continue, step over, step into, step out.
 
-The first, continue, will unpause the program and allow it to continue execution normally (perhaps forever, or until it hits another breakpoint). In LLDB, you can execute this command as `process continue`, which is aliased to `continue` and thus, just `c`.
+The first, continue, will unpause the program and allow it to continue execution normally (perhaps forever, or until it hits another breakpoint). In LLDB, you can execute this command as `process continue`, which is aliased to `continue`, and thus, just `c`.
 
 The second, step over, will execute a line of code as if it were a black box. If the line you are at is a function call, then it will **not** go inside the function, but instead execute the function and keep going. LLDB makes this available as `thread step-over`, `next`, or `n`.
 
@@ -206,7 +206,7 @@ Say we run the program, allow it to stop at the breakpoint, and then execute thi
     p i
     frame info
     
-Here, `frame info` will tell you the current line number and source file (among other things; look at `help frame`, `help thread`, and `help process` for more information). So what will the output be? Think about it before reading the answer!
+Here, `frame info` will tell you the current line number and source file, among other things; look at `help frame`, `help thread`, and `help process` for more information. So what will the output be? Think about it before reading the answer!
 
 	(lldb) p i
 	(int) $0 = 99
@@ -222,7 +222,7 @@ Here, `frame info` will tell you the current line number and source file (among 
 	(lldb) frame info
 	frame #0: 0x000000010a53bcd4 DebuggerDance`main + 68 at main.m:17
 	
-The reason that it is still on line 17 is because the `finish` command ran until the `return` of the `isEven()` function and then stopped immediately. Note that even though it is on line 17, it has already executed the line!
+The reason that it is still on line 17 is because the `finish` command ran until the `return` of the `isEven()` function, and then stopped immediately. Note that even though it is on line 17, it has already executed the line!
 
 #### Thread Return
 
@@ -253,9 +253,9 @@ Think about it before you read the answer. OK, here's the answer:
 
 We have all used breakpoints as a way to bring a program to a stop, inspect the current state, and hunt down bugs. But if we change our interpretation of breakpoints, a lot more becomes possible.
 
-> A breakpoint allows you to instruct a program when to stop and then allows the running of commands.
+> A breakpoint allows you to instruct a program when to stop, and then allows the running of commands.
 
-Consider putting a breakpoint at the start of a function, using `thread return` to override the behavior of the function and then continuing. Now imagine automating this process. Sounds yummy, doesn't it?
+Consider putting a breakpoint at the start of a function, using `thread return` to override the behavior of the function, and then continuing. Now imagine automating this process. Sounds yummy, doesn't it?
 
 ### Managing Breakpoints
 
@@ -368,9 +368,9 @@ Here's what some of this looks like when done in LLDB instead of Xcode's UI:
 
 Automation, here we come!
 
-### Continuing After Evaluation
+### Continuing after Evaluation
 
-If you look at the bottom of the edit breakpoint popover, you'll see one more option: *"Automatically continue after evaluation actions"*. It's just a checkbox, but it holds immense power. If you check it, the debugger will evaluate all of your commands and then continue running the program. It won't even be apparent that it executed the breakpoint at all (unless the breakpoint fires a lot and your commands take a while, in which case, your program will slow down). 
+If you look at the bottom of the edit breakpoint popover, you'll see one more option: *"Automatically continue after evaluation actions."* It's just a checkbox, but it holds immense power. If you check it, the debugger will evaluate all of your commands and then continue running the program. It won't even be apparent that it executed the breakpoint at all (unless the breakpoint fires a lot and your commands take a while, in which case, your program will slow down). 
 
 This checkbox is the same as having the last breakpoint action be `continue`, but having a checkbox just makes it easier. And here it is in the debugger:
 
@@ -424,7 +424,7 @@ We can malloc some bytes:
 	(lldb) p $str
 	(char *) $str = 0x00007fd04a900040 "monkeys"
 	
-Or we could inspect some memory (using the `x` command) to see **4 bytes** of our new array:
+Or we can inspect some memory (using the `x` command) to see **4 bytes** of our new array:
 
 	(lldb) x/4c $str
 	0x7fd04a900040: monk
@@ -440,15 +440,15 @@ But when you are all done, be sure to free the memory so that you don't leak (lo
 
 ## Let's Dance
 
-Now that we know the basic steps, it's time to dance and do some crazy things. I once wrote a blog post on [looking at the internals of `NSArray`](http://arigrant.com/blog/2014/1/19/adventures-in-the-land-of-nsarray). The post uses a lot of `NSLog` statements, but I actually did all the exploration in the debugger. It make be a fun exercise to see if you can figure out how.
+Now that we know the basic steps, it's time to dance and do some crazy things. I once wrote a blog post on [looking at the internals of `NSArray`](http://arigrant.com/blog/2014/1/19/adventures-in-the-land-of-nsarray). The post uses a lot of `NSLog` statements, but I actually did all the exploration in the debugger. It may be a fun exercise to see if you can figure out how.
 
-### Poking Around without a Breakpoint
+### Poking around without a Breakpoint
 
 When an application is running, the debug bar in Xcode's UI shows a pause button instead of a continue one:
 
 <img src="http://s22.postimg.org/rh19uhunl/Screen_Shot_2014_11_22_at_1_50_56_PM.png" width=300" />
 
-Clicking that button will pause the app (it runs `process interrupt`, since LLDB is always attached behind the scenes). This will then give you access to the debugger, but it might not look like you can do much, since there are no variables in scope and there is no specific area of the code to look at.
+Clicking that button will pause the app (it runs `process interrupt`, since LLDB is always attached behind the scenes). This will then give you access to the debugger, but it might not look like you can do much, since there are no variables in scope, and there is no specific area of the code to look at.
 
 That's where things get fun. If you are running an iOS app, you could try this (since globals are available)
 
@@ -472,7 +472,7 @@ However, you won't see any changes until you continue the program again. This is
 
 The render server is actually another process (called `backboardd`), and even though the containing process of what we are debugging is interrupted, `backboardd` is not!
 
-That means that without continuing you can execute the following:
+This means that without continuing, you can execute the following:
 
     (lldb) e (void)[CATransaction flush]
     
@@ -539,7 +539,7 @@ Imagine that you want to know when `-[MyViewController viewDidAppear:]` is calle
 	
 Since LLDB is looking for a *symbol*, it won't find it, and your breakpoint will never fire. What you need to do is set a condition, `[self isKindofClass:[MyViewController class]]`, and then put the breakpoint on `UIViewController`. Normally, putting a condition like this will work, however, here it doesn’t since we don’t own the implementation of the superclass.
 
-`viewDidAppear:` is a method that Apple wrote, and thus, there are no symbols for it; there is not `self` when inside that method. If you wanted to use `self` in a symbolic breakpoint, you would have to know where it is (it could be in the registers or on the stack; in x86 you’ll find it at `$esp+4`) This is a pain though, because there are already at least four architectures you’d have to know (x86, x86-64, armv7, armv64). Oof! You can imagine taking the time to learn the instruction set and calling convention for each, and then writing a command that will set a breakpoint for you on the correct super class and with the correct condition. Luckily, this has already been done in [Chisel](https://github.com/facebook/chisel), and is called `message`:
+`viewDidAppear:` is a method that Apple wrote, and thus, there are no symbols for it; there is no `self` when inside that method. If you wanted to use `self` in a symbolic breakpoint, you would have to know where it is (it could be in the registers or on the stack; in x86 you’ll find it at `$esp+4`). This is a pain though, because there are already at least four architectures you’d have to know (x86, x86-64, armv7, armv64). Oof! You can imagine taking the time to learn the instruction set and calling convention for each, and then writing a command that will set a breakpoint for you on the correct super class and with the correct condition. Luckily, this has already been done in [Chisel](https://github.com/facebook/chisel), and is called `message`:
 
 
 	(lldb) bmessage -[MyViewController viewDidAppear:]
@@ -562,11 +562,11 @@ Then, in LLDB, run the following:
 
     command script import ~/myCommands.py
     
-Or, put the line in `/.lldbinit` to have it executed every time LLDB starts. [Chisel](https://github.com/facebook/chisel) is nothing more than a collection of Python scripts that concatenate strings and then tells LLDB to execute them. Simple, huh?
+Or, put the line in `/.lldbinit` to have it executed every time LLDB starts. [Chisel](https://github.com/facebook/chisel) is nothing more than a collection of Python scripts that concatenate strings, and then tells LLDB to execute them. Simple, huh?
 
 ## Wield the Debugger
 
-There is a lot that LLDB can do. Most of us are used to `p`, `po`, `n`, `s`, and `c`, but there is so much more it can do. Mastering all of its commands (there really are not that many) will give you so much more power in unraveling the runtime behavior of your code, finding bugs, forcing specific execution part, or even prototyping simple interacts (What would happen if a modal view controller opened right now? Try it!).
+There is a lot that LLDB is capable of. Most of us are used to `p`, `po`, `n`, `s`, and `c`, but there is so much more it can do. Mastering all of its commands (there really are not that many) will give you so much more power in unraveling the runtime behavior of your code, finding bugs, forcing specific execution part, or even prototyping simple interacts — what would happen if a modal view controller opened right now? Try it!.
 
 This article was meant to show you a glimpse of the full power that it has and encourage you to be a bit more adventurous with what you type into the console.
 
