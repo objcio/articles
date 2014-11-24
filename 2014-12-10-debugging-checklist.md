@@ -26,7 +26,7 @@ One source of unexpected behavior is when things are happening on the wrong thre
 
 Another solution is to keep the places where threading happens very isolated. As an example, if you are building a wrapper around an API on the network, you could handle all threading in that wrapper. All network calls will happen on a background thread, but all callbacks could happen on the main thread, so that you'll never have to worry about that occurring in the calling code. Having a simple design really helps.
 
-### Is this Object Really the Right Class?
+### Is This Object Really the Right Class?
 
 This is mostly an Objective-C problem; in Swift, there's a stronger type system with way stronger guarantees about the type of an object or value. However, in Objective-C it's fairly common to accidentally have objects of the wrong class.
 
