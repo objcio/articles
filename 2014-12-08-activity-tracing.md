@@ -15,7 +15,7 @@ The basic idea is that work done in response to user interactions or other event
 
 Activity tracing has three different parts to it: activities, breadcrumbs, and trace messages. We'll go into those in more detail below, but here's the gist of it: Activities allow you to trace the crashing code back to its originating event in a cross-queue and cross-process manner. With breadcrumbs, you can leave a trail of meaningful events across activities leading up to a crash. And finally, trace messages allow you to add further detail to the current activity. All this information will show up in the crash report in case anything goes wrong.
 
-Before we go into more detail, let me just quickly mention a potential pitfall when trying to get activity tracing to work: if the activity messages are not showing up, check the `system.log` for any messages like "Signature Validation Failed" from the `diagnosticd` daemon — you might be running into code signing issues. Also, note that on iOS, activity tracing only works on a real device, not in the simulator.
+Before we go into more detail, let me just quickly mention a potential pitfall when trying to get activity tracing to work: if the activity messages are not showing up, check the `system.log` for any messages like "Signature Validation Failed" from the `diagnosticd` daemon — you might be running into code signing issues. Also, note that on iOS, activity tracing only works on a real device, and not in the simulator.
 
 
 ## Activities
@@ -36,7 +36,7 @@ os_activity_initiate("activity name", OS_ACTIVITY_FLAG_DEFAULT, ^{
 
 This API executes the block synchronously, and everything you do within the block will be scoped under this activity, even if you dispatch work onto other queues or do XPC calls. The first parameter is the label of the activity, and has to be provided as a constant string (like all string parameters of the activity tracing API).
 
-The second parameter, `OS_ACTIVITY_FLAG_DEFAULT`, is the activity flag you use to create an activity from scratch. If you want to create a new activity within the scope of an existing activity, you have to use `OS_ACTIVITY_FLAG_DETACHED`. For example, when reacting to an action message of an user interface control, AppKit has already started an activity for you. If you want to start an activity from here that is not the direct result of the user interaction, that's when you'd use a detached activity.
+The second parameter, `OS_ACTIVITY_FLAG_DEFAULT`, is the activity flag you use to create an activity from scratch. If you want to create a new activity within the scope of an existing activity, you have to use `OS_ACTIVITY_FLAG_DETACHED`. For example, when reacting to an action message of a user interface control, AppKit has already started an activity for you. If you want to start an activity from here that is not the direct result of the user interaction, that's when you'd use a detached activity.
 
 There are other variants of this API that work in the same away — a function-based one (`os_activity_initiate_f`), and one that consists of a pair of macros:
 
@@ -51,7 +51,7 @@ Note that activities will not show up in crash reports (or other ways of inspect
 
 ## Breadcrumbs
 
-Breadcrumbs are used for what the name suggests: your code leaves a trail of labeled events while it executes to provide context in case a crash happens. Setting breadcrumbs is very simple:
+Breadcrumbs are used for what the name suggests: your code leaves a trail of labeled events while it executes in order to provide context in case a crash happens. Setting breadcrumbs is very simple:
 
 ```
 os_activity_set_breadcrumb("event description");
@@ -62,7 +62,7 @@ The events are stored in a ring buffer that only holds the last 50 events. There
 
 ## Trace Messages
 
-Trace messages are used to add additional information to activities, very similar to how you would use log messages. You can use them to add valuable information to crash reports, in order to easier understand the root cause of the problem. Within an activity, a very simple trace message can be set like this:
+Trace messages are used to add additional information to activities, very similar to how you would use log messages. You can use them to add valuable information to crash reports, in order to more easily understand the root cause of the problem. Within an activity, a very simple trace message can be set like this:
 
 ```
 #import <os/trace.h>
@@ -84,7 +84,7 @@ One caveat that I stumbled upon while experimenting with this API is that trace 
 
 ### Trace Message Variants
 
-There are several variants to the basic `os_trace` API. First, there's `os_trace_debug`, which you can use to output trace messages that only show up in debug mode. This can be helpful to reduce the amount of trace messages in production, so that you will only see the most meaningful ones and don't flood the limited ring buffer that's used to storing those messages with less useful information. To enable debug mode, set the environment variable `OS_ACTIVITY_MODE` to `debug`.
+There are several variants to the basic `os_trace` API. First, there's `os_trace_debug`, which you can use to output trace messages that only show up in debug mode. This can be helpful to reduce the amount of trace messages in production, so that you will only see the most meaningful ones, and don't flood the limited ring buffer that's used to storing those messages with less useful information. To enable debug mode, set the environment variable `OS_ACTIVITY_MODE` to `debug`.
 
 Additionally, there are two more variants of these macros to output trace messages: `os_trace_error` and `os_trace_fault`. The first one can be used to indicate unexpected errors, and the second one to indicate catastrophic failures, i.e. that you're about to crash.
 
@@ -100,7 +100,7 @@ os_trace_with_payload("logged in: %d", guid, ^(xpc_object_t xdict) {
 
 The reason that the argument to the block is an XPC object is that activity tracing works with the `diagnosticd` daemon under the hood to collect the data. By setting values in this dictionary using the `xpc_dictionary_set_*` APIs, you're communicating with this daemon. To inspect the payload data, you can use the `ostraceutil` command line utility, which we will look at in more detail below.
 
-You can use payloads with all previously discussed variants of the `os_trace` macro. Next to `os_trace_with_payload` (which we used above) there's also `os_trace_debug_with_payload`, `os_trace_error_with_payload`, and `os_trace_fault_with_payload`.
+You can use payloads with all previously discussed variants of the `os_trace` macro. Next to `os_trace_with_payload` (which we used above), there's also `os_trace_debug_with_payload`, `os_trace_error_with_payload`, and `os_trace_fault_with_payload`.
 
 
 ## Inspecting Activity Tracing
@@ -177,7 +177,7 @@ Message: 'message1'
 
 The output is more extensive than the one from the LLDB console, since it also contains the breadcrumb trail, as well as the trace messages from all threads.
 
-Instead of using `ostraceutil` with the `-diagnostic` flag, we can also use the `-watch` flag to put it into a live mode where we can see the trace messages and breadcrumbs coming in as they happen. In this mode we can also see the payload data of trace messages:
+Instead of using `ostraceutil` with the `-diagnostic` flag, we can also use the `-watch` flag to put it into a live mode where we can see the trace messages and breadcrumbs coming in as they happen. In this mode, we can also see the payload data of trace messages:
 
 ```
 [...]
