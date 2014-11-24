@@ -537,9 +537,9 @@ Imagine that you want to know when `-[MyViewController viewDidAppear:]` is calle
 	Breakpoint 1: no locations (pending).
 	WARNING:  Unable to resolve breakpoint to any actual locations.
 	
-Since LLDB is looking for a *symbol*, it won't find it, and your breakpoint will never fire. What you need to do is set a condition, `[self isKindofClass:[MyViewController class]]`, and then put the breakpoint on `UIViewController`. Normally, putting a condition like this will work, however, here it doesn’t since we don’t own the implementation of the superclass.
+Since LLDB is looking for a *symbol*, it won't find it, and your breakpoint will never fire. What you need to do is set a condition, `[self isKindofClass:[MyViewController class]]`, and then put the breakpoint on `UIViewController`. Normally, setting a condition like this will work, however, here it doesn’t since we don’t own the implementation of the superclass.
 
-`viewDidAppear:` is a method that Apple wrote, and thus, there are no symbols for it; there is no `self` when inside that method. If you wanted to use `self` in a symbolic breakpoint, you would have to know where it is (it could be in the registers or on the stack; in x86 you’ll find it at `$esp+4`). This is a pain though, because there are already at least four architectures you’d have to know (x86, x86-64, armv7, armv64). Oof! You can imagine taking the time to learn the instruction set and calling convention for each, and then writing a command that will set a breakpoint for you on the correct super class and with the correct condition. Luckily, this has already been done in [Chisel](https://github.com/facebook/chisel), and is called `message`:
+`viewDidAppear:` is a method that Apple wrote, and thus, there are no symbols for it; there is no `self` when inside that method. If you wanted to use `self` in a symbolic breakpoint, you would have to know where it is (it could be in the registers or on the stack; in x86 you’ll find it at `$esp+4`). This is a pain though, because there are already at least four architectures you’d have to know (x86, x86-64, armv7, armv64). Oof! You can imagine taking the time to learn the instruction set and [calling convention](http://en.m.wikipedia.org/wiki/Calling_convention) for each one, and then writing a command that will set a breakpoint for you on the correct super class and with the correct condition. Luckily, this has already been done in [Chisel](https://github.com/facebook/chisel), and is called `bmessage`:
 
 
 	(lldb) bmessage -[MyViewController viewDidAppear:]
@@ -566,7 +566,7 @@ Or, put the line in `/.lldbinit` to have it executed every time LLDB starts. [Ch
 
 ## Wield the Debugger
 
-There is a lot that LLDB is capable of. Most of us are used to `p`, `po`, `n`, `s`, and `c`, but there is so much more it can do. Mastering all of its commands (there really are not that many) will give you so much more power in unraveling the runtime behavior of your code, finding bugs, forcing specific execution part, or even prototyping simple interacts — what would happen if a modal view controller opened right now? Try it!.
+There is a lot that LLDB is capable of. Most of us are used to `p`, `po`, `n`, `s`, and `c`, but there is so much more it can do. Mastering all of its commands (there really are not that many) will give you so much more power in unraveling the runtime behavior of your code, finding bugs, forcing specific execution paths, and even prototyping simple interacts — what would happen if a modal view controller opened right now? Try it!
 
 This article was meant to show you a glimpse of the full power that it has and encourage you to be a bit more adventurous with what you type into the console.
 
