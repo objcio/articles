@@ -15,7 +15,7 @@ The basic idea is that work done in response to user interactions or other event
 
 Activity tracing has three different parts to it: activities, breadcrumbs, and trace messages. We'll go into those in more detail below, but here's the gist of it: Activities allow you to trace the crashing code back to its originating event in a cross-queue and cross-process manner. With breadcrumbs, you can leave a trail of meaningful events across activities leading up to a crash. And finally, trace messages allow you to add further detail to the current activity. All this information will show up in the crash report in case anything goes wrong.
 
-Before we go into more detail, let me just quickly mention a potential pitfall when trying to get activity tracing to work: if the activity messages are not showing up, check the `system.log` for any messages like "Signature Validation Failed" from the `diagnosticd` daemon — you might be running into code signing issues. Also, note that on iOS, activity tracing only works on a real device, and not in the simulator.
+Before we go into more detail, let me just quickly mention a potential pitfall when trying to get activity tracing to work: if the activity messages are not showing up, check the `system.log` for any messages from the `diagnosticd` daemon, like "Signature Validation Failed" — you might be running into code signing issues. Also, note that on iOS, activity tracing only works on a real device, and not in the simulator.
 
 
 ## Activities
