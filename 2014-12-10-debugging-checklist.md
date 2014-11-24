@@ -28,7 +28,7 @@ Another solution is to keep the places where threading happens very isolated. As
 
 ### Is This Object Really the Right Class?
 
-This is mostly an Objective-C problem; in Swift, there's a stronger type system with way stronger guarantees about the type of an object or value. However, in Objective-C it's fairly common to accidentally have objects of the wrong class.
+This is mostly an Objective-C problem; in Swift, there's a stronger type system with way stronger guarantees about the type of an object or value. However, in Objective-C, it's fairly common to accidentally have objects of the wrong class.
 
 For example, in [Deckset](http://www.decksetapp.com), we were adding a new feature that had to do with fonts. One of the objects had a `fonts` array property, and I assumed the objects in the array were of type `NSFont`. As it turned out, the array contained `NSString` objects (the font names). It took quite a while to figure this out, because, for the most part, things worked as expected. In Objective-C, one way to check this is by having assertions. Another way to help yourself is to encode type information in the name (e.g. this array could have been named `fontNames`). In Swift, these errors can be prevented by having precise types (e.g. `[NSFont]` rather than `[AnyObject]`).
 
@@ -38,7 +38,7 @@ When unsure about whether the object is of the right type, you can always print 
 
 Another common source of bugs that are hard to find is when there are settings that differ between builds. For example, sometimes optimizations that happen in the compiler could cause bugs in production builds that never show up during debugging. This is relatively uncommon, although there are reports of this happening with the the current Swift releases.
 
-Another source of bugs is where certain variables or macros are defined differently. For example, some code might be commented out during development. We had an instance where we where writing incorrect (crashing) analytics code, but during development we turned off analytics, so we never saw these crashes when developing the app. 
+Another source of bugs is where certain variables or macros are defined differently. For example, some code might be commented out during development. We had an instance where we were writing incorrect (crashing) analytics code, but during development we turned off analytics, so we never saw these crashes when developing the app. 
 
 These kinds of bugs can be hard to detect during development. As such, you should always thoroughly test the release build of your app. Of course, it's even better if someone else (e.g. a QA department) can test it.
 
@@ -50,7 +50,7 @@ Meanwhile, there are many different devices with different capabilities. If you 
 
 Mutability is also a common source of bugs that can be very hard to track down. For example, if you share an object between two threads, and they both modify it at the same time, you might get very unexpected behavior. The tough thing about these kinds of bugs is that they can be very hard to reproduce.
 
-One way to deal with this is to have immutable objects. This way, once you have access to an object, you know that it'll never change its state. There is so much to say about this, but we'd rather link to [A Warm Welcome to Structs and Value Types](/issue-16/swift-classes-vs-structs.html), [Value Objects](/issue-7/value-objects.html), [Object Mutability](https://developer.apple.com/library/mac/documentation/General/Conceptual/CocoaEncyclopedia/ObjectMutability/ObjectMutability.html), and [About Mutability](http://www.bignerdranch.com/blog/about-mutability/).
+One way to deal with this is to have immutable objects. This way, once you have access to an object, you know that it'll never change its state. There is so much to say about this, but for more information, we'd rather direct you to read the following: [A Warm Welcome to Structs and Value Types](/issue-16/swift-classes-vs-structs.html), [Value Objects](/issue-7/value-objects.html), [Object Mutability](https://developer.apple.com/library/mac/documentation/General/Conceptual/CocoaEncyclopedia/ObjectMutability/ObjectMutability.html), and [About Mutability](http://www.bignerdranch.com/blog/about-mutability/).
 
 ## Nullability
 
@@ -105,7 +105,7 @@ if (range.location != NSNotFound) {
 }
 ```
 
-If `greeting` contains the string `"objc.io"`, a message is logged. If `greeting` does not contain this string, no message is logged. But what if greeting is `nil`? Then the `range` will be a struct with zeroes, and the `location` will be zero. Because `NSNotFound` is defined as `-1`, this will log the message. So whenever you deal with scalar values and `nil`, be sure to take extra care. Again, in Swift this is not an issue because of optionals.
+If `greeting` contains the string `"objc.io"`, a message is logged. If `greeting` does not contain this string, no message is logged. But what if greeting is `nil`? Then the `range` will be a struct with zeroes, and the `location` will be zero. Because `NSNotFound` is defined as `-1`, this will log the message. So whenever you deal with scalar values and `nil`, be sure to take extra care. Again, this is not an issue in Swift because of optionals.
 
 ### Is There Anything in the Class That's Not Initialized?
 
@@ -138,7 +138,7 @@ Here, you could also use asserts like [`NSAssert`](https://developer.apple.com/l
 
 ### Retaining Objects
 
-When you use Interface Builder, you need to make sure that your object graph that you load from a nib file stays retained. There are [good pointers on this by Apple](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/LoadingResources/CocoaNibs/CocoaNibs.html#//apple_ref/doc/uid/10000051i-CH4-SW6). Be sure to read that section and follow the advice, otherwise your objects might either disappear underneath you, or get over-retained. There are differences between plain xib files and Storyboards; be sure to account for that.
+When you use Interface Builder, you need to make sure that your object graph that you load from a nib file stays retained. There are [good pointers on this by Apple](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/LoadingResources/CocoaNibs/CocoaNibs.html#//apple_ref/doc/uid/10000051i-CH4-SW6). Be sure to read that section and follow the advice, otherwise your objects might either disappear underneath you, or get over-retained. There are differences between plain XIB files and Storyboards; be sure to account for that.
 
 ### View Lifecycle
 
@@ -150,4 +150,4 @@ One common mistake that we keep making is creating a view, adding some constrain
 
 ### Finally
 
-The techniques above are hopefully helpful to get rid of bugs or prevent them completely. There is also automated help available: turning on all warning messages in clang can show you a lot of possible bugs, and running the static analyzer will almost certainly find some bugs (unless you run it on a regular basis).
+The techniques above are hopefully helpful to get rid of bugs or prevent them completely. There is also automated help available: turning on all warning messages in Clang can show you a lot of possible bugs, and running the static analyzer will almost certainly find some bugs (unless you run it on a regular basis).
