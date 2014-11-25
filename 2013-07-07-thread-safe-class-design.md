@@ -251,9 +251,9 @@ Remember that this isn't really GCD-specific, but it's a common anti-pattern and
 
 ### Mixing dispatch\_sync and dispatch\_async in Performance Critical Code
 
-That one took me a while to figure out. In [PSPDFKit](http://pspdfkit.com) there is a caching class that uses a LRU list to track image access. When you scroll through the pages, this is called *a lot*. The initial implementation used dispatch_sync for availability access, and dispatch_async to update the LRU position. This resulted in a frame rate far from the goal of 60 FPS. 
+That one took me a while to figure out. In [PSPDFKit](http://pspdfkit.com) there is a caching class that uses a LRU list to track image access. When you scroll through the pages, this is called *a lot*. The initial implementation used dispatch\_sync for availability access, and dispatch\_async to update the LRU position. This resulted in a frame rate far from the goal of 60 FPS. 
 
-When other code running in your app is blocking GCD's threads, it might take a while until the dispatch manager finds a thread to perform the dispatch_async code -- until then, your sync call will be blocked. Even when, as in this example, the order of execution for the async case isn't important, there's no easy way to tell that to GCD. Read/Write locks won't help you there, since the async process most definitely needs to perform a barrier write and all your readers will be locked during that. Lesson: `dispatch_async` can be expensive if it's misused. Be careful when using it for locking.
+When other code running in your app is blocking GCD's threads, it might take a while until the dispatch manager finds a thread to perform the dispatch\_async code -- until then, your sync call will be blocked. Even when, as in this example, the order of execution for the async case isn't important, there's no easy way to tell that to GCD. Read/Write locks won't help you there, since the async process most definitely needs to perform a barrier write and all your readers will be locked during that. Lesson: `dispatch\_async` can be expensive if it's misused. Be careful when using it for locking.
 
 ### Using dispatch_async to Dispatch Memory-Intensive Operations
 
