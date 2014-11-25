@@ -35,7 +35,8 @@ The important thing to keep in mind is that you have no control over where and w
 
 Leaving this complexity aside for a moment, you can either use the [POSIX thread](http://en.wikipedia.org/wiki/POSIX_Threads) API, or the Objective-C wrapper around this API, `NSThread`, to create your own threads. Here's a small sample that finds the minimum and maximum in a set of 1 million numbers using `pthread`. It spawns off 4 threads that run in parallel. It should be obvious from this example why you wouldn't want to use pthreads directly.
 
-
+    #import <pthread.h>
+    
     struct threadInfo {
         uint32_t * inputValues;
         size_t count;
@@ -139,7 +140,7 @@ Leaving this complexity aside for a moment, you can either use the [POSIX thread
 
 To start new threads, we need to create new thread objects and call their `start` methods:
 
-    NSSet *threads = [NSMutableSet set];
+    NSMutableSet *threads = [NSMutableSet set];
     NSUInteger numberCount = self.numbers.count;
     NSUInteger threadCount = 4;
     for (NSUInteger i = 0; i < threadCount; i++) {
