@@ -72,10 +72,10 @@ One of the basic building blocks of GCD is queues. Below, we'll give a few examp
         self = [super init];
         if (self != nil) {
             NSString *label = [NSString stringWithFormat:@"%@.isolation.%p", [self class], self];
-            self.isolationQueue = dispatch_queue_create([label UTF8String], 0);
+            self.isolationQueue = dispatch_queue_create([label UTF8String], NULL);
             
             label = [NSString stringWithFormat:@"%@.work.%p", [self class], self];
-            self.workQueue = dispatch_queue_create([label UTF8String], 0);
+            self.workQueue = dispatch_queue_create([label UTF8String], NULL);
         }
         return self;
     }
@@ -552,7 +552,7 @@ We can't go into all details here, but here's an example for setting up a TCP se
 
 First we create a listening socket and set up an event source for incoming connections:
 
-    _isolation = dispatch_queue_create([[self description] UTF8String], 0);
+    _isolation = dispatch_queue_create([[self description] UTF8String], NULL);
     _nativeSocket = socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
     struct sockaddr_in sin = {};
     sin.sin_len = sizeof(sin);
@@ -586,7 +586,7 @@ When accepting a connection, we create an I/O channel:
     }
     
     _remoteAddress = rsa;
-    _isolation = dispatch_queue_create([[self description] UTF8String], 0);
+    _isolation = dispatch_queue_create([[self description] UTF8String], NULL);
     _channel = dispatch_io_create(DISPATCH_IO_STREAM, native, _isolation, ^(int error) {
         NSLog(@"An error occured while listening on socket: %d", error);
     });
