@@ -34,10 +34,10 @@ There are several ways to integrate the device discovery aspect of MPC into your
 
 ### The Default Way
 
-Apple provides a built-in view controller to facilitate discovering peers and initiating a common session. Simply present an [`MCBrowserViewController`][MCBrowserViewController] with a `serviceType` and `session`, and MPC will do the rest. Note that `serviceType` is limited to 15 ASCII characters, and typically uses reverse-DNS notation (e.g. `io.objc.mpc`):
+Apple provides a built-in view controller to facilitate discovering peers and initiating a common session. Simply present an [`MCBrowserViewController`][MCBrowserViewController] with a `serviceType` and `session`, and MPC will do the rest. Note that `serviceType` is limited to 15 ASCII letters, numbers and dashes. A common approach is to use a similar style as reverse-DNS notation (e.g. `io-objc-mpc`):
 
     let session = MCSession(peer: MCPeerID(displayName: "Mary"))
-    let serviceType = "io.objc.mpc" // Limited to 15 ASCII characters
+    let serviceType = "io-objc-mpc" // Limited to 15 ASCII characters
     window!.rootViewController = MCBrowserViewController(serviceType: serviceType, session: session)
 
 ![](/images/issue-18/browser.png)
