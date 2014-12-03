@@ -26,7 +26,7 @@ In this article, we’ll focus on using DTrace to investigate our own program, b
 
 As you might have guessed by now, DTrace is only available on OS X. Apple uses DTrace on iOS, too, to power tools such as Instruments, but for third-party developers, it is only available on OS X or the iOS simulator.
 
-At Zeta, [TODO] DTrace has been very helpful to us on iOS, even though we're limited to using it in the iOS simulator. If you're reading this article and think real DTrace support on iOS devices is a good idea, please file an [enhancement request](https://bugreport.apple.com/) with Apple.
+At [Wire](https://www.wire.com) DTrace has been very helpful to us on iOS, even though we're limited to using it in the iOS simulator. If you're reading this article and think real DTrace support on iOS devices is a good idea, please file an [enhancement request](https://bugreport.apple.com/) with Apple.
 
 
 ### Probes and Scripts
@@ -35,7 +35,7 @@ There are two parts to DTrace: the DTrace probes, and the DTrace scripts that at
 
 #### Probes
 
-There are build-in probes, and you can add (so-called static) probes to your code. A probe looks very similar to a normal C function. At Zeta, [TODO] our syncing code has an internal state machine, and we define these two probes:
+There are build-in probes, and you can add (so-called static) probes to your code. A probe looks very similar to a normal C function. At Wire, our syncing code has an internal state machine, and we define these two probes:
 
     provider syncengine_sync {
         probe strategy_go_to_state(int);
@@ -148,7 +148,7 @@ We can use the `ip` provider's `send` probe to check how many bytes are sent ove
         bytes_sent += args[2]->ip_plength;
     }
 
-This time, we are targeting a specific process — the `ip:::send` would otherwise match all processes on the system, while we're only interested in the `Zeta` process. We run this script with the following:
+This time, we are targeting a specific process — the `ip:::send` would otherwise match all processes on the system, while we're only interested in the `Wire` process. We run this script with the following:
 
     sudo dtrace -q -s sample-timing-3.d -p 198
 
@@ -352,7 +352,7 @@ On a mostly idle OS X, it may show something like this:
     com.apple.WebKi                                                 177
     
     mds                                                               8
-    Zeta                                                              8
+    Wire                                                              8
     Terminal                                                         10
     com.apple.iClou                                                  15
     dtrace                                                           20
@@ -431,7 +431,7 @@ Then, we can assign to it, like so:
         x[123ull, ’a’] = 456;
     }
 
-For the Zeta app, we want to track the roundtrip times for [NSURLSessionTask][AppleDocNSURLSessionTask] instances. We fire a [statically defined probe](#staticProbes) when we resume such a task, and a second probe when it completes. With that, we can write a simple script like this:
+For the Wire app, we want to track the roundtrip times for [NSURLSessionTask][AppleDocNSURLSessionTask] instances. We fire a [statically defined probe](#staticProbes) when we resume such a task, and a second probe when it completes. With that, we can write a simple script like this:
 
     syncengine_sync$target:::operation_loop_enqueue
     / arg0 == 4 /
@@ -583,7 +583,7 @@ Check the [documentation][ipProvider] for some excellent examples.
 
 DTrace lets us create our own probes, and with that, we can unlock the real power of DTrace for our own apps.
 
-These kind of probes are called *static probes* in DTrace. We briefly talked about this in the [first examples](#ATimingExample). The [Zeta app](TODO: Link) defines its own provider with its own probe:
+These kind of probes are called *static probes* in DTrace. We briefly talked about this in the [first examples](#ATimingExample). The [Wire app](https://itunes.apple.com/app/wire/id931134707?mt=12) defines its own provider with its own probe:
 
     provider syncengine_sync {
         probe strategy_go_to_state(int);
@@ -690,7 +690,7 @@ In other cases we went further. If we look at the
         probe notification(int, intptr_t, char *, char *, int, int, int, int);
     };
 
-we defined above, we have a long list of arguments. In the Zeta app, [TODO] we use this to log UI notifications.
+we defined above, we have a long list of arguments. In the Wire app, we use this to log UI notifications.
 
 This probe as a very long list of arguments. We decided that we wanted to use a single probe for a lot of different notifications that the syncing code sends to the UI to notify it about changes. The first argument, `arg0`, specifies what the notification is, and the second one specifies the `object` of the `NSNotification`. This makes it easy for our DTrace scripts to narrow in on those specific notifications of interest in the given situation.
 
