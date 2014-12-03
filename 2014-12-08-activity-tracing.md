@@ -51,13 +51,15 @@ Note that activities will not show up in crash reports (or other ways of inspect
 
 ## Breadcrumbs
 
-Breadcrumbs are used for what the name suggests: your code leaves a trail of labeled events while it executes in order to provide context in case a crash happens. Setting breadcrumbs is very simple:
+Breadcrumbs are used for what the name suggests: your code leaves a trail of labeled events while it executes in order to provide context across activities in case a crash happens. Adding a breadcrumb is very simple:
 
 ```
 os_activity_set_breadcrumb("event description");
 ```
 
-The events are stored in a ring buffer that only holds the last 50 events. Therefore, this API should be used to indicate macro-level events, like meaningful user interactions. Note that setting breadcrumbs only works in the scope of an activity.
+The events are stored in a ring buffer that only holds the last 50 events. Therefore, this API should be used to indicate macro-level events, like meaningful user interactions.
+
+Note that this API only has an effect from within the scope of an activity: it marks the current activity as a breadcrumb. This also means that you can only do this once per activity, subsequent calls will be ignored.
 
 
 ## Trace Messages
