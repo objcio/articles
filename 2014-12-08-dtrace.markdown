@@ -79,7 +79,7 @@ Just as we'd expect. Nothing too exciting. Hit `^C` to exit DTrace.
 <a name="ATimingExample"></a>
 ### A Timing Example
 
-Since DTrace is very low cost, it's a perfect fit for measuring performance — even when times measured are very small. It resolution of the clock, DTrace uses is in nanoseconds.
+Since DTrace is very low cost, it's a perfect fit for measuring performance — even when times measured are very small. The resolution of the timers inside DTrace is in nanoseconds.
 
 If we extend the trivial example from above, we can output the time spent in each state:
 
@@ -267,7 +267,7 @@ If we run this and launch the Mac *App Store* application, then exit the D Trace
       select                                                   1632760820
       kevent64                                                 3656884980
 
-The *App Store* spent 3.6 seconds CPU time inside the `kevent64` syscall etc.
+In this example, the *App Store* spent 3.6 seconds of CPU time inside the `kevent64` syscall.
 
 There are two very interesting things inside this small script: thread local variables (`self->ts`) and aggregations.
 
@@ -281,7 +281,7 @@ Thread local variables are named `self->foo`, `self->bar`, etc., and are local t
 
 Probe clause local variables are similar to local variables in C or Swift. They can be useful for intermediate results.
 
-In the script, we use the first probe clause to match when we enter a syscall. We set the thread local variables `self->ts` to the current timestamp:
+In the script, we use the first probe clause to match when we enter a syscall. We set the thread local variable, `self->ts`, to the current timestamp:
 
     syscall:::entry
     / execname == "App Store" /
@@ -289,7 +289,7 @@ In the script, we use the first probe clause to match when we enter a syscall. W
         self->ts = timestamp;
     }
 
-The second clause matches when we return from the syscall. This will still be on the same thread, hence we can be sure that `self->ts` has the expected value, even if multiple threads do system call at the same time.
+The second clause matches when the thread returns from the syscall. It will be the same thread that entered, hence we can be sure that `self->ts` has the expected value, even when multiple threads do system calls at the same time.
 
 We add `self->ts != 0` to the predicate to be sure that our script works, even if we attach to the application while it is inside a system call. Otherwise `timestamp - self->ts` would result in a very large value, because `self->ts` would not have been set:
 
@@ -503,7 +503,7 @@ Similarly, the `tick-` probes will fire every fixed interval at high interrupt l
 
 The `pid` provider is a bit of a brute force provider. In most cases, we should really use [static probes](#staticProbes) as described below.
 
-`pid` is short for process identifier. It lets us probe on the function entry and exit of a process. This works in *most* cases. Note that function return and entry are not always well defined, particularly due to *tail-call optimization*. And some functions don’t have to create a stack frame, etc.
+`pid` is short for process identifier. It lets us probe on the function entry and exit of a process. This works in *most* cases. Note that function entry and return are not always well defined, particularly due to *tail-call optimization*. And some functions don’t have to create a stack frame, etc.
 
 When you can't change the code to add [static probes](#staticProbes), `pid` is a powerful tool.
 
@@ -511,7 +511,7 @@ You can trace any function that's visible. For example, look at this probe:
 
     pid123:libSystem:printf:return
 
-It would attach to returning from `printf` in the process with the process identifier (pid) 123.
+It would attach to `printf`, returning in the process with the process identifier (pid) 123.
 
 ### `objc` Provider
 
@@ -600,13 +600,13 @@ We then call this probe in the code:
         [self.currentState didEnterState];
     }
 
-One might argue that we could just have used the `objc` provider; it should be obvious that using our own probe gives us more flexibility. We can later change the Objective C code without affecting the DTrace probes.
+One might argue that we could just have used the `objc` provider; using our own probe gives us more flexibility. We can later change the Objective-C code without affecting the DTrace probes.
 
 Additionally, the static probes give us easy access to the arguments. We saw above how we can use this both for timing and logging.
 
 The power of DTrace static probes is that they give us a stable interface to debug our code, and an interface that exists even in production code. When someone is seeing odd behavior, we can attach a DTrace script to the running app, even for a production build of that app. And the flexibility of DTrace allows us to use the same probes for multiple purposes.
 
-We can use it as some sort of logging. But it also allows us to gather detailed quantitative information about timing, network requests, etc.
+We can use DTrace as a logging tool. But it also allows us to gather detailed quantitative information about timing, network requests, etc.
 
 The reason we can leave the probes in production code is that probes are *zero cost*, or to be fair, equivalent to a test-and-branch CPU instruction.
 
@@ -692,7 +692,7 @@ In other cases we went further. If we look at the
 
 we defined above, we have a long list of arguments. In the Wire app, we use this to log UI notifications.
 
-This probe as a very long list of arguments. We decided that we wanted to use a single probe for a lot of different notifications that the syncing code sends to the UI to notify it about changes. The first argument, `arg0`, specifies what the notification is, and the second one specifies the `object` of the `NSNotification`. This makes it easy for our DTrace scripts to narrow in on those specific notifications of interest in the given situation.
+This probe has a very long list of arguments. We decided that we wanted to use a single probe for a lot of different notifications that the syncing code sends to the UI to notify it about changes. The first argument, `arg0`, specifies what the notification is, and the second one specifies the `object` of the `NSNotification`. This makes it easy for our DTrace scripts to narrow in on those specific notifications of interest in the given situation.
 
 The remainder of the arguments are less loosely defined on a per-notification basis, and we have multiple wrapper functions for the individual cases. When we want to pass two `NSUUID` instances, we call a wrapper function like this:
 
