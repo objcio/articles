@@ -13,11 +13,11 @@ Nobody writes perfect code, and debugging is something every one of us should be
 
 We received a bug report where quickly tapping on a button that presented a popover dismissed the popover but also the *parent* view controller. Thankfully, a sample was included, so the first part — of reproducing the bug — was already taken care of:
 
-![](dismiss-issue-animated.gif)
+![](/images/issue-19/dismiss-issue-animated.gif)
 
 My first guess was that we might have code that dismisses the view controller, and we wrongfully dismiss the parent. However, when using Xcode's integrated view debugging feature, it was clear that there was a global `UIDimmingView` that was the first responder for touch input:
 
-![](xcode-view-debugging.png)
+![](/images/issue-19/xcode-view-debugging.png)
 
 Apple added the [Debug View Hierarchy](https://developer.apple.com/library/ios/recipes/xcode_help-debugger/using_view_debugger/using_view_debugger.html) feature in Xcode 6, and it's likely that this move was inspired by the popular [Reveal](http://revealapp.com/) and [Spark Inspector](http://sparkinspector.com/) apps, which, in many ways, are still better and more feature rich than the Xcode feature.
 
@@ -159,11 +159,11 @@ Both times, the dimming view calls dismiss on our main navigation controller. UI
 
 We now know what is happening — so let's move to the *why*. UIKit is closed source, but we can use a disassembler like [Hopper](http://www.hopperapp.com/) to read the UIKit assembly and take a closer look what's going on in `UIPopoverPresentationController`. You'll find the binary under `/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/UIKit.framework`. Use File -> Read Executable to Disassemble... and select this in Hopper, and watch how it crawls through the binary and symbolicates code. The 32-bit disassembler is the most mature one, so you'll get the best results selecting the 32-bit file slice. [IDA by Hex-Rays](https://www.hex-rays.com/products/ida/) is another very powerful and expensive disassembler, which often provides even better results:
 
-![](hopper-dimmingView.png)
+![](/images/issue-19/hopper-dimmingView.png)
 
 Some basics in assembly are quite useful when reading through the code. However, you can also use the pseudo-code view to get something more C-like:
 
-![](pseudo-code.png)
+![](/images/issue-19/pseudo-code.png)
 
 Reading the pseudo-code is quite eye-opening. There are two code paths — one if the delegate implements `popoverPresentationControllerShouldDismissPopover:`, and one if it doesn't — and the code paths are actually quite different. While the one reacting to the delegate basically has an `if (controller.presented && !controller.dismissing)`, the other code path (that we currently fall into) doesn't, and always dismisses. With that inside knowledge, we can attempt to work around this bug by implementing our own `UIPopoverPresentationControllerDelegate`:
 
