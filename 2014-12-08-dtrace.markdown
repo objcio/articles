@@ -16,7 +16,7 @@ Quite often, real users or testers of your app will see some unexpected behavior
 
 Almost 10 years ago, [Sun Microsystems](https://en.wikipedia.org/wiki/Sun_Microsystems) built DTrace, short for *Dynamic Trace*. And at the end of 2007, Apple integrated it into its [operating system](https://en.wikipedia.org/wiki/Mac_OS_X_Leopard).
 
-DTrace is a dynamic tracing framework which provides *zero disable cost*, i.e. probes in code have no overhead when disabled — we can leave the probes in our code even for production builds. You only pay the cost of the probe when using it.
+DTrace is a dynamic tracing framework that provides *zero disable cost*, i.e. probes in code have no overhead when disabled — we can leave the probes in our code even for production builds. You only pay the cost of the probe when using it.
 
 DTrace is *dynamic*, which means that we can attach to an already running program and detach from it again without interrupting the program itself. No need to recompile or restart.
 
@@ -24,9 +24,9 @@ In this article, we’ll focus on using DTrace to investigate our own program, b
 
 ### OS X vs. iOS
 
-As you might have guessed by now, DTrace is only available on OS X. Apple uses DTrace on iOS, too, to power tools such as Instruments, but for third-party developers, it is only available on OS X or the iOS simulator.
+As you might have guessed by now, DTrace is only available on OS X. Apple also uses DTrace on iOS, in order to power tools such as Instruments, but for third-party developers, it is only available on OS X or the iOS simulator.
 
-At [Wire](https://www.wire.com) DTrace has been very helpful to us on iOS, even though we're limited to using it in the iOS simulator. If you're reading this article and think real DTrace support on iOS devices is a good idea, please file an [enhancement request](https://bugreport.apple.com/) with Apple.
+At [Wire](https://www.wire.com), DTrace has been very helpful on iOS, even though we're limited to using it in the iOS simulator. If you're reading this article and think real DTrace support on iOS devices is a good idea, please file an [enhancement request](https://bugreport.apple.com/) with Apple.
 
 
 ### Probes and Scripts
@@ -62,7 +62,7 @@ We can now write a small DTrace script that shows us state transitions:
         printf("Transitioning to state %d\n", arg0);
     }
 
-We will go into more detail about how DTrace scripts work [below](#DProgrammingLanguage).
+(We will go into more detail [below](#DProgrammingLanguage) about how DTrace scripts work.)
 
 If we save this DTrace into `state.d`, we can then run it using the [`dtrace(1)` command line tool][dtrace1man]:
 	
@@ -117,7 +117,7 @@ This will output the following:
 
 There are a few new things in this script. The `dtrace:::BEGIN` clause will run when the script starts. There's a matching `END` probe for when the script exits.
 
-We also added a predicate `/ last_state_timestamp != 0 /` to the first probe.
+We also added a predicate, `/ last_state_timestamp != 0 /`, to the first probe.
 
 Finally, we're using variables in the global scope to keep track of what the last state was, and at what point in time we entered it.
 
@@ -125,11 +125,11 @@ The built-in `walltimestamp` variable returns the current number of nanoseconds 
 
 There's another timestamp variable, `vtimestamp`, which is a virtualized timestamp, also in nanoseconds. It is the amount of time the current thread had been running on a CPU, minus the time spent in DTrace. Finally, `machtimestamp` corresponds to `mach_absolute_time()`.
 
-For the above script, the order of execution is important. We have two so-called *clauses*, which match the same probe (`syncengine_sync*:::strategy_go_to_state`). These will run in the order in which they appear in the D program.
+For the above script, the order of execution is important. We have two so-called *clauses*, which match the same probe, (`syncengine_sync*:::strategy_go_to_state`). These will run in the order in which they appear in the D program.
 
 ### Combining with System-Provided Probes
 
-The operating system, particularly the kernel, provides thousands of probes, grouped into various providers. A lot of these are the ones documented by [Oracle's DTrace documentation][oracleDTraceProviders].
+The operating system, particularly the kernel, provides thousands of probes, all grouped into various providers. A lot of these are the ones documented by [Oracle's DTrace documentation][oracleDTraceProviders].
 
 We can use the `ip` provider's `send` probe to check how many bytes are sent over the network before we transition to the next state with this script:
 
@@ -152,7 +152,7 @@ This time, we are targeting a specific process — the `ip:::send` would otherwi
 
     sudo dtrace -q -s sample-timing-3.d -p 198
 
-Here, `198` is the process identifier (aka PID) of the process. We can find this number in the Activity Monitor app, or using the [`ps(1)` command line tool][ps1man].
+Here, `198` is the process identifier (aka PID) of the process. We can find this number in the Activity Monitor app, or by using the [`ps(1)` command line tool][ps1man].
 
 We'll get this:
 
@@ -291,7 +291,7 @@ In the script, we use the first probe clause to match when we enter a syscall. W
 
 The second clause matches when the thread returns from the syscall. It will be the same thread that entered, hence we can be sure that `self->ts` has the expected value, even when multiple threads do system calls at the same time.
 
-We add `self->ts != 0` to the predicate to be sure that our script works, even if we attach to the application while it is inside a system call. Otherwise `timestamp - self->ts` would result in a very large value, because `self->ts` would not have been set:
+We add `self->ts != 0` to the predicate to be sure that our script works, even if we attach to the application while it is inside a system call. Otherwise, `timestamp - self->ts` would result in a very large value, because `self->ts` would not have been set:
 
     syscall:::return
     / execname == "App Store" && self->ts != 0 /
@@ -299,7 +299,7 @@ We add `self->ts != 0` to the predicate to be sure that our script works, even i
         @totals[probefunc] = sum(timestamp - self->ts);
     }
 
-For all the nitty-gritty details on variables, be sure to check the [Dynamic Tracing Guide, “Variables”][DTraceGuideChapter3].
+For all the nitty-gritty details on variables, be sure to check the [Dynamic Tracing Guide, “Variables.”][DTraceGuideChapter3]
 
 <a name="Aggregations"></a>
 ### Aggregations
@@ -373,7 +373,7 @@ Here is the total list of aggregation functions:
     avg               | Average of the passed in values
     min               | Smallest of the passed in values
     max               | Largest of the passed in values
-    lquantize         | Linear frequency distribution.
+    lquantize         | Linear frequency distribution
     quantize          | Power-of-two frequency distribution
 
 The `quantize` and `lquantize` functions can be very helpful in providing an overview of what quantities are being passed:
@@ -414,7 +414,7 @@ The above will output something like this:
                512 |@@@@@@@@@@@@@@@@                         27       
               1024 |                                         0        
 
-Be sure to check out [the samples from the Dynamic Tracing Guide](https://docs.oracle.com/cd/E19253-01/817-6223/chp-aggs-2/index.html) for how to use `lquantize`.
+Be sure to check out [the samples from the Dynamic Tracing Guide](https://docs.oracle.com/cd/E19253-01/817-6223/chp-aggs-2/index.html) for information on how to use `lquantize`.
 
 ### Associative Arrays
 
@@ -451,7 +451,7 @@ Associative arrays are also very helpful in providing a good description for `en
 
 ## Probes and Providers
 
-Let us take a step back and look at the probes that are available.
+Let's take a step back and look at the probes that are available.
 
 We can get a list of all available providers with this:
 
@@ -463,7 +463,7 @@ Some of these providers are part of the original set documented in the [Dynamic 
 
 ### `dtrace` Provider
 
-We mentioned the `BEGIN` and `END` probes [above](#ATimingExample). The `dtrace:::END` is particularly helpful for outputting summaries when running DTrace in the quiet mode. There's an `ERROR` probe, too, for when an error occurs.
+We mentioned the `BEGIN` and `END` probes [above](#ATimingExample). The `dtrace:::END` is particularly helpful for outputting summaries when running DTrace in the quiet mode. There's also an `ERROR` probe for when an error occurs.
 
 ### `profile` Provider
 
@@ -573,17 +573,17 @@ The above will output something like this:
 
 There are two probes, `send` and `receive`, inside the [`ip` provider][ipProvider]. They are triggered whenever data is either sent or received over the IP. The arguments `arg0` to `arg5` provide access to the kernel structures related to the IP packet being sent or received.
 
-This can be put together into very powerful network debugging tools. It will make using `tcpdump(1)` seem like yesteryear's trick. The `ip` provider lets you print exactly the information you are interested in and at the point in time that you're interested in it.
+This can be put together into very powerful network debugging tools. It will make using `tcpdump(1)` seem like yesteryear's trick. The `ip` provider lets you print exactly the information you are interested in, at the point in time that you're interested in it.
 
 Check the [documentation][ipProvider] for some excellent examples.
 
 
 <a name="staticProbes"></a>
-## Defining our Own Static Probes
+## Defining Our Own Static Probes
 
 DTrace lets us create our own probes, and with that, we can unlock the real power of DTrace for our own apps.
 
-These kind of probes are called *static probes* in DTrace. We briefly talked about this in the [first examples](#ATimingExample). The [Wire app](https://itunes.apple.com/app/wire/id931134707?mt=12) defines its own provider with its own probe:
+These kinds of probes are called *static probes* in DTrace. We briefly talked about this in the [first examples](#ATimingExample). The [Wire app](https://itunes.apple.com/app/wire/id931134707?mt=12) defines its own provider with its own probe:
 
     provider syncengine_sync {
         probe strategy_go_to_state(int);
@@ -600,7 +600,7 @@ We then call this probe in the code:
         [self.currentState didEnterState];
     }
 
-One might argue that we could just have used the `objc` provider; using our own probe gives us more flexibility. We can later change the Objective-C code without affecting the DTrace probes.
+One might argue that we could have just used the `objc` provider; using our own probe gives us more flexibility. We can later change the Objective-C code without affecting the DTrace probes.
 
 Additionally, the static probes give us easy access to the arguments. We saw above how we can use this both for timing and logging.
 
@@ -643,7 +643,7 @@ This will generate the corresponding header file. The header file ends up in the
 
     #import "provider.h"
 
-in any source file in the project. Xcode has a built-in, so-called *build rule* for DTrace provider descriptions. Compare [objc.io issue #6, “The Build Process”](/issue-6/build-process.html), for more information on build rules and the build process in general.
+in any source file in the project. Xcode has a built-in, so-called *build rule* for DTrace provider descriptions. Compare [objc.io issue #6, “The Build Process,”](/issue-6/build-process.html) for more information on build rules and the build process in general.
 
 
 ### Adding the Probe
@@ -672,7 +672,7 @@ If we go back to the state machine example, here is our probe macro:
 
     SYNCENGINE_SYNC_STRATEGY_GO_TO_STATE(state);
 
-In order to make that a bit easier on the eye, we created another header which defines
+In order to make that a bit easier on the eye, we created another header which defines the following:
 
     static inline void ZMTraceSyncStrategyGoToState(int d) {
         SYNCENGINE_SYNC_STRATEGY_GO_TO_STATE(d);
@@ -708,7 +708,7 @@ This wrapper function is defined as this:
         }
     }
 
-As noted, this serves two purposes. For one, we don't clutter our code with things like `(intptr_t) (__bridge void *)`. Additionally, we don't spend CPU cycles converting an `NSUUID` to an `NSString` and then to a `char const *` unless we need to because someone is attached to the probe.
+As noted, this serves two purposes. For one, we don't clutter our code with things like `(intptr_t) (__bridge void *)`. Additionally, we don't spend CPU cycles converting an `NSUUID` to an `NSString` and then to a `char const *`, unless we need to because someone is attached to the probe.
 
 Along this pattern, we can define multiple wrapper / helper functions that funnel into the same DTrace probe.
 
@@ -741,7 +741,7 @@ It should be obvious that DTrace is extremely powerful and flexible. However, it
 
 Also, DTrace is not magic. You still have to understand the problem you're trying to solve.
 
-That said, DTrace can bring your development skills and abilities to a new level. It allows you to track down problems in production code which are otherwise hard or even impossible to locate.
+That said, DTrace can bring your development skills and abilities to a new level. It allows you to track down problems in production code which are otherwise difficult or even impossible to locate.
 
 If you have code that has `#ifdef TRACING` or `#if LOG_LEVEL == 1` in it, these are probably good candidates for code to be replaced by DTrace.
 
