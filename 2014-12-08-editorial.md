@@ -16,6 +16,6 @@ Peter starts off with a [debugging case study](/issue-19/debugging-case-study.ht
 
 We'd love for you to never need all of this — but since that's not going to happen, we at least hope you'll enjoy these articles! :-)
 
-Best from a wintery Berlin,
+Best from a wintry Berlin,
 
 Chris, Daniel, and Florian.
