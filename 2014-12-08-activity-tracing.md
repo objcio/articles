@@ -59,7 +59,7 @@ os_activity_set_breadcrumb("event description");
 
 The events are stored in a ring buffer that only holds the last 50 events. Therefore, this API should be used to indicate macro-level events, like meaningful user interactions.
 
-Note that this API only has an effect from within the scope of an activity: it marks the current activity as a breadcrumb. This also means that you can only do this once per activity, subsequent calls will be ignored.
+Note that this API only has an effect from within the scope of an activity: it marks the current activity as a breadcrumb. This also means that you can only do this once per activity; subsequent calls will be ignored.
 
 
 ## Trace Messages
