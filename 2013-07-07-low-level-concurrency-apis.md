@@ -525,7 +525,7 @@ One relatively unique property of `dispatch_data_t` is that it can be backed by 
 
 the data object `c` will *not* copy `a` and `b` into a single, larger memory region. Instead it will simply retain both `a` and `b`. You can then traverse the memory regions represented by `c` with `dispatch_data_apply`:
     
-    dispatch_data_apply(c, ^(dispatch_data_t region, size_t offset, const void *buffer, size_t size) {
+    dispatch_data_apply(c, ^bool(dispatch_data_t region, size_t offset, const void *buffer, size_t size) {
         fprintf(stderr, "region with offset %zu, size %zu\n", offset, size);
         return true;
     });
