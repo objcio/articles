@@ -1,7 +1,7 @@
 ---
 title: Debugging Checklist
 category: "19"
-date: "2014-12-10 10:00:00"
+date: "2014-12-08 09:00:00"
 tags: article
 author: "<a href=\"http://twitter.com/chriseidhof\">Chris Eidhof</a>"
 ---
@@ -20,13 +20,13 @@ And hopefully, some of the techniques help to prevent the bugs in the first plac
 
 We'll start off with a couple of very common sources of bugs that happen to us a lot.
 
-### Are Your Callbacks on the Right Thread?
+## Are Your Callbacks on the Right Thread?
 
 One source of unexpected behavior is when things are happening on the wrong thread. For example, when you update UIKit objects from any other thread than the main thread, things could break. Sometimes updating works, but mostly you will get strange behavior, or even crashes. One thing you can do to mitigate this is having assertions in your code that check whether or not you're on the main thread. Common callbacks that might (unexpectedly) happen on a background thread could be coming from network calls, timers, file reading, or external libraries.
 
 Another solution is to keep the places where threading happens very isolated. As an example, if you are building a wrapper around an API on the network, you could handle all threading in that wrapper. All network calls will happen on a background thread, but all callbacks could happen on the main thread, so that you'll never have to worry about that occurring in the calling code. Having a simple design really helps.
 
-### Is This Object Really the Right Class?
+## Is This Object Really the Right Class?
 
 This is mostly an Objective-C problem; in Swift, there's a stronger type system with more precise guarantees about the type of an object or value. However, in Objective-C, it's fairly common to accidentally have objects of the wrong class.
 
@@ -34,7 +34,7 @@ For example, in [Deckset](http://www.decksetapp.com), we were adding a new featu
 
 When unsure about whether the object is of the right type, you can always print it in the debugger. It is also useful to have assertions that check whether or not an object is the right class using `isKindOfClass:`. In Swift, rather than force casting with the `as` keyword, rely on having optionals and use `as?` to typecast whenever you need to. This will let you minimize the chances of errors.
 
-### Build-Specific Settings
+## Build-Specific Settings
 
 Another common source of bugs that are hard to find is when there are settings that differ between builds. For example, sometimes optimizations that happen in the compiler could cause bugs in production builds that never show up during debugging. This is relatively uncommon, although there are reports of this happening with the the current Swift releases.
 
@@ -42,11 +42,11 @@ Another source of bugs is where certain variables or macros are defined differen
 
 These kinds of bugs can be hard to detect during development. As such, you should always thoroughly test the release build of your app. Of course, it's even better if someone else (e.g. a QA department) can test it.
 
-### Different Devices
+## Different Devices
 
 Meanwhile, there are many different devices with different capabilities. If you have only tested on a limited number of devices, this is a potential cause of bugs. The classic scenario is just testing on the simulator without having the real device. But even when you do test with a real device, you need to account for different capabilities. For example, when dealing with the built-in camera, always use methods like `isSourceTypeAvailable:` to check whether you can use a specific input source. You might have a working camera on your device, but it might not be available on the user's device. 
 
-### Mutability
+## Mutability
 
 Mutability is also a common source of bugs that can be very hard to track down. For example, if you share an object between two threads, and they both modify it at the same time, you might get very unexpected behavior. The tough thing about these kinds of bugs is that they can be very hard to reproduce.
 
@@ -107,7 +107,7 @@ if (range.location != NSNotFound) {
 
 If `greeting` contains the string `"objc.io"`, a message is logged. If `greeting` does not contain this string, no message is logged. But what if greeting is `nil`? Then the `range` will be a struct with zeroes, and the `location` will be zero. Because `NSNotFound` is defined as `-1`, this will log the message. So whenever you deal with scalar values and `nil`, be sure to take extra care. Again, this is not an issue in Swift because of optionals.
 
-### Is There Anything in the Class That's Not Initialized?
+## Is There Anything in the Class That's Not Initialized?
 
 Sometimes when working with an object, you might end up working with a half-initialized object. Because it's uncommon to do any work in `init`, sometimes you need to call some methods on the object before you can start working with it. If you forget to call these methods, the class might not be initialized completely and weird behavior might occur. Therefore, always make sure that after the designated initializer is run, the class is in a usable state. If you absolutely need your designated initializer to run, and can't construct a working class using just the `init` method, you can still override the `init` method and crash. This way, when you do accidentally instantiate an object using `init`, you'll hopefully find out about it early.
 
@@ -148,6 +148,6 @@ When you port an existing app to the iPad, this might also be a common source of
 
 One common mistake that we keep making is creating a view, adding some constraints, and then adding it to the superview. In order for most constraints to work, the view needs to be in the superview hierarchy. Luckily, most of the time this will crash your code, so you'll find the bug fast.
 
-### Finally
+## Finally
 
 The techniques above are hopefully helpful to get rid of bugs or prevent them completely. There is also automated help available: turning on all warning messages in Clang can show you a lot of possible bugs, and running the static analyzer will almost certainly find some bugs (unless you run it on a regular basis).

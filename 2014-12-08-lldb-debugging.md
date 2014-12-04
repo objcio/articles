@@ -1,7 +1,7 @@
 ---
 title:  "Dancing in the Debugger — A Waltz with LLDB"
 category: "19"
-date: "2014-011-20 00:00:00"
+date: "2014-12-08 10:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/ari_grant\">Ari Grant</a>"
 ---

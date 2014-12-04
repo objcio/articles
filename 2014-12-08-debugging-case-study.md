@@ -1,8 +1,15 @@
-# Debugging Code
+---
+title:  "Debugging: A Case Study"
+category: "19"
+date: "2014-12-08 11:00:00"
+author: "<a href=\"https://twitter.com/steipete\">Peter Steinberger</a>"
+tags: article
+---
+
 
 Nobody writes perfect code, and debugging is something every one of us should be able to do well. Instead of providing a random list of tips about the topic, I'll walk you through a bug that turned out to be a regression in UIKit, and show you the workflow I used to understand, isolate, and ultimately work around the issue.
 
-### The Issue
+## The Issue
 
 We received a bug report where quickly tapping on a button that presented a popover dismissed the popover but also the *parent* view controller. Thankfully, a sample was included, so the first part — of reproducing the bug — was already taken care of:
 
@@ -14,7 +21,7 @@ My first guess was that we might have code that dismisses the view controller, a
 
 Apple added the [Debug View Hierarchy](https://developer.apple.com/library/ios/recipes/xcode_help-debugger/using_view_debugger/using_view_debugger.html) feature in Xcode 6, and it's likely that this move was inspired by the popular [Reveal](http://revealapp.com/) and [Spark Inspector](http://sparkinspector.com/) apps, which, in many ways, are still better and more feature rich than the Xcode feature.
 
-### Using LLDB
+## Using LLDB
 
 Before there was visual debugging, the common way to inspect the hierarchy was using `po [[UIWindow keyWindow] recursiveDescription]` in LLDB, which prints out [the whole view hierarchy in text form](https://gist.github.com/steipete/5a3c7a3b6e80d2b50c3b). 
 
@@ -35,7 +42,7 @@ Similar to inspecting the view hierarchy, we can also inspect the view controlle
 LLDB is quite powerful and can also be scripted. Facebook released [a collection of python scripts named Chisel](https://github.com/facebook/chisel) that help a lot with daily debugging. `pviews` and `pvc` are the equivalents for view and view controller hierarchy printing. Chisel's view controller tree is similar, but also displays the view rects. I often use it to inspect the [responder chain](https://developer.apple.com/library/ios/documentation/EventHandling/Conceptual/EventHandlingiPhoneOS/event_delivery_responder_chain/event_delivery_responder_chain.html), and while you could manually loop over `nextResponder` on the object you're interested in, or [add a category helper](https://gist.github.com/n-b/5420684), typing `presponder object` is by far the quickest way.
 
 
-### Adding Breakpoints
+## Adding Breakpoints
 
 Let's first figure out what code is actually dismissing our view controller. The most obvious action is setting a breakpoint on `viewWillDisappear:` to see the stack trace:
 
@@ -86,7 +93,7 @@ The Xcode breakpoint interface is very powerful, allowing you to add [conditions
 
 Now we're talking! As expected, the fullscreen `UIDimmingView` receives our touch and processes it in `handleSingleTap:`, then forwarding it to `UIPopoverPresentationController`'s `dimmingViewWasTapped:`, which dismisses the controller (as it should). However, when we tap quickly, this breakpoint is called twice. Is there a second dimming view? Is it called on the same instance? We only have the assembly on this breakpoint, so calling `po self` will not work.
 
-### Calling Conventions 101
+## Calling Conventions 101
 
 With some basic knowledge of assembly and function-calling conventions, we can still get the value of `self`. The [iOS ABI Function Call Guide](http://developer.apple.com/library/ios/#documentation/Xcode/Conceptual/iPhoneOSABIReference/Introduction/Introduction.html) and the [Mac OS X ABI Function Call Guide](http://developer.apple.com/library/mac/#documentation/DeveloperTools/Conceptual/LowLevelABI/000-Introduction/introduction.html) that is used in the iOS Simulator are both great resources.
 
@@ -108,7 +115,7 @@ The **armv7** architecture generally places variables in `$r0`, `$r1`, `$r2`, `$
 
 You can learn more about stack layout for [x86](http://eli.thegreenplace.net/2011/02/04/where-the-top-of-the-stack-is-on-x86/) and [x86-64](http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/), and also by reading the [AMD64 ABI Draft](http://www.x86-64.org/documentation/abi.pdf).
 
-### Using the Runtime
+## Using the Runtime
 
 Another technique to track method execution is overriding the methods with a log statement before calling super. However, manually swizzling just to be able to debug more conveniently isn't really time efficient. A while back, I wrote a small library called [*Aspects*](http://github.com/steipete/Aspects) that does exactly that. It can be used in production code, but I mostly use it for debugging and to write test cases. (If you're curious about Aspects, you can [learn more here.](https://speakerdeck.com/steipete/building-aspects))
 
@@ -148,7 +155,7 @@ We see that the object address is the same, so our poor dimming view really is c
 
 Both times, the dimming view calls dismiss on our main navigation controller. UIViewControllers's `dismissViewControllerAnimated:completion:` will forward the view controller dismissal request to its immediate child controller, if there is one, otherwise it will dismiss itself. So the first time, the dismiss request goes to the popover, and the second time, the navigation controller itself gets dismissed.
 
-### Finding a Workaround
+## Finding a Workaround
 
 We now know what is happening — so let's move to the *why*. UIKit is closed source, but we can use a disassembler like [Hopper](http://www.hopperapp.com/) to read the UIKit assembly and take a closer look what's going on in `UIPopoverPresentationController`. You'll find the binary under `/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/UIKit.framework`. Use File -> Read Executable to Disassemble... and select this in Hopper, and watch how it crawls through the binary and symbolicates code. The 32-bit disassembler is the most mature one, so you'll get the best results selecting the 32-bit file slice. [IDA by Hex-Rays](https://www.hex-rays.com/products/ida/) is another very powerful and expensive disassembler, which often provides even better results:
 
@@ -168,7 +175,7 @@ Reading the pseudo-code is quite eye-opening. There are two code paths — one i
 
 My first attempt was to set this to the main view controller that creates the popover. However, that broke `UIPopoverController`. While not documented, the popover controller sets itself as the delegate in `_setupPresentationController`, and taking the delegate away will break things. Instead, I used a `UIPopoverController` subclass and added the above method directly. The connection between these two classes is not documented, and our fix relies on this undocumented behavior; however, the implementation matches the default and exists purely to work around this issue, so it's future-proof code.
 
-### Reporting a Radar
+## Reporting a Radar
 
 Now please don't stop here. You should always properly document such workarounds, and most importantly, file a radar with Apple. As an additional benefit, this allows you to verify that you actually understood the bug, and that no other side effects from your application play a rule — and if you drop an iOS version, it's easy to go back and test if the radar is still valid:
 
@@ -193,7 +200,7 @@ Now, we all know that Apple's RadarWeb application isn't great, however, you don
 
 Not every issue can be solved with such a simple workaround, however, many of these steps will help you find better solutions to issues, or at least improve your understanding of why something is happening. 
 
-### References
+## References
 
 *  [iOS Debugging Magic (TN2239)](https://developer.apple.com/library/ios/technotes/tn2239/_index.html)
 *  [iOS Runtime Headers](https://github.com/nst/iOS-Runtime-Headers)
