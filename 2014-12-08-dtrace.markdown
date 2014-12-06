@@ -123,7 +123,7 @@ Finally, we're using variables in the global scope to keep track of what the las
 
 The built-in `walltimestamp` variable returns the current number of nanoseconds since the Unix epoch.
 
-There's another timestamp variable, `vtimestamp`, which is a virtualized timestamp, also in nanoseconds. It is the amount of time the current thread had been running on a CPU, minus the time spent in DTrace. Finally, `machtimestamp` corresponds to `mach_absolute_time()`.
+There's another timestamp variable, `vtimestamp`, which is a virtualized timestamp, also in nanoseconds. It is the amount of time the current thread has been running on a CPU, minus the time spent in DTrace. Finally, `machtimestamp` corresponds to `mach_absolute_time()`.
 
 For the above script, the order of execution is important. We have two so-called *clauses*, which match the same probe, (`syncengine_sync*:::strategy_go_to_state`). These will run in the order in which they appear in the D program.
 
@@ -213,7 +213,7 @@ This limits what we can do. But the simplicity also gives us a lot of flexibilit
 
 The following examples will give us a good feel for some of the things we can do.
 
-This example measures the accumulated time the *App Store* application spends inside any system call (i.e. call into the kernel):
+This example measures the accumulated time the *App Store* application spends inside any syscall (i.e. a system call, or a call into the kernel):
 
     syscall:::entry
     / execname == "App Store" /
@@ -422,7 +422,7 @@ Despite the name, arrays in D are more akin to dictionaries in Swift or Objectiv
 
 We can define an associative array with this:
 
-int x[unsigned long long, char];
+    int x[unsigned long long, char];
 
 Then, we can assign to it, like so:
 
@@ -497,7 +497,7 @@ The output will look something like this:
                 11 |                                         1        
                 12 |                                         0        
 
-Similarly, the `tick-` probes will fire every fixed interval at high interrupt level. The `profile-` probes will fire on all CPUs, and the `tick-` probes only on a single CPU per interval. We used `tick-10sec` in our [aggregation](#Aggregations) example above.
+Similarly, the `tick-` probes will fire every fixed interval at a high interrupt level. The `profile-` probes will fire on all CPUs, and the `tick-` probes only on a single CPU per interval. We used `tick-10sec` in our [aggregation](#Aggregations) example above.
 
 ### `pid` Provider
 
@@ -511,7 +511,7 @@ You can trace any function that's visible. For example, look at this probe:
 
     pid123:libSystem:printf:return
 
-It would attach to `printf`, returning in the process with the process identifier (pid) 123.
+It would attach to `printf`, returning in the process with the process identifier (PID) 123.
 
 ### `objc` Provider
 
@@ -525,7 +525,7 @@ And
 
     objc207:NSTableView:-*:entry
 
-would match entry into all instance methods of `NSTableView` in the process with pid 207. Since the colon symbol `:` is part of the DTrace probe specifier scheme, `:` symbols in Objective-C method names need to be replaced with a question mark, `?`. For example, to match entry into `-[NSDate dateByAddingTimeInterval:]`, we'd use this:
+would match entry into all instance methods of `NSTableView` in the process with PID 207. Since the colon symbol `:` is part of the DTrace probe specifier scheme, `:` symbols in Objective-C method names need to be replaced with a question mark, `?`. For example, to match entry into `-[NSDate dateByAddingTimeInterval:]`, we'd use this:
 
     objc207:NSDate:-dateByAddingTimeInterval?:entry
 
