@@ -390,6 +390,7 @@ We can obviously do the same for `NSURLConnection`:
     }
 
 In order for this to work, you need to make sure that
+
  * `dispatch_group_enter()` is guaranteed to run before `dispatch_group_leave()`
  * Calls to `dispatch_group_enter()` and `dispatch_group_leave()` are always balanced (even when errors happen)
 
