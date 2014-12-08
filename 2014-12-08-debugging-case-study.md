@@ -157,7 +157,7 @@ Both times, the dimming view calls dismiss on our main navigation controller. UI
 
 ## Finding a Workaround
 
-We now know what is happening — so let's move to the *why*. UIKit is closed source, but we can use a disassembler like [Hopper](http://www.hopperapp.com/) to read the UIKit assembly and take a closer look what's going on in `UIPopoverPresentationController`. You'll find the binary under `/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/UIKit.framework`. Use File -> Read Executable to Disassemble... and select this in Hopper, and watch how it crawls through the binary and symbolicates code. The 32-bit disassembler is the most mature one, so you'll get the best results selecting the 32-bit file slice. [IDA by Hex-Rays](https://www.hex-rays.com/products/ida/) is another very powerful and expensive disassembler, which often provides even better results:
+We now know what is happening — so let's move to the *why*. UIKit is closed source, but we can use a disassembler like [Hopper](http://www.hopperapp.com/) to read the UIKit assembly and take a closer look what's going on in `UIPopoverPresentationController`. You'll find the binary under `/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/UIKit.framework`. Use File -> Read Executable to Disassemble... and select this in Hopper, and watch how it crawls through the binary and symbolicates code. The 32-bit disassembler is the most mature one, so you'll get the best results selecting the 32-bit file slice. [IDA by Hex-Rays](https://www.hex-rays.com/products/ida/) is another very powerful and expensive disassembler, which often provides [even better results](https://twitter.com/steipete/status/537565877332639744):
 
 ![](/images/issue-19/hopper-dimmingView.png)
 
@@ -177,7 +177,7 @@ My first attempt was to set this to the main view controller that creates the po
 
 ## Reporting a Radar
 
-Now please don't stop here. You should always properly document such workarounds, and most importantly, file a radar with Apple. As an additional benefit, this allows you to verify that you actually understood the bug, and that no other side effects from your application play a rule — and if you drop an iOS version, it's easy to go back and test if the radar is still valid:
+Now please don't stop here. You should always properly document such workarounds, and most importantly, file a radar with Apple. As an additional benefit, this allows you to verify that you actually understood the bug, and that no other side effects from your application play a role — and if you drop an iOS version, it's easy to go back and test if the radar is still valid:
 
 ```
 // The UIPopoverController is the default delegate for the UIPopoverPresentationController
@@ -193,7 +193,7 @@ Now please don't stop here. You should always properly document such workarounds
 }
 ```
 
-Writing radars is actually quite a fun challenge, and takes not as much time as you might think. With an example, you'll help out some overworked Apple engineer, and without it, the engineers will most likely push back and not even consider the radar. I managed to create a sample in about 50 LOC, including some comments and the workaround. The Single View Template is usually the quickest way to create an example.
+Writing radars is actually quite a fun challenge, and doesn't take as much time as you might think. With an example, you'll help out some overworked Apple engineer, and without it, the engineers will most likely push back and not even consider the radar. I managed to create a sample in about 50 LOC, including some comments and the workaround. The Single View Template is usually the quickest way to create an example.
 
 Now, we all know that Apple's RadarWeb application isn't great, however, you don't have to use it. [QuickRadar](http://www.quickradar.com/) is a great Mac front-end that can submit the radar for you, and also automatically sends a copy to [OpenRadar](http://openradar.appspot.com). Furthermore, it makes duping radars extremely convenient. You should download it right away and dupe rdar://19053416 if you feel like this bug should be fixed.
 
@@ -215,3 +215,4 @@ Not every issue can be solved with such a simple workaround, however, many of th
 *  [Stack frame layout on x86-64](http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64)
 *  [AMD64 ABI draft](http://www.x86-64.org/documentation/abi.pdf)
 *  [ARM 64-bit Architecture](http://infocenter.arm.com/help/topic/com.arm.doc.ihi0055b/IHI0055B_aapcs64.pdf)
+*  [Decompiling assembly: IDA vs Hopper](https://twitter.com/steipete/status/537565877332639744)
