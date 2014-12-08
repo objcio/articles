@@ -99,7 +99,7 @@ With some basic knowledge of assembly and function-calling conventions, we can s
 
 We know that every Objective-C method has two implicit parameters: `self` and `_cmd`. So what we need is the first object on the stack. For the **32-bit** architecture, the stack is saved in `$esp`, so you can use `po *(int*)($esp+4)` to get `self`, and `p (SEL)*(int*)($esp+8)` to get `_cmd` in Objective-C methods. The first value in `$esp` is the return address. Subsequent variables are in `$esp+12`, `$esp+16`, and so on.
 
-The **x86-64** architecture (iPhone Simulator for devices that have an arm64 chip) offers many more registers, so variables are placed in `$rdi`, `$rsi`, `$rdx`, `$rxc`, `$r8`, `$r9`. All subsequent variables land on the stack in `$rbp`, starting with `$rbp+16`, `$rbp+24`, etc.
+The **x86-64** architecture (iPhone Simulator for devices that have an arm64 chip) offers many more registers, so variables are placed in `$rdi`, `$rsi`, `$rdx`, `$rcx`, `$r8`, `$r9`. All subsequent variables land on the stack in `$rbp`, starting with `$rbp+16`, `$rbp+24`, etc.
 
 The **armv7** architecture generally places variables in `$r0`, `$r1`, `$r2`, `$r3`, and then moves the rest on the stack `$sp`:
 
