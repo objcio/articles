@@ -170,7 +170,7 @@ Awww. LLDB couldn't figure out the types involved. This happens at times. Just g
     (lldb) p/d (char)[[$array objectAtIndex:$a] characterAtIndex:0]
     77
 
-Variables make the debugger much easier to work with. Who would have thunk? &#128521;
+Variables make the debugger much easier to work with. Who would have thank? &#128521;
 
 ### Flow Control
 
