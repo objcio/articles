@@ -548,7 +548,7 @@ Since LLDB is looking for a *symbol*, it won't find it, and your breakpoint will
 
 ### LLDB and Python
 
-LLDB has full, built-in [Python support](http://lldb.llvm.org/python-reference.html). If you type `script` in LLDB, it will open a Python REPL. If you type `script` in LLDB, it will open a Python REPL. You can also pass a line of Python to the `script command` and have it executed without entering the REPL:
+LLDB has full, built-in [Python support](http://lldb.llvm.org/python-reference.html). If you type `script` in LLDB, it will open a Python REPL. You can also pass a line of Python to the `script command` and have it executed without entering the REPL:
 
     (lldb) script import os
     (lldb) script os.system("open http://www.objc.io/")
