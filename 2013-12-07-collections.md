@@ -237,7 +237,7 @@ As an interesting detail, keys are copied when using an `NSDictionary`, but are 
 
 Apple is rather quiet when it comes to defining computational complexity. The only note around this can be found in the [CoreFoundation headers of `CFDictionary`](http://www.opensource.apple.com/source/CF/CF-855.11/CFDictionary.h):
 
->The access time for a value in the dictionary is guaranteed to be at worst O(N) for any implementation, current and future, but will often be O(1) (constant time). Insertion or deletion operations will typically be constant time as well, but are O(N\*N) in the worst case in some implementations. Access of values through a key is faster than accessing values directly (if there are any such operations). Dictionaries will tend to use significantly more memory than a array with the same number of values.
+>The access time for a value in the dictionary is guaranteed to be at worst O(N) for any implementation, current and future, but will often be O(1) (constant time). Insertion or deletion operations will typically be constant time as well, but are O(N\*lg N) in the worst case in some implementations. Access of values through a key is faster than accessing values directly (if there are any such operations). Dictionaries will tend to use significantly more memory than a array with the same number of values.
 
 The dictionary - much like array - uses different implementations depending on the size and switches between them transparently.
 
