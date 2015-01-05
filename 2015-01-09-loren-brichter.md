@@ -86,7 +86,15 @@ I can't consciously multitask at all, but I think my brain works a bit like libd
 
 We draw lines between disciplines as a way to divvy up work, the same way you split up programs into modules or objects or some other thing. But whenever you split something in two, the pieces inevitably diverge, and gets harder to piece them back together when you go to build something. I find that after a while you actually spend more time dealing with "glue" than the actually thing itself, dealing with impedance mismatches or whatnot (both at an architectural/engineering level or at an interpersonal level). So my little cheat is to try and build things in a more holistic way. It's not actually much more work, because you only have to build the parts that actually — you know — *do* something, and there's minimal hacking required to stick them together.
 
-**In this holistic way of working, is there still a separation between prototyping and building the actual product, or do these two things blend together a lot?**
+**Clearly though there are limits to what you can build alone, some projects will just require more people to get them done...**
+
+Absolutely, but I think the limit is way further out than people realize. Some remarkable stuff throughout history has been accomplished by individuals, part of the trick is standing on the right shoulders. So sure, the space of ideas I am capable of exploring is smaller than if I were working on a big team, but they're both infinitely big, even if one infinity is smaller than the other. And for me personally, that's a worthwhile tradeoff.
+
+**How do you think teams could be organized in order to minimze the friction you're talking about?**
+
+I don't know. I do know that there are parallels to bad coding architecture at organizational and interpersonal levels, and just as an engineer might be capable of building a thing in a holistic way, a great manager might be able to organize a group of people in a holistic way, by deeply understanding each person and the problem they need to solve together. I don't have those skills, but I don't think it involves any sort of magic template. If I picked up any wisdom over the last few years, it would be to try to know — like *really know* — what you're doing. It's harder, but it's simpler in the long run.
+
+**So when you're working on a project in a holistic way, is there still a separation between prototyping and building the actual product, or do these two things blend together a lot?**
 
 They're completely blended, which usually means I end up doing my prototyping in code rather than in some other tool like Quartz Composer or Form. The obvious next step for any of those tools is to stop calling them prototyping tools and let them just create the final product.
 
