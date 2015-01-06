@@ -1,6 +1,6 @@
 *C: Thanks for taking the time, Natasha! Could you tell us a little bit of what you currently do in your job and in the developer community?*
 
-N: By day I’m an iOS engineer at Capital One, and we’re working on a bunch of native apps. And then usually I wake up early and usually do blogging or learning or building something, so morning is kind of like my time to grow.
+N: By day I’m an iOS engineer at Capital One, and we’re working on a bunch of native apps. And then usually I wake up early and usually do blogging or learning or building something, so morning is my time to grow.
 
 *C: The apps you build at Capital One, are these internal or also external apps?*
 
@@ -8,7 +8,7 @@ N: They’re external, but they’re not out yet. Capital One is just started to
 
 *C: Exciting --- how big is the team there now?*
 
-N: It’s pretty big. We have offices in DC, Richmond, and Wilmington, Delaware. And I think there’s probably like 15 iOS developers. Whenever I go back to DC it’s the best, because I get to learn a lot from some of the best developers in the industry. And we're building out a team in San Francisco, it's about three or four developers right now.
+N: It’s pretty big. We have offices in DC, Richmond, and Wilmington, Delaware. And I think there are about 15 iOS developers. Whenever I go back to DC it’s the best, because I get to learn a lot from some of the best developers in the industry. And we're building out a team in San Francisco, it's about three or four developers right now.
 
 *C: Is it a challenge to work in a young team like that?*
 
@@ -38,9 +38,9 @@ N: Psychology, it’s actually been the most useful major.
 
 There’s that stereotype of programmers, sitting alone in the basement somewhere. But in real life you have to work with people. It's  a lot about group dynamics and group think. Trying to put in different opinions is very important sometimes, because often times when you all know each other, everyone just agrees on things, and that might not be the right thing. There are also a lot of things around leadership, like caring for other people and developing a relationship that’s outside of just your everyday coding.
 
-*F: With your background in psychology, do you have any tips how to deal with the ups and downs in programming? Those frustrating moments were you just don't know what's going on?*
+F: With your background in psychology, do you have any tips how to deal with the ups and downs in programming? Those frustrating moments were you just don't know what's going on?
 
-N: So that’s actually been the hardest thing about learning programming when I started, because I wasn’t used to that. In school, it was a very clear formula --- you study hard and you get an A on the test. Or even in my jobs before programming, it was more of a linear learning process, it always gets better. But then when I started programming, it was like that where one day I’m like on top of the world, and then the next day, I've the feeling that I can’t program anymore at all. The most important thing has been to learn how to debug, taking one step at a time, and questioning all your assumptions. Apart from that meditation --- focusing on the breathing --- helps me. Also just  walking away, taking a break. Sometimes just going to sleep is the best option, the next day the problem is solved much easier. Toe me this part of programming has become a challenge that I love.
+N: So that’s actually been the hardest thing about learning programming when I started, because I wasn’t used to that. In school, it was a very clear formula --- you study hard and you get an A on the test. Or even in my jobs before programming, it was more of a linear learning process, it always gets better. But then when I started programming, it was like that where one day I’m on top of the world, and then the next day, I've the feeling that I can’t program anymore at all. The most important thing has been to learn how to debug, taking one step at a time, and questioning all your assumptions. Apart from that meditation --- focusing on the breathing --- helps me. Also just  walking away, taking a break. Sometimes just going to sleep is the best option, the next day the problem is solved much easier. Toe me this part of programming has become a challenge that I love.
 
 *C: What do you think about all the new stuff that has come out recently, like Swift and WatchKit, and then iOS 8. What are you excited about?*
 
@@ -68,13 +68,13 @@ N: I'm starting to get the feeling with Swift that there will just be more optio
 
 N: Yeah, I do have a list. A lot of it is just keeping healthy. Swift has been so exciting that I’ve just always been learning and pushing myself. But I'm hoping to get back to a normal sleep schedule soon. I’ve found that when you sleep enough, you actually get a lot more done, although it might feel counterintuitive at times. Another main thing is just to double down on learning. Swift has opened up a whole other world of things I wanna learn. I am missing definitely some pieces in my programming experience, so, I think I’ll be just focused on learning those pieces, and then figuring out how to best fit them in to write better code.
 
-*C: Do you have big ambitions for the long term, like on a five year scale?*
+*C: Do you have big ambitions for the long term?*
 
-N: I don’t like to think too long term because things change. It’s kind of like code. You have to rewrite everything. For me it’s more like being in a good state every day versus having a big goal. Every day when I wake up I wanna ask myself “Am I happy?” And I know things that make me happy, like learning, being healthy, and traveling. Those are the big three things that I try to center myself around. I feel that there's still a lot to gain for me by learning more, and then maybe in a year or so, I'll focus more on really building and releasing things.
+N: I don’t like to think too long term because things change. It’s kind of like code. You have to rewrite everything. For me it’s more about being in a good state every day versus having a big goal. Every day when I wake up I wanna ask myself “Am I happy?” And I know things that make me happy, like learning, being healthy, and traveling. Those are the big three things that I try to center myself around. I feel that there's still a lot to gain for me by learning more, and then maybe in a year or so, I'll focus more on really building and releasing things.
 
 *C: Could you also see yourself doing something completely different than programming?*
 
-N: Probably not. I don’t know, maybe in ten years, who knows? But, no, I really enjoy it. I don’t know if I can find a field where I have infinite things to learn. I’ve been interested also in learning more hardware stuff but I think that’s going together with software. As long as I keep learning new things and keep challenging my mind, and like being a little bit outside my comfort zone, which is my favorite place to be and makes me happy, I’m happy to continue what I'm doing.
+N: Probably not. I don’t know, maybe in ten years, who knows? But, no, I really enjoy it. I don’t know if I can find a field where I have infinite things to learn. I’ve been interested also in learning more hardware stuff but I think that’s going together with software. As long as I keep learning new things and keep challenging my mind, and am a little bit outside my comfort zone, which is my favorite place to be and makes me happy, I’m happy to continue what I'm doing.
 
 *C: Did you have any mentors or people who really inspired you when learning iOS and Rails?*
 
