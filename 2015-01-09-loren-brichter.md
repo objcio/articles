@@ -1,7 +1,7 @@
 ---
 title:  "Loren Brichter"
 category: "20"
-date: "2015-01-09 10:00:00"
+date: "2015-01-12 10:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/lorenb\">Loren Brichter</a>"
 ---

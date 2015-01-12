@@ -1,7 +1,7 @@
 ---
 title:  "Andy Matuschak"
 category: "20"
-date: "2015-01-09 11:00:00"
+date: "2015-01-12 11:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/andy_matuschak\">Andy Matuschak</a>"
 ---
