@@ -1,3 +1,12 @@
+---
+title:  "Andy Matuschak"
+category: "20"
+date: "2015-01-09 11:00:00"
+tags: article
+author: "<a href=\"https://twitter.com/andy_matuschak\">Andy Matuschak</a>"
+---
+
+
 **Andy, thanks for taking the time to sit down with us. Could you tell us a bit about how you got into programming?**
 
 I think, like many people, it was through games. I actually wasn't allowed to have game consoles for a certain period of my youth, and in that period I went to the public library a lot. When I was nine, I found these books that were meant, I think, to teach programming, but in fact they just had huge listings of basic source code. There were entire books that were source listings, and they were source listings for games. So when I would play games I would type in this book of source, and often there would be a syntax error halfway through, and I wouldn't understand the error messages, and wouldn't know how to fix them. So I'd have to start over, and then I could play the game, and after a little bit of doing that I realized that I could change the games, and very rapidly things degraded from there. I learned C++ — I guess I was 10 — because that was what people made games with, and tried to write a [MUD](http://en.wikipedia.org/wiki/MUD) — that was my first big project. It went okay...
