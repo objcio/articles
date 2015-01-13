@@ -8,23 +8,23 @@ author: "<a href=\"https://twitter.com/NatashaTheRobot\">Natasha Murashev</a>"
 
 **Thanks for taking the time, Natasha! Could you tell us a little bit of what you currently do in your job and in the developer community?**
 
-By day I'm an iOS engineer at Capital One, and we’re working on a bunch of native apps. And usually I wake up early and do blogging or learning or building something: morning is my time to grow.
+By day I'm an iOS engineer at Capital One, and we’re working on a bunch of exciting native apps in the finance space. Outside of work, I usually wake up really early and do blogging or learning or building something: morning is my time to grow.
 
 **Why did you get into iOS development?**
 
-I always wanted to learn, or since I started developing, and at my last company, I was doing Ruby on Rails. They had a hard time hiring iOS developers, so they asked if anybody wanted to learn iOS and switch. I started thinking about that and I applied to the Mobile Makers bootcamp. After I got in, I went to my boss, and he let me go for a two-month sabbatical, during which I went to Chicago for an eight-week full-time course. I really liked this experience because you have instructors that are teaching you best practices, as opposed to just fiddling around for yourself. When I came back I joined the iOS team.
+I always wanted to learn, ever since I started developing. At my last company, I was doing Ruby on Rails. They had a hard time hiring iOS developers, so they asked if anybody wanted to learn iOS and switch. I started thinking about it, so I applied to the Mobile Makers bootcamp. After I got in, I went to my boss, and he let me go for a two-month sabbatical, during which I went to Chicago for an eight-week full-time course. I really liked this experience because I had instructors teaching me best practices and I learned at a much more accelerated pace, as opposed to just fiddling around on my own. When I came back I joined the iOS team.
 
 **Could you tell us a bit more about the bootcamp — what did you learn there?**
 
-We learned a lot of Objective-C, which was the biggest challenge to me initially, as it seemed pretty intimidating. Every morning we learned new stuff and immediately applied it in the afternoon, when we were building stuff together with others. We built an app every week, and at the end of the bootcamp we had to release an app in the App Store.
+We learned a lot of Objective-C, which was the biggest challenge to me initially, as it seemed pretty intimidating. Every morning we learned new stuff and immediately applied it in the afternoon building small apps together with others. We built an app every week, and at the end of the bootcamp we had to release an app in the App Store.
 
 **How did you get into programming initially, and why?**
 
-It started when I came to visit San Francisco for a weekend. I absolutely fell in love with the tech scene. I went to a lot of meetups, and learned about startups, and, it was just a really positive and creative atmosphere. I moved here and within a year I was working on a startup with some friends. I wasn't able to code myself at the time, but since I’m a hands-on person, I don’t like having my hands tied. That was really frustrating and I just started to learn on my own that way.
+It started when I came to visit San Francisco for a weekend. I absolutely fell in love with the tech scene. I went to a lot of meetups, and learned about startups, and, it was just a really positive and creative atmosphere. I moved here, and within a year I was working on a startup with some friends. I wasn't able to code at the time, but since I don’t like having my hands tied, I started learning soon after.
 
 **So you picked up enough Rails on your own to land a job as a Rails developer?**
 
-Yes. Initially I started with a Stanford course. I just did that online, and then I started learning Rails. I could hack things together and make it work, but I knew that's not how I wanted to program. Around that time, Dev Bootcamp just came out. I applied there and ended up in the second class. That was an an opportunity for me to learn smarter approaches to programming.
+Yes. Initially I started with a Stanford course in Java. I just did that online, and then I started learning Rails. I could hack things together and make it work, but I knew that's not how I wanted to program. Around that time, Dev Bootcamp just came out. I applied there and ended up in the second class. That was an an opportunity for me to learn smarter approaches to programming.
 
 **What did you study in college, by the way?**
 
@@ -40,9 +40,9 @@ Apart from that, meditation — focusing on the breathing — helps me. Also jus
 
 **What do you think about all the new stuff that has come out recently, like Swift and WatchKit, and then iOS 8? What are you excited about?**
 
-Everything? I love learning. That's actually one of my favorite things about being a programmer. I missed that in my other jobs, but in programming there are just many more ups and downs with opportunities to learn. For example, Swift looks really easy on the outside. When it was announced, all the JavaScript developers were like, "Oh, I’m now an iOS developer." However, from working with it, I've found that it’s actually harder than Objective-C. Objective-C is very simple. You can only do so many things. But in Swift there's a whole new world of patterns, but there are no best practices yet — it’s kind of a Wild West. There are so many choices.
+Everything? I love learning. That's actually one of my favorite things about being a programmer. I missed that in my other jobs, but in programming there are just many more ups and downs with opportunities to learn. For example, Swift looks really easy on the outside. When it was announced, all the JavaScript developers were like, "Oh, I’m now an iOS developer." However, from working with it, I've found that it’s actually harder than Objective-C. Objective-C is very simple. You can only do so many things. But in Swift there's a whole new world of patterns, and there are no best practices yet — it’s kind of a Wild West. There are so many choices.
 
-With regard to WatchKit, it's pretty simple at the moment, but the promise of it is really exciting. I actually just got one of those FitBit scales, and the way it just communicates seamlessly is really magical. I’m excited about that aspect of the watch, of being able to track information and sync it seamlessly.
+With regard to WatchKit, it's pretty simple at the moment, but the promise of it is really exciting. I actually just got one of those FitBit scales, and the way it syncs data so seamlessly is really magical. I’m excited about that aspect of the watch, of being able to track information and sync it seamlessly.
 
 **If I recall correctly, you were disappointed about it initially, but then got really excited about it, right?**
 
@@ -54,7 +54,7 @@ I've actually been blogging for a while. When I started coding, I started my blo
 
 **Did the visibility you got in the Swift community change something for you?**
 
-I just keep doing what I've been doing. I did start a Swift newsletter, but that's also part of my way of learning. The new part is that I've started doing a lot of speaking engagements. That's been really fun and works very well for solidifying my knowledge. When you’re teaching, you have to really learn your stuff. With the WatchKit hackathon, we gambled a bit, because the release date was not clear yet. In the end, I had to learn WatchKit in three days and then teach it. But I enjoyed the pressure because it forces me to learn it, whereas on my own I’d probably take a longer time and then I wouldn’t learn it as well as when I have to actually be an expert on it after three days.
+I just keep doing what I've been doing. I did start a Swift newsletter, but that's also part of my way of learning. The new part is that I've started doing a lot of speaking engagements. That's been really fun and works very well for solidifying my knowledge. When you’re teaching, you have to really learn your stuff. With the WatchKit hackathon, we gambled a bit, because the release date was not clear yet. In the end, I had to learn WatchKit in three days and then teach it. But I enjoyed the pressure because it forced me to learn it, whereas on my own I’d probably taken a longer time and then I wouldn’t learn it as well as when I had to actually be an expert on it after three days.
 
 **Right now, everybody's learning Swift, but maybe in a few years there will be established patterns. Do you think we can keep the community as open as it is now?**
 
@@ -70,7 +70,7 @@ I don't like to think too long term because things change. It's kind of like cod
 
 **Could you also see yourself doing something completely different than programming?**
 
-Probably not. I really enjoy it. Maybe in 10 years, who knows? I don’t know if I can find a field where I have infinite things to learn. I’ve been interested also in learning more hardware stuff, but I think that’s going together with software. As long as I keep learning new things, keep challenging my mind, I'm happy to continue what I'm doing. Being a little bit outside my comfort zone makes me very happy.
+Probably not. I really enjoy it. Maybe in 10 years, who knows? I don’t know if I can find a field where I have infinite things to learn. I’ve been interested also in learning more hardware stuff, but I think that goes together with software. As long as I keep learning new things, keep challenging my mind, I'm happy to continue what I'm doing. Being a little bit outside my comfort zone makes me very happy.
 
 **Did you have any mentors or people who really inspired you when learning iOS and Rails?**
 
@@ -78,9 +78,9 @@ I learned a lot by pair programming with people who are more experienced than me
 
 **When you were pair programming, were there any big lessons you learned, or was it more about many little details?**
 
-I'm very detail oriented, so I do enjoy the tiny little things and tricks that I learn. For example, somebody showed me that you could turn on the Clang analyzer in Xcode and get much better warning messages. If someone wouldn't have told me, I would have probably not googled this kind of thing. When you pair program, you learn these tiny things that people take for granted. Some blog posts about these things are actually my most popular ones, although I would have assumed that probably everybody except me knows this already anyway.
+I'm very detail oriented, so I do enjoy the tiny little things and tricks that I learn. For example, my coworker showed me that you could turn on the Clang analyzer in Xcode and get much better warning messages. If he wouldn't have told me, I would not have known to even google for this kind of thing. When you pair program, you learn these tiny things that people take for granted. Some of my blog posts about these tiny things are actually my most popular ones, although I initially assumed that probably everybody except me knows this already.
 
-In terms of bigger things, one of my coworkers at Capital One showed me how to apply the MVVM pattern in a real world situation. I've heard about it, I heard Facebook talk about it, but I wasn’t really sure how it worked, so it was really cool to have him walk me through an actual implementation of it. Next time, in a different app, I could apply it on my own then.
+In terms of bigger things, one of my coworkers at Capital One showed me how to apply the MVVM pattern in a real world situation. I've heard about it, I heard Facebook talk about it, but I wasn’t really sure how it worked, so it was really cool to have him walk me through an actual implementation of it. Now, I use the MVVM pattern all the time in different apps.
 
 **Is there anything else that you want to share?**
 
