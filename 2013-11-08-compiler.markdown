@@ -153,7 +153,7 @@ This text is converted from a string to a stream of tokens. For example, in the 
       return 0;
     }
 
-We can ask clang to dump the tokens for this program by issuing the following command: `clang -Xclang -dump-tokens hello.m`:
+We can ask clang to dump the tokens for this program by issuing the following command: `clang -cc1 -dump-tokens hello.m`:
 
     int 'int'        [StartOfLine]  Loc=<hello.m:4:1>
     identifier 'main'        [LeadingSpace] Loc=<hello.m:4:5>
@@ -199,7 +199,7 @@ Now the interesting part starts: our stream of tokens is parsed into an abstract
     }
 
 
-When we issue `clang -Xclang -ast-dump -fsyntax-only hello.m`, we get the following result printed to our command line:
+When we issue `clang -cc1 -ast-dump -fblocks hello.m`, we get the following result printed to our command line:
 
     @interface World- (void) hello;
     @end
