@@ -475,7 +475,6 @@ Here we're setting up a timer to fire every 5 seconds and allow for a leeway of 
     dispatch_source_set_event_handler(source, ^(){
         NSLog(@"Time flies.");
     });
-    dispatch_time_t start
     dispatch_source_set_timer(source, DISPATCH_TIME_NOW, 5ull * NSEC_PER_SEC, 
       100ull * NSEC_PER_MSEC);
     self.source = source;
