@@ -1,7 +1,7 @@
 ---
 title:  "Editorial"
 category: "20"
-date: "2015-01-12 12:00:00"
+date: "2015-01-13 12:00:00"
 tags: editorial
 ---
 

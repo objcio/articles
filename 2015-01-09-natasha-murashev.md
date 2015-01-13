@@ -1,7 +1,7 @@
 ---
-title:  "Natasha Murashev"
+title:  "Infinite Things to Learn"
 category: "20"
-date: "2015-01-12 09:00:00"
+date: "2015-01-13 09:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/NatashaTheRobot\">Natasha Murashev</a>"
 ---
