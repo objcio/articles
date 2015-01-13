@@ -16,7 +16,7 @@ I always wanted to learn, ever since I started developing. At my last company, I
 
 **Could you tell us a bit more about the bootcamp — what did you learn there?**
 
-We learned a lot of Objective-C, which was the biggest challenge to me initially, as it seemed pretty intimidating. Every morning we learned new stuff and immediately applied it in the afternoon building small apps together with others. We built an app every week, and at the end of the bootcamp we had to release an app in the App Store.
+We learned a lot of Objective-C, which was the biggest challenge to me initially, as it seemed pretty intimidating. Every morning we learned new stuff and immediately applied it in the afternoon, building small apps together with others. We built an app every week, and at the end of the bootcamp we had to release an app in the App Store.
 
 **How did you get into programming initially, and why?**
 
@@ -54,7 +54,7 @@ I've actually been blogging for a while. When I started coding, I started my blo
 
 **Did the visibility you got in the Swift community change something for you?**
 
-I just keep doing what I've been doing. I did start a Swift newsletter, but that's also part of my way of learning. The new part is that I've started doing a lot of speaking engagements. That's been really fun and works very well for solidifying my knowledge. When you’re teaching, you have to really learn your stuff. With the WatchKit hackathon, we gambled a bit, because the release date was not clear yet. In the end, I had to learn WatchKit in three days and then teach it. But I enjoyed the pressure because it forced me to learn it, whereas on my own I’d probably taken a longer time and then I wouldn’t learn it as well as when I had to actually be an expert on it after three days.
+I just keep doing what I've been doing. I did start a Swift newsletter, but that's also part of my way of learning. The new part is that I've started doing a lot of speaking engagements. That's been really fun and works very well for solidifying my knowledge. When you’re teaching, you have to really learn your stuff. With the WatchKit hackathon, we gambled a bit, because the release date was not clear yet. In the end, I had to learn WatchKit in three days and then teach it. But I enjoyed the pressure because it forced me to learn it, whereas on my own I’d probably have taken a longer time, and then I wouldn’t learn it as well as when I had to actually be an expert on it after three days.
 
 **Right now, everybody's learning Swift, but maybe in a few years there will be established patterns. Do you think we can keep the community as open as it is now?**
 
@@ -78,7 +78,7 @@ I learned a lot by pair programming with people who are more experienced than me
 
 **When you were pair programming, were there any big lessons you learned, or was it more about many little details?**
 
-I'm very detail oriented, so I do enjoy the tiny little things and tricks that I learn. For example, my coworker showed me that you could turn on the Clang analyzer in Xcode and get much better warning messages. If he wouldn't have told me, I would not have known to even google for this kind of thing. When you pair program, you learn these tiny things that people take for granted. Some of my blog posts about these tiny things are actually my most popular ones, although I initially assumed that probably everybody except me knows this already.
+I'm very detail oriented, so I do enjoy the tiny little things and tricks that I learn. For example, my coworker showed me that you could turn on the Clang analyzer in Xcode and get much better warning messages. If he wouldn't have told me, I would not have known to even google for this kind of thing. When you pair program, you learn these tiny things that people take for granted. Some of my blog posts about these tiny things are actually my most popular ones, although I initially assumed that probably everybody except me knew this already.
 
 In terms of bigger things, one of my coworkers at Capital One showed me how to apply the MVVM pattern in a real world situation. I've heard about it, I heard Facebook talk about it, but I wasn’t really sure how it worked, so it was really cool to have him walk me through an actual implementation of it. Now, I use the MVVM pattern all the time in different apps.
 
