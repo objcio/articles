@@ -137,7 +137,7 @@ But that's temporary; I'm not worried about it. They know about this and they'll
 
 **What effect do you think Swift will have on Apple's framework APIs? Do you expect something here in the short term?**
 
-I don't actually have insider knowledge here, so this is just speculation, but I think it will be along process. At least when I was there, the teams spent the majority of their time not maintaining and improving frameworks, but really supporting market features like new screen sizes or support for new hardware. That's what takes most of the time. So it will take a conscious decision to do anything non-trivial, and I don't see that forthcoming.
+I don't actually have insider knowledge here, so this is just speculation, but I think it will be a long process. At least when I was there, the teams spent the majority of their time not maintaining and improving frameworks, but really supporting market features like new screen sizes or support for new hardware. That's what takes most of the time. So it will take a conscious decision to do anything non-trivial, and I don't see that forthcoming.
 
 I think that if we fast-forward 10 years into the future, the APIs are all going to change. I have no doubt — either that will happen or it will be an incredible disappointment. In a year, I think you'll get better annotated headers...
 
