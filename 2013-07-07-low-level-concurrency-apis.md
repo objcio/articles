@@ -407,16 +407,21 @@ GCD sources are implemented in an extremely resource-efficient way.
 
 If some process is running and you want to know when it exits, GCD has you covered. You can also use it to check when that process forks, i.e. spawns child processes or a signal was delivered to the process (e.g. `SIGTERM`).
 
-    NSRunningApplication *mail = [NSRunningApplication 
+    @import AppKit;
+    // ...
+    NSArray *array = [NSRunningApplication 
       runningApplicationsWithBundleIdentifier:@"com.apple.mail"];
-    if (mail == nil) {
+    if (array == nil || [array count] == 0) {
         return;
     }
-    pid_t const pid = mail.processIdentifier;
+    pid_t const pid = [[array firstObject] processIdentifier];
     self.source = dispatch_source_create(DISPATCH_SOURCE_TYPE_PROC, pid, 
       DISPATCH_PROC_EXIT, DISPATCH_TARGET_QUEUE_DEFAULT);
     dispatch_source_set_event_handler(self.source, ^(){
         NSLog(@"Mail quit.");
+        // If you would like continue watching for the app to quit,
+        // you should cancel this source with dispatch_source_cancel and create new one
+        // as with next run app will have another process identifier.
     });
     dispatch_resume(self.source);
 
