@@ -83,7 +83,7 @@ Yeah, it was sort of detective work.
 
 Yeah, for sure. The releases were so secret that we couldn't ask, "Hey, Facebook guys, why are you doing this?" We'd have to figure it out. On this note, I absolutely admire the work that Peter and his team are doing. I think that's a great thing, and I would love to see more of that. I would love to see more development of frameworks by the community. Facebook's making great contributions there — GitHub as well.
 
-**I've never thought of the fact that Apple also has to disassemble other people's binaries to figure out bugs.***
+**I've never thought of the fact that Apple also has to disassemble other people's binaries to figure out bugs.**
 
 Oh yeah, and as a third-party developer now, I have to disassemble UIKit on a pretty regular basis, because I'm like, "UIKit, why the hell?" And the easiest way to get an answer is to just look at the disassembly.
 
