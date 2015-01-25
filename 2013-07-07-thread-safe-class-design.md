@@ -205,7 +205,9 @@ Unless `addDelegate:` or `removeDelegate:` is called thousand times per second, 
     }
     
     - (void)removeAllDelegates {
-        self.delegates = nil;
+        @synchronized(self) {
+            self.delegates = nil;
+        }
     }
     
     - (void)callDelegateForX {
@@ -214,7 +216,7 @@ Unless `addDelegate:` or `removeDelegate:` is called thousand times per second, 
         }];
     }
     
-Granted, this example is a bit constructed and one could simply confine changes to the main thread. But for many data structures, it might be worth it to create immutable copies in the modifier methods, so that the general application logic doesn't have to deal with excessive locking. Notice how we still have to apply locking in `addDelegate:`, since otherwise delegate objects might get lost if called from different threads concurrently.
+Granted, this example is a bit constructed and one could simply confine changes to the main thread. But for many data structures, it might be worth it to create immutable copies in the modifier methods, so that the general application logic doesn't have to deal with excessive locking.
 
 
 ## Pitfalls of GCD
