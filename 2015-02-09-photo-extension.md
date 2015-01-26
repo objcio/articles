@@ -46,3 +46,8 @@ author: "<a href=\"https://twitter.com/iwantmyrealname\">Sam Davies</a>"
 
 
 # Conclusion
+- Put your code right in the heart of the Photos app
+- Still a little fiddly to get to (screen taps)
+- Resumable editing
+- Great potential
+
