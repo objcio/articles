@@ -201,7 +201,7 @@ After creating this file, make sure to give it executable rights. On the command
 
 Now that all certificates and profiles are imported we can sign our application. Please note that we have to build the app before we can sign it. As we need to know where the build is stored on disk, I recommend specifying the output folder by declaring `OBJROOT` and `SYMROOT` in the build command. Also, we should create a release version by setting the SDK to `iphoneos` and the configuration to `Release`:
 
-	xctool -workspace TravisExample.xcworkspace -scheme TravisExample -sdk iphoneos -configuration Release OBJROOT=$PWD/build SYMROOT=$PWD/build ONLY_ACTIVE_ARCH=NO
+	xctool -workspace TravisExample.xcworkspace -scheme TravisExample -sdk iphoneos -configuration Release OBJROOT=$PWD/build SYMROOT=$PWD/build ONLY_ACTIVE_ARCH=NO 'CODE_SIGN_RESOURCE_RULES_PATH=$(SDKROOT)/ResourceRules.plist'
 
 If you run this command, you should find the app binary in the `build/Release-iphoneos` folder afterward. Now we can sign it and create the `IPA` file. Do this by creating a new script:
 
