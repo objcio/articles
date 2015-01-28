@@ -88,6 +88,12 @@ This looks something like this (the full version can be found in the [example pr
 
 Credit for the major chunk of this code goes to [Marcus Zarra](https://twitter.com/mzarra), who wrote a great book on Core Data. [Check it out here](http://pragprog.com/book/mzcd2/core-data). 
 
+_Since iOS 7 and OS X Mavericks, Apple changed the journaling mode for SQLite stores to Write-Ahead Logging (WAL), which means transactions are appended to a -wal file. This causes copies of the store to likely result in data loss and inconsistencies. To safely back up our store, we’ll change the journaling mode to rollback mode. This is easily done by passing a dictionary to `-addPersistentStoreWithType:configuration:URL:options:error:` if we are about to migrate (and subsequently back up the store)._
+
+    @{ NSSQLitePragmasOption: @{ @"journal_mode": @"DELETE” } }
+
+_The relevant code to create the `NSPersistentStoreCoordinator` can be found [here](https://github.com/objcio/issue-4-core-data-migration/blob/master/BookMigration/MHWCoreDataController.m#L73-L84)._
+
 ## Migration Policies
 
 `NSEntityMigrationPolicy` is the essence of the custom migration process. [From the documentation](https://developer.apple.com/library/ios/documentation/cocoa/Reference/NSEntityMigrationPolicy_class/NSEntityMigrationPolicy.html): 
