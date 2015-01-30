@@ -140,9 +140,9 @@ The Canny edge detection process consists of a sequence of steps:
 
 ## Harris corner detection
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-Squares.png" alt="Harris corner detector test image"/>
+<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HarrisSquares.png" alt="Harris corner detector test image"/>
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-Cornerness.png" alt="Harris cornerness intermediate image"/>
+<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HarrisCornerness.png" alt="Harris cornerness intermediate image"/>
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HarrisCorners.png" alt="Harris corners"/>
 
