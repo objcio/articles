@@ -22,7 +22,7 @@ Every operation analyzed here has a full implementation within GPUImage, and you
 
 ## Sobel edge detection
 
-The first operation I'll describe may actually be used more frequently for cosmetic image effects than machine vision, but it's a good place to start. Sobel edge detection[^1] is a process where edges (sharp transitions from light to dark, or vice versa) are found within an image. The strength of an edge around a pixel is reflected in how bright that pixel is in the processed image.
+The first operation I'll describe may actually be used more frequently for cosmetic image effects than machine vision, but it's a good place to start. Sobel edge detection<sup>1</sup> is a process where edges (sharp transitions from light to dark, or vice versa) are found within an image. The strength of an edge around a pixel is reflected in how bright that pixel is in the processed image.
 
 For example, let's see a scene before and after Sobel edge detection:
 
@@ -43,25 +43,37 @@ These kernels are applied once per pixel, across the entire image. The order in 
 
 For example, this is the horizontal kernel of the Sobel operator:
 
- -1 | 0 | +1 
--------------
- -2 | 0 | +2 
--------------
- -1 | 0 | +1 
+<table border="1">
+  <tr>
+    <td>-1</td><td>0</td><td>+1</td>
+  </tr>
+  <tr>
+    <td>-2</td><td>0</td><td>+2</td>
+  </tr>
+  <tr>
+    <td>-1</td><td>0</td><td>+1</td>
+  </tr>
+</table>
 
 To apply this to a pixel, the luminance is read from each surrounding pixel. If the input image has been converted to grayscale, this can be sampled from any of the red, green, or blue color channels. The luminance of a particular surrounding pixel is multiplied by the corresponding weight from the above matrix and added to the total.
 
 The Sobel operator has two stages, the horizontal kernel being the first. A vertical kernel is applied at the same time, with the following matrix of weights:
 
- -1 | -2 | -1
---------------
-  0 |  0 |  0
---------------
- +1 | +2 | +1
+<table border="1">
+  <tr>
+    <td>-1</td><td>-2</td><td>-1</td>
+  </tr>
+  <tr>
+    <td>0</td><td>0</td><td>0</td>
+  </tr>
+  <tr>
+    <td>+1</td><td>+2</td><td>+1</td>
+  </tr>
+</table>
 
 The final weighted sum from each operator is tallied, and the square root of the sums of their squares obtained. That combined value is then used as the luminance for the final output image. Sharp transitions from light to dark (or vice versa) become bright pixels in the result, due to the kernels emphasizing differences between pixels on either side of the center.
 
-There are slight variations to Sobel edge detection, such as Prewitt edge detection[^2], that use different weights for the horizontal and vertical kernels, but rely on the same basic process.
+There are slight variations to Sobel edge detection, such as Prewitt edge detection<sup>2</sup>, that use different weights for the horizontal and vertical kernels, but rely on the same basic process.
 
 As an example for how this can be implemented in code, the following is a fragment shader that performs Sobel edge detection. As described in [Janie's article](link to Janie's article), fragment shaders are C-like programs run once per pixel on a programmable GPU.
 
@@ -148,5 +160,5 @@ Alison Noble, "Descriptions of Image Surfaces", PhD thesis, Department of Engine
 
 References:
 
-[^1]: Sobel, I., An Isotropic 3x3 Gradient Operator, Machine Vision for Three-Dimensional Scenes, Academic Press, 1990.
-[^2]: Prewitt, J.M.S. Object Enhancement and Extraction, Picture processing and Psychopictorics, Academic Press, 1970.
+<sup>1</sup> Sobel, I., An Isotropic 3x3 Gradient Operator, Machine Vision for Three-Dimensional Scenes, Academic Press, 1990.
+<sup>2</sup> Prewitt, J.M.S. Object Enhancement and Extraction, Picture processing and Psychopictorics, Academic Press, 1970.
