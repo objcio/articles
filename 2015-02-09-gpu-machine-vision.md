@@ -33,7 +33,7 @@ As I mentioned, this is often used for visual effects. If the colors of the abov
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-Sketch.png" style="width:240px" alt="Sketch filtered image"/>
 
-So how are these edges calculated? The first step in this process is a reduction of a color image to a luminance (grayscale) image. Janie Clayton explains how this is calculated in a fragment shader within her article (link to Janie's article), but basically the red, green, and blue components of each pixel are weighted and summed to arrive at a single value for how bright that pixel is.
+So how are these edges calculated? The first step in this process is a reduction of a color image to a luminance (grayscale) image. Janie Clayton explains how this is calculated in a fragment shader within [her article](TODO: link to Janie's article), but basically the red, green, and blue components of each pixel are weighted and summed to arrive at a single value for how bright that pixel is.
 
 Some video sources and cameras provide YUV-format images, rather than RGB. The YUV color format splits luminance information (Y) from chrominance (UV), so for inputs like that a color conversion step can be avoided. The luminance part of the image can be used directly.
 
@@ -43,7 +43,7 @@ These kernels are applied once per pixel, across the entire image. The order in 
 
 For example, this is the horizontal kernel of the Sobel operator:
 
-<table border="1">
+<table border="1" width="125">
   <tr>
     <td>-1</td><td>0</td><td>+1</td>
   </tr>
@@ -59,7 +59,7 @@ To apply this to a pixel, the luminance is read from each surrounding pixel. If 
 
 The Sobel operator has two stages, the horizontal kernel being the first. A vertical kernel is applied at the same time, with the following matrix of weights:
 
-<table border="1">
+<table border="1" width="125">
   <tr>
     <td>-1</td><td>-2</td><td>-1</td>
   </tr>
@@ -75,7 +75,7 @@ The final weighted sum from each operator is tallied, and the square root of the
 
 There are slight variations to Sobel edge detection, such as Prewitt edge detection<sup>2</sup>, that use different weights for the horizontal and vertical kernels, but rely on the same basic process.
 
-As an example for how this can be implemented in code, the following is a fragment shader that performs Sobel edge detection. As described in [Janie's article](link to Janie's article), fragment shaders are C-like programs run once per pixel on a programmable GPU.
+As an example for how this can be implemented in code, the following is a fragment shader that performs Sobel edge detection. As described in [Janie's article](TODO: link to Janie's article), fragment shaders are C-like programs run once per pixel on a programmable GPU.
 
 ```glsl
 precision mediump float;
@@ -118,15 +118,25 @@ void main()
 
 Sobel edge detection can give you a good visual measure of edge strength in a scene, but it doesn't provide a yes/no indication of whether a pixel lies on an edge or not. 
 
-For such a decision, you could apply a threshold of some sort, where pixels above a certain edge strength were considered to be on an edge and everything below not. However, this isn't ideal, because 
+For such a decision, you could apply a threshold of some sort, where pixels above a certain edge strength were considered to be part of an edge. However, this isn't ideal, because it tends to produce edges that are many pixels wide and choosing an appropriate threshold can vary with the contents of an image.
 
+A more involved form of edge detection, called Canny edge detection<sup>3</sup>, might be what you want here. Canny edge detection can produce single-pixel-wide connected edges of objects in a scene:
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-Canny.png" style="width:240px" alt="Canny edge detection image"/>
 
+The Canny edge detection process consists of a sequence of steps:
 
-Canny, J., A Computational Approach To Edge Detection, IEEE Trans. Pattern Analysis and Machine Intelligence, 8(6):679–698, 1986.
+- // First pass: convert image to luminance
 
-A. Ensor, S. Hall. GPU-based Image Analysis on Mobile Devices. Proceedings of Image and Vision Computing New Zealand 2011.
+- // Second pass: apply a variable Gaussian blur
+
+- // Third pass: run the Sobel edge detection, with calculated gradient directions, on this blurred image
+
+- // Fourth pass: apply non-maximum suppression    
+
+- // Fifth pass: include weak pixels to complete edges
+
+
 
 ## Harris corner detection
 
@@ -136,21 +146,16 @@ A. Ensor, S. Hall. GPU-based Image Analysis on Mobile Devices. Proceedings of Im
 
 - Third pass: apply the Harris corner detection calculation
 
-C. Harris and M. Stephens. A Combined Corner and Edge Detector. Proc. Alvey Vision Conf., Univ. Manchester, pp. 147-151, 1988.
-
- J. Shi and C. Tomasi. Good features to track. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pages 593-600, June 1994.
-
-Alison Noble, "Descriptions of Image Surfaces", PhD thesis, Department of Engineering Science, Oxford University 1989, p45.  
-
-## FAST corner detection
-- May not have this operational in time
+- Mention FAST corner detection
 
 ## Hough transform line detection
 
-// M. Dubská, J. Havel, and A. Herout. Real-Time Detection of Lines using Parallel Coordinates and OpenGL. Proceedings of SCCG 2011, Bratislava, SK, p. 7.
-// http://medusa.fit.vutbr.cz/public/data/papers/2011-SCCG-Dubska-Real-Time-Line-Detection-Using-PC-and-OpenGL.pdf
-// M. Dubská, J. Havel, and A. Herout. PClines — Line detection using parallel coordinates. 2011 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), p. 1489- 1494.
-// http://medusa.fit.vutbr.cz/public/data/papers/2011-CVPR-Dubska-PClines.pdf
+- Canny edge detection
+
+- Extract the white points and draw representative lines in parallel coordinate space
+
+- Apply non-maximum suppression
+
 
 - potential for use in detecting barcodes from any orientation
 	-The challenge this presents to blind users
@@ -158,7 +163,22 @@ Alison Noble, "Descriptions of Image Surfaces", PhD thesis, Department of Engine
 
 
 
-References:
+## References:
 
 <sup>1</sup> Sobel, I., An Isotropic 3x3 Gradient Operator, Machine Vision for Three-Dimensional Scenes, Academic Press, 1990.
+
 <sup>2</sup> Prewitt, J.M.S. Object Enhancement and Extraction, Picture processing and Psychopictorics, Academic Press, 1970.
+
+<sup>3</sup> Canny, J., A Computational Approach To Edge Detection, IEEE Trans. Pattern Analysis and Machine Intelligence, 8(6):679–698, 1986.
+
+<sup>4</sup> A. Ensor, S. Hall. GPU-based Image Analysis on Mobile Devices. Proceedings of Image and Vision Computing New Zealand 2011.
+
+<sup>5</sup> C. Harris and M. Stephens. A Combined Corner and Edge Detector. Proc. Alvey Vision Conf., Univ. Manchester, pp. 147-151, 1988.
+
+<sup>6</sup> J. Shi and C. Tomasi. Good features to track. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pages 593-600, June 1994.
+
+<sup>7</sup> Alison Noble, "Descriptions of Image Surfaces", PhD thesis, Department of Engineering Science, Oxford University 1989, p45.  
+
+<sup>8</sup> M. Dubská, J. Havel, and A. Herout. [Real-Time Detection of Lines using Parallel Coordinates and OpenGL](http://medusa.fit.vutbr.cz/public/data/papers/2011-SCCG-Dubska-Real-Time-Line-Detection-Using-PC-and-OpenGL.pdf). Proceedings of SCCG 2011, Bratislava, SK, p. 7.
+
+<sup>9</sup> M. Dubská, J. Havel, and A. Herout. [PClines — Line detection using parallel coordinates](http://medusa.fit.vutbr.cz/public/data/papers/2011-CVPR-Dubska-PClines.pdf). 2011 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), p. 1489- 1494.
