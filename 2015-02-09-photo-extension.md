@@ -7,9 +7,24 @@ author: "<a href=\"https://twitter.com/iwantmyrealname\">Sam Davies</a>"
 ---
 
 
-- Extensions give unprecedented access to operating system
-- Photo extension is a window into the photos app
-- Some pics of the user-flow associated with a custom photo extension
+iOS 8 introduced extensions to the world - with six extension points available.
+These offer unprecedented access to the operating system and the photo editing
+extension allows developers to build functionality into the system Photos app.
+
+The user workflow for photo editing extensions is not the most intuitive. From
+selecting the photo you want to edit, it takes three taps to launch the
+extension, one of which is on a tiny, unintuitive button.
+
+![Image Editing Extension User Workflow](http://f.cl.ly/items/2C1V2t1x04402v1K3Q3m/user_workflow.png)
+
+Nevertheless, image editing extensions offer a fantastic opportunity for
+developers to offer a seamless experience to users - creating a consistent
+approach to managing photos.
+
+This article will talk briefly about how to create extensions and their
+lifecycle before moving on to look at the photo editing workflow in more
+details. It will conclude by looking at some common concerns and scenarios
+associated with creating photo editing extensions.
 
 # Creating an extension
 
