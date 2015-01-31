@@ -51,7 +51,7 @@ This template consists of three components:
 1. __Storyboard__ Image editing extensions can have an almost completely custom
 UI. The system provides just a toolbar across the top, containing __Cancel__ and
 __Done__ buttons.
-__IMAGE__
+![Cancel/Done Buttons](http://cl.ly/image/2x0D1z1q3q08/cancel_done.png)
 Although the storyboard doesn't have size classes enabled by
 default, the system will respect them should you choose to activate them. Apple
 highly recommends using Auto Layout for building photo editing extensions,
@@ -61,7 +61,7 @@ Apple's advice.
 2. __Info.plist__ This specifies the extension type and accepted media types,
 and is common to all extension types. The `NSExtension` key contains a
 dictionary containing all the extension-related configuration.
-__IMAGE__
+![Extension plist](http://cl.ly/image/3s0u1y2G1S2Q/extension_plist.png)
 The  `NSExtensionPointIdentifier` entry informs the system that this is a photo
 editing extension with its value of `com.apple.photo-editing`. The only key that
 is specific to photo editing is `PHSupportedMediaTypes` and this is related to
@@ -74,7 +74,7 @@ See the next section for further detail.
 Notably missing from this list is the ability to provide the imagery for the
 icon that appears in the extension selection menu:
 
-__IMAGE__
+![Extension Icon](http://cl.ly/image/1h2m3o040H3I/extension_icon.png)
 
 This icon is provided by the AppIcon image set in the host app's asset catalog.
 The documentation is a little confusing here as it implies that you have to
