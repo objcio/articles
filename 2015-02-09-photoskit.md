@@ -57,19 +57,35 @@ When setting these parameters it is important to always consider that some of yo
 Another iCloud-related property is `progressHandler`. You can set it to a [`PHAssetImageProgressHandler`](https://developer.apple.com/library/ios/documentation/Photos/Reference/PHImageRequestOptions_Class/index.html#//apple_ref/doc/c_ref/PHAssetImageProgressHandler) block to that will be called by the image manager when downloading the photo from iCloud.
 
 
-
 ###Asset Versions
-//PhotosKit provides a way of applying undoable 
+PhotosKit provides a framework for applying non-destructive adjustments to the original asset image data. This lets developers build non-filters and various other editing tools, photo editing extensions that live right within the standard Photos.app and gives users the peace of mind that they can always go back to the original image.
+
+When fetching assets using the image manager, you can specify which version of the image asset should be delivered via the result handler. This is done by setting the `version` property:
+.Current will deliver the image with all adjustments applied to it; .Unadjusted delivers the image before any adjustments are applied to it; and .Original delivers the image in its original, highest-quality format (e.g. RAW vs JPEG delivered when using .Unadjusted).
+
 ... **!possibly link to the relevant article in this issue!**
 
 ##Result Handler
-...
+The result handler is a block that takes in a `UIImage` and an `info` dictionary. It can be called by the image manager multiple times throughout the lifetime of the request, depending on the parameters and the request options.
+
+The `info` dictionary provides information about the current status of the request:
+* whether the image has to be requested from iCloud (in which case you're going to have to re-request the image if you initially set `networkAccessAllowed` to false) – `PHImageResultIsInCloudKey`.
+* whether the currently delivered `UIImage` is the degraded form of the final result. This lets you display a preview of the image to the user, while the higher-quality image is being downloaded - `PHImageResultIsDegradedKey`.
+* the request ID (convenience for cancelling the request) and whether the request was already cancel – `PHImageResultRequestIDKey` and `PHImageCancelledKey`.
+* an error, if an image wasn't provided to the result handler – PHImageErrorKey
+
+These values let you update your UI to inform your user and, together with the `progressHandler` discussed above, hint at the loading state of their images.
+
 
 ##Caching
-...
+At times it's useful to load some images into memory prior to the moment that they are going to be shown on the screen, for example when displaying a screen with a large numbers of asset thumbnails in a scrolling collection. PhotosKit provides a `PHImageManager` subclass that deals with that specific use case – `PHImageCachingManager`. 
+
+`PHImageCachingManager` provides a single key method – `startCachingImagesForAssets(...)`. You pass in an array of PHAssets and parameters and options that should match those you're going to use later when requesting individual images. Additionally, there are methods that you can use to inform the caching manager to stop caching images for a list of specific assets and to stop caching all images. 
+
+The `allowsCachingHighQualityImages` property lets you specify whether the image manager should perpare images at high quality. When caching a relatively short and unchanging list of assets the default `true` value should work just fine. For large collections and when you're trying to precache images while the user is scrolling quickly - it might be better to only cache lower quality images.
 
 ##Requesting Image Data
-...
+In addition to requesting plain old UIImages, `PHImageManager` provides another method with returns the asset data as an NSData object, its universal type identifier and the display orientation of the image. This method returns the largest available representation of the asset.
 
 #Wind of Changes
 ...
@@ -96,7 +112,11 @@ Another iCloud-related property is `progressHandler`. You can set it to a [`PHAs
 * Transient collections (maybe?)
 * Asset content editing **!LINK TO THE RELEVANT ARTICLE IN THIS ISSUE!**
 
-##A Swift Aside
+#Asides
+
+##Photo adjustments
+<!--In theory it should be possible for apps to be able to parse each other's adjustments, but I haven't seen that in practive-->
+##Swift
 **!Annoyances when using the PhotosKit API from Swift (namely PHFetchResult)!**
 
 #Conclusion
