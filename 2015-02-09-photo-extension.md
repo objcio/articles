@@ -217,11 +217,134 @@ temporary data and files ready for the extension to return.
 
 ## Common concerns
 
-- Handling memory restrictions
-- Sharing code with the container app
-- Developing and debugging
-- Profiling
-- Advanced adjustment data usage
+There are a few areas associated with creating an image editing extension that
+can be a little complicated. The topics in this section address the most
+important of these.
+
+### Adjustment Data
+
+The `PHAdjustmentData` is a simple class with just three properties, but to get
+the best use from it, discipline is required. Apple suggests using reverse-DNS
+notation to specify the `formatIdentifier`, but then you are left to decide how
+to use the `formatVersion` and `data` properties yourself.
+
+It's important that you can determine compatibility between different versions
+of your image edit framework, so an approach such as [semantic versioning](http://semver.org/)
+offers the flexibility to manage this over the lifetime of your products. You
+could implement your own parser, or look to a third-party framework such as
+[SemVerKit](https://github.com/nomothetis/SemverKit) to implement this
+functionality.
+
+The final part aspect of the adjustment data is the `data` property itself,
+which is just an `NSData` blob. The only advice that Apple offers here is that
+it should represent the settings to recreate the edit, rather than the edit
+itself, since the size of the `PHAsjustmentData` is limited by the Photos
+framework.
+
+For non-complex extensions (such as __Filtster__) this can be as simple as an
+archived dictionary, which can be written as follows:
+
+    public func encodeFilterParameters() -> NSData {
+      var dataDict = [String : AnyObject]()
+      dataDict["vignetteIntensity"] = vignetteIntensity
+      ...
+      return NSKeyedArchiver.archivedDataWithRootObject(dataDict)
+    }
+
+And then re-interpreted with:
+
+    public func importFilterParameters(data: NSData?) {
+      if let data = data {
+        if let dataDict = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? [String : AnyObject] {
+          vignetteIntensity = dataDict["vignetteIntensity"] as? Double ?? vignetteIntensity
+          ...
+        }
+      }
+    }
+
+Here, these two methods are on the shared `FilsterFilter` class, which is also
+responsible for determining compatibility of the adjustment data:
+
+    public func supportsFilterIdentifier(identifier: String, version: String) -> Bool {
+      return identifier == filterIdentifier && version == filterVersion
+    }
+
+If you have a more complex requirements then you could create a custom settings
+class which adopts the `NSCoding` protocol to allow it to be archived in a
+similar manner.
+
+A user can chain incompatible photo edits together because if the adjustment
+data is not understood by the current extension, the pre-rendered image will be
+used as input. For example, you can crop an image using the system crop tool
+before using your custom photo editing extension. Once you have saved the edited
+image, the associated adjustment data will now only contain details of the most
+recent edit. If the fact that your extension was used on a non-original image,
+this might be something you wish to include in the adjustment data. You could
+save the previous adjustment data in your output adjustment data, allowing you
+to implement a revert function for just your phase of the filter chain. The
+revert function provided by the Photos app will remove all the edits, returning
+the photo to its original state.
+
+![Revert Edits](http://cl.ly/image/1O0B3S0e0103/revert.png)
+
+
+__WHAT DOES APPLE'S ADJUSTMENT DATA LOOK LIKE?__
+
+
+### Code/Data Sharing
+
+Photo editing extensions are distributed as an embedded binary inside a
+container app, which Apple has stated must be a functioning app. Since you're
+creating a photo editing extension, it is likely that the app will offer the
+same functionality. You're therefore likely to want to share code and data
+between the app extension and the container app.
+
+Sharing code is achieved by creating a Cocoa Touch Framework target - new
+functionality available in iOS 8. Then you can add shared functionality, such as
+the filter chain, and custom view classes, and use them from both the app and
+the extension.
+
+Note that since the framework will be used from an app extension, you must
+restrict the APIs it can use on the target settings page:
+
+![Restrict Framework API](http://cl.ly/image/1w2o0N240P45/app_extension_api.png)
+
+Sharing data is a less obvious requirement, and in many cases it won't exist.
+However, if necessary you can create a shared container, which is
+achieved by adding both the app and extension to an app group associated with
+your developer profile. The shared container represents a shared space on disk
+that you can use in any way you wish, e.g. `NSUserDefaults`, `SQLite` or file
+writing.
+
+### Debugging & Profiling
+
+Debugging is reasonably well-supported in Xcode, although there are some
+potential sticking points. Selecting the extension's scheme and selecting run
+should build it and then let you select what app you want to run. Selecting
+photos 
+
+![Select App](http://cl.ly/image/2G3v11410U2E/select_app.png)
+
+If instead this launches your container app, then you can edit the extension's
+scheme to set the executable to __Ask on Launch__.
+
+Xcode then waits for you to start the photo editing extension before attaching
+to it. At this point, you can debug as you do with standard iOS apps. The
+process of attaching the debugger to the extension can take quite a long time,
+so when you activate the extension it can appear to hang. Running in release
+will allow you to evaluate the extension start up time.
+
+Profiling is similarly supported, with the profiler attaching as the extension
+begins to run. You might once again need to update the scheme associated with
+the extension to specify that Xcode should ask which app should run as profiling
+begins.
+
+
+### Memory Restrictions
+
+
+### CoreImage
+
 
 
 ## Conclusion
