@@ -85,14 +85,22 @@ At times it's useful to load some images into memory prior to the moment that th
 The `allowsCachingHighQualityImages` property lets you specify whether the image manager should perpare images at high quality. When caching a relatively short and unchanging list of assets the default `true` value should work just fine. For large collections and when you're trying to precache images while the user is scrolling quickly - it might be better to only cache lower quality images.
 
 ##Requesting Image Data
-In addition to requesting plain old UIImages, `PHImageManager` provides another method with returns the asset data as an NSData object, its universal type identifier and the display orientation of the image. This method returns the largest available representation of the asset.
+Finally, in addition to requesting plain old UIImages, `PHImageManager` provides another method with returns the asset data as an NSData object, its universal type identifier and the display orientation of the image. This method returns the largest available representation of the asset.
 
-#Wind of Changes
-...
+#Wind of Change
+We have discussed requesting metadata of assets in the user's photo library, but we haven't covered how to keep our fetched data up-to-date. The photo library is essentially a big bag of mutable state and yet the photo entities covered in the first section are immutable. PhotosKit has a special process for receiving notifications about changes to the photo library and subsequently update your cached state.
+
 ## Change observing
-...
+Firstly, you need to register a change observer (conforming to the `PHPhotoLibraryChangeObserver` protocol) with the shared `PHPhotoLibrary` object using the `registerChangeObserver(...)` method. The change observer's `photoLibraryDidChange(...)` method will be called whenever another app or the user makes a change in the photo library **that affects any assets or collections that you fetched prior to the change**. The method has a single parameter of type `PHChange` which you can use to find out if the changes are related to any of the fetched objects that you are interested in.
+
 ## Updating your cached state
-...
+`PHChange` provides methods you can call with any `PHObject`s or `PHFetchResult`s whose changes you are interested in tracking – `changeDetailsForObject(...)` and `changeDetailsForFetchResult(...)`. If there are no changes these methods will return `nil`, otherwise you will be vended a `PHObjectChangeDetails` or `PHFetchResultChangeDetails` object.
+
+`PHObjectChangeDetails` provides a reference to an updated photo entity object as well as boolean flags telling you whether the object's image data was changed and whether the object was deleted.
+
+`PHFetchResultChangeDetails` encapsulates information about changes to a `PHFetchResult` that you have previously received after a fetch. Its properties map well to updating such UI as a collection view or a table view. *Note that to update `UITableView`/`UICollectionView` correctly you **must** process the changes in the correct order: **RICE** – *r*emovedIndexes, *i*nsertedIndexes, *c*hangedIndexes, *e*numerateMovesWithBlock (if `hasMoves` is true).* Furthermore, the `hasIncrementalChanges` property of the change details can be set to `false`, meaning that the old fetch result should just be replaced by the change value as a whole. You should call `reloadData` on your `UITableView`/`UICollectionView` in such cases.
+
+There is no need to make change processing centralized. If there are multiple components of your application that deal with photo entities each of them could have have its own `PHPhotoLibraryChangeObserver`. The components then query the `PHChange` objects on their own to find out if (and how) they need to update their own state.
 
 #Making your own changes
 ...
