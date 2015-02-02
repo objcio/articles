@@ -57,6 +57,8 @@ This is the horizontal kernel of the Sobel operator:
 
 To apply this to a pixel, the luminance is read from each surrounding pixel. If the input image has been converted to grayscale, this can be sampled from any of the red, green, or blue color channels. The luminance of a particular surrounding pixel is multiplied by the corresponding weight from the above matrix and added to the total.
 
+How this works to find an edge in a direction is that it looks for differences in luminance (brightness) on the left and right sides of a central pixel. If you have two equally bright pixels on the left and right of the center one (a smooth area in the image), the negative and positive weights will cause that to be cancelled out and no edge to be detected. If there is a difference between the brightness of pixels on the left and right (an edge), one brightness will be subtracted from the other. The greater the difference, the stronger the edge measured.
+
 The Sobel operator has two stages, the horizontal kernel being the first. A vertical kernel is applied at the same time, with the following matrix of weights:
 
 <table border="1" width="125">
@@ -71,7 +73,9 @@ The Sobel operator has two stages, the horizontal kernel being the first. A vert
   </tr>
 </table>
 
-The final weighted sum from each operator is tallied, and the square root of the sums of their squares obtained (the Pythagorean length of a 2-D vector). That combined value is then used as the luminance for the final output image. Sharp transitions from light to dark (or vice versa) become bright pixels in the result, due to the Sobel kernels emphasizing differences between pixels on either side of the center.
+The final weighted sum from each operator is tallied, and the square root of the sums of their squares obtained. The squares are used because the values might be negative or positive, but we want their magnitude, not their sign. There's also a handy built-in GLSL function that does this for us.
+
+That combined value is then used as the luminance for the final output image. Sharp transitions from light to dark (or vice versa) become bright pixels in the result, due to the Sobel kernels emphasizing differences between pixels on either side of the center.
 
 There are slight variations to Sobel edge detection, such as Prewitt edge detection[^2], that use different weights for the horizontal and vertical kernels, but they rely on the same basic process.
 
