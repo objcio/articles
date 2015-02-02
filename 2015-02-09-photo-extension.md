@@ -391,8 +391,25 @@ accompanying project.
 
 
 ## Conclusion
-- Put your code right in the heart of the Photos app
-- Still a little fiddly to get to (screen taps)
-- Resumable editing
-- Great potential
+
+Before iOS 8 there was no way for a 3rd party developer to provide functionality
+to the user anywhere other than within their own app. Extensions have changed
+this - with the photo editing extension in particular allowing you to put your
+code right into the heart of the Photos app. Despite the slightly convoluted
+many-tap workflow, the photo editing extension uses the power of the Photos
+framework to provide a coherent and integrated user experience.
+
+Resumable editing has traditionally been reserved for use in desktop photo
+collection applications such as Aperture or Lightroom. Creating a common
+architecture for this on iOS with the Photos framework has offers great
+potential, and allowing the creation of photo editing extensions takes this even
+further.
+
+There are some complexities associated with creating photo editing extensions,
+but few of these are unique. Creating an intuitive interface and interaction
+pattern is as much of a challenge as it is for mobile image editing apps, as is
+the image algorithm design and optimization.
+
+It remains to be seen how many users are aware of these 3rd party image editing
+extensions, but they have the potential to increase your app's exposure.
 
