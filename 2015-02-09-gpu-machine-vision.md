@@ -22,7 +22,7 @@ Every operation analyzed here has a full implementation within GPUImage, and you
 
 ## Sobel edge detection
 
-The first operation I'll describe may actually be used more frequently for cosmetic image effects than machine vision, but it's a good place to start. Sobel edge detection<sup>1</sup> is a process where edges (sharp transitions from light to dark, or vice versa) are found within an image. The strength of an edge around a pixel is reflected in how bright that pixel is in the processed image.
+The first operation I'll describe may actually be used more frequently for cosmetic image effects than machine vision, but it's a good place to start. Sobel edge detection[^1] is a process where edges (sharp transitions from light to dark, or vice versa) are found within an image. The strength of an edge around a pixel is reflected in how bright that pixel is in the processed image.
 
 For example, let's see a scene before and after Sobel edge detection:
 
@@ -39,9 +39,9 @@ Some video sources and cameras provide YUV-format images, rather than RGB. The Y
 
 Once an image is reduced to its luminance, the edge strength near a pixel is calculated by looking at a 3x3 array of neighboring pixels. An image processing calculation performed over a block of pixels involves what is called a convolution kernel. Convolution kernels consist of a matrix of weights that are multiplied with the values of the pixels surrounding a central pixel, with the sum of those weighted values determining the final pixel value. 
 
-These kernels are applied once per pixel, across the entire image. The order in which pixels are processed doesn't matter, so a convolution across an image is an easy operation to parallelize. As a result, this can be performed 
+These kernels are applied once per pixel, across the entire image. The order in which pixels are processed doesn't matter, so a convolution across an image is an easy operation to parallelize. As a result, this can be greatly accelerated by running on a programmable GPU using fragment shaders. As described in [Janie's article](TODO: link to Janie's article), fragment shaders are C-like programs can be used by GPUs to perform incredibly fast image processing.
 
-For example, this is the horizontal kernel of the Sobel operator:
+This is the horizontal kernel of the Sobel operator:
 
 <table border="1" width="125">
   <tr>
@@ -71,11 +71,11 @@ The Sobel operator has two stages, the horizontal kernel being the first. A vert
   </tr>
 </table>
 
-The final weighted sum from each operator is tallied, and the square root of the sums of their squares obtained. That combined value is then used as the luminance for the final output image. Sharp transitions from light to dark (or vice versa) become bright pixels in the result, due to the kernels emphasizing differences between pixels on either side of the center.
+The final weighted sum from each operator is tallied, and the square root of the sums of their squares obtained (the Pythagorean length of a 2-D vector). That combined value is then used as the luminance for the final output image. Sharp transitions from light to dark (or vice versa) become bright pixels in the result, due to the Sobel kernels emphasizing differences between pixels on either side of the center.
 
-There are slight variations to Sobel edge detection, such as Prewitt edge detection<sup>2</sup>, that use different weights for the horizontal and vertical kernels, but rely on the same basic process.
+There are slight variations to Sobel edge detection, such as Prewitt edge detection[^2], that use different weights for the horizontal and vertical kernels, but they rely on the same basic process.
 
-As an example for how this can be implemented in code, the following is an OpenGL ES fragment shader that performs Sobel edge detection. As described in [Janie's article](TODO: link to Janie's article), fragment shaders are C-like programs that run once per pixel on a programmable GPU.
+As an example for how this can be implemented in code, the following is an OpenGL ES fragment shader that performs Sobel edge detection:
 
 ```glsl
 precision mediump float;
@@ -113,19 +113,19 @@ void main()
 }
 ```
 
-The above shader has manual names for the pixels around the center one, passed in from a custom vertex shader, due to an optimization to reduce dependent texture reads on mobile devices. After these named pixels are sampled in a 3x3 grid, the horizontal and vertical Sobel kernels are applied using hand-coded calculations. The 0-weight entries are left out in order to simplify these calculations. The GLSL length() function calculates a Pythagorean hypotenuse between the results of the horizontal and vertical kernels. That magnitude value is then copied into the red, green, and blue channels of the output pixel to produce a grayscale indication of edge strength.
+The above shader has manual names for the pixels around the center one, passed in from a custom vertex shader, due to an optimization to reduce dependent texture reads on mobile devices. After these named pixels are sampled in a 3x3 grid, the horizontal and vertical Sobel kernels are applied using hand-coded calculations. The 0-weight entries are left out in order to simplify these calculations. The GLSL `length()` function calculates a Pythagorean hypotenuse between the results of the horizontal and vertical kernels. That magnitude value is then copied into the red, green, and blue channels of the output pixel to produce a grayscale indication of edge strength.
 
 ## Canny edge detection
 
 Sobel edge detection can give you a good visual measure of edge strength in a scene, but it doesn't provide a yes/no indication of whether a pixel lies on an edge or not. For such a decision, you could apply a threshold of some sort, where pixels above a certain edge strength were considered to be part of an edge. However, this isn't ideal, because it tends to produce edges that are many pixels wide and choosing an appropriate threshold can vary with the contents of an image.
 
-A more involved form of edge detection, called Canny edge detection<sup>3</sup>, might be what you want here. Canny edge detection can produce connected, single-pixel-wide edges of objects in a scene:
+A more involved form of edge detection, called Canny edge detection[^3], might be what you want here. Canny edge detection can produce connected, single-pixel-wide edges of objects in a scene:
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-Canny.png" style="width:240px" alt="Canny edge detection image"/>
 
 The Canny edge detection process consists of a sequence of steps. First, like with Sobel edge detection (and the other techniques we'll discuss), the image needs to be converted to luminance before edge detection is applied to it. Once a grayscale luminance image has been obtained, a slight [Gaussian blur](http://www.sunsetlakesoftware.com/2013/10/21/optimizing-gaussian-blurs-mobile-gpu) is used to reduce the effect of sensor noise on the edges being detected.
 
-Once the image has been prepared, the edge detection can be performed. The specific GPU-accelerated process used here was originally described by Ensor and Hall in "GPU-based Image Analysis on Mobile Devices"<sup>4</sup>.
+Once the image has been prepared, the edge detection can be performed. The specific GPU-accelerated process used here was originally described by Ensor and Hall in "GPU-based Image Analysis on Mobile Devices"[^4].
 
 First, both the edge strength at a given pixel and the direction of the edge gradient is determined. The edge gradient is the direction in which the greatest change in luminance is occurring. This is perpendicular to the direction the edge itself is running. 
 
@@ -181,7 +181,7 @@ void main()
 }
 ```
 
-where texelWidth and texelHeight are the distances between neighboring pixels in the input texture, and lowerThreshold and upperThreshold set limits on the range of edge strengths we want to examine in this.
+where `texelWidth` and `texelHeight` are the distances between neighboring pixels in the input texture, and `lowerThreshold` and `upperThreshold` set limits on the range of edge strengths we want to examine in this.
 
 As a last step in the Canny edge detection process, pixel gaps in the edges are filled in to complete edges that might have had a few points failing the threshold or non-maximum suppression tests. This cleans up the edges and helps to make them continuous.
 
@@ -193,9 +193,9 @@ As you can tell, the Canny edge detection process is much more involved than Sob
 
 While the previous edge detection techniques can extract some information about an image, the result is an image with visual clues about the locations of edges, not higher-level information about what is present in a scene. For that, we need algorithms that process the pixels within a scene and return more descriptive information about what is shown.
 
-A popular starting point for object detection and matching is feature detection. Features are points of interest in a scene, locations that can be used to uniquely identify structure or objects. Corners are commonly used as features, due to the information contained in the pattern of abrupt changes in lighting and / or color around a corner.
+A popular starting point for object detection and matching is feature detection. Features are points of interest in a scene, locations that can be used to uniquely identify structure or objects. Corners are commonly used as features, due to the information contained in the pattern of abrupt changes in lighting and/or color around a corner.
 
-One technique for detecting corners was proposed by Harris and Stephens in "A Combined Corner and Edge Detector"<sup>5</sup>. This so-called Harris corner detector uses a multi-step process to identify corners within scenes.
+One technique for detecting corners was proposed by Harris and Stephens in "A Combined Corner and Edge Detector"[^5]. This so-called Harris corner detector uses a multi-step process to identify corners within scenes.
 
 As with the other processes we've talked about, the image is first reduced to luminance. The X and Y gradients around a pixel are determined using a Sobel, Prewitt, or related kernel, but they aren't combined to yield a total edge magnitude. Instead, the X gradient strength is passed along in the red color component, the Y gradient strength in the green, and the product of the X and Y  gradient strengths in the blue component.
 
@@ -203,7 +203,7 @@ A Gaussian blur is then applied to the result of that calculation. The red, gree
 
 R = I<sub>x</sub><sup>2</sup> * I<sub>y</sub><sup>2</sup> - I<sub>xy</sub> * I<sub>xy</sub> - k * (I<sub>x</sub><sup>2</sup> + I<sub>y</sub><sup>2</sup>)<sup>2</sup>
 
-where I<sub>x</sub> is the gradient intensity in the X direction, I<sub>y</sub> the gradient intensity in Y,  I<sub>xy</sub> the product of these intensities, k a scaling factor for sensitivity, and R the resulting "cornerness" of the pixel. Alternative implementations of this calculation have been proposed by Shi and Tomasi<sup>6</sup> and Noble<sup>7</sup>, but the results tend to be fairly similar.
+where I<sub>x</sub> is the gradient intensity in the X direction, I<sub>y</sub> the gradient intensity in Y,  I<sub>xy</sub> the product of these intensities, k a scaling factor for sensitivity, and R the resulting "cornerness" of the pixel. Alternative implementations of this calculation have been proposed by Shi and Tomasi[^6] and Noble[^7], but the results tend to be fairly similar.
 
 Looking at this equation, you might think that the first two terms should cancel themselves out. That's where the Gaussian blur of the previous step matters. By blurring the X, Y, and product of X and Y values independently across several pixels, differences develop around corners and allow for them to be detected.
 
@@ -215,15 +215,15 @@ the resulting cornerness map from the above calculation looks something like thi
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HarrisCornerness.png" alt="Harris cornerness intermediate image"/>
 
-To find the exact location of corners within this map, we need to pick out local maxima (pixels of highest brightness in a region). A non-maximum suppression filter is used for this. Similar to what we did with the Canny edge detection, we now look at pixels surrounding a central one (starting at a one-pixel radius, but this can be expanded), and only keep a pixel if it is brighter than all of its neighbors. We turn it to black otherwise.
+To find the exact location of corners within this map, we need to pick out local maxima (pixels of highest brightness in a region). A non-maximum suppression filter is used for this. Similar to what we did with the Canny edge detection, we now look at pixels surrounding a central one (starting at a one-pixel radius, but this can be expanded), and only keep a pixel if it is brighter than all of its neighbors. We turn it to black otherwise. This should leave behind only the brightest pixels in a general region, those most likely to be corners.
 
 From that, we now can read the image and see that any non-black pixel is a location of a corner:
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HarrisCorners.png" alt="Harris corners"/>
 
-I'm currently doing this point extraction stage on the CPU, which can be a bottleneck in the corner detection process, but it may be possible to accelerate this on the GPU using histogram pyramids<sup>8</sup>
+I'm currently doing this point extraction stage on the CPU, which can be a bottleneck in the corner detection process, but it may be possible to accelerate this on the GPU using histogram pyramids[^8].
 
-The Harris corner detector is but one means of finding corners within a scene. Edward Rosten's FAST corner detector, as described in "Machine learning for high-speed corner detection"<sup>9</sup>, a higher-performance corner detector that may also outpace the Harris detector for GPU-bound feature detection.
+The Harris corner detector is but one means of finding corners within a scene. Edward Rosten's FAST corner detector, as described in "Machine learning for high-speed corner detection"[^9], a higher-performance corner detector that may also outpace the Harris detector for GPU-bound feature detection.
 
 ## Hough transform line detection
 
@@ -231,19 +231,27 @@ Straight lines are another large-scale feature we might want to detect in a scen
 
 Many line detection processes are based on a Hough transform, which is a technique where points in a real-world, Cartesian coordinate space are converted to another coordinate space. Calculations are then performed in this alternate coordinate space and the results converted back into normal space to determine the location of lines or other features. Unfortunately, many of these proposed calculations aren't suited for being run on a GPU because they aren't sufficiently parallel in nature and they require intense mathematical operations, like trigonometry functions, to be performed at each pixel. 
 
-In 2011, Dubská, *et al.*<sup>10, 11</sup> proposed a much simpler, more elegant way of performing this coordinate space transformation and analysis, one that was ideally suited to being run on a GPU. Their process relies on a concept called parallel coordinate space, which sounds completely abstract, but I'll show how it's actually fairly simple to understand.
+In 2011, Dubská, *et al.*[^10] [^11]</sup> proposed a much simpler, more elegant way of performing this coordinate space transformation and analysis, one that was ideally suited to being run on a GPU. Their process relies on a concept called parallel coordinate space, which sounds completely abstract, but I'll show how it's actually fairly simple to understand.
 
 Let's take a line and pick three points within it:
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-ParallelCoordinateSpace.png" alt="An example line"/>
 
-To transform this to parallel coordinate space, we'll draw three parallel vertical axes. On the center axis, we'll take the X components of our line points and draw points at 1, 2, and 3 steps up from the bottom. On the left axis, we'll take the Y components of our line points and draw points at 4, 6, and 8 steps up from the bottom. On the right axis, we'll do the same, only we'll count starting at the top of the line down.
+To transform this to parallel coordinate space, we'll draw three parallel vertical axes. On the center axis, we'll take the X components of our line points and draw points at 1, 2, and 3 steps up from zero. On the left axis, we'll take the Y components of our line points and draw points at 4, 6, and 8 steps up from zero. On the right axis, we'll do the same, only we'll make the Y values negative.
 
 We'll then connect the Y component points to the corresponding X coordinate component on the center axis. That creates a drawing like the following:
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-ParallelCoordinateTransform.png" alt="Points transformed into parallel coordinate space"/>
 
-You'll notice that the three lines on the right intersect at a point. It turns out that the Y coordinate of this point is the slope of our line in real space, and the X coordinate the Y-intercept of the line. If we had a line that sloped downwards, we'd have an intersection on the left half of this graph.
+You'll notice that the three lines on the right intersect at a point. This point determines the slope and intercept of our line in real space. If we had a line that sloped downwards, we'd have an intersection on the left half of this graph.
+
+If we take the distance from the center axis and call that u (2 in this case), the vertical distance from zero and call that v (1/3 in this case), and then label the width between our axes d (6, based on how I spaced the axes in this drawing), we can calculate slope and Y-intercept using the following equations:
+
+slope = -1 + d/u
+
+intercept = d * v/u
+
+The slope is thus 2, and the Y-intercept 1, matching what we drew in our line above.
 
 GPUs are excellent at this kind of simple, ordered line drawing, so this is an ideal means of performing line detection on the GPU.
 
@@ -255,7 +263,7 @@ For example, if we start with this test image:
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HoughSampleImage.png" alt="Sample image for line detection"/>
 
-this is what we get in parallel coordinate space:
+this is what we get in parallel coordinate space (I've shifted the negative half upwards to halve the Y space needed):
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HoughParallel.png" alt="Hough parallel coordinate space"/>
 
@@ -265,7 +273,7 @@ Those bright central points are where we detect lines. A non-maximum suppression
 
 I should point out that the non-maximum suppression is one of the weaker points in the current implementation of this within GPUImage. It causes lines to be detected where there are none, or multiple lines to be detected near strong lines in a noisy scene.
 
-As mentioned earlier, line detection has a number of interesting applications. One particular application this enables is one-dimensional barcode reading. An interesting aspect of this parallel coordinate transform is that parallel lines in real space will always appear as a series of horizontally-aligned dots in parallel coordinate space. This is true no matter the orientation of the parallel lines. That means that you could potentially detect standard 1-D barcodes at any orientation by looking for a specific spacing of horizontal dots. This could be a huge benefit for blind users of mobile phone barcode scanners, who cannot see the box they need to align barcodes within for most barcode scanners.
+As mentioned earlier, line detection has a number of interesting applications. One particular application this enables is one-dimensional barcode reading. An interesting aspect of this parallel coordinate transform is that parallel lines in real space will always appear as a series of vertically-aligned dots in parallel coordinate space. This is true no matter the orientation of the parallel lines. That means that you could potentially detect standard 1-D barcodes at any orientation or position by looking for a specific ordered spacing of vertical dots. This could be a huge benefit for blind users of mobile phone barcode scanners, who cannot see the box or orientation they need to align barcodes within for most barcode scanners.
 
 Personally, the geometric elegance of this line drawing process is something I find fascinating and wanted to present to more developers.
 
@@ -275,24 +283,24 @@ These are but some of the many machine vision operations that have been develope
 
 ## References:
 
-<sup>1</sup> I. Sobel. An Isotropic 3x3 Gradient Operator, Machine Vision for Three-Dimensional Scenes, Academic Press, 1990.
+[^1]: I. Sobel. An Isotropic 3x3 Gradient Operator, Machine Vision for Three-Dimensional Scenes, Academic Press, 1990.
 
-<sup>2</sup> J.M.S. Prewitt. Object Enhancement and Extraction, Picture processing and Psychopictorics, Academic Press, 1970.
+[^2]: J.M.S. Prewitt. Object Enhancement and Extraction, Picture processing and Psychopictorics, Academic Press, 1970.
 
-<sup>3</sup> J. Canny. A Computational Approach To Edge Detection, IEEE Trans. Pattern Analysis and Machine Intelligence, 8(6):679–698, 1986.
+[^3]: J. Canny. A Computational Approach To Edge Detection, IEEE Trans. Pattern Analysis and Machine Intelligence, 8(6):679–698, 1986.
 
-<sup>4</sup> A. Ensor, S. Hall. GPU-based Image Analysis on Mobile Devices. Proceedings of Image and Vision Computing New Zealand 2011.
+[^4]: A. Ensor, S. Hall. GPU-based Image Analysis on Mobile Devices. Proceedings of Image and Vision Computing New Zealand 2011.
 
-<sup>5</sup> C. Harris and M. Stephens. A Combined Corner and Edge Detector. Proc. Alvey Vision Conf., Univ. Manchester, pp. 147-151, 1988.
+[^5]: C. Harris and M. Stephens. A Combined Corner and Edge Detector. Proc. Alvey Vision Conf., Univ. Manchester, pp. 147-151, 1988.
 
-<sup>6</sup> J. Shi and C. Tomasi. Good features to track. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pages 593-600, June 1994.
+[^6]: J. Shi and C. Tomasi. Good features to track. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pages 593-600, June 1994.
 
-<sup>7</sup> A. Noble. Descriptions of Image Surfaces. PhD thesis, Department of Engineering Science, Oxford University 1989, p45.  
+[^7]: A. Noble. Descriptions of Image Surfaces. PhD thesis, Department of Engineering Science, Oxford University 1989, p45.  
 
-<sup>8</sup> G. Ziegler, A. Tevs, C. Theobalt, H.-P. Seidel. GPU Point List Generation through HistogramPyramids. Research Report, Max-Planck-Institut fur Informatik, 2006.
+[^8]: G. Ziegler, A. Tevs, C. Theobalt, H.-P. Seidel. GPU Point List Generation through HistogramPyramids. Research Report, Max-Planck-Institut fur Informatik, 2006.
 
-<sup>9</sup> E. Rosten and T. Drummond. Machine learning for high-speed corner detection. European Conference on Computer Vision 2006.
+[^9]: E. Rosten and T. Drummond. Machine learning for high-speed corner detection. European Conference on Computer Vision 2006.
 
-<sup>10</sup> M. Dubská, J. Havel, and A. Herout. [Real-Time Detection of Lines using Parallel Coordinates and OpenGL](http://medusa.fit.vutbr.cz/public/data/papers/2011-SCCG-Dubska-Real-Time-Line-Detection-Using-PC-and-OpenGL.pdf). Proceedings of SCCG 2011, Bratislava, SK, p. 7.
+[^10]: M. Dubská, J. Havel, and A. Herout. [Real-Time Detection of Lines using Parallel Coordinates and OpenGL](http://medusa.fit.vutbr.cz/public/data/papers/2011-SCCG-Dubska-Real-Time-Line-Detection-Using-PC-and-OpenGL.pdf). Proceedings of SCCG 2011, Bratislava, SK, p. 7.
 
-<sup>11</sup> M. Dubská, J. Havel, and A. Herout. [PClines — Line detection using parallel coordinates](http://medusa.fit.vutbr.cz/public/data/papers/2011-CVPR-Dubska-PClines.pdf). 2011 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), p. 1489- 1494.
+[^11]: M. Dubská, J. Havel, and A. Herout. [PClines — Line detection using parallel coordinates](http://medusa.fit.vutbr.cz/public/data/papers/2011-CVPR-Dubska-PClines.pdf). 2011 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), p. 1489- 1494.
