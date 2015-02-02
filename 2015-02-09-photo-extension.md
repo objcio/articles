@@ -7,9 +7,11 @@ author: "<a href=\"https://twitter.com/iwantmyrealname\">Sam Davies</a>"
 ---
 
 
-iOS 8 introduced extensions to the world — with six extension points available.
-These offer unprecedented access to the operating system and the photo editing
-extension allows developers to build functionality into the system Photos app.
+iOS 8 introduced extensions to the world — with
+[six extension points](https://developer.apple.com/library/prerelease/ios/documentation/General/Conceptual/ExtensibilityPG/index.html#//apple_ref/doc/uid/TP40014214-CH20-SW2)
+available. These offer unprecedented access to the operating system and the
+photo editing extension allows developers to build functionality into the system
+Photos app.
 
 The user workflow for photo editing extensions is not the most intuitive. From
 selecting the photo you want to edit, it takes three taps to launch the
