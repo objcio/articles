@@ -18,7 +18,7 @@ GPUs are ideally suited to operate on images and video because they are tuned to
 
 One of the things I learned while working on GPUImage is how even seemingly complex image processing operations can be built from smaller, simpler ones. I'd like to break down the components of some common machine vision processes, and show how these processes can be accelerated to run on modern GPUs.
 
-Every operation analyzed here has a full implementation within GPUImage, and you can try them yourself by grabbing the project and building the FilterShowcase sample application either for Mac or iOS.
+Every operation analyzed here has a full implementation within GPUImage, and you can try them yourself by grabbing the project and building the FilterShowcase sample application either for Mac or iOS. Additionally, all of these operations have CPU-based (and some GPU-accelerated) implementations within the OpenCV framework, which Engin Kurutepe talks about in [his article within this issue](TODO: link to Engin Kurutepe's article).
 
 ## Sobel edge detection
 
@@ -203,44 +203,75 @@ A Gaussian blur is then applied to the result of that calculation. The red, gree
 
 R = I<sub>x</sub><sup>2</sup> * I<sub>y</sub><sup>2</sup> - I<sub>xy</sub> * I<sub>xy</sub> - k * (I<sub>x</sub><sup>2</sup> + I<sub>y</sub><sup>2</sup>)<sup>2</sup>
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HarrisEquation.png" alt="R = Ix^2 * Iy^2 - Ixy * Ixy - k * (Ix^2 + Iy^2)^2"/>
+where I<sub>x</sub> is the gradient intensity in the X direction, I<sub>y</sub> the gradient intensity in Y,  I<sub>xy</sub> the product of these intensities, k a scaling factor for sensitivity, and R the resulting "cornerness" of the pixel. Alternative implementations of this calculation have been proposed by Shi and Tomasi<sup>6</sup> and Noble<sup>7</sup>, but the results tend to be fairly similar.
 
-where I<sub>x</sub> is the gradient intensity in the X direction, I<sub>y</sub> the gradient intensity in Y,  I<sub>xy</sub> the product of these intensities 
+Looking at this equation, you might think that the first two terms should cancel themselves out. That's where the Gaussian blur of the previous step matters. By blurring the X, Y, and product of X and Y values independently across several pixels, differences develop around corners and allow for them to be detected.
 
-drawn from [this question on the Signal Processing Stack Exchange site](http://dsp.stackexchange.com/questions/401/how-to-detect-corners-in-a-binary-images-with-opengl).
-
-
-
-
+Starting from a test image drawn from [this question on the Signal Processing Stack Exchange site](http://dsp.stackexchange.com/questions/401/how-to-detect-corners-in-a-binary-images-with-opengl):
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HarrisSquares.png" alt="Harris corner detector test image"/>
 
+the resulting cornerness map from the above calculation looks something like this:
+
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HarrisCornerness.png" alt="Harris cornerness intermediate image"/>
+
+To find the exact location of corners within this map, we need to pick out local maxima (pixels of highest brightness in a region). A non-maximum suppression filter is used for this. Similar to what we did with the Canny edge detection, we now look at pixels surrounding a central one (starting at a one-pixel radius, but this can be expanded), and only keep a pixel if it is brighter than all of its neighbors. We turn it to black otherwise.
+
+From that, we now can read the image and see that any non-black pixel is a location of a corner:
 
 <img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HarrisCorners.png" alt="Harris corners"/>
 
-- First pass: reduce to luminance and take the derivative of the luminance texture (GPUImageXYDerivativeFilter)
+I'm currently doing this point extraction stage on the CPU, which can be a bottleneck in the corner detection process, but it may be possible to accelerate this on the GPU using histogram pyramids<sup>8</sup>
 
-- Second pass: blur the derivative (GPUImageGaussianBlurFilter)
-
-- Third pass: apply the Harris corner detection calculation
-
-The Harris corner detector is but one means of finding corners within a scene. Edward Rosten's FAST corner detector, as described in "Machine learning for high-speed corner detection"<sup>8</sup>, a higher-performance corner detector that may also outpace the Harris detector for GPU-bound feature detection.
+The Harris corner detector is but one means of finding corners within a scene. Edward Rosten's FAST corner detector, as described in "Machine learning for high-speed corner detection"<sup>9</sup>, a higher-performance corner detector that may also outpace the Harris detector for GPU-bound feature detection.
 
 ## Hough transform line detection
 
-- Canny edge detection
+Straight lines are another large-scale feature we might want to detect in a scene. Finding straight lines can be useful in applications ranging from document scanning to barcode reading. However, traditional means of detecting lines within a scene haven't been amenable to implementation on a GPU, particularly on mobile GPUs.
 
-- Extract the white points and draw representative lines in parallel coordinate space
+Many line detection processes are based on a Hough transform, which is a technique where points in a real-world, Cartesian coordinate space are converted to another coordinate space. Calculations are then performed in this alternate coordinate space and the results converted back into normal space to determine the location of lines or other features. Unfortunately, many of these proposed calculations aren't suited for being run on a GPU because they aren't sufficiently parallel in nature and they require intense mathematical operations, like trigonometry functions, to be performed at each pixel. 
 
-- Apply non-maximum suppression
+In 2011, Dubská, *et al.*<sup>10, 11</sup> proposed a much simpler, more elegant way of performing this coordinate space transformation and analysis, one that was ideally suited to being run on a GPU. Their process relies on a concept called parallel coordinate space, which sounds completely abstract, but I'll show how it's actually fairly simple to understand.
 
+Let's take a line and pick three points within it:
 
-- potential for use in detecting barcodes from any orientation
-	-The challenge this presents to blind users
-- Document edge recognition
+<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-ParallelCoordinateSpace.png" alt="An example line"/>
 
+To transform this to parallel coordinate space, we'll draw three parallel vertical axes. On the center axis, we'll take the X components of our line points and draw points at 1, 2, and 3 steps up from the bottom. On the left axis, we'll take the Y components of our line points and draw points at 4, 6, and 8 steps up from the bottom. On the right axis, we'll do the same, only we'll count starting at the top of the line down.
 
+We'll then connect the Y component points to the corresponding X coordinate component on the center axis. That creates a drawing like the following:
+
+<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-ParallelCoordinateTransform.png" alt="Points transformed into parallel coordinate space"/>
+
+You'll notice that the three lines on the right intersect at a point. It turns out that the Y coordinate of this point is the slope of our line in real space, and the X coordinate the Y-intercept of the line. If we had a line that sloped downwards, we'd have an intersection on the left half of this graph.
+
+GPUs are excellent at this kind of simple, ordered line drawing, so this is an ideal means of performing line detection on the GPU.
+
+The first step in detecting lines within a scene is finding the points that potentially indicate a line. We're looking for points on edges, and we want to minimize the number of points we're analyzing, so the previously described Canny edge detection is an excellent starting point.
+
+After the edge detection, the edge points are read and used to draw lines in parallel coordinate space. Each edge point has two lines drawn for it, one between the center and left axes and one between the center and right axes. We use an additive blending mode so that pixels where lines intersect get brighter and brighter. The points of greatest brightness in an area indicate lines.
+
+For example, if we start with this test image:
+
+<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HoughSampleImage.png" alt="Sample image for line detection"/>
+
+this is what we get in parallel coordinate space:
+
+<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HoughParallel.png" alt="Hough parallel coordinate space"/>
+
+Those bright central points are where we detect lines. A non-maximum suppression filter is then used to find the local maxima and reduce everything else to black. From there, the points are converted back to line slopes and intercepts, yielding this result:
+
+<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HoughLines.png" alt="Hough transform line detection"/>
+
+I should point out that the non-maximum suppression is one of the weaker points in the current implementation of this within GPUImage. It causes lines to be detected where there are none, or multiple lines to be detected near strong lines in a noisy scene.
+
+As mentioned earlier, line detection has a number of interesting applications. One particular application this enables is one-dimensional barcode reading. An interesting aspect of this parallel coordinate transform is that parallel lines in real space will always appear as a series of horizontally-aligned dots in parallel coordinate space. This is true no matter the orientation of the parallel lines. That means that you could potentially detect standard 1-D barcodes at any orientation by looking for a specific spacing of horizontal dots. This could be a huge benefit for blind users of mobile phone barcode scanners, who cannot see the box they need to align barcodes within for most barcode scanners.
+
+Personally, the geometric elegance of this line drawing process is something I find fascinating and wanted to present to more developers.
+
+## Summary
+
+These are but some of the many machine vision operations that have been developed in the last few decades, and only a small portion of the ones that can be adapted to work well on a GPU. I personally think there is exciting and groundbreaking work left to be done in this area, with important applications that can improve the way of life for many people. Hopefully, this has at least provided a brief introduction to the field of machine vision and shown that it's not as impenetrable as many developers believe.
 
 ## References:
 
@@ -256,10 +287,12 @@ The Harris corner detector is but one means of finding corners within a scene. E
 
 <sup>6</sup> J. Shi and C. Tomasi. Good features to track. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pages 593-600, June 1994.
 
-<sup>7</sup> A. Noble, "Descriptions of Image Surfaces", PhD thesis, Department of Engineering Science, Oxford University 1989, p45.  
+<sup>7</sup> A. Noble. Descriptions of Image Surfaces. PhD thesis, Department of Engineering Science, Oxford University 1989, p45.  
 
-<sup>8</sup> E. Rosten and T. Drummond. Machine learning for high-speed corner detection. European Conference on Computer Vision 2006.
+<sup>8</sup> G. Ziegler, A. Tevs, C. Theobalt, H.-P. Seidel. GPU Point List Generation through HistogramPyramids. Research Report, Max-Planck-Institut fur Informatik, 2006.
 
-<sup>9</sup> M. Dubská, J. Havel, and A. Herout. [Real-Time Detection of Lines using Parallel Coordinates and OpenGL](http://medusa.fit.vutbr.cz/public/data/papers/2011-SCCG-Dubska-Real-Time-Line-Detection-Using-PC-and-OpenGL.pdf). Proceedings of SCCG 2011, Bratislava, SK, p. 7.
+<sup>9</sup> E. Rosten and T. Drummond. Machine learning for high-speed corner detection. European Conference on Computer Vision 2006.
 
-<sup>10</sup> M. Dubská, J. Havel, and A. Herout. [PClines — Line detection using parallel coordinates](http://medusa.fit.vutbr.cz/public/data/papers/2011-CVPR-Dubska-PClines.pdf). 2011 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), p. 1489- 1494.
+<sup>10</sup> M. Dubská, J. Havel, and A. Herout. [Real-Time Detection of Lines using Parallel Coordinates and OpenGL](http://medusa.fit.vutbr.cz/public/data/papers/2011-SCCG-Dubska-Real-Time-Line-Detection-Using-PC-and-OpenGL.pdf). Proceedings of SCCG 2011, Bratislava, SK, p. 7.
+
+<sup>11</sup> M. Dubská, J. Havel, and A. Herout. [PClines — Line detection using parallel coordinates](http://medusa.fit.vutbr.cz/public/data/papers/2011-CVPR-Dubska-PClines.pdf). 2011 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), p. 1489- 1494.
