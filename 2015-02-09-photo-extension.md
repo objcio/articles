@@ -342,9 +342,51 @@ begins.
 
 ### Memory Restrictions
 
+Extensions are not full iOS apps and therefore are permitted restricted access
+to system resources. More specifically the OS will kill an extension if it uses
+too much memory. The memory limit is dependent on several factors including the
+device, the host app and the Apple magic-factor. As such there are no hard
+limits, but instead a general recommendation to minimize the memory footprint.
+
+Image processing is a memory-hungry operation - particularly with the resolution
+of the photos from an iPhone camera. There are several things you can do to keep
+the memory usage of your photo-editing extension to a minimum:
+
+- __Work with the display sized image__ When beginning the edit process the
+system provides an image suitably scaled for the screen. Using this instead of
+the original for the interactive editing phase will require significantly less
+memory.
+- __Limit number of CoreGraphics contexts__ Although it might seem like the way
+to work with images, a CoreGraphics context is essentially just a big chunk of
+memory. If you need to use these, then keep the number to a minimum. Reuse them
+where possible, and decide whether you're using the best approach.
+- __Use the GPU__ Whether it be through CoreImage or a 3rd-party framework such
+as GPUImage, you can keep memory down by chaining filters together and
+eliminating the requirement for intermediate buffers.
+
+Since image editing is expected to have high memory requirements, it seems that
+the extensions are given a little more leeway than other extension types. During
+ad-hoc testing, it appears to be possible for an image editing extension to use
+over 100MB. Given that an uncompressed image from an 8 megapixel camera is
+approximately 22MB, most image editing should be achievable.
 
 ### CoreImage
 
+CoreImage is a great tool for building image editing functionality into
+extensions, especially since iOS 8 introduced the ability to create your own,
+custom filters. The filtering process takes advantage of the GPU, and so can be
+significantly faster than an algorithm built in CoreGraphics, which has to run
+on the CPU.
+
+CoreImage can be used to give you the performance you need to uphold the user
+experience you'd expect with an interactive image editing plugin. You do need to
+ensure that the image doesn't have to keep moving from the GPU to the CPU and
+back again. You can alleviate this by rendering the CIImage output from the
+CIFilter chain directly on the CPU.
+
+This process uses a small amount of OpenGLES code, and you can find an example
+of it in the `CIImageRendererView` class in the __FilsterPack__ framework of the
+accompanying project.
 
 
 ## Conclusion
