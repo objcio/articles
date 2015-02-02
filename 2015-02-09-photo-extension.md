@@ -371,24 +371,6 @@ ad-hoc testing, it appears to be possible for an image editing extension to use
 over 100MB. Given that an uncompressed image from an 8 megapixel camera is
 approximately 22MB, most image editing should be achievable.
 
-### Core Image
-
-Core Image is a great tool for building image editing functionality into
-extensions, especially since iOS 8 introduced the ability to create your own,
-custom filters. The filtering process takes advantage of the GPU, and so can be
-significantly faster than an algorithm built in Core Graphics, which has to run
-on the CPU.
-
-Core Image can be used to give you the performance you need to uphold the user
-experience you'd expect with an interactive image editing plugin. You do need to
-ensure that the image doesn't have to keep moving from the GPU to the CPU and
-back again. You can alleviate this by rendering the CIImage output from the
-CIFilter chain directly on the CPU.
-
-This process uses a small amount of OpenGLES code, and you can find an example
-of it in the `CIImageRendererView` class in the __FilsterPack__ framework of the
-accompanying project.
-
 
 ## Conclusion
 
