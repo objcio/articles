@@ -7,7 +7,7 @@ author: "<a href=\"https://twitter.com/iwantmyrealname\">Sam Davies</a>"
 ---
 
 
-iOS 8 introduced extensions to the world - with six extension points available.
+iOS 8 introduced extensions to the world — with six extension points available.
 These offer unprecedented access to the operating system and the photo editing
 extension allows developers to build functionality into the system Photos app.
 
@@ -18,7 +18,7 @@ extension, one of which is on a tiny, unintuitive button.
 ![Image Editing Extension User Workflow](http://f.cl.ly/items/2C1V2t1x04402v1K3Q3m/user_workflow.png)
 
 Nevertheless, image editing extensions offer a fantastic opportunity for
-developers to offer a seamless experience to users - creating a consistent
+developers to offer a seamless experience to users — creating a consistent
 approach to managing photos.
 
 This article will talk briefly about how to create extensions and their
@@ -28,7 +28,7 @@ associated with creating photo editing extensions.
 
 The __Filtster__ project, which accompanies this article, demonstrates how you
 can set up your own image editing extension. It represents a really simple image
-filtering process, using a couple of CoreImage filters. You can get hold of the
+filtering process, using a couple of Core Image filters. You can get hold of the
 complete __Filtster__ project on Github at 
 [github.com/sammyd/Filtster](https://github.com/sammyd/Filtster).
 
@@ -36,7 +36,7 @@ complete __Filtster__ project on Github at
 
 All types of iOS extension have to be contained by a fully-functional iOS app,
 and this includes photo editing extensions. This can mean that you would have to
-do a lot of work to get your amazing new custom CoreImage filter in the hands of
+do a lot of work to get your amazing new custom Core Image filter in the hands of
 some users. It remains to be seen how strict Apple is on this, since most apps
 in the App Store with custom image editing extensions existed before the
 introduction of iOS 8.
@@ -151,7 +151,7 @@ temporarily.
 
 At this stage the user interacts with the UI of the extension to control the
 editing process. Since the extension has a view controller, you can use any of
-the features of UIKit to implement this. The sample project uses a CoreImage
+the features of UIKit to implement this. The sample project uses a Core Image
 filter chain to facilitate editing, so the UI is handled with a custom `GLKView`
 subclass to reduce the load on the CPU.
 
@@ -169,7 +169,7 @@ called to allow you to clear up any temporary data that you've created.
 
 ### Commit Changes
 
-Once the user is happy with their edits and tap the __Done__ button, a call is
+Once the user is happy with their edits and taps the __Done__ button, a call is
 made to `finishContentEditingWithCompletionHandler(_:)`. At this point, the full
 size image needs to be edited with the settings that are currently applied to
 the display-sized image, and the new adjustment data needs saving.
@@ -299,7 +299,7 @@ creating a photo editing extension, it is likely that the app will offer the
 same functionality. You're therefore likely to want to share code and data
 between the app extension and the container app.
 
-Sharing code is achieved by creating a Cocoa Touch Framework target - new
+Sharing code is achieved by creating a Cocoa Touch Framework target — new
 functionality available in iOS 8. Then you can add shared functionality, such as
 the filter chain, and custom view classes, and use them from both the app and
 the extension.
@@ -320,8 +320,9 @@ writing.
 
 Debugging is reasonably well-supported in Xcode, although there are some
 potential sticking points. Selecting the extension's scheme and selecting run
-should build it and then let you select what app you want to run. Selecting
-photos 
+should build it and then let you select what app you want to run. Since photo
+editing extensions can only be activated from within the system Photos app you
+should select the Photos app.
 
 ![Select App](http://cl.ly/image/2G3v11410U2E/select_app.png)
 
@@ -348,7 +349,7 @@ too much memory. The memory limit is dependent on several factors including the
 device, the host app and the Apple magic-factor. As such there are no hard
 limits, but instead a general recommendation to minimize the memory footprint.
 
-Image processing is a memory-hungry operation - particularly with the resolution
+Image processing is a memory-hungry operation — particularly with the resolution
 of the photos from an iPhone camera. There are several things you can do to keep
 the memory usage of your photo-editing extension to a minimum:
 
@@ -356,11 +357,11 @@ the memory usage of your photo-editing extension to a minimum:
 system provides an image suitably scaled for the screen. Using this instead of
 the original for the interactive editing phase will require significantly less
 memory.
-- __Limit number of CoreGraphics contexts__ Although it might seem like the way
-to work with images, a CoreGraphics context is essentially just a big chunk of
+- __Limit number of Core Graphics contexts__ Although it might seem like the way
+to work with images, a Core Graphics context is essentially just a big chunk of
 memory. If you need to use these, then keep the number to a minimum. Reuse them
 where possible, and decide whether you're using the best approach.
-- __Use the GPU__ Whether it be through CoreImage or a 3rd-party framework such
+- __Use the GPU__ Whether it be through Core Image or a 3rd-party framework such
 as GPUImage, you can keep memory down by chaining filters together and
 eliminating the requirement for intermediate buffers.
 
@@ -370,15 +371,15 @@ ad-hoc testing, it appears to be possible for an image editing extension to use
 over 100MB. Given that an uncompressed image from an 8 megapixel camera is
 approximately 22MB, most image editing should be achievable.
 
-### CoreImage
+### Core Image
 
-CoreImage is a great tool for building image editing functionality into
+Core Image is a great tool for building image editing functionality into
 extensions, especially since iOS 8 introduced the ability to create your own,
 custom filters. The filtering process takes advantage of the GPU, and so can be
-significantly faster than an algorithm built in CoreGraphics, which has to run
+significantly faster than an algorithm built in Core Graphics, which has to run
 on the CPU.
 
-CoreImage can be used to give you the performance you need to uphold the user
+Core Image can be used to give you the performance you need to uphold the user
 experience you'd expect with an interactive image editing plugin. You do need to
 ensure that the image doesn't have to keep moving from the GPU to the CPU and
 back again. You can alleviate this by rendering the CIImage output from the
