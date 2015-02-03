@@ -8,7 +8,7 @@ author: "<a href=\"http://twitter.com/matteo\">Matteo Caldari</a>"
 
 # Camera Capture on iOS 
 
-The iPhone has shipped with a camera since its first model. In the first SDKs the only way to integrate the camera within an app was by using `UIImagepickerController`, but iOS 4 introduced the `AVFoundation` framework which allowed more flexibility. 
+The iPhone has shipped with a camera since its first model. In the first SDKs the only way to integrate the camera within an app was by using `UIImagePickerController`, but iOS 4 introduced the `AVFoundation` framework which allowed more flexibility. 
 
 In this article we'll see how image capture with `AVFoundation` works, how to control the camera, and the new features recently introduced in iOS 8. 
 
@@ -31,7 +31,7 @@ An image capture implemented with the AVFoundation framework is based on a few c
 	- `AVCaptureMetadataOutput` enables detection of faces and QR codes
 	- `AVCaptureVideoOutput` provides the raw frames for a live preview
 - `AVCaptureSession` manages the data flow between the inputs and the outputs, and generates run-time errors in case something goes wrong
-- the `AVCaptureVideoPreviewLayer` is a subclass of `CALayer` and can be used to automatically display the live feed generated from the camera. It also has some utility methods for converting points from layer coordinates to those of the device. It looks like an output, but it's not. It looks like an output but it's not, also it *owns* a session (the outputs are *owned by* a session)
+- the `AVCaptureVideoPreviewLayer` is a subclass of `CALayer` and can be used to automatically display the live feed generated from the camera. It also has some utility methods for converting points from layer coordinates to those of the device. It looks like an output, but it's not, also it *owns* a session (the outputs are *owned by* a session)
 
 ## Setup
 
@@ -41,7 +41,7 @@ Let's start building the capture. First we need an `AVCaptureSession` object:
 let session = AVCaptureSession()
 ```
 
-Now we need a camera device input. On most iPhones and iPads we can choose between the back camera and the front camera – a.k.a. the selfie camera. So first we have to iterate over all the devices that can provide video data (the microphone is also a AVCaptureDevice so we'll skip it) and check for the `position` property:
+Now we need a camera device input. On most iPhones and iPads we can choose between the back camera and the front camera — a.k.a. the selfie camera. So first we have to iterate over all the devices that can provide video data (the microphone is also a AVCaptureDevice so we'll skip it) and check for the `position` property:
 
 ```
 let availableCameraDevices = AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo)
@@ -58,8 +58,8 @@ for device in availableCameraDevices as [AVCaptureDevice] {
 Then, once we found the proper camera device, we can get the corresponding `AVCaptureDeviceInput` object. We'll set this as the session's input:
 
 ```swift
-var error:NSErrorPointer = nil
-let possibleCameraInput: AnyObject? = AVCaptureDeviceInput.deviceInputWithDevice(backCameraDevice, error: error)
+var error:NSError?
+let possibleCameraInput: AnyObject? = AVCaptureDeviceInput.deviceInputWithDevice(backCameraDevice, error: &error)
 if let backCameraInput = possibleCameraInput as? AVCaptureDeviceInput {
 	if self.session.canAddInput(backCameraInput) {
 		self.session.addInput(backCameraInput)
@@ -69,7 +69,7 @@ if let backCameraInput = possibleCameraInput as? AVCaptureDeviceInput {
 
 Note that the first time the app is executed, the first call to  `AVCaptureDeviceInput.deviceInputWithDevice()` triggers a system dialog, asking the user to allow usage of the camera. This was introduced in some countries with iOS7, and was extended to all the regions with iOS8. Until the user accepts the dialog, the camera input will send a stream of black frames.
 
-A more appropriate way to handle the camera permissions is first to check the current status of the authorization, and in case it's still not determined, i.e. the user hasn't seen the dialog, to explicitly request it:
+A more appropriate way to handle the camera permissions is to first check the current status of the authorization, and in case it's still not determined, i.e. the user hasn't seen the dialog, to explicitly request it:
 
 ```
 let authorizationStatus = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
@@ -100,11 +100,11 @@ previewLayer.frame = view.bounds
 view.layer.addSublayer(previewLayer)
 ```
 
-The `AVCaptureVideoPreviewLayer` will automatically display the output from the camera. It also comes in handy when we need to translate a tap on the camera preview to the coordinate system of the device, f.e. when tapping on a area to focus. We'll see the details later.
+The `AVCaptureVideoPreviewLayer` will automatically display the output from the camera. It also comes in handy when we need to translate a tap on the camera preview to the coordinate system of the device, e.g. when tapping on a area to focus. We'll see the details later.
 
-The second method is to capture the single frames from the output data stream and to manually display them in a view, using the Open GL library. 
+The second method is to capture the single frames from the output data stream and to manually display them in a view, using Open GL. 
 This is a bit more complicated, but necessary in case we want to manipulate or filter the live preview. 
-To get the data stream we just create a `AVCaptureVideoDataOutput`, so when the camera is running we get all the frames (except the one that will be dropped if our processing is too slow) via the delegate method `captureOutput(_:didOutputSampleBuffer:fromConnection:)`, and draw them in a `GLKView`. Without going too deep into the Open GL framework, we could setup the `GLKView` like this:
+To get the data stream we just create a `AVCaptureVideoDataOutput`, so when the camera is running we get all the frames (except the ones that will be dropped if our processing is too slow) via the delegate method `captureOutput(_:didOutputSampleBuffer:fromConnection:)`, and draw them in a `GLKView`. Without going too deep into the Open GL framework, we could setup the `GLKView` like this:
 
 ```
 glContext = EAGLContext(API: .OpenGLES2)
@@ -122,7 +122,7 @@ if session.canAddOutput(self.videoOutput) {
 }
 ```
 
-and its the delegate method: 
+and the delegate method: 
 
 ```
 func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!) {
@@ -137,9 +137,9 @@ func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sample
 }
 ```
 
-One caveat: the samples sent from the camera are rotated 90º, because that's how the camera sensor is positioned. The `AVCaptureVideoPreviewLayer` handles this automatically, so in this case we should apply a rotation transform to the `GLKView`. 
+One caveat: the samples sent from the camera are rotated 90º, because that's how the camera sensor is oriented. The `AVCaptureVideoPreviewLayer` handles this automatically, so in this case we should apply a rotation transform to the `GLKView`. 
 
-We're almost done, the last component - the `AVCaptureStillImageOutput` - is actually the most important, it allows us to capture a still image. This is just a matter of creating an instance and adding it to the session:
+We're almost done, the last component — the `AVCaptureStillImageOutput` — is actually the most important, it allows us to capture a still image. This is just a matter of creating an instance and adding it to the session:
 
 ```
 stillCameraOutput = AVCaptureStillImageOutput()
@@ -151,8 +151,8 @@ if self.session.canAddOutput(self.stillCameraOutput) {
 
 ### Configuration
 
-Now that we have all the necessary objects in place, we should find the best configuration for what our needs. Again, there are two ways to accomplish this.
-The simplest – and the most recommended – is to use a session preset.
+Now that we have all the necessary objects in place, we should find the best configuration for our needs. Again, there are two ways to accomplish this.
+The simplest — and the most recommended — is to use a session preset.
 
 ```
 session.sessionPreset = AVCaptureSessionPresetPhoto
@@ -160,7 +160,7 @@ session.sessionPreset = AVCaptureSessionPresetPhoto
 
 The `AVCaptureSessionPresetPhoto` selects the best configuration for the capture of a photo, i.e. it enables the maximum ISO and exposure duration ranges, phase detection autofocus (TODO: link to camera article), and a full resolution, JPEG compressed still image output.
 
-However, if you need more control, the `AVCaptureDeviceFormat` class describes the parameters applicable to the device, such as still image resolution, video preview resolution, which autofocus system, ISO and exposure duration limits. Every device supports a set of formats, obtained by calling the  `-[AVCaptureDevice formats]` method, and the proper format can be set as the  `activeFormat` of the `AVCaptureDevice` (note that you cannot modify a format).
+However, if you need more control, the `AVCaptureDeviceFormat` class describes the parameters applicable to the device, such as still image resolution, video preview resolution, which autofocus system, ISO and exposure duration limits. Every device supports a set of formats, listed in the `AVCaptureDevice.formats` property, and the proper format can be set as the  `activeFormat` of the `AVCaptureDevice` (note that you cannot modify a format).
 
 ## Controlling the camera
 
@@ -170,7 +170,7 @@ Since iOS8 we have access to full manual control of all the adjustments.
 We'll look at the details later, but first, it's time to start the camera:
 
 ```
-sessionQueue = dispatch_queue_create("com.example.camera.capture_ession", DISPATCH_QUEUE_SERIAL)
+sessionQueue = dispatch_queue_create("com.example.camera.capture\_session", DISPATCH_QUEUE_SERIAL)
 dispatch_async(sessionQueue) { () -> Void in
 	self.session.startRunning()
 }
@@ -179,7 +179,7 @@ dispatch_async(sessionQueue) { () -> Void in
 All the actions and configurations done of the session or the camera device are blocking calls. For this reason it's recommended to dispatch them to a background serial queue. Furthermore the camera device must be locked before changing any of its parameters and unlocked afterwards. For example: 
 
 ```swift
-var error:NSError = nil
+var error:NSError?
 if currentDevice.lockForConfiguration(&error) {
   // locked successfully, go on with configuration
 	// currentDevice.unlockForConfiguration()
@@ -246,7 +246,7 @@ This means that the focus can be set with a `UISlider`, for example, which would
 
 ### Exposure
 
-On iOS devices, the aperture of the lens is fixed (for iPhones after 5s - 6  at f2/2, previous models at f2.4), so only the exposure duration and the sensor sensibility can be tweaked to accomplish the most appropriate image brightness. As for the focus, we can have continuous auto exposure, one time auto exposure on the point of interest or manual exposure.
+On iOS devices, the aperture of the lens is fixed (for iPhones after 5s  at f/2.2, previous models at f/2.4), so only the exposure duration and the sensor sensibility can be tweaked to accomplish the most appropriate image brightness. As for the focus, we can have continuous auto exposure, one time auto exposure on the point of interest or manual exposure.
 Other than specifying a point of interest, we can modify the auto exposure by setting a compensation, known as target bias, expressed in *f-stops*, whose values range between `minExposureTargetBias` and `maxExposureTargetBias`, with 0 being the default (no compensation):
 
 ```
@@ -320,7 +320,7 @@ func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects met
 
 Finally we want to capture the high resolution image so we call the `captureStillImageAsynchronouslyFromConnection(connection, completionHandler)` method on the camera device. When the data is read, the completion handler will be called on an unspecified thread. 
 
-If the still image output was setup to use the JPEG codec, either via the session `.Photo` preset or via the device's output settings, the sampleBuffer returned contains the image's metadata, i.e. EXIF data and also the detected faces  – if enabled in the `AVCaptureMetadataOutput`:
+If the still image output was setup to use the JPEG codec, either via the session `.Photo` preset or via the device's output settings, the sampleBuffer returned contains the image's metadata, i.e. EXIF data and also the detected faces  — if enabled in the `AVCaptureMetadataOutput`:
 
 ```
 dispatch_async(sessionQueue) { () -> Void in
@@ -355,12 +355,12 @@ dispatch_async(sessionQueue) { () -> Void in
 }
 ```
 
-It's nice to have a sort of visual feedback when the photo is being captured. To know know when it starts and when it's finished, we can use KVO with the `isCapturingStillImage` property of the `AVCaptureStillImageOutput`.
+It's nice to have a sort of visual feedback when the photo is being captured. To know when it starts and when it's finished, we can use KVO with the `isCapturingStillImage` property of the `AVCaptureStillImageOutput`.
  
 
 #### Bracketed Capture
 
-A interesting feature also introduced in iOS8 is  "bracketed capture", which means taking several photos in succession with different exposure settings. This can be useful when taking a picture in mixed light, for example by configuring three different exposures with biases at -1, 0, +1, and then merging them with an HDR algorithm.
+An interesting feature also introduced in iOS8 is  "bracketed capture", which means taking several photos in succession with different exposure settings. This can be useful when taking a picture in mixed light, for example by configuring three different exposures with biases at -1, 0, +1, and then merging them with an HDR algorithm.
 
 Here's how it looks like in code: 
 
