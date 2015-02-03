@@ -9,9 +9,9 @@ author: "<a href=\"https://twitter.com/iwantmyrealname\">Sam Davies</a>"
 
 iOS 8 introduced extensions to the world — with
 [six extension points](https://developer.apple.com/library/prerelease/ios/documentation/General/Conceptual/ExtensibilityPG/index.html#//apple_ref/doc/uid/TP40014214-CH20-SW2)
-available. These offer unprecedented access to the operating system and the
-photo editing extension allows developers to build functionality into the system
-Photos app.
+available. These offer unprecedented access to the operating system with the
+photo editing extension allowing developers to build functionality into the
+system Photos app.
 
 The user workflow for photo editing extensions is not the most intuitive. From
 selecting the photo you want to edit, it takes three taps to launch the
@@ -36,7 +36,7 @@ complete __Filtster__ project on Github at
 
 ## Creating an extension
 
-All types of iOS extension have to be contained by a fully-functional iOS app,
+All types of iOS extension have to be contained in a fully-functional iOS app,
 and this includes photo editing extensions. This can mean that you would have to
 do a lot of work to get your amazing new custom Core Image filter in the hands of
 some users. It remains to be seen how strict Apple is on this, since most apps
@@ -111,7 +111,7 @@ When a user chooses to edit an image using your extension, the system will
 instantiate your view controller and initiates the photo editing lifecycle. If
 the photo has previously been edited, this will first call the 
 `canHandleAdjustmentData(_:)` method, in which you are provided a
-`PHAdjustmentData` object. From this you have to determine whether or not your
+`PHAdjustmentData` object. From this you determine whether or not your
 extension can handle the previous edit data. This determines what the framework
 will send to the next method in the lifecycle.
 
@@ -126,7 +126,7 @@ same image data, but scaled appropriately for the screen. This means that the
 interactive editing phase can operate at a lower resolution, ensuring that your
 extension remains responsive and energy efficient.
 
-The below shows and implementation of this method:
+The below shows an implementation of this method:
 
     func startContentEditingWithInput(contentEditingInput: PHContentEditingInput?,
                                       placeholderImage: UIImage) {
@@ -234,13 +234,13 @@ It's important that you can determine compatibility between different versions
 of your image edit framework, so an approach such as [semantic versioning](http://semver.org/)
 offers the flexibility to manage this over the lifetime of your products. You
 could implement your own parser, or look to a third-party framework such as
-[SemVerKit](https://github.com/nomothetis/SemverKit) to implement this
+[SemVerKit](https://github.com/nomothetis/SemverKit) to provide this
 functionality.
 
-The final part aspect of the adjustment data is the `data` property itself,
+The final aspect of the adjustment data is the `data` property itself,
 which is just an `NSData` blob. The only advice that Apple offers here is that
 it should represent the settings to recreate the edit, rather than the edit
-itself, since the size of the `PHAsjustmentData` is limited by the Photos
+itself, since the size of the `PHAsjustmentData` object is limited by the Photos
 framework.
 
 For non-complex extensions (such as __Filtster__) this can be as simple as an
@@ -275,17 +275,15 @@ If you have a more complex requirements then you could create a custom settings
 class which adopts the `NSCoding` protocol to allow it to be archived in a
 similar manner.
 
-A user can chain incompatible photo edits together because if the adjustment
+A user can chain incompatible photo edits together — if the adjustment
 data is not understood by the current extension, the pre-rendered image will be
 used as input. For example, you can crop an image using the system crop tool
 before using your custom photo editing extension. Once you have saved the edited
 image, the associated adjustment data will now only contain details of the most
-recent edit. If the fact that your extension was used on a non-original image,
-this might be something you wish to include in the adjustment data. You could
-save the previous adjustment data in your output adjustment data, allowing you
-to implement a revert function for just your phase of the filter chain. The
-revert function provided by the Photos app will remove all the edits, returning
-the photo to its original state.
+recent edit. You could adjustment data from the previous, incompatible edit
+in your output adjustment data, allowing you to implement a revert function for
+just your phase of the filter chain. The revert function provided by the Photos
+app will remove all the edits, returning the photo to its original state.
 
 ![Revert Edits](http://cl.ly/image/1O0B3S0e0103/revert.png)
 
@@ -322,7 +320,7 @@ writing.
 
 Debugging is reasonably well-supported in Xcode, although there are some
 potential sticking points. Selecting the extension's scheme and selecting run
-should build it and then let you select what app you want to run. Since photo
+should build it and then let you select which app to run. Since photo
 editing extensions can only be activated from within the system Photos app you
 should select the Photos app.
 
@@ -376,12 +374,12 @@ approximately 22MB, most image editing should be achievable.
 
 ## Conclusion
 
-Before iOS 8 there was no way for a 3rd party developer to provide functionality
-to the user anywhere other than within their own app. Extensions have changed
-this - with the photo editing extension in particular allowing you to put your
-code right into the heart of the Photos app. Despite the slightly convoluted
-many-tap workflow, the photo editing extension uses the power of the Photos
-framework to provide a coherent and integrated user experience.
+Prior to iOS 8 there was no way for a 3rd party developer to provide
+functionality to the user anywhere other than within their own app. Extensions
+have changed this - with the photo editing extension in particular allowing you
+to put your code right into the heart of the Photos app. Despite the slightly
+convoluted many-tap workflow, the photo editing extension uses the power of the
+Photos framework to provide a coherent and integrated user experience.
 
 Resumable editing has traditionally been reserved for use in desktop photo
 collection applications such as Aperture or Lightroom. Creating a common
