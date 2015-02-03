@@ -36,7 +36,9 @@ There are two kinds of shader files that you must create in OpenGL ES: Vertex sh
 
 Vertex shaders customize how geometry is handled in a 2-D or 3-D scene. A vertex is a point in 2-D or 3-D space. In the case of image processing, we have four vertices, one for each corner of your image. The vertex shader sets the position of a vertex, and sends parameters like positions and texture coordinates to the fragment shader. 
 
-Your GPU then uses a fragment shader to perform calculations on each pixel in an object or image, ending with the final color for that pixel. An image, when you get right down to it, it simply a collection of data. The image document contains parameters for the value of each pixel,  for each color component and the pixel's opacity. Because the equations are the same for each pixel, the GPU is able to streamline the process and do it more efficiently. If you are optimizing your shader properly, you can process image data on the GPU over a hundred times faster than running the same process on the CPU.
+Your GPU then uses a fragment shader to perform calculations on each pixel in an object or image, ending with the final color for that pixel. An image, when you get right down to it, it simply a collection of data. The image document contains parameters for the value of each pixel, for each color component and the pixel's opacity. Because the equations are the same for each pixel, the GPU is able to streamline the process and do it more efficiently. If you are optimizing your shader properly, you can process image data on the GPU over a hundred times faster than running the same process on the CPU.
+
+Vertex and fragment shaders live in their own files. A vertex shader can have a file extension of .vst and the fragment shader would have a file extension of .fst, however this isn't necessary. You can also create a shader file as you would any other C file, with a .h and a .m file.
 
 One issue that has plagued OpenGL developers from the beginning is just being able to render anything to the screen. There is a lot of boiler plate code and set up that needs to be done just to get a screen that isn't black. The frustration and the inability to test out shaders because of all the hoops developers had to jump through has discouraged a lot of people from even trying to get involved with writing shaders.
 
@@ -79,7 +81,7 @@ attribute vec4 inputTextureCoordinate;
 ```
 At this point you might be wondering why we are getting a texture coordinate. Didn't we just get our vertex position? Aren't these the same thing?
 
-No, not necessarily. In our image processing application we want the texture coordinate and the vertex position to line up because we want to cover the entire length and breadth of our image. There are times where you might want these positions to be different, so it's important to remember that they don't necessarily need to be the same coordinate. Also, the coordinate space for vertices in this example extends from -1.0 to 1.0, where texture coordinates go from 0.0 - 1.0.
+No, not necessarily. A texture coordinate is part of a texture map. What this means is that you have the image you want to filter, which is your texture. The upper left hand corner as a coordinate space of (0,0). The upper right hand corner has a coordinate space of (1,0). If we wanted to select a texture coordinate that was inside the image and not at the edges, we would specify that the texture coordinate was something else in our base application, like (.25, .25), which would be located a quarter of the way in and down on our image. In our current image processing application we want the texture coordinate and the vertex position to line up because we want to cover the entire length and breadth of our image. There are times where you might want these positions to be different, so it's important to remember that they don't necessarily need to be the same coordinate. Also, the coordinate space for vertices in this example extends from -1.0 to 1.0, where texture coordinates go from 0.0 - 1.0.
 
 ```glsl
 varying vec2 textureCoordinate;
@@ -122,11 +124,11 @@ Since the fragment shader works on each and every pixel, we need a way to determ
 ```glsl
 uniform sampler2D inputImageTexture;
 ```
-In order to process an image, we are receiving a reference to the texture from the application. The reason this data type is called a sampler2D is because we are using the shader to go in and sample a point in a two-dimensional texture. The reason this data type is called a texture2D is a function that, just as it sounds, samples from a 2D texture.
+In order to process an image, we are receiving a reference to the texture from the application. The reason this data type is called a sampler2D is because we are using the shader to go in and sample a point in a two-dimensional texture. The reason this data type is called a sampler2D is a function that, just as it sounds, samples from a 2D texture.
 ```glsl
 gl_FragColor = texture2D(inputImageTexture, textureCoordinate); 
 ```
-This is our first encounter with a GLSL-specific function. texture2D is a function that, just as it sounds, creates a 2D texture. It takes our properties declared above as parameters to determine the exact color of the pixel being analyzed. This is then set to our other build in variable, gl\_FragColor. Since the only purpose of a fragment shader is to determine what color a pixel is, gl\_FragColor acts essentially as a return statement for our fragment shader. Once the fragment color is set, there is no more point in continuing to do anything else in a fragment shader, so if you write any code after this line, it will not be processed.
+This is our first encounter with a GLSL-specific function. texture2D is a function that, just as it sounds, creates a 2D texture. It takes our properties declared above as parameters to determine the exact color of the pixel being analyzed. This is then set to our other built-in variable, gl\_FragColor. Since the only purpose of a fragment shader is to determine what color a pixel is, gl\_FragColor acts essentially as a return statement for our fragment shader. Once the fragment color is set, there is no more point in continuing to do anything else in a fragment shader, so if you write any code after this line, it will not be processed.
 
 As you can see, a vital part of writing shaders is to understand the shading language. Even though the shading language is based on C, there are lots of quirks and nuances that differentiate it from plain, vanilla C.
 
