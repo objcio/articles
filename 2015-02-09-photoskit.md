@@ -77,7 +77,7 @@ To find out if an asset was marked as favorite or was hidden by the user just in
 
 The user can flag assets within a burst sequence, additionally the system uses various heuristics to mark potential user picks automatically. This metadata is accessible via `PHAsset`'s `burstSelectionTypes` property - .AutoPick/.UserPick values. 
 
-![.AutoPick Example](http://cl.ly/image/3j1H0O2C0o3l) The screenshot shows how Photos.app automatically marks potential user picks in a burst sequence.
+![.AutoPick Example](http://f.cl.ly/items/3A0f0e3D0m0K20330R04/IMG_1637.PNG) The screenshot shows how Photos.app automatically marks potential user picks in a burst sequence.
 
 
 
