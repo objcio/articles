@@ -126,7 +126,7 @@ same image data, but scaled appropriately for the screen. This means that the
 interactive editing phase can operate at a lower resolution, ensuring that your
 extension remains responsive and energy efficient.
 
-The below shows an implementation of this method:
+The following shows an implementation of this method:
 
     func startContentEditingWithInput(contentEditingInput: PHContentEditingInput?,
                                       placeholderImage: UIImage) {
@@ -286,9 +286,6 @@ just your phase of the filter chain. The revert function provided by the Photos
 app will remove all the edits, returning the photo to its original state.
 
 ![Revert Edits](http://cl.ly/image/1O0B3S0e0103/revert.png)
-
-
-__WHAT DOES APPLE'S ADJUSTMENT DATA LOOK LIKE?__
 
 
 ### Code/Data Sharing
