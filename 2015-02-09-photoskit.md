@@ -1,77 +1,91 @@
-PhotosKit
+
+---
+layout: post
+title:  "PhotosKit: A Primer"
+category: "21"
+date: "2015-02-03 12:00:00"
+author: "<a href=\"https://twitter.com/saniul">Saniul Ahmed</a>"
+tags: article
++---
+
+PhotosKit: A Primer
 ============
 
-# Introduction 
-iOS devices are defined by their single most prominent feature - the screen.
-**!Tie in with iPhones being the most pervasive photo cameras in the world!**
-Until last summer, developers have been using ALAssetsLibrary to access the users' ever-growing photo libraries. Over the years Camera.app and Photos.app have changed significantly, adding new features and even a new way of organizing photos by moments. Meanwhile the Assets Library Framework lagged behind. With iOS 8 Apple have given us PhotosKit, a more modern framework to access the wealth of information stored which provides more features and better performance than AssetsLibrary.
+#Introduction 
+Every day, [more photos are taken with the iPhone](https://www.youtube.com/watch?v=jZGzXEExZcc) than any other camera. Displays on iOS devices get better every year, but even back in the pre-Retina era [when iPad was introduced](http://youtu.be/_KN-5zmvjAo?t=17m7s) one of its killer uses was *just* displaying users' photos and exploring the photo library. It is very important for developers to be able to make use of the wealth of the users' photo libraries.
+
+Until last summer, developers have been using the AssetsLibrary framework to access users' ever-growing photo libraries. Over the years Camera.app and Photos.app have changed significantly, adding new features and even a new way of organizing photos by moments. Meanwhile the AssetsLibrary framework lagged behind. 
+
+With iOS 8 Apple have given us PhotosKit – a modern framework which provides more features and better performance than AssetsLibrary.
 
 
 #Outline
-We'll start with a bird's-eye view of the framework's object model – the entities and the relationships between them, fetching instances of those entities and working with the fetch results. 
+We'll start with a bird's-eye view of the [framework's object model](#PhotosKit-Object-Model) – the entities and the relationships between them, fetching instances of those entities and working with the fetch results. 
 
-Additionally, we'll cover the asset metadata that wasn't available to developers when using AssetsLibrary.
+Additionally, we'll cover [the asset metadata](#Photo-metadata) that wasn't available to developers when using AssetsLibrary.
 
-Then we'll discuss loading the assets' image data – the process itself, multitudes of available options, some gotchas and edge cases.
+Then we'll discuss [loading the assets' image data](#Photo-Loading) – the process itself, multitudes of available options, some gotchas and edge cases.
 
-And finally we'll talk about observing changes made to the photo library by external actors and learn how to make and commit our own changes.
+And finally we'll talk about [observing changes](#The-Times-They-Are-A-Changin) made to the photo library by external actors and learn how to make and commit [our own changes](#Wind-of-Change).
 
 
 #PhotosKit Object Model
 PhotosKit defines an entity graph that models the objects presented to the user in the stock Photos.app. These *photo entities* are lightweight and immutable. All the PhotosKit objects inherit from the abstract `PHObject` base class, whose public interface only provides a `localIdentifier` property.
 
-`PHAsset` represents a single asset in the users photo library, providing the metadata for that asset **!Link to asset metadata section!**.
+`PHAsset` represents a single asset in the users photo library, providing the [metadata](#Photo-metadata) for that asset.
 
 Groups of assets are called asset collections and are represented by the `PHAssetCollection` class. A single asset collection can be an album or a moment in the photo library, as well as one of the special "smart albums". These include collections of all videos, "recently added", user's favorites, all burst photos [and more](https://developer.apple.com/library/prerelease/ios/documentation/Photos/Reference/PHAssetCollection_Class/index.html#//apple_ref/c/tdef/PHAssetCollectionSubtype). `PHAssetCollection` is a subclass of `PHCollection`.
 
 `PHCollectionList` represents a group of `PHCollection`s. Since it itself is a `PHCollection` a collection list can contain other collection lists, allowing for complex hierarchies of collections. In practice, this can be seen in the Moments tab in the Photos.app: Asset --- Moment --- Moment Cluster --- Moment Year.
 
-##Fetching
+##Fetching Photo Entities
 
-###vs. Enumerating
-Those familiar with the AssetsLibrary framework might remember that to be able to find assets with specific properties one has to **enumerate** through the users library and collect the matching assets. Granted, the API provided some ways of [narrowing down the search domain](https://developer.apple.com/library/ios/documentation/AssetsLibrary/Reference/ALAssetsGroup_Class/index.html#//apple_ref/occ/instm/ALAssetsGroup/setAssetsFilter:), but it still remains quite unwieldy.
+###Fetching vs. Enumerating
+Those familiar with the AssetsLibrary framework might remember that to be able to find assets with specific properties one has to *enumerate* through the users library and collect the matching assets. Granted, the API provided some ways of [narrowing down the search domain](https://developer.apple.com/library/ios/documentation/AssetsLibrary/Reference/ALAssetsGroup_Class/index.html#//apple_ref/occ/instm/ALAssetsGroup/setAssetsFilter:), but it still remains quite unwieldy.
 
-In contrast, PhotosKit entity instances are **fetched**. Those familiar with Core Data will recognize the approaches and concepts used and described here. 
+In contrast, PhotosKit entity instances are *fetched*. Those familiar with Core Data will recognize the approaches and concepts used and described here. 
 
-###Request
+###Fetch Request
 Fetches are made using the class methods of the entities described above. Which class/method to use depends on the problem domain and how you're representing and traversing the photo library. All of the fetch methods are named similarly: `class func fetchXXX(..., options: PHFetchOptions) -> PHFetchResult`. The `options` parameter gives us a way of filtering and ordering the returned results, similar to `NSFetchRequest`'s `predicate` and `sortDescriptors` parameters.
 
-###Result
+###Fetch Result
 
-You may have noticed that these fetch methods aren't asynchronous. Instead, they return a `PHFetchResult` object, which allows access to the underlying collection of results with an interface similar to `NSArray`. It will dynamically load its contents as needed and cache contents around the most recently requested value. This behavior is similar to the result array of a `NSFetchRequest` with a set `batchSize` property. There is no way to parametrize this behavior for `PHFetchResult`, but the documentation promises "*optimal performance even when handling a large number of results*".
+You may have noticed that these fetch methods aren't asynchronous. Instead, they return a `PHFetchResult` object, which allows access to the underlying collection of results with an interface similar to `NSArray`. It will dynamically load its contents as needed and cache contents around the most recently requested value. This behavior is similar to the result array of an `NSFetchRequest` with a set `batchSize` property. There is no way to parametrize this behavior for `PHFetchResult`, but the documentation promises "**optimal performance even when handling a large number of results**".
 
-The `PHFetchResult`s returned by the fetch methods will not be updated automatically if the photo library contents that match the request change. Observing changes and processing updates for a given `PHFetchResult` is described in a later chapter - *![LINK TO CHANGE OBSERVING CHAPTER]!*.
-
-
-#Transient collections
-You might find that you have designed a component that operates on a collection list, and yet you would like to be able to use it with an arbitrary set of asset collections. PhotosKit provides an easy way to do that using Transient collection lists and transient asset collections. 
-
-Transient collection lists are created explicitly by you from an array of `PHAssetCollection` objects or from a `PHFetchResult` containing asset collections. This is done using the `transientCollectionListWithCollections(...)` and `transientCollectionListWithFetchResult(...)` factory methods on `PHCollectionList`. The objects vended by these methods can be used just like any other `PHCollectionList`. Despite that, these collections aren't saved to the user's photos library and thus aren't displayed in the Photos.app.
-
-Similarly to collection lists, you can create transient asset collections by using the `transientAssetCollectionWithXXX(...)` factory methods on `PHAssetCollection`.
+The `PHFetchResult`s returned by the fetch methods will not be updated automatically if the photo library contents that match the request change. Observing changes and processing updates for a given `PHFetchResult` is [described in a later section](#The-Times-They-Are-A-Changin).
 
 
-#Photo metadata
+#Transient Collections
+You might find that you have designed a component that operates on an asset collection, and yet you would like to be able to use it with an arbitrary set of assets. PhotosKit provides an easy way to do that using transient asset collections. 
+
+Transient asset collections are created explicitly by you from an array of `PHAsset` objects or from a `PHFetchResult` containing assets. This is done using the `transientAssetCollectionWithAssets(...)` and `transientAssetCollectionWithFetchResult(...)` factory methods on `PHAssetCollection`. The objects vended by these methods can be used just like any other `PHAssetCollection`. Despite that, these collections aren't saved to the user's photos library and thus aren't displayed in the Photos.app.
+
+Similarly to asset collections, you can create transient collection lists by using the `transientCollectionListWithXXX(...)` factory methods on `PHCollectionList`.
+
+
+#Photo Metadata
 As mentioned in the beginning of this article, PhotosKit provides some additional metadata about user's assets that wasn't available in the past when using ALAssetsLibrary (or at least not as easily available).
 
 ##HDR, Panorama Photos
-You can use a photo asset's `mediaSubtypes` property to find out if the underlying image was captured with HDR enabled and whether  it was shot in the Camera.app's Panorama mode.
+You can use a photo asset's `mediaSubtypes` property to find out if the underlying image was captured with HDR enabled and whether or not it was shot in the Camera.app's Panorama mode.
 
 ##Favorite, Hidden Assets
 To find out if an asset was marked as favorite or was hidden by the user just inspect the `favorite` and `hidden` properties of the `PHAsset` instance.
 
-##Burst mode photos
+##Burst Mode Photos
 `PHAsset`'s `representsBurst` property is true for assets that are representative from a burst photo sequence (multiple photos taken while the user held down the shutter). It will also have a `burstIdentifier` value which can then be used to fetch the rest of the assets in that burst sequence via `fetchAssetsWithBurstIdentifier(...)`.
 
-The user can flag assets within a burst sequence, additionally the system uses various heuristics to mark potential user picks automatically. **! burst sequence picks screenshot from Photos.app !** This metadata is accessible via `PHAsset`'s `burstSelectionTypes` property - .AutoPick/.UserPick values.
+The user can flag assets within a burst sequence, additionally the system uses various heuristics to mark potential user picks automatically. This metadata is accessible via `PHAsset`'s `burstSelectionTypes` property - .AutoPick/.UserPick values. 
+
+![.AutoPick Example](http://cl.ly/image/3j1H0O2C0o3l) The screenshot shows how Photos.app automatically marks potential user picks in a burst sequence.
 
 
 
 #Photo Loading
 
-Over the years of working with the user's photo libraries developers have created hundreds if not thousands of tiny pipelines for efficient photo loading and display. These pipelines would deal with request dispatching and cancellation, image resizing and cropping, caching and more. PhotosKit provides a class that does all this with a convienent and modern API - `PHImageManager`. 
+Over the years of working with the user's photo libraries developers have created hundreds (if not thousands) of tiny pipelines for efficient photo loading and display. These pipelines would deal with request dispatching and cancellation, image resizing and cropping, caching and more. PhotosKit provides a class that does all this with a convienent and modern API - `PHImageManager`. 
 
-##Requesting images
+##Requesting Images
 
 Image requests are dispatched using the `requestImageForAsset(...)` method. The method takes in a `PHAsset`, desired sizing of the image and other options (via the `PHImageRequestOptions` parameter object), and a results handler. The returned value can be used to cancel the request if the requested data is no longer necessary. 
 
@@ -81,13 +95,13 @@ Curiously, the parameters regarding the sizing and cropping of the result image 
 Additionally, `PHImageRequestOptions` provides means of specifying *how* the image manager should resize. The `resizeMode` property can be set to .Exact (when the result image must match the target size), .Fast (more efficient than .Exact, but result image might differ from the target size) or .None. Furthermore, the `normalizedCroppingMode` property lets us specify how the image manager should crop the image. **NB. If `normalizedcroppingMode` is provided – set `resizeMode` to .Exact**
 
 ###Request Delivery and Progress
-By default the image manager will deliver a lower-quality version of your image before delivering the high-quality version if it decides that's the optimal strategy to use. You can control this behaviour through the `deliveryMode` property - the default behavior is .Opportunistic. Set it to .HighQualityFormat if you're only interested in the highest-quality of the image available and longer load times are acceptable. Use .FastFormat to load the image faster sacrificing the quality.
+By default the image manager will deliver a lower-quality version of your image before delivering the high-quality version if it decides that's the optimal strategy to use. You can control this behaviour through the `deliveryMode` property - the default behavior described above is .Opportunistic. Set it to .HighQualityFormat if you're only interested in the highest-quality of the image available and longer load times are acceptable. Use .FastFormat to load the image faster sacrificing the quality.
 
-You can make the `requestImage...` method synchronous using the `synchronous` property on `PHImageRequestOptions`. **NB. When `synchronous` is set to YES/true, the `deliveryMode` property is ignored and considered to be set to .HighQualityFormat**. 
+You can make the `requestImage...` method synchronous using the `synchronous` property on `PHImageRequestOptions`. **NB. When `synchronous` is set to true, the `deliveryMode` property is ignored and considered to be set to .HighQualityFormat**. 
 
-When setting these parameters it is important to always consider that some of your users might have iCloud Photo Library enabled. The PhotosKit API practically doesn't distinguish photos available on-device from those available in the cloud – they are all loaded using the same `requestImage` method. This means, that every single of your image requests may potentially be a slow network request over the cellular network. Keep this in mind when considering using .HighQualityFormat and/or making your requests synchronous. **NB. If you want to make sure that the request doesn't hit the network – set networkAccessAllowed**
+When setting these parameters it is important to always consider that some of your users might have iCloud Photo Library enabled. The PhotosKit API practically doesn't distinguish photos available on-device from those available in the cloud – they are all loaded using the same `requestImage` method. This means, that every single of your image requests may potentially be a slow network request over the cellular network. Keep this in mind when considering using .HighQualityFormat and/or making your requests synchronous. **NB. If you want to make sure that the request doesn't hit the network – set networkAccessAllowed to false**
 
-Another iCloud-related property is `progressHandler`. You can set it to a [`PHAssetImageProgressHandler`](https://developer.apple.com/library/ios/documentation/Photos/Reference/PHImageRequestOptions_Class/index.html#//apple_ref/doc/c_ref/PHAssetImageProgressHandler) block to that will be called by the image manager when downloading the photo from iCloud.
+Another iCloud-related property is `progressHandler`. You can set it to a [`PHAssetImageProgressHandler`](https://developer.apple.com/library/ios/documentation/Photos/Reference/PHImageRequestOptions_Class/index.html#//apple_ref/doc/c_ref/PHAssetImageProgressHandler) block that will be called by the image manager when downloading the photo from iCloud.
 
 ###Asset Versions
 PhotosKit provides a framework for applying non-destructive adjustments to the original asset image data. This lets developers build non-filters and various other editing tools, photo editing extensions that live right within the standard Photos.app and gives users the peace of mind that they can always go back to the original image.
@@ -95,7 +109,7 @@ PhotosKit provides a framework for applying non-destructive adjustments to the o
 When fetching assets using the image manager, you can specify which version of the image asset should be delivered via the result handler. This is done by setting the `version` property:
 .Current will deliver the image with all adjustments applied to it; .Unadjusted delivers the image before any adjustments are applied to it; and .Original delivers the image in its original, highest-quality format (e.g. RAW vs JPEG delivered when using .Unadjusted).
 
-... **!possibly link to the relevant article in this issue!**
+You can read more about this aspect of the framework in Sam Davies' [article on Photo Extensions](2015-02-09-photo-extensions.md).
 
 ##Result Handler
 The result handler is a block that takes in a `UIImage` and an `info` dictionary. It can be called by the image manager multiple times throughout the lifetime of the request, depending on the parameters and the request options.
@@ -109,48 +123,53 @@ The `info` dictionary provides information about the current status of the reque
 These values let you update your UI to inform your user and, together with the `progressHandler` discussed above, hint at the loading state of their images.
 
 ##Caching
-At times it's useful to load some images into memory prior to the moment that they are going to be shown on the screen, for example when displaying a screen with a large numbers of asset thumbnails in a scrolling collection. PhotosKit provides a `PHImageManager` subclass that deals with that specific use case – `PHImageCachingManager`. 
+At times it's useful to load some images into memory prior to the moment when they are going to be shown on the screen, for example when displaying a screen with a large numbers of asset thumbnails in a scrolling collection. PhotosKit provides a `PHImageManager` subclass that deals with that specific use case – `PHImageCachingManager`. 
 
-`PHImageCachingManager` provides a single key method – `startCachingImagesForAssets(...)`. You pass in an array of PHAssets and parameters and options that should match those you're going to use later when requesting individual images. Additionally, there are methods that you can use to inform the caching manager to stop caching images for a list of specific assets and to stop caching all images. 
+`PHImageCachingManager` provides a single key method – `startCachingImagesForAssets(...)`. You pass in an array of `PHAsset`s, the request parameters and options that should match those you're going to use later when requesting individual images. Additionally, there are methods that you can use to inform the caching manager to stop caching images for a list of specific assets and to stop caching all images. 
 
 The `allowsCachingHighQualityImages` property lets you specify whether the image manager should perpare images at high quality. When caching a relatively short and unchanging list of assets the default `true` value should work just fine. For large collections and when you're trying to precache images while the user is scrolling quickly - it might be better to only cache lower quality images.
 
 ##Requesting Image Data
-Finally, in addition to requesting plain old UIImages, `PHImageManager` provides another method with returns the asset data as an NSData object, its universal type identifier and the display orientation of the image. This method returns the largest available representation of the asset.
+Finally, in addition to requesting plain old UIImages, `PHImageManager` provides another method which returns the asset data as an NSData object, its universal type identifier and the display orientation of the image. This method returns the largest available representation of the asset.
 
 
 #The Times They Are A-Changin'
 We have discussed requesting metadata of assets in the user's photo library, but we haven't covered how to keep our fetched data up-to-date. The photo library is essentially a big bag of mutable state and yet the photo entities covered in the first section are immutable. PhotosKit has a special process for receiving notifications about changes to the photo library and subsequently update your cached state.
 
-## Change observing
+##Change Observing
 Firstly, you need to register a change observer (conforming to the `PHPhotoLibraryChangeObserver` protocol) with the shared `PHPhotoLibrary` object using the `registerChangeObserver(...)` method. The change observer's `photoLibraryDidChange(...)` method will be called whenever another app or the user makes a change in the photo library **that affects any assets or collections that you fetched prior to the change**. The method has a single parameter of type `PHChange` which you can use to find out if the changes are related to any of the fetched objects that you are interested in.
 
-## Updating your cached state
+##Updating Fetch Results
 `PHChange` provides methods you can call with any `PHObject`s or `PHFetchResult`s whose changes you are interested in tracking – `changeDetailsForObject(...)` and `changeDetailsForFetchResult(...)`. If there are no changes these methods will return `nil`, otherwise you will be vended a `PHObjectChangeDetails` or `PHFetchResultChangeDetails` object.
 
 `PHObjectChangeDetails` provides a reference to an updated photo entity object as well as boolean flags telling you whether the object's image data was changed and whether the object was deleted.
 
-`PHFetchResultChangeDetails` encapsulates information about changes to a `PHFetchResult` that you have previously received after a fetch. Its properties map well to updating such UI as a collection view or a table view. *Note that to update `UITableView`/`UICollectionView` correctly you **must** process the changes in the correct order: **RICE** – *r*emovedIndexes, *i*nsertedIndexes, *c*hangedIndexes, *e*numerateMovesWithBlock (if `hasMoves` is true).* Furthermore, the `hasIncrementalChanges` property of the change details can be set to `false`, meaning that the old fetch result should just be replaced by the change value as a whole. You should call `reloadData` on your `UITableView`/`UICollectionView` in such cases.
+`PHFetchResultChangeDetails` encapsulates information about changes to a `PHFetchResult` that you have previously received after a fetch. Its properties map well to updating such UI as a collection view or a table view. *Note that to update `UITableView`/`UICollectionView` correctly you **must** process the changes in the correct order: **RICE** – **r**emovedIndexes, **i**nsertedIndexes, **c**hangedIndexes, **e**numerateMovesWithBlock (if `hasMoves` is true).* Furthermore, the `hasIncrementalChanges` property of the change details can be set to `false`, meaning that the old fetch result should just be replaced by the change value as a whole. You should call `reloadData` on your `UITableView`/`UICollectionView` in such cases.
 
-There is no need to make change processing centralized. If there are multiple components of your application that deal with photo entities each of them could have have its own `PHPhotoLibraryChangeObserver`. The components then query the `PHChange` objects on their own to find out if (and how) they need to update their own state.
+**NB.** There is no need to make change processing centralized. If there are multiple components of your application that deal with photo entities, then each of them could have have its own `PHPhotoLibraryChangeObserver`. The components can then query the `PHChange` objects on their own to find out if (and how) they need to update their own state.
 
 
 #Wind of Change
 Now that we know how to observe changes made by the user and other applications, we should try making our own!
 
-### Changing existing objects
-Performing changes on the photo library using PhotosKit boils down to creating a change request object linked to one of the assets or asset collections and setting relevant properties on the request object or calling appropriate methods describing the changes you want to commit. This has to happen within a block submitted to the shared `PHPhotoLibrary` via the `performChanges(...)` method. 
+###Changing Existing Objects
+Performing changes on the photo library using PhotosKit boils down to creating a change request object linked to one of the assets or asset collections and setting relevant properties on the request object or calling appropriate methods describing the changes you want to commit. This has to happen within a block submitted to the shared `PHPhotoLibrary` via the `performChanges(...)` method. *NB. You should be prepared to handle failure in the completion block passed to the `performChanges` method.* This approach provides safety and relative ease of use while working with state that can be changed by multiple actors - your application, the user, other applications and photo extensions.
 
-### Creating new objects
-Creating new assets is implemented similarly, just use the appropriate `creationRequestForAssetFromXXX(...)` factory method when creating the change request and pass the asset image data (or a URL) into it. If you need to make additional changes related to the newly created asset, you can use the creation change request's `placeholderForCreatedAsset` property. It returns a placeholder which can be used in lieu of a reference to a "real" PHAsset.
+To modify assets, create a [`PHAssetChangeRequest`](https://developer.apple.com/library/ios/documentation/Photos/Reference/PHAssetChangeRequest_Class/index.html#//apple_ref/occ/cl/PHAssetChangeRequest). You can then modify the creation date, the asset's location and whether or not it should be hidden and considered a user's favorite. Additionally, you can delete the asset from the user's library.
 
-### Asset content editing
-**!LINK TO THE RELEVANT ARTICLE IN THIS ISSUE!**
+Similarly, to modify asset collections or collection lists, create a [`PHAssetCollectionChangeRequest`](https://developer.apple.com/library/ios/documentation/Photos/Reference/PHAssetCollectionChangeRequest_Class/index.html#//apple_ref/occ/cl/PHAssetCollectionChangeRequest) or a [`PHCollectionListChangeRequest`](https://developer.apple.com/library/ios/documentation/Photos/Reference/PHCollectionListChangeRequest_Class/index.html#//apple_ref/occ/cl/PHCollectionListChangeRequest). You can then modify the collection title, add or remove members of the collection, or delete the collection altogether.
 
-----------------------------------------------
+**Note that before your changes are committed to the user's library, an alert might be shown to acquire explicit authorization from the user.**
 
-##Swift (and code?)
-**!Annoyances when using the PhotosKit API from Swift (namely PHFetchResult)!**
+###Creating New Objects
+Creating new assets is done similarly to changing existing assets. Just use the appropriate `creationRequestForAssetFromXXX(...)` factory method when creating the change request and pass the asset image data (or a URL) into it. If you need to make additional changes related to the newly created asset, you can use the creation change request's `placeholderForCreatedAsset` property. It returns a placeholder which can be used in lieu of a reference to a "real" `PHAsset`.
+
 
 #Conclusion
-**!Recap. An inspiring paragraph about new possibilities**!
+We have discussed the basics of PhotosKit, but there is still a lot to be discovered. You should learn more by [poking around the sample code](https://developer.apple.com/library/ios/samplecode/UsingPhotosFramework/Introduction/Intro.html#//apple_ref/doc/uid/TP40014575), watching the [WWDC session video](https://developer.apple.com/videos/wwdc/2014/?id=511) and just diving in and writing some code of your own! PhotosKit enabled a new world of possibilities for iOS developers and we are sure to see more creative and clever products built on its foundations in the coming months and years.
+
+
+
+
+
+
