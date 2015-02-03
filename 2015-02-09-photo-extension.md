@@ -1,5 +1,5 @@
 ---
-title:  "Photo Extension"
+title:  "Photo Extensions"
 category: "21"
 date: "2015-02-09 09:00:00"
 tags: article
@@ -31,7 +31,7 @@ associated with creating photo editing extensions.
 The __Filtster__ project, which accompanies this article, demonstrates how you
 can set up your own image editing extension. It represents a really simple image
 filtering process, using a couple of Core Image filters. You can get hold of the
-complete __Filtster__ project on Github at 
+complete __Filtster__ project on Github at
 [github.com/sammyd/Filtster](https://github.com/sammyd/Filtster).
 
 ## Creating an extension
@@ -109,7 +109,7 @@ editing.
 
 When a user chooses to edit an image using your extension, the system will
 instantiate your view controller and initiates the photo editing lifecycle. If
-the photo has previously been edited, this will first call the 
+the photo has previously been edited, this will first call the
 `canHandleAdjustmentData(_:)` method, in which you are provided a
 `PHAdjustmentData` object. From this you determine whether or not your
 extension can handle the previous edit data. This determines what the framework
@@ -128,17 +128,19 @@ extension remains responsive and energy efficient.
 
 The following shows an implementation of this method:
 
-    func startContentEditingWithInput(contentEditingInput: PHContentEditingInput?,
-                                      placeholderImage: UIImage) {
-      input = contentEditingInput
-      filter.inputImage = CIImage(image: input?.displaySizeImage)
-      if let adjustmentData = contentEditingInput?.adjustmentData {
-        filter.importFilterParameters(adjustmentData.data)
-      }
-      
-      vignetteIntensitySlider.value = Float(filter.vignetteIntensity)
-      ...
-    }
+```swift
+func startContentEditingWithInput(contentEditingInput: PHContentEditingInput?,
+                                  placeholderImage: UIImage) {
+  input = contentEditingInput
+  filter.inputImage = CIImage(image: input?.displaySizeImage)
+  if let adjustmentData = contentEditingInput?.adjustmentData {
+    filter.importFilterParameters(adjustmentData.data)
+  }
+
+  vignetteIntensitySlider.value = Float(filter.vignetteIntensity)
+  ...
+}
+```
 
 The above implementation stores the `contentEditingInput` since it's required to
 complete the edit, as well as importing the filter parameters from the
@@ -165,7 +167,7 @@ then the `shouldShowCancelConfirmation` property should be overridden to return
 `true`.
 
 ![Confirm Cancellation](http://cl.ly/image/3I3J3t1C2I3K/confirm_cancel.png)
- 
+
 If the cancellation is requested then the `cancelContentEditing` method is
 called to allow you to clear up any temporary data that you've created.
 
@@ -185,33 +187,35 @@ To complete editing, the supplied callback should be invoked with a
 output object also includes a `renderedContentURL` property which specifies
 where you should write the output JPEG data.
 
-    func finishContentEditingWithCompletionHandler(completionHandler: ((PHContentEditingOutput!) -> Void)!) {
-      // Render and provide output on a background queue.
-      dispatch_async(dispatch_get_global_queue(CLong(DISPATCH_QUEUE_PRIORITY_DEFAULT), 0)) {
-        // Create editing output from the editing input.
-        let output = PHContentEditingOutput(contentEditingInput: self.input)
-        
-        // Provide new adjustments and render output to given location.
-        let adjustmentData = PHAdjustmentData(formatIdentifier: self.filter.filterIdentifier,
-          formatVersion: self.filter.filterVersion, data: self.filter.encodeFilterParameters())
-        output.adjustmentData = adjustmentData
-        
-        // Write the JPEG data
-        let fullSizeImage = CIImage(contentsOfURL: self.input?.fullSizeImageURL)
-        UIGraphicsBeginImageContext(fullSizeImage.extent().size);
-        self.filter.inputImage = fullSizeImage
-        UIImage(CIImage: self.filter.outputImage)?.drawInRect(fullSizeImage.extent())
-        
-        let outputImage = UIGraphicsGetImageFromCurrentImageContext()
-        let jpegData = UIImageJPEGRepresentation(outputImage, 1.0)
-        UIGraphicsEndImageContext()
-        
-        jpegData.writeToURL(output.renderedContentURL, atomically: true)
-        
-        // Call completion handler to commit edit to Photos.
-        completionHandler?(output)
-      }
-    }
+```swift
+func finishContentEditingWithCompletionHandler(completionHandler: ((PHContentEditingOutput!) -> Void)!) {
+  // Render and provide output on a background queue.
+  dispatch_async(dispatch_get_global_queue(CLong(DISPATCH_QUEUE_PRIORITY_DEFAULT), 0)) {
+    // Create editing output from the editing input.
+    let output = PHContentEditingOutput(contentEditingInput: self.input)
+
+    // Provide new adjustments and render output to given location.
+    let adjustmentData = PHAdjustmentData(formatIdentifier: self.filter.filterIdentifier,
+      formatVersion: self.filter.filterVersion, data: self.filter.encodeFilterParameters())
+    output.adjustmentData = adjustmentData
+
+    // Write the JPEG data
+    let fullSizeImage = CIImage(contentsOfURL: self.input?.fullSizeImageURL)
+    UIGraphicsBeginImageContext(fullSizeImage.extent().size);
+    self.filter.inputImage = fullSizeImage
+    UIImage(CIImage: self.filter.outputImage)?.drawInRect(fullSizeImage.extent())
+
+    let outputImage = UIGraphicsGetImageFromCurrentImageContext()
+    let jpegData = UIImageJPEGRepresentation(outputImage, 1.0)
+    UIGraphicsEndImageContext()
+
+    jpegData.writeToURL(output.renderedContentURL, atomically: true)
+
+    // Call completion handler to commit edit to Photos.
+    completionHandler?(output)
+  }
+}
+```
 
 Once the call to the `completionHandler` has returned then you can clear up any
 temporary data and files ready for the extension to return.
@@ -246,30 +250,36 @@ framework.
 For non-complex extensions (such as __Filtster__) this can be as simple as an
 archived dictionary, which can be written as follows:
 
-    public func encodeFilterParameters() -> NSData {
-      var dataDict = [String : AnyObject]()
-      dataDict["vignetteIntensity"] = vignetteIntensity
-      ...
-      return NSKeyedArchiver.archivedDataWithRootObject(dataDict)
-    }
+```swift
+public func encodeFilterParameters() -> NSData {
+  var dataDict = [String : AnyObject]()
+  dataDict["vignetteIntensity"] = vignetteIntensity
+  ...
+  return NSKeyedArchiver.archivedDataWithRootObject(dataDict)
+}
+```
 
 And then re-interpreted with:
 
-    public func importFilterParameters(data: NSData?) {
-      if let data = data {
-        if let dataDict = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? [String : AnyObject] {
-          vignetteIntensity = dataDict["vignetteIntensity"] as? Double ?? vignetteIntensity
-          ...
-        }
-      }
+```swift
+public func importFilterParameters(data: NSData?) {
+  if let data = data {
+    if let dataDict = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? [String : AnyObject] {
+      vignetteIntensity = dataDict["vignetteIntensity"] as? Double ?? vignetteIntensity
+      ...
     }
+  }
+}
+```
 
 Here, these two methods are on the shared `FilsterFilter` class, which is also
 responsible for determining compatibility of the adjustment data:
 
-    public func supportsFilterIdentifier(identifier: String, version: String) -> Bool {
-      return identifier == filterIdentifier && version == filterVersion
-    }
+```
+public func supportsFilterIdentifier(identifier: String, version: String) -> Bool {
+  return identifier == filterIdentifier && version == filterVersion
+}
+```
 
 If you have a more complex requirements then you could create a custom settings
 class which adopts the `NSCoding` protocol to allow it to be archived in a
@@ -365,8 +375,8 @@ eliminating the requirement for intermediate buffers.
 Since image editing is expected to have high memory requirements, it seems that
 the extensions are given a little more leeway than other extension types. During
 ad-hoc testing, it appears to be possible for an image editing extension to use
-over 100MB. Given that an uncompressed image from an 8 megapixel camera is
-approximately 22MB, most image editing should be achievable.
+over 100 MB. Given that an uncompressed image from an 8 megapixel camera is
+approximately 22 MB, most image editing should be achievable.
 
 
 ## Conclusion
@@ -391,4 +401,3 @@ the image algorithm design and optimization.
 
 It remains to be seen how many users are aware of these 3rd party image editing
 extensions, but they have the potential to increase your app's exposure.
-
