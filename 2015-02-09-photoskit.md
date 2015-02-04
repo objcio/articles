@@ -14,7 +14,7 @@ PhotosKit: A Primer
 #Introduction 
 Every day, [more photos are taken with the iPhone](https://www.flickr.com/cameras#brands) than any other camera. Displays on iOS devices get better every year, but even back in the pre-Retina era [when the iPad was introduced](http://youtu.be/_KN-5zmvjAo?t=17m7s) one of its killer uses was just displaying users' photos and exploring the photo library. It is very important for developers to be able to make use of the wealth of the users' photo libraries.
 
-Until last summer, developers have been using the AssetsLibrary framework to access users' ever-growing photo libraries. Over the years Camera.app and Photos.app have changed significantly, adding new features and even a new way of organizing photos by moments. Meanwhile the AssetsLibrary framework lagged behind. 
+Until last summer, developers have been using the [AssetsLibrary framework](https://developer.apple.com/library/ios/documentation/AssetsLibrary/Reference/ALAssetsLibrary_Class/#//apple_ref/doc/uid/TP40009722-CH1-SW57) to access users' ever-growing photo libraries. Over the years Camera.app and Photos.app have changed significantly, adding new features and even a new way of organizing photos by moments. Meanwhile the AssetsLibrary framework lagged behind. 
 
 With iOS 8 Apple have given us PhotosKit – a modern framework which provides more features and better performance than AssetsLibrary.
 
