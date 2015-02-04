@@ -44,6 +44,8 @@ Core Image filters are created by name. To get a list of system filters, we ask 
 let filterNames = CIFilter.filterNamesInCategory(kCICategoryBuiltIn) as [String]
 ```
 
+The list of filters available on iOS is very nearly a subset of the filters available on OS X. On the Mac there are 169 built-in filters, while on iOS there are 127.
+
 ### Creating a Filter by Name
 
 Now that we have a list of available filters, we can create and use a filter. For example, to create a Gaussian blur filter, we pass the filter name to the appropriate `CIFilter` initializer:
@@ -138,7 +140,7 @@ Filters have a property named `outputImage`. As you might guess, it has type `CI
 The simplest way to create a context is to pass a nil options dictionary to its constructor:
 
 ```
-let context = CIContext(options: nil)
+let ciContext = CIContext(options: nil)
 ```
 
 To get an image out of the filter graph, we ask our `CIContext` to create a `CGImage` from a rect in the output image, passing the extent (bounds) of the input image.
@@ -156,6 +158,33 @@ let uiImage = UIImage(CGImage: cgImage)
 ```
 
 It is possible to create a `UIImage` directly from a `CIImage`, but this approach is fraught: if you try to display such an image in a `UIImageView`, its `contentMode` property will be ignored. Using an intermediate `CGImage` takes an extra step, but obviates this annoyance.
+
+### Improving Performance with OpenGL
+
+It's time-consuming and wasteful to use the CPU to draw a `CGImage`, only to hand the result right back to UIKit for compositing. We'd prefer to be able to draw the filtered image to the screen without having to take a trip through Core Graphics. Fortunately, because of the interoperability of OpenGL and Core Image, we can do exactly that.
+
+To share resources between an OpenGL context and a Core Image context, we need to create our `CIContext` in a slightly different way:
+
+```
+let eaglContext = EAGLContext(API: .OpenGLES2)
+let ciContext = CIContext(EAGLContext: context)
+```
+
+Here, we create an `EAGLContext` with the OpenGL ES 2.0 feature set. This GL context can be used as the backing context for a `GLKView` or for drawing into a `CAEAGLLayer`. The sample code uses this technique to draw images efficiently.
+
+When a `CIContext` has an associated GL context, a filtered image can be drawn with OpenGL using the following call:
+
+```
+ciContext.drawImage(filter.outputImage, inRect: outputBounds, fromRect: inputBounds)
+```
+
+As before, the `fromRect` parameter is the portion of the image to draw, in the filtered image's coordinate space. The `inRect` parameter is the rectangle in the coordinate space of the GL context into which the image should be drawn. If you want to respect the aspect ratio of the image, you may need to do some math to compute the appropriate `inRect`.
+
+### Forcing Filtering onto the CPU
+
+Whenever possible, Core Image will perform filtering on the GPU. However, it does have the ability to fall back to the CPU. Filtering done on the CPU may have better accuracy, since GPUs often exchange some fidelity for speed in their floating-point calculations. You can force Core Image to run on the CPU by setting the value of the `kCIContextUseSoftwareRenderer` key in the options dictionary to  `true` when creating a context.
+
+You can determine whether a CPU or GPU renderer is in use by setting the `CI_PRINT_TREE` environment variable to `1` in your scheme configuration in Xcode. This will cause Core Image to print diagnostic information every time a filtered image is rendered. This setting is useful for examining the composed image filter tree as well.
 
 ## A Tour of the Sample App
 
@@ -177,25 +206,6 @@ In addition to numerous other built-in filters, the sample app demonstrates the 
 
 ![Image processed with the Transfer photo filter](http://warrenmoore.net/files/cipreview/photo-filters.png)
 
-### Getting Off the Main Thread
-
-Image processing is intensive work for the hardware. It is preferable to keep as much of this work off the main thread as possible, in order to keep the user interface responsive. `CIContext`s and `CIImage`s are immutable, and can be shared among threads. `CIFilter`s require more care, since they are mutable, and simultaneously using and mutating them can easily cause undefined behavior.
-
-The easiest way to offload a `CIFilter` from the main thread is to use Grand Central Dispatch (GCD). By performing the filtering work in a `dispatch_async` block on one of the global queues (or your own dedicated queue), the main thread doesn't hang while the image is filtered. Once the image is filtered and converted to a more easily-consumed format, such as `CGImage`, we can `dispatch_async` back to the main queue and display it in a `UIImageView` or similar. The general pattern looks like this:
-
-```
-let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)
-dispatch_async(queue, { () -> Void in
-    if let outputImage = filter.outputImage {
-        let cgImage = ciContext.createCGImage(outputImage, fromRect: inputImage.extent())
-        let uiImage = UIImage(CGImage: cgImage)
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            // update user interface
-        })
-    }
-})
-```
-
 ## Conclusion
 
 This article has been a brief introduction to Core Image, a framework for high-performance image processing. We've tried to cover as many features of the framework as practically possible in this short format. You've learned how to instantiate and wire together Core Image filters, get images into and out of filter graphs, and tune parameters to get the desired outcome. You also learned how to access the system-provided photo filters, with which you can emulate the behavior of the Photos app on iOS. 
@@ -207,3 +217,5 @@ You now know enough to go out and write your own photo editing applications. Wit
 The [Core Image Reference Collection](https://developer.apple.com/library/mac/documentation/GraphicsImaging/Reference/CoreImagingRef/_index.html#//apple_ref/doc/uid/TP40001171) is the canonical set of documentation on Core Image.
 
 The [Core Image Filter Reference](https://developer.apple.com/library/ios/documentation/GraphicsImaging/Reference/CoreImageFilterReference/index.html#//apple_ref/doc/uid/TP40004346) contains a comprehensive list of the image filters available in Core Image, along with usage examples.
+
+For a take on writing Core Image code in a more functional style, see Florian Kluger's [article in objc.io issue #16](http://www.objc.io/issue-16/functional-swift-apis.html).
