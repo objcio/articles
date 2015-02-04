@@ -41,7 +41,7 @@ Groups of assets are called asset collections and are represented by the `PHAsse
 ##Fetching Photo Entities
 
 ###Fetching vs. Enumerating
-Those familiar with the AssetsLibrary framework might remember that to be able to find assets with specific properties one has to *enumerate* through the users library and collect the matching assets. Granted, the API provided some ways of [narrowing down the search domain](https://developer.apple.com/library/ios/documentation/AssetsLibrary/Reference/ALAssetsGroup_Class/index.html#//apple_ref/occ/instm/ALAssetsGroup/setAssetsFilter:), but it still remains quite unwieldy.
+Those familiar with the AssetsLibrary framework might remember that to be able to find assets with specific properties one has to *enumerate* through the user's library and collect the matching assets. Granted, the API provided some ways of [narrowing down the search domain](https://developer.apple.com/library/ios/documentation/AssetsLibrary/Reference/ALAssetsGroup_Class/index.html#//apple_ref/occ/instm/ALAssetsGroup/setAssetsFilter:), but it still remains quite unwieldy.
 
 In contrast, PhotosKit entity instances are *fetched*. Those familiar with Core Data will recognize the approaches and concepts used and described here. 
 
@@ -83,7 +83,7 @@ The user can flag assets within a burst sequence, additionally the system uses v
 
 #Photo Loading
 
-Over the years of working with the user's photo libraries developers have created hundreds (if not thousands) of tiny pipelines for efficient photo loading and display. These pipelines would deal with request dispatching and cancellation, image resizing and cropping, caching and more. PhotosKit provides a class that does all this with a convienent and modern API - `PHImageManager`. 
+Over the years of working with the user's photo libraries developers have created hundreds (if not thousands) of tiny pipelines for efficient photo loading and display. These pipelines would deal with request dispatching and cancellation, image resizing and cropping, caching and more. PhotosKit provides a class that does all this with a convenient and modern API — `PHImageManager`. 
 
 ##Requesting Images
 
