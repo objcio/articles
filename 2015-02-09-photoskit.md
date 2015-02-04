@@ -75,7 +75,7 @@ To find out if an asset was marked as favorite or was hidden by the user just in
 ##Burst Mode Photos
 `PHAsset`'s `representsBurst` property is true for assets that are representative from a burst photo sequence (multiple photos taken while the user held down the shutter). It will also have a `burstIdentifier` value which can then be used to fetch the rest of the assets in that burst sequence via `fetchAssetsWithBurstIdentifier(...)`.
 
-The user can flag assets within a burst sequence, additionally the system uses various heuristics to mark potential user picks automatically. This metadata is accessible via `PHAsset`'s `burstSelectionTypes` property - .AutoPick/.UserPick values. 
+The user can flag assets within a burst sequence, additionally the system uses various heuristics to mark potential user picks automatically. This metadata is accessible via `PHAsset`'s `burstSelectionTypes` property — .AutoPick/.UserPick values. 
 
 ![.AutoPick Example](http://f.cl.ly/items/3A0f0e3D0m0K20330R04/IMG_1637.PNG) The screenshot shows how Photos.app automatically marks potential user picks in a burst sequence.
 
@@ -90,16 +90,16 @@ Over the years of working with the user's photo libraries developers have create
 Image requests are dispatched using the `requestImageForAsset(...)` method. The method takes in a `PHAsset`, desired sizing of the image and other options (via the `PHImageRequestOptions` parameter object), and a results handler. The returned value can be used to cancel the request if the requested data is no longer necessary. 
 
 ###Image Sizing and Cropping
-Curiously, the parameters regarding the sizing and cropping of the result image are spread across two places. The `targetSize` and and `contentMode` parameters are passed directly into the `requestImageForAsset(...)` method. The content mode describes whether the photo should be aspect-fitted or aspect-filled into the target size, similar to UIView's contentMode. **NB. If the photo should not be resized or cropped - pass PHImageManagerMaximumSize and PHImageContentMode.Default**
+Curiously, the parameters regarding the sizing and cropping of the result image are spread across two places. The `targetSize` and and `contentMode` parameters are passed directly into the `requestImageForAsset(...)` method. The content mode describes whether the photo should be aspect-fitted or aspect-filled into the target size, similar to UIView's contentMode. **NB. If the photo should not be resized or cropped, pass `PHImageManagerMaximumSize` and `PHImageContentMode.Default`**
 
-Additionally, `PHImageRequestOptions` provides means of specifying *how* the image manager should resize. The `resizeMode` property can be set to .Exact (when the result image must match the target size), .Fast (more efficient than .Exact, but result image might differ from the target size) or .None. Furthermore, the `normalizedCroppingMode` property lets us specify how the image manager should crop the image. **NB. If `normalizedcroppingMode` is provided – set `resizeMode` to .Exact**
+Additionally, `PHImageRequestOptions` provides means of specifying *how* the image manager should resize. The `resizeMode` property can be set to .Exact (when the result image must match the target size), .Fast (more efficient than .Exact, but result image might differ from the target size) or .None. Furthermore, the `normalizedCroppingMode` property lets us specify how the image manager should crop the image. **NB. If `normalizedcroppingMode` is provided, set `resizeMode` to .Exact**
 
 ###Request Delivery and Progress
 By default the image manager will deliver a lower-quality version of your image before delivering the high-quality version if it decides that's the optimal strategy to use. You can control this behaviour through the `deliveryMode` property - the default behavior described above is .Opportunistic. Set it to .HighQualityFormat if you're only interested in the highest-quality of the image available and longer load times are acceptable. Use .FastFormat to load the image faster sacrificing the quality.
 
 You can make the `requestImage...` method synchronous using the `synchronous` property on `PHImageRequestOptions`. **NB. When `synchronous` is set to true, the `deliveryMode` property is ignored and considered to be set to .HighQualityFormat**. 
 
-When setting these parameters it is important to always consider that some of your users might have iCloud Photo Library enabled. The PhotosKit API practically doesn't distinguish photos available on-device from those available in the cloud – they are all loaded using the same `requestImage` method. This means, that every single of your image requests may potentially be a slow network request over the cellular network. Keep this in mind when considering using .HighQualityFormat and/or making your requests synchronous. **NB. If you want to make sure that the request doesn't hit the network – set networkAccessAllowed to false**
+When setting these parameters it is important to always consider that some of your users might have iCloud Photo Library enabled. The PhotosKit API practically doesn't distinguish photos available on-device from those available in the cloud – they are all loaded using the same `requestImage` method. This means, that every single of your image requests may potentially be a slow network request over the cellular network. Keep this in mind when considering using .HighQualityFormat and/or making your requests synchronous. **NB. If you want to make sure that the request doesn't hit the network, set networkAccessAllowed to false**
 
 Another iCloud-related property is `progressHandler`. You can set it to a [`PHAssetImageProgressHandler`](https://developer.apple.com/library/ios/documentation/Photos/Reference/PHImageRequestOptions_Class/index.html#//apple_ref/doc/c_ref/PHAssetImageProgressHandler) block that will be called by the image manager when downloading the photo from iCloud.
 
@@ -117,7 +117,7 @@ The result handler is a block that takes in a `UIImage` and an `info` dictionary
 The `info` dictionary provides information about the current status of the request:
 * whether the image has to be requested from iCloud (in which case you're going to have to re-request the image if you initially set `networkAccessAllowed` to false) – `PHImageResultIsInCloudKey`.
 * whether the currently delivered `UIImage` is the degraded form of the final result. This lets you display a preview of the image to the user, while the higher-quality image is being downloaded - `PHImageResultIsDegradedKey`.
-* the request ID (convenience for cancelling the request) and whether the request was already cancel – `PHImageResultRequestIDKey` and `PHImageCancelledKey`.
+* the request ID (convenience for cancelling the request) and whether the request has already been canceled – `PHImageResultRequestIDKey` and `PHImageCancelledKey`.
 * an error, if an image wasn't provided to the result handler – PHImageErrorKey
 
 These values let you update your UI to inform your user and, together with the `progressHandler` discussed above, hint at the loading state of their images.
@@ -134,7 +134,7 @@ Finally, in addition to requesting plain old UIImages, `PHImageManager` provides
 
 
 #The Times They Are A-Changin'
-We have discussed requesting metadata of assets in the user's photo library, but we haven't covered how to keep our fetched data up-to-date. The photo library is essentially a big bag of mutable state and yet the photo entities covered in the first section are immutable. PhotosKit has a special process for receiving notifications about changes to the photo library and subsequently update your cached state.
+We have discussed requesting metadata of assets in the user's photo library, but we haven't covered how to keep our fetched data up-to-date. The photo library is essentially a big bag of mutable state and yet the photo entities covered in the first section are immutable. PhotosKit lets you receive notifications about changes to the photo library together with all the information you need to correctly update your cached state.
 
 ##Change Observing
 Firstly, you need to register a change observer (conforming to the `PHPhotoLibraryChangeObserver` protocol) with the shared `PHPhotoLibrary` object using the `registerChangeObserver(...)` method. The change observer's `photoLibraryDidChange(...)` method will be called whenever another app or the user makes a change in the photo library **that affects any assets or collections that you fetched prior to the change**. The method has a single parameter of type `PHChange` which you can use to find out if the changes are related to any of the fetched objects that you are interested in.
