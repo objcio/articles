@@ -129,7 +129,9 @@ At times it's useful to load some images into memory prior to the moment when th
 
 `PHImageCachingManager` provides a single key method – `startCachingImagesForAssets(...)`. You pass in an array of `PHAsset`s, the request parameters and options that should match those you're going to use later when requesting individual images. Additionally, there are methods that you can use to inform the caching manager to stop caching images for a list of specific assets and to stop caching all images. 
 
-The `allowsCachingHighQualityImages` property lets you specify whether the image manager should prepare images at high quality. When caching a relatively short and unchanging list of assets the default `true` value should work just fine. For large collections and when you're trying to precache images while the user is scrolling quickly - it might be better to only cache lower quality images.
+The `allowsCachingHighQualityImages` property lets you specify whether the image manager should prepare images at high quality. When caching a short and unchanging list of assets the default `true` value should work just fine. When caching while quickly scrolling in a collection view it is better to set it to `false`.
+
+Note: In my experience, using the caching manager can be detrimental to scrolling performance when the user is scrolling extremely fast through a large asset collection. It is extremely important to tailor the caching behavior for the specific use case. The size of the caching window, when and how often to move the caching window, the value of the `allowsCachingHighQualityImages` property — these parameters should be carefully tuned and the behavior tested with a real photo library and on target hardware. Furthermore, consider setting these parameters dynamically based on the user's actions.
 
 ##Requesting Image Data
 Finally, in addition to requesting plain old UIImages, `PHImageManager` provides another method which returns the asset data as an NSData object, its universal type identifier and the display orientation of the image. This method returns the largest available representation of the asset.
@@ -148,7 +150,7 @@ Firstly, you need to register a change observer (conforming to the `PHPhotoLibra
 
 `PHFetchResultChangeDetails` encapsulates information about changes to a `PHFetchResult` that you have previously received after a fetch. Its properties map well to updating such UI as a collection view or a table view. Note that to update `UITableView`/`UICollectionView` correctly you must process the changes in the correct order: **RICE** – **r**emovedIndexes, **i**nsertedIndexes, **c**hangedIndexes, **e**numerateMovesWithBlock (if `hasMoves` is true). Furthermore, the `hasIncrementalChanges` property of the change details can be set to `false`, meaning that the old fetch result should just be replaced by the change value as a whole. You should call `reloadData` on your `UITableView`/`UICollectionView` in such cases.
 
-There is no need to make change processing centralized. If there are multiple components of your application that deal with photo entities, then each of them could have have its own `PHPhotoLibraryChangeObserver`. The components can then query the `PHChange` objects on their own to find out if (and how) they need to update their own state.
+Note: There is no need to make change processing centralized. If there are multiple components of your application that deal with photo entities, then each of them could have have its own `PHPhotoLibraryChangeObserver`. The components can then query the `PHChange` objects on their own to find out if (and how) they need to update their own state.
 
 
 #Wind of Change
