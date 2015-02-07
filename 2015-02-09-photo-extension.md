@@ -233,7 +233,7 @@ notation to specify the `formatIdentifier`, but then you are left to decide how
 to use the `formatVersion` and `data` properties yourself.
 
 It's important that you can determine compatibility between different versions
-of your image edit framework, so an approach such as [semantic versioning](http://semver.org/)
+of your image editing framework, so an approach such as [semantic versioning](http://semver.org/)
 offers the flexibility to manage this over the lifetime of your products. You
 could implement your own parser, or look to a third-party framework such as
 [SemVerKit](https://github.com/nomothetis/SemverKit) to provide this
@@ -242,7 +242,7 @@ functionality.
 The final aspect of the adjustment data is the `data` property itself,
 which is just an `NSData` blob. The only advice that Apple offers here is that
 it should represent the settings to recreate the edit, rather than the edit
-itself, since the size of the `PHAsjustmentData` object is limited by the Photos
+itself, since the size of the `PHAdjustmentData` object is limited by the Photos
 framework.
 
 For non-complex extensions (such as __Filtster__), this can be as simple as an
@@ -288,7 +288,7 @@ data is not understood by the current extension, the pre-rendered image will be
 used as input. For example, you can crop an image using the system crop tool
 before using your custom photo editing extension. Once you have saved the edited
 image, the associated adjustment data will only contain details of the most
-recent edit. You could adjustment data from the previous, incompatible edit
+recent edit. You could store adjustment data from the previous, incompatible edit
 in your output adjustment data, allowing you to implement a revert function for
 just your phase of the filter chain. The revert function provided by the Photos
 app will remove all the edits, returning the photo to its original state:
@@ -351,7 +351,7 @@ begins.
 Extensions are not full iOS apps and therefore are permitted restricted access
 to system resources. More specifically, the OS will kill an extension if it uses
 too much memory. The memory limit is dependent on several factors, including the
-device, the host app, and the Apple magic-factor. As such, there are no hard
+device, the host app, and the Apple magic factor. As such, there are no hard
 limits, but instead a general recommendation to minimize the memory footprint.
 
 Image processing is a memory-hungry operation, particularly with the resolution
@@ -383,7 +383,7 @@ Prior to iOS 8, there was no way for a third-party developer to provide
 functionality to the user anywhere other than within his or her own app. Extensions
 have changed this, with the photo editing extension in particular allowing you
 to put your code right into the heart of the Photos app. Despite the slightly
-convoluted many-tap workflow, the photo editing extension uses the power of the
+convoluted multi-tap workflow, the photo editing extension uses the power of the
 Photos framework to provide a coherent and integrated user experience.
 
 Resumable editing has traditionally been reserved for use in desktop photo
@@ -393,9 +393,7 @@ potential, and allowing the creation of photo editing extensions takes this even
 further.
 
 There are some complexities associated with creating photo editing extensions,
-but few of these are unique. Creating an intuitive interface and interaction
-pattern is as much of a challenge as it is for mobile image editing apps, as is
-the image algorithm design and optimization.
+but few of these are unique. Creating an intuitive interface and designing image processing algorithms are both as challenging for image editing extensions as they are for complete image editing apps.
 
 It remains to be seen how many users are aware of these third-party image editing
 extensions, but they have the potential to increase your app's exposure.
