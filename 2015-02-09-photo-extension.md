@@ -106,13 +106,7 @@ editing.
 
 ### Beginning Editing
 
-When a user chooses to edit an image using your extension, the system will
-instantiate your view controller and initiate the photo editing lifecycle. If
-the photo has previously been edited, this will first call the
-`canHandleAdjustmentData(_:)` method, at which point you are provided a
-`PHAdjustmentData` object. From this, determine whether or not your
-extension can handle the previous edit data. This determines what the framework
-will send to the next method in the lifecycle.
+When a user chooses to edit an image using your extension, the system will instantiate your view controller and initiate the photo editing lifecycle. If the photo has previously been edited, this will first call the `canHandleAdjustmentData(_:)` method, at which point you are provided a `PHAdjustmentData` object. As such, it's important to figure out in advance whether or not your extension can handle the previous edit data. This determines what the framework will send to the next method in the lifecycle.
 
 Once the system has decided whether to supply the original image or one
 containing the rendered output from previous edits, it then calls the
@@ -350,8 +344,7 @@ begins.
 
 Extensions are not full iOS apps and therefore are permitted restricted access
 to system resources. More specifically, the OS will kill an extension if it uses
-too much memory. The memory limit is dependent on several factors, including the
-device, the host app, and the Apple magic factor. As such, there are no hard
+too much memory. It's not possible to determine the exact memory limit, since memory management is handled privately by iOS, however it is definitely dependent on factors such as the device, the host app, and the memory pressure from other apps. As such, there are no hard
 limits, but instead a general recommendation to minimize the memory footprint.
 
 Image processing is a memory-hungry operation, particularly with the resolution
