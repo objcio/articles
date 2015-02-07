@@ -10,9 +10,9 @@ author: "<a href=\"http://twitter.com/warrenm\">Warren Moore</a>"
 
 This article is a beginner's introduction to Core Image, an image processing framework for OS X and iOS.
 
-If you would like to follow along with the code in this article, you can download [the sample project at Github](http://github.com/warrenm/core-image-explorer). The sample project is an iOS app that lists a large selection of system-provided image filters, and provides a UI for tweaking their parameters and observing the effects.
+If you would like to follow along with the code in this article, you can download [the sample project at GitHub](http://github.com/warrenm/core-image-explorer). The sample project is an iOS app that lists a large selection of system-provided image filters, and provides a UI for tweaking their parameters and observing the effects.
 
-Although the sample code is written in Swift for iOS, the concepts transfer readily to Objective-C and the Mac.
+Although the sample code is written in Swift for iOS, the concepts transfer readily to Objective-C and OS X.
 
 ## Fundamental Concepts
 
@@ -20,7 +20,7 @@ To talk about Core Image, we first need to introduce a few fundamental concepts.
 
 A _filter_ is an object that has a number of inputs and outputs and performs some kind of transformation. For example, a blur filter might take an input image and a blur radius and produce an appropriately blurred output image.
 
-A _filter graph_ is a network ([directed acyclic graph](http://en.wikipedia.org/wiki/Directed_acyclic_graph)) of filters, chained together such that the output of one filter can be the input of another. In this way, elaborate effects can be achieved. We'll see below how to connect filters together to create a vintage photographic effect.
+A _filter graph_ is a network ([directed acyclic graph](http://en.wikipedia.org/wiki/Directed_acyclic_graph)) of filters, chained together so that the output of one filter can be the input of another. In this way, elaborate effects can be achieved. We'll see below how to connect filters to create a vintage photographic effect.
 
 ## Getting Acquainted with the Core Image API
 
@@ -44,7 +44,7 @@ Core Image filters are created by name. To get a list of system filters, we ask 
 let filterNames = CIFilter.filterNamesInCategory(kCICategoryBuiltIn) as [String]
 ```
 
-The list of filters available on iOS is very nearly a subset of the filters available on OS X. On the Mac there are 169 built-in filters, while on iOS there are 127.
+The list of filters available on iOS is very nearly a subset of the filters available on OS X. There are 169 built-in filters on OS X, and there are 127 on iOS.
 
 ### Creating a Filter by Name
 
@@ -62,7 +62,7 @@ Because of Core Image's plug-in structure, most filter properties are not set di
 blurFilter.setValue(10.0 forKey:"inputRadius")
 ```
 
-Since this method takes `AnyObject?` (`id` in Objective-C) as its value parameter, it is not particularly type-safe. Therefore, setting filter parameters requires some vigilance that you are passing the expected type.
+Since this method takes `AnyObject?` (`id` in Objective-C) as its value parameter, it is not particularly type safe. Therefore, setting filter parameters requires some vigilance to ensure that you are passing the expected type.
 
 ### Querying Filter Attributes
 
@@ -90,7 +90,7 @@ The work of filtering an image consists of three parts: building and configuring
 
 ### Building a Filter Graph
 
-Building a filter graph consists of instantiating filters to do the kind of work we want to perform, setting their parameters, and wiring them up such that the image data flows through each filter in turn.
+Building a filter graph consists of instantiating filters to do the kind of work we want to perform, setting their parameters, and wiring them up so that the image data flows through each filter in turn.
 
 In this section, we will construct a filter graph for producing images in the style of a 19th-century tintype photograph. We will chain together two effects to create this effect: a monochrome filter to simultaneously desaturate and tint the image, and a vignette filter to create a shadow effect that frames the image.
 
@@ -98,7 +98,7 @@ Quartz Composer, available for [download from the Apple Developer website](https
 
 ![A filter graph built with Quartz Composer, showing intermediate filtered images](http://warrenmoore.net/files/cipreview/quartz.png)
 
-Once we're satisfied with the effect, we can re-create the filter graph in code:
+Once we're satisfied with the effect, we can recreate the filter graph in code:
 
 ```
 let sepiaColor = CIColor(red: 0.76, green: 0.65, blue: 0.54)
@@ -117,7 +117,7 @@ Note that the output image of the monochrome filter becomes the input image of t
 
 ### Creating the Input Image
 
-Core Image filters require that their input image be of type `CIImage`. For iOS programmers who are used to `UIImage`, this may be a little unusual, but the distinction is merited. A CIImage is actually a more general entity than a `UIImage`, since a CIImage may have infinite extent. Obviously, we can't store an infinite image in memory, but conceptually, this means that you can request image data from an arbitrary region in the 2D plane and get back a meaningful result.
+Core Image filters require that their input image be of type `CIImage`. For iOS programmers who are used to `UIImage`, this may be a little unusual, but the distinction is merited. A `CIImage` is actually a more general entity than a `UIImage`, since a `CIImage` may have infinite extent. Obviously, we can't store an infinite image in memory, but conceptually, this means that you can request image data from an arbitrary region in the 2D plane and get back a meaningful result.
 
 All of the images we will be using in this article are finite, and it's easy enough to create a `CIImage` from a `UIImage`. In fact, it's just one line of code:
 
@@ -135,7 +135,7 @@ filter.setValue(inputImage, forKey:"inputImage")
 
 ### Fetching a Filtered Image
 
-Filters have a property named `outputImage`. As you might guess, it has type `CIImage`. So, how do we perform the inverse operation of creating a `UIImage` from a `CIImage`? Well, although we've spent all our time so far building up a filter graph, now is the time to invoke the power of the `CIContext` and do the actual work of filtering the image. 
+Filters have a property named `outputImage`. As you might guess, it has type `CIImage`. So how do we perform the inverse operation of creating a `UIImage` from a `CIImage`? Well, although we've spent all our time thus far building up a filter graph, now is the time to invoke the power of the `CIContext` and do the actual work of filtering the image. 
 
 The simplest way to create a context is to pass a nil options dictionary to its constructor:
 
@@ -143,7 +143,7 @@ The simplest way to create a context is to pass a nil options dictionary to its 
 let ciContext = CIContext(options: nil)
 ```
 
-To get an image out of the filter graph, we ask our `CIContext` to create a `CGImage` from a rect in the output image, passing the extent (bounds) of the input image.
+To get an image out of the filter graph, we ask our `CIContext` to create a `CGImage` from a rect in the output image, passing the extent (bounds) of the input image:
 
 ```
 let cgImage = ciContext.createCGImage(filter.outputImage, fromRect: inputImage.extent())
@@ -178,11 +178,11 @@ When a `CIContext` has an associated GL context, a filtered image can be drawn w
 ciContext.drawImage(filter.outputImage, inRect: outputBounds, fromRect: inputBounds)
 ```
 
-As before, the `fromRect` parameter is the portion of the image to draw, in the filtered image's coordinate space. The `inRect` parameter is the rectangle in the coordinate space of the GL context into which the image should be drawn. If you want to respect the aspect ratio of the image, you may need to do some math to compute the appropriate `inRect`.
+As before, the `fromRect` parameter is the portion of the image to draw in the filtered image's coordinate space. The `inRect` parameter is the rectangle in the coordinate space of the GL context into which the image should be drawn. If you want to respect the aspect ratio of the image, you may need to do some math to compute the appropriate `inRect`.
 
 ### Forcing Filtering onto the CPU
 
-Whenever possible, Core Image will perform filtering on the GPU. However, it does have the ability to fall back to the CPU. Filtering done on the CPU may have better accuracy, since GPUs often exchange some fidelity for speed in their floating-point calculations. You can force Core Image to run on the CPU by setting the value of the `kCIContextUseSoftwareRenderer` key in the options dictionary to  `true` when creating a context.
+Whenever possible, Core Image will perform filtering on the GPU. However, it does have the ability to fall back to the CPU. Filtering done on the CPU may have better accuracy, since GPUs often exchange some fidelity for speed in their floating-point calculations. You can force Core Image to run on the CPU by setting the value of the `kCIContextUseSoftwareRenderer` key in the options dictionary to `true` when creating a context.
 
 You can determine whether a CPU or GPU renderer is in use by setting the `CI_PRINT_TREE` environment variable to `1` in your scheme configuration in Xcode. This will cause Core Image to print diagnostic information every time a filtered image is rendered. This setting is useful for examining the composed image filter tree as well.
 
@@ -192,7 +192,7 @@ The [sample code](http://github.com/warrenm/core-image-explorer) for this articl
 
 ### Creating a GUI from Filter Parameters
 
-To demonstrate a maximum number of filters, the sample app takes advantage of the introspective nature of Core Image and generates UI for controlling the parameters of the filters it supports.
+To demonstrate a maximum number of filters, the sample app takes advantage of the introspective nature of Core Image and generates UI for controlling the parameters of the filters it supports:
 
 ![Image being tweaked with the Color Controls filter](http://warrenmoore.net/files/cipreview/color-controls.png)
 
@@ -200,15 +200,15 @@ The sample app is restricted to filters that have a single input image, and zero
 
 For each input parameter to the filter, a slider is configured with the minimum and maximum value of the parameter, and its value is set to the default value. When the value of the slider changes, it conveys the change to its delegate, which is a `UIImageView` subclass that holds a `CIFilter` reference.
 
-### Using the Built-in Photo Filters
+### Using the Built-In Photo Filters
 
-In addition to numerous other built-in filters, the sample app demonstrates the photo filters introduced in iOS 7. These filters have no parameters we can tune, but they merit inclusion, since they show how you can emulate the effects in the Photos app for iOS.
+In addition to numerous other built-in filters, the sample app demonstrates the photo filters introduced in iOS 7. These filters have no parameters we can tune, but they merit inclusion, since they show how you can emulate the effects in the Photos app for iOS:
 
 ![Image processed with the Transfer photo filter](http://warrenmoore.net/files/cipreview/photo-filters.png)
 
 ## Conclusion
 
-This article has been a brief introduction to Core Image, a framework for high-performance image processing. We've tried to cover as many features of the framework as practically possible in this short format. You've learned how to instantiate and wire together Core Image filters, get images into and out of filter graphs, and tune parameters to get the desired outcome. You also learned how to access the system-provided photo filters, with which you can emulate the behavior of the Photos app on iOS. 
+This article has been a brief introduction to Core Image, a framework for high-performance image processing. We've tried to cover as many features of the framework as practically possible in this short format. You've learned how to instantiate and wire together Core Image filters, get images in and out of filter graphs, and tune parameters to get the desired outcome. You also learned how to access the system-provided photo filters, with which you can emulate the behavior of the Photos app on iOS. 
 
 You now know enough to go out and write your own photo editing applications. With a little more exploration, you'll be able to write your own filters that exploit the amazing power of your Mac or iPhone to perform previously unimagined effects. Go forth and filter!
 
