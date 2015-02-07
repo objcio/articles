@@ -57,7 +57,7 @@ This is the horizontal kernel of the Sobel operator:
 
 To apply this to a pixel, the luminance is read from each surrounding pixel. If the input image has been converted to grayscale, this can be sampled from any of the red, green, or blue color channels. The luminance of a particular surrounding pixel is multiplied by the corresponding weight from the above matrix and added to the total.
 
-How this works to find an edge in a direction is that it looks for differences in luminance (brightness) on the left and right sides of a central pixel. If you have two equally bright pixels on the left and right of the center one (a smooth area in the image), the negative and positive weights will cause that to be canceled out and no edge to be detected. If there is a difference between the brightness of pixels on the left and right (an edge), one brightness will be subtracted from the other. The greater the difference, the stronger the edge measured.
+How this works to find an edge in a direction is that it looks for differences in luminance (brightness) on the left and right sides of a central pixel. If you have two equally bright pixels on the left and right of the center one (a smooth area in the image), the product of their intensities and the negative and positive weights will cancel out and no edge will be detected. If there is a difference between the brightness of pixels on the left and right (an edge), one brightness will be subtracted from the other. The greater the difference, the stronger the edge measured.
 
 The Sobel operator has two stages, the horizontal kernel being the first. A vertical kernel is applied at the same time, with the following matrix of weights:
 
@@ -203,11 +203,11 @@ One technique for detecting corners was proposed by Harris and Stephens in "A Co
 
 As with the other processes we've talked about, the image is first reduced to luminance. The X and Y gradients around a pixel are determined using a Sobel, Prewitt, or related kernel, but they aren't combined to yield a total edge magnitude. Instead, the X gradient strength is passed along in the red color component, the Y gradient strength in the green, and the product of the X and Y gradient strengths in the blue component.
 
-A Gaussian blur is then applied to the result of that calculation. The red, green, and blue components are extracted from that blurred image and a calculation is performed from them to determine the likelihood a pixel is a corner point. The equation for this is the following:
+A Gaussian blur is then applied to the result of that calculation. The values encoded in the red, green, and blue components are extracted from that blurred image and used to populate the variables of an equation for calculating the likelihood that a pixel is a corner point:
 
 R = I<sub>x</sub><sup>2</sup> * I<sub>y</sub><sup>2</sup> - I<sub>xy</sub> * I<sub>xy</sub> - k * (I<sub>x</sub><sup>2</sup> + I<sub>y</sub><sup>2</sup>)<sup>2</sup>
 
-Here, I<sub>x</sub> is the gradient intensity in the X direction, I<sub>y</sub> is the gradient intensity in Y, I<sub>xy</sub> is the product of these intensities, k is a scaling factor for sensitivity, and R is the resulting "cornerness" of the pixel. Alternative implementations of this calculation have been proposed by Shi and Tomasi[^6] and Noble.[^7] but the results tend to be fairly similar.
+Here, I<sub>x</sub> is the gradient intensity in the X direction (the red component in the blurred image), I<sub>y</sub> is the gradient intensity in Y (the green component), I<sub>xy</sub> is the product of these intensities (the blue component), k is a scaling factor for sensitivity, and R is the resulting "cornerness" of the pixel. Alternative implementations of this calculation have been proposed by Shi and Tomasi[^6] and Noble,[^7] but the results tend to be fairly similar.
 
 Looking at this equation, you might think that the first two terms should cancel themselves out. That's where the Gaussian blur of the previous step matters. By blurring the X, Y, and product of X and Y values independently across several pixels, differences develop around corners and allow for them to be detected.
 
