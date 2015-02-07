@@ -94,7 +94,7 @@ Building a filter graph consists of instantiating filters to do the kind of work
 
 In this section, we will construct a filter graph for producing images in the style of a 19th-century tintype photograph. We will chain together two effects to create this effect: a monochrome filter to simultaneously desaturate and tint the image, and a vignette filter to create a shadow effect that frames the image.
 
-Quartz Composer, available for [download from the Apple Developer website](https://developer.apple.com/downloads/index.action?name=Graphics), is useful for prototyping Core Image filter graphs. Below, we have composed the desired photo filter by wiring together a Color Monochrome filter and a Vignette filter:
+Quartz Composer, available for [download from the Apple Developer website](https://developer.apple.com/downloads/index.action?name=Graphics), is useful for prototyping Core Image filter graphs. Below, we have composed the desired photo filter by wiring together the Color Monochrome filter and the Vignette filter:
 
 ![A filter graph built with Quartz Composer, showing intermediate filtered images](http://warrenmoore.net/files/cipreview/quartz.png)
 
@@ -192,7 +192,7 @@ The [sample code](http://github.com/warrenm/core-image-explorer) for this articl
 
 ### Creating a GUI from Filter Parameters
 
-To demonstrate a maximum number of filters, the sample app takes advantage of the introspective nature of Core Image and generates UI for controlling the parameters of the filters it supports:
+To demonstrate a maximum number of filters, the sample app takes advantage of the introspective nature of Core Image and generates a user interface for controlling the parameters of the filters it supports:
 
 ![Image being tweaked with the Color Controls filter](http://warrenmoore.net/files/cipreview/color-controls.png)
 
