@@ -14,9 +14,9 @@ PhotoKit: A Primer
 #Introduction 
 Every day, [more photos are taken with the iPhone](https://www.flickr.com/cameras#brands) than any other camera. Displays on iOS devices get better every year, but even back in the pre-Retina era [when the iPad was introduced](http://youtu.be/_KN-5zmvjAo?t=17m7s), one of its killer uses was just displaying user photos and exploring the photo library. Since the camera is one of the iPhone's most important and popular features, there is a big demand for apps and utilities that make use of the wealth of users' photo libraries.
 
-Until the summer of 2015, developers used the [AssetsLibrary Framework](https://developer.apple.com/library/ios/documentation/AssetsLibrary/Reference/ALAssetsLibrary_Class/#//apple_ref/doc/uid/TP40009722-CH1-SW57) to access the ever-growing photo libraries of users. Over the years Camera.app and Photos.app have changed significantly, adding new features and even a new way of organizing photos by moments. Meanwhile, the AssetsLibrary framework lagged behind. 
+Until the summer of 2014, developers used the [AssetsLibrary Framework](https://developer.apple.com/library/ios/documentation/AssetsLibrary/Reference/ALAssetsLibrary_Class/#//apple_ref/doc/uid/TP40009722-CH1-SW57) to access the ever-growing photo libraries of users. Over the years Camera.app and Photos.app have changed significantly, adding new features and even a new way of organizing photos by moments. Meanwhile, the AssetsLibrary framework lagged behind. 
 
-With iOS 8, Apple has given us PhotoKit, a modern framework that's more performant than AssetsLibrary and provides features that allow applications to work seamlessly with the devices' photo library.
+With iOS 8, Apple has given us PhotoKit, a modern framework that's more performant than AssetsLibrary and provides features that allow applications to work seamlessly with a device's photo library.
 
 #Outline
 We'll start with a bird's-eye view of the [framework's object model](#PhotoKit-Object-Model): the entities and the relationships between them, fetching instances of those entities, and working with the fetch results. 
@@ -76,7 +76,7 @@ To find out if an asset was marked as favorite or was hidden by the user, just i
 ##Burst Mode Photos
 `PHAsset`'s `representsBurst` property is true for assets that are representative of a burst photo sequence (multiple photos taken while the user held down the shutter). It will also have a `burstIdentifier` value which can then be used to fetch the rest of the assets in that burst sequence via `fetchAssetsWithBurstIdentifier(...)`.
 
-The user can flag assets within a burst sequence; additionally, the system uses various heuristics to mark potential user picks automatically. This metadata is accessible via `PHAsset`'s `burstSelectionTypes` property. This property is a bit mask with three defined constants: `.UserPick` for assets marked manually by the user, `.AutoPick` for potential user picks and `.None` for unmarked assets.
+The user can flag assets within a burst sequence; additionally, the system uses various heuristics to mark potential user picks automatically. This metadata is accessible via `PHAsset`'s `burstSelectionTypes` property. This property is a bitmask with three defined constants: `.UserPick` for assets marked manually by the user, `.AutoPick` for potential user picks, and `.None` for unmarked assets.
 
 ![.AutoPick Example](http://f.cl.ly/items/3A0f0e3D0m0K20330R04/IMG_1637.PNG) The screenshot shows how Photos.app automatically marks potential user picks in a burst sequence.
 
@@ -144,7 +144,7 @@ First, you need to register a change observer (conforming to the `PHPhotoLibrary
 
 `PHObjectChangeDetails` provides a reference to an updated photo entity object, as well as boolean flags telling you whether the object's image data was changed and whether the object was deleted.
 
-`PHFetchResultChangeDetails` encapsulates information about changes to a `PHFetchResult` that you have previously received after a fetch. `PHFetchResultChangeDetails` is designed to make updates to a collection view or table view as simple as possible. Its properties map exactly to the information you need to provide in a typical collection view update handler. Note that to update `UITableView`/`UICollectionView` correctly, you must process the changes in the correct order: **RICE** – **r**emovedIndexes, **i**nsertedIndexes, **c**hangedIndexes, **e**numerateMovesWithBlock (if `hasMoves` is `true`). Furthermore, the `hasIncrementalChanges` property of the change details can be set to `false`, meaning that the old fetch result should just be replaced by the change value as a whole. You should call `reloadData` on your `UITableView`/`UICollectionView` in such cases.
+`PHFetchResultChangeDetails` encapsulates information about changes to a `PHFetchResult` that you have previously received after a fetch. `PHFetchResultChangeDetails` is designed to make updates to a collection view or table view as simply as possible. Its properties map exactly to the information you need to provide in a typical collection view update handler. Note that to update `UITableView`/`UICollectionView` correctly, you must process the changes in the correct order: **RICE** – **r**emovedIndexes, **i**nsertedIndexes, **c**hangedIndexes, **e**numerateMovesWithBlock (if `hasMoves` is `true`). Furthermore, the `hasIncrementalChanges` property of the change details can be set to `false`, meaning that the old fetch result should just be replaced by the change value as a whole. You should call `reloadData` on your `UITableView`/`UICollectionView` in such cases.
 
 Note: There is no need to make change processing centralized. If there are multiple components of your application that deal with photo entities, then each of them could have have its own `PHPhotoLibraryChangeObserver`. The components can then query the `PHChange` objects on their own to find out if (and how) they need to update their own state.
 
