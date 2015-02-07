@@ -161,7 +161,7 @@ call the appropriate methods on the interaction controller:
     }
 
 It's important that we set the interaction controller to nil after the
-transition was completed or cancelled. If the next transition is
+transition was completed or canceled. If the next transition is
 non-interactive, we don't want to return our old interaction controller.
 
 Now we have a fully interactive custom transition. Using just plain
