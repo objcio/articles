@@ -38,8 +38,6 @@ Vertex shaders customize how geometry is handled in a 2D or 3D scene. A vertex i
 
 Your GPU then uses a fragment shader to perform calculations on each pixel in an object or image, ending with the final color for that pixel. An image, when you get right down to it, is simply a collection of data. The image document contains parameters for the value of each pixel, for each color component, and for the pixel's opacity. Because the equations are the same for each pixel, the GPU is able to streamline the process and do it more efficiently. If you are optimizing your shader properly, you can process image data on the GPU more than 100 times faster than if you were to run the same process on the CPU.
 
-Vertex and fragment shaders live in their own files. A vertex shader can have a file extension of .vst and the fragment shader would have a file extension of .fst, however this isn't necessary. You can also create a shader file as you would any other C file, with a .h and a .m file.
-
 One issue that has plagued OpenGL developers from the beginning is just being able to render anything on the screen. There is a lot of boilerplate code and setup that needs to be done just to get a screen that isn't black. The frustration and the inability to test out shaders because of all the hoops developers had to jump through in the past has discouraged a lot of people from even trying to get involved in writing shaders.
 
 Fortunately, in the last few years, several tools and frameworks have been made available to take some of the anxiety out of trying out shaders:
@@ -129,13 +127,13 @@ This shader isn’t really changing anything in our image. It’s a passthrough 
 varying highp vec2 textureCoordinate;
 ```
 
-Since the fragment shader works on each and every pixel, we need a way to determine which pixel/fragment we are currently analyzing. It needs to store both the x and the y coordinate for the pixel. We are receiving the current texture coordinate that was set up in the vertex shader.
+Since the fragment shader works on each and every pixel, we need a way to determine which pixel/fragment we are currently analyzing. It needs to store both the X and the Y coordinate for the pixel. We are receiving the current texture coordinate that was set up in the vertex shader.
 
 ```glsl
 uniform sampler2D inputImageTexture;
 ```
 
-In order to process an image, we are receiving a reference to the texture from the application. The reason this data type is called a `sampler2D` is because we are using the shader to go in and sample a point in a 2D texture. The reason this data type is called a `sampler2D` is a function that, just as it sounds, samples from a 2D texture.
+In order to process an image, we are receiving a reference to the image from the application, which we are treating as a 2D texture. The reason this data type is called a `sampler2D` is because we are using the shader to go in and pluck out a point in that 2D texture to process.
 
 ```glsl
 gl_FragColor = texture2D(inputImageTexture, textureCoordinate);
@@ -203,7 +201,7 @@ There are three vector types you will see over and over again:
 
 These vector types contain a specified number of floating-point values: `vec2` contains two floating-point values, `vec3` contains three floating-point values, and `vec4` contains four floating-point values.
 
-These types can be applied to several kinds of data you want to modify and persist in your shaders. One of the more obvious things you would want to keep track of is the x and y coordinates of your fragment. An (x,y) would fit quite nicely into the `vec2` data type.
+These types can be applied to several kinds of data you want to modify and persist in your shaders. One of the more obvious things you would want to keep track of is the X and Y coordinates of your fragment. An (X,Y) would fit quite nicely into the `vec2` data type.
 
 Another thing that you tend to keep track of in graphics processing are the red, green, blue, and alpha values of each pixel. Those can be nicely stored in a `vec4` data type.
 
@@ -480,7 +478,7 @@ Here are some easy ways to help you hit your target:
 - **Reduce dependent texture reads:** Dependent texture reads occur when a texture is sampled in a fragment shader from a texture coordinate that wasn't passed in directly as a varying, but was instead calculated in the fragment shader. These dependent texture reads can't take advantage of optimizations in caching that normal texture reads do, leading to much slower reads. For example, if you want to sample from nearby pixels, rather than calculate the offset to the neighboring pixel in your fragment shader, it's best to do this calculation in the vertex shader and have the result be passed along as a varying. A demonstration of this is present in [Brad Larson's article](TODO: link to Brad's article), in the case of Sobel edge detection.
 - **Make your calculations as simple as possible:** If you can avoid an expensive operation and get an approximate value that is good enough, you should do so. Expensive calculations include calling trigonometric functions (like `sin()`, `cos()`, and `tan()`).
 - **Shift work over to the vertex shader, if it makes sense:** Our previous talk about dependent texture reads is a situation where it would make sense to move texture coordinate calculations to the vertex shader. If a calculation would have the same result across your image, or would linearly vary across it, look at moving that calculation into the vertex shader. Vertex shaders run once per vertex, whereas fragment shaders execute once per pixel, so a calculation performed in the former will run fewer times.
-- **Use appropriate precision on mobile devices:** On certain mobile devices, it can be much faster to work with lower precision values in vectors. Addition of two lowp vec4s can often be done in a single clock cycle on these device, where addition of two highp vec4s can take four clock cycles. This is less important on desktop GPUs and more recent mobile GPUs, though, as they don't have the same optimizations for low-precision values.
+- **Use appropriate precision on mobile devices:** On certain mobile devices, it can be much faster to work with lower precision values in vectors. Addition of two `lowp vec4`s can often be done in a single clock cycle on these device, where addition of two highp vec4s can take four clock cycles. This is less important on desktop GPUs and more recent mobile GPUs, though, as they don't have the same optimizations for low precision values.
 
 # Conclusions and Resources #
 
