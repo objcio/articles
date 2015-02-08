@@ -1,0 +1,149 @@
+Image Formats
+=============
+
+
+1. Storing Data
+---------------
+As computers keep information as patterns of bits, anything we want to store and process needs to be representable in that way. The most fundamental representation is binary numbers, so that effectively we store other data in terms of numerical values. What the values actually mean, depends on what it is we represent, so in order to allow interpretation of the numerical values we need to know whether we are looking at text, image data, or sound files. The same numbers would mean very different things in those different contexts.
+
+Handling text is easy, as we have as letters/characters as a fundamental unit, and we have a mapping from number to character, in the early days via EBCDIC and ASCII. As the need arose to handle languages other than English life became a bit more complicated, and we now also have parts of characters as items, such as accents and other diacritics. But there is still a fairly straighforward one-to-one mapping.
+
+Text is also linear, and one-dimensional. Leaving aside the question of what the directions is (left-to-right, right-to-left, or even top-to-bottom), all we need is to know what the next item in the sequence is.
+
+Images are more complicated. For a start, they are two-dimensional, so we need to think about identifying where in our image a particular value is. Then, what is a value? Depending on what we want to capture, there are different ways of encoding graphical data. The most intuitive way these days seems to be as bitmap data, but that would not be very efficient if you wanted to deal with a collection of geometrical figures. A circle can be represented by three values (two coordinates and the radius), whereas a bitmap would not only be much larger in size, but also a rough approximation only.
+
+This, then, leads us to the first distinction between different image formats: bitmaps versus vector images. While bitmaps store values in a grid, vector formats store instructions for drawing an image. This is obviously much more efficient when dealing with sparse images which can be reduced to a few geometric shapes. It does not really work well for photographic data. An architect designing a house would want to use a vector format. Vector formats do not have to be restricted to line drawings, as gradient or pattern fills can also be represented, so a realistic rendering of the resulting house could still be produced from a line drawing fairly efficiently.
+
+A brick pattern would be more easily stored as a bitmap, so in this case we might have a hybrid format. An example for a very common hybrid format is PostScript (or the nowadays more popular follow-up, PDF), which is basically a description language for drawing images. The target is mainly paper, but NeXT and Adobe developed Display Postscript as an instruction set for drawing on screens ([http://en.wikipedia.org/wiki/Display_PostScript]). PostScript is also capable of placing letters, and even bitmaps, which makes it a very versatile format. 
+
+1.1 Vector images
+-----------------
+
+A big advantage of vector formats is scaling. As the image is a set of drawing instructions, it is generally independent of size. If you want to enlarge your circle, you simply scale up the radius before drawing it. With a bitmap this is not easily possible. For a start, scaling to any factor that is not a multiple of two involves mangling the image, and the individual elements would simply increase in size, leading to a blocky image. As we do not know that the image is a circle, we cannot smooth the circular lines properly, and it will not look as good as a line drawn to scale. This is why vector images are very useful as graphical assets on devices with different pixel density. The same icon which looks alright on a pre-retina iOS device will not look as crisp when scaled up twice for display on a retina iPhone. Just like an iPhone-only app does not look as good when run in 2x mode on an iPad.
+
+There is support for PDF assests in Xcode 6, but it seems to be rather sketchy at the moment, and still creates bitmap images at compile time on iOS. The most common vector image format is SVG, and there is a library for rendering SVG files on iOS, SVGKit, at [https://github.com/SVGKit/SVGKit].
+
+1.2 Bitmaps
+-----------
+
+Most image work deals with bitmaps; and from now on we will focus on how they can be handled. The first question is how to represent the two dimensions: and all formats use a sequence of rows for that, where pixels are stored in a horizontal sequence. Most formats then store rows sequentially, but that is by no means the only way: interleaved formats, where the rows are not in strict sequential order, are also common. Their advantage is that a better preview of the image can be shown when it is partially loaded. With increasing data transmission speeds that is now less of an issue than it was in the early days of the web.
+
+The simplest way to represent bitmaps is as binary pixels: a pixel is either on, or off. We can then store 8 pixels in a byte, which is very efficient. However, we can only have two colours then, one for each state of a bit. While this does not sound very useful in the age of millions of colours, there is one application where this is still all that is needed: masking. Image masks can eg be used for transparency, and in iOS they are used in tab bar icons (even though the actual icons are not 1-pixel bitmaps).
+
+For adding more colours there are two basic options: a look-up table, or actual colour values. GIF images have a colour table (or a palette) which can store up to 256 colours. The pixels in the actual image are then values into this look-up table. As a consequence, GIFs are limited to 256 colours only. This is fine for simple line drawings or diagrams with filled colours, but not really enough for photos, which would require a greater colour depth. A further improvement are PNG files, which can either use a palette or separate channels, both supporting a variety of colour depths. In a channel, the colour components of each pixel (red, green, and blue, RGB, sometimes adding opacity/alpha, RGBA) are specified directly.
+
+GIF and PNG are best for images which have large areas of identical colour, as they use compression algorithms (mainly based on run-length encoding) to reduce the storage requirements. The compression is lossless, which means that the image quality is not affected by the process.
+
+An example for an immage format that has lossy compression is JPEG. When creating JPEG images it is often possible to specify a parameter for quality/compression ratio, and here a better compression leads to a deterioration in the image quality. JPEG is not suited for images with sharp contrasts (such as line drawings), as the compression leads to artefacts around such areas. This can clearly be seen when a screenshot containing rendered text is saved in JPEG format: the resulting image will have stray pixels around the letters. This is not a problem with most photos, and photos are the main use case for JPEGs. 
+
+1.2 Summary
+-----------
+
+To summarise: for scalability, vector formats (such as SVG) are best. Line drawings with sharp contrast and limited amount of colours work best for GIF of PNG (where PNG is the more powerful format), and for photos you should use JPEG. Of course, these are not unbreakable laws, but generally lead to the best results in terms of quality/image size.
+
+
+
+2. Handling Image Data
+----------------------
+
+There are several classes for handling bitmap data in iOS: UIImage (UIKit), CGImage (Core Graphics) and CIImage (Core Image). There is also NSData for holding the actual data before creating one of those classes.
+Getting a UIImage is easy enough, using the `imageWithContentsOfFile:` method, and for other sources there are `imageWithCGImage:`, `imageWithCIImage:`, and `imageWithData:`. This seems somewhat superfluous, but this is partly caused by optimising aspects of image storage for different purposes across the different frameworks, and it is generally possible to easily convert between the different types.
+
+
+2.1 Capturing an image from the camera
+--------------------------------------
+
+To get an image from the camera, we need to set up an `AVCaptureStillImageOutput` object. We can then use the `captureStillImageAsynchronouslyFromConnection:completionHandler:` method. Its handler is a block which is called with a `CMSampleBufferRef` parameter. This we can convert into an `NSData` object with `AVCaptureStillImageOutput`'s `jpegStillImageNSDataRepresentation:` class method, and then, in turn, we use the method `imageWithData:` (mentioned above) to get to a `UIImage`. There are a number of parameters that can be tweaked in the process, such as exposure control or the focus setting, low light boost, flash, and even the ISO setting (from iOS 8 only). The settings are applied to an `AVCaptureDevice`, which represents the camera on devices which have got one.
+
+2.2 Manipulating images programmatically
+----------------------------------------
+
+A straight forward way to manipulate images is to use UIKit's `UIGraphicsBeginImageContext` function. You can then draw in the current graphics context, and also include images directly. In one of my own apps, Stereogram, I use this to place two square images next to each other, and add a region above them with two dots for focussing. The code for that is as follows:
+
+<code>
+-(UIImage*)composeStereogramLeft:(UIImage *)leftImage right:(UIImage *)rightImage
+{
+    float w = leftImage.size.width;
+    float h = leftImage.size.height;
+    UIGraphicsBeginImageContext(CGSizeMake(w * 2.0, h + 32.0));
+    [leftImage drawAtPoint:CGPointMake(0.0, 32.0)];
+    [rightImage drawAtPoint:CGPointMake(w, 32.0)];
+    float leftCircleX = (w / 2.0) - 8.0;
+    float rightCircleX = leftCircleX + w;
+    float circleY = 8.0;
+    [[UIColor blackColor] setFill];
+    UIRectFill(CGRectMake(0.0, 0.0, w * 2.0, 32.0));
+    
+    [[UIColor whiteColor] setFill];
+    CGRect leftRect = CGRectMake(leftCircleX, circleY, 16.0, 16.0);
+    CGRect rightRect = CGRectMake(rightCircleX, circleY, 16.0, 16.0);
+    UIBezierPath *path = [UIBezierPath bezierPathWithOvalInRect:leftRect];
+    [path appendPath:[UIBezierPath bezierPathWithOvalInRect:rightRect]];
+     [path fill];
+    UIImage *savedImg = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return savedImg;
+}
+</code>
+
+After placing the images on the canvas and adding two filled circles, we can turn the graphics context into a `UIImage` with a single method call.
+
+It is a bit more complex if we want to mess with the actual pixel values. If we don't want to have two photos next two each other as a sterogram, but instead want a so-called anaglyph (a red/green image that you use coloured 3D glasses to look at), we have to create a context with `CGBitmapContextCreate`, which includes a colour space (such as RGB). We can then iterate over the bitmaps (left and right photos), and get at the individual colour channel values. For example, we keep the green and blue values of one image as they were, and merge in the green and blue values of the other photo into the red value:
+
+<code>
+	UInt8 *rightPtr = rightBitmap;
+    UInt8 *leftPtr = leftBitmap;
+    UInt8 r1, g1, b1;
+    UInt8 r2, g2, b2;
+    UInt8 ra, ga, ba;
+
+    for (NSUInteger idx = 0; idx < bitmapByteCount; idx += 4) {
+        r1 = rightPtr[0]; g1 = rightPtr[1]; b1 = rightPtr[2];
+        r2 = leftPtr[0]; g2 = leftPtr[1]; b2 = leftPtr[2];
+        
+        // r1/g1/b1 is the right hand side photo, which is merged in
+        // r2/g2/b2 is the left hand side photo which the other is merged into
+        // ra/ga/ba is the merged pixel
+
+        ra = 0.7 * g1 + 0.3 * b1;
+        ga = b2;
+        ba = b2;
+        
+        leftPtr[0] = ra;
+        leftPtr[1] = ga;
+        leftPtr[2] = ba;
+        rightPtr += 4; // move to the next pixel (4 bytes, includes alpha value)
+        leftPtr += 4;
+    }
+    CGImageRef composedImage = CGBitmapContextCreateImage(_leftContext);
+    UIImage *retval = [UIImage imageWithCGImage:composedImage];
+    CGImageRelease(composedImage);
+    return retval;
+</code>
+
+With this method we have full access to the actual pixels, and can do with them whatever we like. It is worth, however, checking whether there are already filters available via Core Image, as they will be much easier to use and generally more optimised than any processing of individual pixel values.
+
+
+3. Metadata
+-----------
+
+The standard format for storing information about an image is Exif ("Exchangable image file format"). With photos this generally captures date and time, shutter speed and aperture, but also GPS coordinates if available. It is a tag-based system, based on TIFF (tagged image file format). It has a lot of faults, but as it's the de facto standard, there isn't really a better alternative. As is often the case, there are other methods available which are better designed, but not supported by the camreas we all use.
+
+Under iOS it is possible to access the Exif information using `CGImageSourceCopyPropertiesAtIndex`. This returns a dictionary containing all the relevant information. However, do not rely on any information being attached. Due to the complexities of vendor-specific extensions to the convention (it's not a proper standard), the data is often missing of corrupted, especially when the image has passed through a number of different applications (such as image editors etc). Usually the information is also stripped when an image is uploaded to a webserver: some of it can be sensitive, for example GPS data. For privacy reasons this is often removed. Apparently the NSA is harvesting Exif data in their XKeyscore program.
+
+
+4. Summary
+----------
+
+Handling images can be a fairly complex issue. Image processing has been around for some time, so there are many different frameworks concerned with different aspects of it. Sometimes you have to dig down into C function calls, with the associated manual memory management. Then there are many different sources for images, and they can all handle certain edge cases differently. The biggest problem on iOS, however, is memory: as cameras and screen resolutions get better, images grow in size. The iPhone 5s has got an 8 megapixel camera; if each pixel is stored in 4 bytes (one each for the three colour channels plus one for opacity), we have 32 MB. Add a few working copies or previews of the image, and we quickly run into trouble when handling multiple images or slideshows. Writing to the file system is also not very fast, so there are a lot of optimisations necessary to ensure your iOS app runs smoothly.
+
+
+
+
+
+
+
+
+
+
+
