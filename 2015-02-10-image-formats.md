@@ -10,11 +10,9 @@ author: "<a href=\"https://twitter.com/ojmason\">Oliver Mason</a>"
 Storing Data
 ------------
 
-As computers keep information as patterns of bits, anything we want to store and process needs to be representable in that way. The most fundamental representation is binary numbers, so that effectively we store other data in terms of numerical values. What the values actually mean, depends on what it is we represent, so in order to allow interpretation of the numerical values we need to know whether we are looking at text, image data, or sound files. The same numbers would mean very different things in those different contexts.
+Storing text on a computer is easy. We have letters/characters as a fundamental unit, and there is a fairly straightforward mapping from a number to the character it encodes. This is not the case with graphical information. There are different ways to represent images, all with different pros and cons.
 
-Handling text is easy, as we have as letters/characters as a fundamental unit, and we have a mapping from number to character, in the early days via EBCDIC and ASCII. As the need arose to handle languages other than English life became a bit more complicated, and we now also have parts of characters as items, such as accents and other diacritics. But there is still a fairly straighforward one-to-one mapping.
-
-Text is also linear, and one-dimensional. Leaving aside the question of what the directions is (left-to-right, right-to-left, or even top-to-bottom), all we need is to know what the next item in the sequence is.
+Text is also linear, and one-dimensional. Leaving aside the question of what the text direction is, all we need is to know what the next item in the sequence is.
 
 Images are more complicated. For a start, they are two-dimensional, so we need to think about identifying where in our image a particular value is. Then, what is a value? Depending on what we want to capture, there are different ways of encoding graphical data. The most intuitive way these days seems to be as bitmap data, but that would not be very efficient if you wanted to deal with a collection of geometrical figures. A circle can be represented by three values (two coordinates and the radius), whereas a bitmap would not only be much larger in size, but also a rough approximation only.
 
@@ -91,7 +89,11 @@ A straightforward way to manipulate images is to use UIKit's `UIGraphicsBeginIma
 }
 ```
 
-After placing the images on the canvas and adding two filled circles, we can turn the graphics context into a `UIImage` with a single method call.
+After placing the images on the canvas and adding two filled circles, we can turn the graphics context into a `UIImage` with a single method call. The output of that method looks as follows:
+
+![Stereogram output](/images/issue-21/stereogram-output.jpg)
+
+It is composed of the two photos taken from slightly different camera positions, and a black strip with two centered white dots to aid the viewing process.
 
 It is a bit more complex if we want to mess with the actual pixel values. If we don't want to have two photos next two each other as a sterogram, but instead want a so-called anaglyph (a red/green image that you use colored 3D glasses to look at), we have to create a context with `CGBitmapContextCreate`, which includes a color space (such as RGB). We can then iterate over the bitmaps (left and right photos), and get at the individual color channel values. For example, we keep the green and blue values of one image as they were, and merge in the green and blue values of the other photo into the red value:
 
@@ -126,7 +128,7 @@ CGImageRelease(composedImage);
 return retval;
 ```
 
-With this method we have full access to the actual pixels, and can do with them whatever we like. It is worth, however, checking whether there are already filters available via Core Image, as they will be much easier to use and generally more optimized than any processing of individual pixel values.
+With this method we have full access to the actual pixels, and can do with them whatever we like. It is worth, however, checking whether there are already filters available via [Core Image](/issue-21/core-image-intro.html), as they will be much easier to use and generally more optimized than any processing of individual pixel values. [Learn more about anaglyphs](http://www.3dtv.at/knowhow/anaglyphcomparison_en.aspx). The function listed above implements the Optimized Anaglyphs method on that page.
 
 
 Metadata
