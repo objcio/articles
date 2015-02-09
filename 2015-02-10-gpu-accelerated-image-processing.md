@@ -239,11 +239,11 @@ It isn’t super important at this juncture to break out the old slide rule and 
 
 We’re not going to go over all of the built-in functions for GLSL in this article, but a good resource for this can be found at [Shaderific](http://www.shaderific.com/glsl-functions). The vast majority of the GLSL functions are derived from basic math operations that are present in the C Math Library, so it isn’t really a good use of time to explain what the sin function does. We’re going to stick to some of the more esoteric functions for the purposes of this article, in order to explain some of the nuances of how to get the best performance out of your GPU.
 
-- **`step()`:** One limitation that your GPU has is that it doesn’t really deal well with conditional logic. The GPU likes to take a bunch of operations and just apply them to everything. Branching can lead to significant slowdowns in fragment shaders, particularly on mobile devices. `step()` works around this limitation somewhat by allowing conditional logic without branching. If a variable passed into a `step()` function is less than a threshold value, `step()` returns 0.0. If the variable is greater or equal, it returns 1.0. By multiplying this result times values in your shader, values can be used or ignored based on conditional logic, all without an `if()` statement.
+**`step()`:** One limitation that your GPU has is that it doesn’t really deal well with conditional logic. The GPU likes to take a bunch of operations and just apply them to everything. Branching can lead to significant slowdowns in fragment shaders, particularly on mobile devices. `step()` works around this limitation somewhat by allowing conditional logic without branching. If a variable passed into a `step()` function is less than a threshold value, `step()` returns 0.0. If the variable is greater or equal, it returns 1.0. By multiplying this result times values in your shader, values can be used or ignored based on conditional logic, all without an `if()` statement.
 
-- **`mix()`:** The mix function blends two values (such as colors) to a variable degree. If we had two colors of red and green, we could linearly interpolate between them using a `mix()` function. This is commonly used in image processing to control the strength of an effect in response to a uniform set by the application.
+**`mix()`:** The mix function blends two values (such as colors) to a variable degree. If we had two colors of red and green, we could linearly interpolate between them using a `mix()` function. This is commonly used in image processing to control the strength of an effect in response to a uniform set by the application.
 
-- **`clamp()`:** One of the consistent aspects of GLSL is that it likes to use normalized coordinates. It wants and expects to receive values between 0.0 and 1.0 for things like color components or texture coordinates. In order to make sure that our values don't stray outside of this very narrow parameter, we can implement the `clamp()` function. The `clamp()` function checks to make sure your value is between 0.0 and 1.0. If your value is below 0.0, it will set its value to 0.0. This is done to avoid any general wonkiness that might arise if you are trying to do calculations and you accidentally receive a negative number or something that is entirely beyond the scope of the equation.
+**`clamp()`:** One of the consistent aspects of GLSL is that it likes to use normalized coordinates. It wants and expects to receive values between 0.0 and 1.0 for things like color components or texture coordinates. In order to make sure that our values don't stray outside of this very narrow parameter, we can implement the `clamp()` function. The `clamp()` function checks to make sure your value is between 0.0 and 1.0. If your value is below 0.0, it will set its value to 0.0. This is done to avoid any general wonkiness that might arise if you are trying to do calculations and you accidentally receive a negative number or something that is entirely beyond the scope of the equation.
 
 
 ## More Complex Shader Examples
@@ -252,7 +252,7 @@ I realize that deluge of math must have felt very overwhelming. If you’re stil
 
 ### Saturation Adjustment
 
-![Saturation Filter in Action](http://redqueencoder.com/wp-content/uploads/2015/01/Saturation.png)
+![Saturation Filter in Action](/images/issue-21/Saturation.png)
 
 This is a fragment shader that does saturation adjustment. This shader is based off of code from the book "[Graphics Shaders: Theory and Practice](http://www.amazon.com/Graphics-Shaders-Theory-Practice-Second/dp/1568814348/ref=sr_1_1?s=books&ie=UTF8&qid=1422557718&sr=1-1&keywords=graphics+shaders+theory+and+practice)," which I highly recommend to anyone interested in learning more about shaders.
 
@@ -328,7 +328,7 @@ So here is a nice, handy shader that lets you change your image from color to gr
 
 Finally, we’re going to go over a really nifty filter that you can pull out to impress your friends and terrify your enemies. This filter makes it look like there is a glass sphere sitting on top of your image. It's going to be quite a bit more complicated than the previous ones, but I have confidence that we can do it!
 
-![Sphere Refraction Filter in Action!](http://redqueencoder.com/wp-content/uploads/2015/02/sphereRefraction.png)
+![Sphere Refraction Filter in Action!](/images/issue-21/sphereRefraction.png)
 
 
 ```glsl
@@ -375,7 +375,7 @@ highp vec2 textureCoordinateToUse = vec2(textureCoordinate.x, (textureCoordinate
 
 The texture coordinates of our image are in a normalized 0.0-1.0 coordinate space. Normalized coordinate spaces means that instead of thinking of the phone as being 320 pixels across and 480 pixels high, the screen is one unit long and one unit wide. Since the phone is taller than it is long, we need to calculate an offset ratio for our sphere so that the sphere is round instead of oval:
 
-![We want a correct aspect ratio](http://redqueencoder.com/wp-content/uploads/2015/01/aspectRatio.png)
+![We want a correct aspect ratio](/images/issue-21/aspectRatio.png)
 
 ```glsl
 highp float distanceFromCenter = distance(center, textureCoordinateToUse);
@@ -389,7 +389,7 @@ lowp float checkForPresenceWithinSphere = step(distanceFromCenter, radius);
 
 Here is where we are going to figure out if our fragment resides within the sphere. We are checking to see how far away we are from the center of the sphere and what the radius is. If our distance is shorter than the radius, then the fragment exists within the sphere and this variable is set to 1.0. If, however, the distance from the center is longer than the radius, the fragment does not live within the sphere and this gets set to 0.0:
 
-![Pixels are either inside or outside the sphere](http://redqueencoder.com/wp-content/uploads/2015/01/distanceFromCenter2.png)
+![Pixels are either inside or outside the sphere](/images/issue-21/distanceFromCenter2.png)
 
 ```glsl
 distanceFromCenter = distanceFromCenter / radius;
@@ -403,7 +403,7 @@ highp float normalizedDepth = radius * sqrt(1.0 - distanceFromCenter * distanceF
 
 Since we are trying to emulate a glass sphere, we need to figure out how “deep” the sphere is. The virtual sphere, for all intents and purposes, is extending a distance up from the image surface toward the viewer in the z-axis. This is going to be used to help the computer figure out how to model the pixels that exist within the sphere. Also, since a sphere is round, there will be different depths for the sphere depending upon how far away you are from the center. The center of the sphere will refract light differently than the edges, due to the different orientations of the surface:
 
-![How deep is the sphere?](http://redqueencoder.com/wp-content/uploads/2015/01/normalizedDepth.png)
+![How deep is the sphere?](/images/issue-21/normalizedDepth.png)
 
 ```glsl
 highp vec3 sphereNormal = normalize(vec3(textureCoordinateToUse - center, normalizedDepth));
@@ -413,7 +413,7 @@ Again, we are back to normals, huzzah. To describe the orientation of the sphere
 
 Think about when you are using something like Adobe Illustrator. You create a triangle in Illustrator, but it's too small. You hold down the option key and you resize the triangle, except now it's too big. You then scale it down to get it to be the exact size you want:
 
-![What's the angle?](http://redqueencoder.com/wp-content/uploads/2015/01/sphereNormal.png)
+![What's the angle?](/images/issue-21/sphereNormal.png)
 
 ```glsl
 highp vec3 refractedVector = refract(vec3(0.0, 0.0, -1.0), sphereNormal, refractiveIndex);

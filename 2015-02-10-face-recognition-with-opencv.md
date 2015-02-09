@@ -87,7 +87,7 @@ For more details on how exactly C++ and Objective-C work together, have a look a
 
 So, now that we have an overview of OpenCV and how to integrate it into our apps, let's build a small demo app with it: an app that uses the video feed from the iPhone camera to continuously detect faces and draw them on screen. When the user taps on a face, our app will attempt to recognize the person. The user must then either tap "Correct" if our recognizer was right, or tap on the correct person to correct the prediction if it was wrong. Our face recognizer then learns from its mistakes and gets better over time:
 
-![Block diagram of the face detection and recognition system in our demo app](https://dl.dropboxusercontent.com/u/361895/blocks-face-recognition-objcio.jpg)
+![Block diagram of the face detection and recognition system in our demo app](/images/issue-21/blocks-face-recognition-objcio.jpg)
 
 The source code for the demo app is available on [GitHub](https://github.com/ekurutepe/iOS-OpenCV-FaceRec).
 
@@ -175,6 +175,7 @@ Our factory method creates an LBPH instance like this:
     fr->_faceClassifier = createLBPHFaceRecognizer();
     fr->_faceClassifier->load(path.UTF8String);
     return fr;
+}
 ```
 
 Prediction can be implemented as follows:

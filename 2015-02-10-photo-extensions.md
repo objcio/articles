@@ -1,7 +1,7 @@
 ---
 title:  "Photo Extensions"
 category: "21"
-date: "2015-02-10 07:00:00"
+date: "2015-02-10 08:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/iwantmyrealname\">Sam Davies</a>"
 ---
@@ -17,7 +17,7 @@ The user workflow for photo editing extensions is not the most intuitive. From
 selecting the photo you want to edit, it takes three taps to launch the
 extension, one of which is on a tiny, unintuitive button:
 
-![Image Editing Extension User Workflow](http://f.cl.ly/items/2C1V2t1x04402v1K3Q3m/user_workflow.png)
+![Image Editing Extension User Workflow](/images/issue-21/user_workflow.png)
 
 Nevertheless, image editing extensions offer a fantastic opportunity for
 developers to offer a seamless experience to users, thereby creating a consistent
@@ -46,28 +46,25 @@ introduction of iOS 8.
 To create a new image editing extension, add a new target to an existing iOS
 app project. There is a template target for the image editing extension:
 
-![Image Editing Extension Template](http://f.cl.ly/items/2t433C2Z0q1W17313a1B/Screen%20Shot%202015-01-31%20at%2017.42.36.png)
+![Image Editing Extension Template](/images/issue-21/xcode-target-template-photo-extension.png)
 
 This template consists of three components:
 
-1. __Storyboard__ Image editing extensions can have an almost completely custom
-UI. The system provides only a toolbar across the top, containing __Cancel__ and
+1. __Storyboard__ Image editing extensions can have an almost completely custom UI. The system provides only a toolbar across the top, containing __Cancel__ and
 __Done__ buttons:
-![Cancel/Done Buttons](http://cl.ly/image/2x0D1z1q3q08/cancel_done.png)
-Although the storyboard doesn't have size classes enabled by
-default, the system will respect them should you choose to activate them. Apple
-highly recommends using Auto Layout for building photo editing extensions,
-although there is no obvious reason why you couldn't perform manual layout. Still, you're flying in the face of danger if you decide to ignore
-Apple's advice.
+
+    ![Cancel/Done Buttons](/images/issue-21/cancel_done.png)
+
+    Although the storyboard doesn't have size classes enabled by default, the system will respect them should you choose to activate them. Apple highly recommends using Auto Layout for building photo editing extensions, although there is no obvious reason why you couldn't perform manual layout. Still, you're flying in the face of danger if you decide to ignore Apple's advice.
+
 2. __Info.plist__ This specifies the extension type and accepted media types,
 and is common to all extension types. The `NSExtension` key has a
 dictionary containing all the extension-related configurations:
-![Extension plist](http://cl.ly/image/3s0u1y2G1S2Q/extension_plist.png)
-The  `NSExtensionPointIdentifier` entry informs the system that this is a photo
-editing extension with a value of `com.apple.photo-editing`. The only key that
-is specific to photo editing is `PHSupportedMediaTypes`, and this is related to
-what types of media the extension can operate on. By default, this is an array
-with a single entry of `Image`, but you have the option of adding `Video`.
+
+    ![Extension plist](/images/issue-21/extension_plist.png)
+
+    The  `NSExtensionPointIdentifier` entry informs the system that this is a photo editing extension with a value of `com.apple.photo-editing`. The only key that is specific to photo editing is `PHSupportedMediaTypes`, and this is related to what types of media the extension can operate on. By default, this is an array with a single entry of `Image`, but you have the option of adding `Video`.
+
 3. __View Controller__ This adopts the `PHContentEditingController` protocol,
 which contains methods that form the lifecycle of an image editing extension.
 See the next section for further detail.
@@ -75,7 +72,7 @@ See the next section for further detail.
 Notably missing from this list is the ability to provide the imagery for the
 icon that appears in the extension selection menu:
 
-![Extension Icon](http://cl.ly/image/1h2m3o040H3I/extension_icon.png)
+![Extension Icon](/images/issue-21/extension_icon.png)
 
 This icon is provided by the AppIcon image set in the host app's asset catalog.
 The documentation is a little confusing here, as it implies that you have to
@@ -159,7 +156,7 @@ provided by the Photos UI. If the user decides to cancel with unsaved edits,
 then the `shouldShowCancelConfirmation` property should be overridden to return
 `true`:
 
-![Confirm Cancellation](http://cl.ly/image/3I3J3t1C2I3K/confirm_cancel.png)
+![Confirm Cancellation](/images/issue-21/confirm_cancel.png)
 
 If the cancelation is requested, then the `cancelContentEditing` method is
 called to allow you to clear up any temporary data that you've created.
@@ -287,7 +284,7 @@ in your output adjustment data, allowing you to implement a revert function for
 just your phase of the filter chain. The revert function provided by the Photos
 app will remove all the edits, returning the photo to its original state:
 
-![Revert Edits](http://cl.ly/image/1O0B3S0e0103/revert.png)
+![Revert Edits](/images/issue-21/revert.png)
 
 
 ### Code/Data Sharing
@@ -306,7 +303,7 @@ the extension.
 Note that since the framework will be used from an app extension, you must
 restrict the APIs it can use on the target settings page:
 
-![Restrict Framework API](http://cl.ly/image/1w2o0N240P45/app_extension_api.png)
+![Restrict Framework API](/images/issue-21/app_extension_api.png)
 
 Sharing data is a less obvious requirement, and in many cases it won't exist.
 However, if necessary, you can create a shared container, which is
@@ -323,7 +320,7 @@ should build it and then let you select which app to run. Since photo
 editing extensions can only be activated from within the system Photos app, you
 should select the Photos app:
 
-![Select App](http://cl.ly/image/2G3v11410U2E/select_app.png)
+![Select App](/images/issue-21/select_app.png)
 
 If this instead launches your container app, then you can edit the extension's
 scheme to set the executable to __Ask on Launch__.

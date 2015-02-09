@@ -1,7 +1,7 @@
 ---
 title:  "An Introduction to Core Image"
 category: "21"
-date: "2015-02-10 06:00:00"
+date: "2015-02-10 07:00:00"
 tags: article
 author: "<a href=\"http://twitter.com/warrenm\">Warren Moore</a>"
 ---
@@ -94,18 +94,18 @@ In this section, we will construct a filter graph for producing images in the st
 
 Quartz Composer, available for [download from the Apple Developer website](https://developer.apple.com/downloads/index.action?name=Graphics), is useful for prototyping Core Image filter graphs. Below, we have composed the desired photo filter by wiring together the Color Monochrome filter and the Vignette filter:
 
-![A filter graph built with Quartz Composer, showing intermediate filtered images](http://warrenmoore.net/files/cipreview/quartz.png)
+![A filter graph built with Quartz Composer, showing intermediate filtered images](/images/issue-21/quartz.png)
 
 Once we're satisfied with the effect, we can recreate the filter graph in code:
 
 ```
 let sepiaColor = CIColor(red: 0.76, green: 0.65, blue: 0.54)
 let monochromeFilter = CIFilter(name: "CIColorMonochrome",
-                                withInputParameters: ["inputColor" : sepiaColor, "inputIntensity" : 1.0])
+    withInputParameters: ["inputColor" : sepiaColor, "inputIntensity" : 1.0])
 monochromeFilter.setValue(inputImage, forKey: "inputImage")
 
 let vignetteFilter = CIFilter(name: "CIVignette",
-                              withInputParameters: ["inputRadius" : 1.75, "inputIntensity" : 1.0])
+    withInputParameters: ["inputRadius" : 1.75, "inputIntensity" : 1.0])
 vignetteFilter.setValue(monochromeFilter.outputImage, forKey: "inputImage")
 
 let outputImage = vignetteFilter.outputImage
@@ -192,7 +192,7 @@ The [sample code](http://github.com/warrenm/core-image-explorer) for this articl
 
 To demonstrate a maximum number of filters, the sample app takes advantage of the introspective nature of Core Image and generates a user interface for controlling the parameters of the filters it supports:
 
-![Image being tweaked with the Color Controls filter](http://warrenmoore.net/files/cipreview/color-controls.png)
+![Image being tweaked with the Color Controls filter](/images/issue-21/color-controls.png)
 
 The sample app is restricted to filters that have a single input image, and zero or more numerical inputs. There are some interesting filters that do not fall into this category (notably, the compositing and transition filters). Even so, the app gives a good overview of the functionality available in Core Image.
 
@@ -202,7 +202,7 @@ For each input parameter to the filter, a slider is configured with the minimum 
 
 In addition to numerous other built-in filters, the sample app demonstrates the photo filters introduced in iOS 7. These filters have no parameters we can tune, but they merit inclusion, since they show how you can emulate the effects in the Photos app for iOS:
 
-![Image processed with the Transfer photo filter](http://warrenmoore.net/files/cipreview/photo-filters.png)
+![Image processed with the Transfer photo filter](/images/issue-21/photo-filters.png)
 
 ## Conclusion
 

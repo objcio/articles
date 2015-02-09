@@ -25,12 +25,12 @@ The first operation I'll describe may actually be used more frequently for cosme
 
 For example, let's see a scene before and after Sobel edge detection:
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-Chair.png" style="width:240px" alt="Original image"/>
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-Sobel.png" style="width:240px" alt="Sobel edge detection image"/>
+<img src="/images/issue-21/MV-Chair.png" style="display: inline-block; width:240px" alt="Original image"/>
+<img src="/images/issue-21/MV-Sobel.png" style="display: inline-block; width:240px" alt="Sobel edge detection image"/>
 
 As I mentioned, this is often used for visual effects. If the colors of the above are inverted, with the strongest edges represented in black instead of white, we get an image that resembles a pencil sketch:
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-Sketch.png" style="width:240px" alt="Sketch filtered image"/>
+<img src="/images/issue-21/MV-Sketch.png" style="width:240px" alt="Sketch filtered image"/>
 
 So how are these edges calculated? The first step in this process is a reduction of a color image to a luminance (grayscale) image. Janie Clayton explains how this is calculated in a fragment shader within [her article](TODO: link to Janie's article), but basically the red, green, and blue components of each pixel are weighted and summed to arrive at a single value for how bright that pixel is.
 
@@ -42,15 +42,15 @@ These kernels are applied once per pixel across the entire image. The order in w
 
 This is the horizontal kernel of the Sobel operator:
 
-<table border="1" width="125">
+<table border="1">
   <tr>
-    <td>-1</td><td>0</td><td>+1</td>
+    <td>−1</td><td>0</td><td>+1</td>
   </tr>
   <tr>
-    <td>-2</td><td>0</td><td>+2</td>
+    <td>−2</td><td>0</td><td>+2</td>
   </tr>
   <tr>
-    <td>-1</td><td>0</td><td>+1</td>
+    <td>−1</td><td>0</td><td>+1</td>
   </tr>
 </table>
 
@@ -62,7 +62,7 @@ The Sobel operator has two stages, the horizontal kernel being the first. A vert
 
 <table border="1" width="125">
   <tr>
-    <td>-1</td><td>-2</td><td>-1</td>
+    <td>−1</td><td>−2</td><td>−1</td>
   </tr>
   <tr>
     <td>0</td><td>0</td><td>0</td>
@@ -124,7 +124,7 @@ Sobel edge detection can give you a good visual measure of edge strength in a sc
 
 A more involved form of edge detection, called Canny edge detection,[^3] might be what you want here. Canny edge detection can produce connected, single-pixel-wide edges of objects in a scene:
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-Canny.png" style="width:240px" alt="Canny edge detection image"/>
+<img src="/images/issue-21/MV-Canny.png" style="width:240px" alt="Canny edge detection image"/>
 
 The Canny edge detection process consists of a sequence of steps. First, like with Sobel edge detection (and the other techniques we'll discuss), the image needs to be converted to luminance before edge detection is applied to it. Once a grayscale luminance image has been obtained, a slight [Gaussian blur](http://www.sunsetlakesoftware.com/2013/10/21/optimizing-gaussian-blurs-mobile-gpu) is used to reduce the effect of sensor noise on the edges being detected.
 
@@ -212,17 +212,17 @@ Looking at this equation, you might think that the first two terms should cancel
 
 Here we start with a test image drawn from [this question on the Signal Processing Stack Exchange site](http://dsp.stackexchange.com/questions/401/how-to-detect-corners-in-a-binary-images-with-opengl):
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HarrisSquares.png" alt="Harris corner detector test image"/>
+<img src="/images/issue-21/MV-HarrisSquares.png" alt="Harris corner detector test image"/>
 
 The resulting cornerness map from the above calculation looks something like this:
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HarrisCornerness.png" alt="Harris cornerness intermediate image"/>
+<img src="/images/issue-21/MV-HarrisCornerness.png" alt="Harris cornerness intermediate image"/>
 
 To find the exact location of corners within this map, we need to pick out local maxima (pixels of highest brightness in a region). A non-maximum suppression filter is used for this. Similar to what we did with the Canny edge detection, we now look at pixels surrounding a central one (starting at a one-pixel radius, but this can be expanded), and only keep a pixel if it is brighter than all of its neighbors. We turn it to black otherwise. This should leave behind only the brightest pixels in a general region, or those most likely to be corners.
 
 From that, we now can read the image and see that any non-black pixel is a location of a corner:
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HarrisCorners.png" alt="Harris corners"/>
+<img src="/images/issue-21/MV-HarrisCorners.png" alt="Harris corners"/>
 
 I'm currently doing this point extraction stage on the CPU, which can be a bottleneck in the corner detection process, but it may be possible to accelerate this on the GPU using histogram pyramids.[^8]
 
@@ -238,13 +238,13 @@ In 2011, Dubská, *et al.*[^10] [^11]</sup> proposed a much simpler, more elegan
 
 Let's take a line and pick three points within it:
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-ParallelCoordinateSpace.png" alt="An example line"/>
+<img src="/images/issue-21/MV-ParallelCoordinateSpace.png" alt="An example line"/>
 
 To transform this to parallel coordinate space, we'll draw three parallel vertical axes. On the center axis, we'll take the X components of our line points and draw points at 1, 2, and 3 steps up from zero. On the left axis, we'll take the Y components of our line points and draw points at 4, 6, and 8 steps up from zero. On the right axis, we'll do the same, only we'll make the Y values negative.
 
 We'll then connect the Y component points to the corresponding X coordinate component on the center axis. That creates a drawing like the following:
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-ParallelCoordinateTransform.png" alt="Points transformed into parallel coordinate space"/>
+<img src="/images/issue-21/MV-ParallelCoordinateTransform.png" alt="Points transformed into parallel coordinate space"/>
 
 You'll notice that the three lines on the right intersect at a point. This point determines the slope and intercept of our line in real space. If we had a line that sloped downward, we'd have an intersection on the left half of this graph.
 
@@ -264,15 +264,15 @@ After the edge detection, the edge points are read and used to draw lines in par
 
 For example, we can start with this test image:
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HoughSampleImage.png" alt="Sample image for line detection"/>
+<img src="/images/issue-21/MV-HoughSampleImage.png" alt="Sample image for line detection"/>
 
 And this is what we get in parallel coordinate space (I've shifted the negative half upward to halve the Y space needed):
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HoughParallel.png" alt="Hough parallel coordinate space"/>
+<img src="/images/issue-21/MV-HoughParallel.png" alt="Hough parallel coordinate space"/>
 
 Those bright central points are where we detect lines. A non-maximum suppression filter is then used to find the local maxima and reduce everything else to black. From there, the points are converted back to line slopes and intercepts, yielding this result:
 
-<img src="http://sunsetlakesoftware.com/sites/default/files/Objcio/MV-HoughLines.png" alt="Hough transform line detection"/>
+<img src="/images/issue-21/MV-HoughLines.png" alt="Hough transform line detection"/>
 
 I should point out that the non-maximum suppression is one of the weaker points in the current implementation of this within GPUImage. It causes lines to be detected where there are none, or multiple lines to be detected near strong lines in a noisy scene.
 
