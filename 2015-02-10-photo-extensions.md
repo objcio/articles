@@ -31,8 +31,7 @@ associated with creating photo editing extensions.
 The __Filtster__ project, which accompanies this article, demonstrates how you
 can set up your own image editing extension. It represents a really simple image
 filtering process using a couple of Core Image filters. You can get hold of the
-complete __Filtster__ project on GitHub at
-[github.com/sammyd/Filtster](https://github.com/sammyd/Filtster).
+[complete __Filtster__ project on GitHub](https://github.com/objcio/issue-21-photo-extensions-Filtster).
 
 ## Creating an Extension
 

@@ -89,7 +89,7 @@ So, now that we have an overview of OpenCV and how to integrate it into our apps
 
 ![Block diagram of the face detection and recognition system in our demo app](/images/issue-21/blocks-face-recognition-objcio.jpg)
 
-The source code for the demo app is available on [GitHub](https://github.com/ekurutepe/iOS-OpenCV-FaceRec).
+The source code for the demo app is available on [GitHub](https://github.com/objcio/issue-21-OpenCV-FaceRec).
 
 ###Live Video Capture
 

@@ -8,7 +8,7 @@ author: "<a href=\"http://twitter.com/warrenm\">Warren Moore</a>"
 
 This article is a beginner's introduction to Core Image, an image processing framework for OS X and iOS.
 
-If you would like to follow along with the code in this article, you can download [the sample project at GitHub](http://github.com/warrenm/core-image-explorer). The sample project is an iOS app that lists a large selection of system-provided image filters, and provides a UI for tweaking their parameters and observing the effects.
+If you would like to follow along with the code in this article, you can download [the sample project at GitHub](https://github.com/objcio/issue-21-core-image-explorer). The sample project is an iOS app that lists a large selection of system-provided image filters, and provides a UI for tweaking their parameters and observing the effects.
 
 Although the sample code is written in Swift for iOS, the concepts transfer readily to Objective-C and OS X.
 
@@ -186,7 +186,7 @@ You can determine whether a CPU or GPU renderer is in use by setting the `CI_PRI
 
 ## A Tour of the Sample App
 
-The [sample code](http://github.com/warrenm/core-image-explorer) for this article consists of an iPhone app that showcases a broad variety of the image filters available in Core Image for iOS.
+The [sample code](https://github.com/objcio/issue-21-core-image-explorer) for this article consists of an iPhone app that showcases a broad variety of the image filters available in Core Image for iOS.
 
 ### Creating a GUI from Filter Parameters
 
