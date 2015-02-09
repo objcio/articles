@@ -42,15 +42,25 @@ These kernels are applied once per pixel across the entire image. The order in w
 
 This is the horizontal kernel of the Sobel operator:
 
-<table border="1">
+<style type="text/css">
+  table.border td {
+      border: 1px solid #ccc;
+  }
+  td.center {
+    padding-left: 1em;
+    padding-right: 1em;
+    text-align: center;
+  }
+</style>
+<table class="border">
   <tr>
-    <td>−1</td><td>0</td><td>+1</td>
+    <td class="center">−1</td><td class="center">0</td><td class="center">+1</td>
   </tr>
   <tr>
-    <td>−2</td><td>0</td><td>+2</td>
+    <td class="center">−2</td><td class="center">0</td><td class="center">+2</td>
   </tr>
   <tr>
-    <td>−1</td><td>0</td><td>+1</td>
+    <td class="center">−1</td><td class="center">0</td><td class="center">+1</td>
   </tr>
 </table>
 
@@ -60,15 +70,15 @@ How this works to find an edge in a direction is that it looks for differences i
 
 The Sobel operator has two stages, the horizontal kernel being the first. A vertical kernel is applied at the same time, with the following matrix of weights:
 
-<table border="1" width="125">
+<table class="border">
   <tr>
-    <td>−1</td><td>−2</td><td>−1</td>
+    <td class="center">−1</td><td class="center">−2</td><td class="center">−1</td>
   </tr>
   <tr>
-    <td>0</td><td>0</td><td>0</td>
+    <td class="center">0</td><td class="center">0</td><td class="center">0</td>
   </tr>
   <tr>
-    <td>+1</td><td>+2</td><td>+1</td>
+    <td class="center">+1</td><td class="center">+2</td><td class="center">+1</td>
   </tr>
 </table>
 
