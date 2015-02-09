@@ -210,7 +210,7 @@ if currentCameraDevice.isFocusModeSupported(focusMode) {
 }
 ```
 
-By default, the `AutoFocus` mode tries to get the center of the screen as the sharpest area, but it is possible to set another area by changing the "point of interest." This is a `CGPoint`, with values ranging from `{ 0.0 , 0.0 }`(top left) to `{ 1.0, 1.0 }` (bottom right), and `{ 0.5, 0.5 }` being the center of the frame.
+By default, the `AutoFocus` mode tries to get the center of the screen as the sharpest area, but it is possible to set another area by changing the "point of interest." This is a `CGPoint`, with values ranging from `{ 0.0 , 0.0 }` (top left) to `{ 1.0, 1.0 }` (bottom right), and `{ 0.5, 0.5 }` being the center of the frame.
 Usually this can be implemented with a tap gesture recognizer on the video preview, and to help with translating the point from the coordinate of the view to the device's normalized coordinates, we can use  `AVVideoCaptureVideoPreviewLayer.captureDevicePointOfInterestForPoint()`:
 
 ```swift
@@ -238,7 +238,7 @@ currentCameraDevice.setFocusModeLockedWithLensPosition(lensPosition) {
 ... // unlock
 ```
 
-This means that the focus can be set with a `UISlider`, for example, which would be the equivalent of rotating the focusing ring on a DSLR. When focusing manually with these kinds of cameras, there is usually a visual aid that indicates the sharp areas. There is no such built-in mechanism in AVFoundation, but it could be interesting to display, for instance, a sort of ["focus peaking"](https://en.wikipedia.org/wiki/Focus_peaking). We won't go into details here, but focus peaking could be easily implemented by applying a threshold edge detect filter (with a custom `CIFilter` or [`GPUImageThresholdEdgeDetectionFilter`](https://github.com/BradLarson/GPUImage/blob/master/framework/Source/GPUImageThresholdEdgeDetectionFilter.h)), and overlaying it onto the live preview in the `AVCaptureAudioDataOutputSampleBufferDelegate.captureOutput(_:didOutputSampleBuffer:fromConnection:)` method seen above.
+This means that the focus can be set with a `UISlider`, for example, which would be the equivalent of rotating the focusing ring on a DSLR. When focusing manually with these kinds of cameras, there is usually a visual aid that indicates the sharp areas. There is no such built-in mechanism in AVFoundation, but it could be interesting to display, for instance, a sort of ["focus peaking"](https://en.wikipedia.org/wiki/Focus_peaking). We won't go into details here, but focus peaking could be easily implemented by applying a threshold edge detect filter (with a custom `CIFilter` or [`GPUImageThresholdEdgeDetectionFilter`](https://github.com/BradLarson/GPUImage/blob/master/framework/Source/GPUImageThresholdEdgeDetectionFilter.h)), and overlaying it onto the live preview in the `captureOutput(_:didOutputSampleBuffer:fromConnection:)` method of `AVCaptureAudioDataOutputSampleBufferDelegate` seen above.
 
 ### Exposure
 
@@ -310,6 +310,8 @@ func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects met
       }
     }
 ```
+
+Check out [Engin’s article in this issue](/issue-21/face-recognition-with-opencv.html) for more on face detection and recognition.
 
 ### Capturing a Still Image
 
