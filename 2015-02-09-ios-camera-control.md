@@ -157,7 +157,7 @@ session.sessionPreset = AVCaptureSessionPresetPhoto
 
 The `AVCaptureSessionPresetPhoto` selects the best configuration for the capture of a photo, i.e. it enables the maximum ISO and exposure duration ranges, the phase detection autofocus (TODO: link to camera article), and a full resolution, JPEG-compressed still image output.
 
-However, if you need more control, the `AVCaptureDeviceFormat` class describes the parameters applicable to the device, such as still image resolution, video preview resolution, which autofocus system, ISO and exposure duration limits. Every device supports a set of formats, listed in the `AVCaptureDevice.formats` property, and the proper format can be set as the  `activeFormat` of the `AVCaptureDevice` (note that you cannot modify a format).
+However, if you need more control, the `AVCaptureDeviceFormat` class describes the parameters applicable to the device, such as still image resolution, video preview resolution, the type of autofocus system, ISO, and exposure duration limits. Every device supports a set of formats, listed in the `AVCaptureDevice.formats` property, and the proper format can be set as the  `activeFormat` of the `AVCaptureDevice` (note that you cannot modify a format).
 
 ## Controlling the Camera
 
@@ -242,8 +242,7 @@ This means that the focus can be set with a `UISlider`, for example, which would
 
 ### Exposure
 
-On iOS devices, the aperture of the lens is fixed (at f/2.2 for iPhones after 5s, and at f/2.4 for previous models), so only the exposure duration and the sensor sensibility can be tweaked to accomplish the most appropriate image brightness. As for the focus, we can have continuous auto exposure, one-time auto exposure on the point of interest, or manual exposure.
-Other than specifying a point of interest, we can modify the auto exposure by setting a compensation, known as target bias, expressed in *f-stops*, whose values range between `minExposureTargetBias` and `maxExposureTargetBias`, with 0 being the default (no compensation):
+On iOS devices, the aperture of the lens is fixed (at f/2.2 for iPhones after 5s, and at f/2.4 for previous models), so only the exposure duration and the sensor sensibility can be tweaked to accomplish the most appropriate image brightness. As for the focus, we can have continuous auto exposure, one-time auto exposure on the point of interest, or manual exposure. Other than specifying a point of interest, we can modify the auto exposure by setting a compensation, known as *target bias*. The target bias is expressed in *f-stops*, and its values range between `minExposureTargetBias` and `maxExposureTargetBias`, with 0 being the default (no compensation):
 
 ```swift
 var exposureBias:Float = ... // a value between minExposureTargetBias and maxExposureTargetBias
@@ -271,7 +270,7 @@ How do we know that the picture is correctly exposed? We can observe the `exposu
 
 Digital cameras need to compensate for different types of lighting. This means that the sensor should increase the red component, for example, in case of a cold light, and the blue component in case of a warm light. On an iPhone camera, the proper compensation can be automatically determined by the device, but sometimes, as it happens with any camera, it gets tricked by the colors in the scene. Luckily, iOS 8 made manual controls available for the white balance as well.
 
-The automatic modes work in the same way as the focus and exposure, but there's no point of interest; the whole image is considered. In manual mode, we can compensate for the temperature, expressed in Kelvin degrees. Lower values (around 3000) will look good in warm light, higher values (8000) with a blue sky, and the tint, from a minimum of -150 (shift to green) to a maximum of 150 (shift to magenta).
+The automatic modes work in the same way as the focus and exposure, but there's no point of interest; the whole image is considered. In manual mode, we can compensate for the temperature and the tint, with the temperature expressed in Kelvin degrees. Lower values (around 3000) will look good in warm light, higher values (8000) with a blue sky. The tint ranges from a minimum of -150 (shift to green) to a maximum of 150 (shift to magenta).
 
 Temperature and tint will be used to calculate the proper RGB gain of the camera sensor, thus they have to be normalized for the device before they can be set.
 
