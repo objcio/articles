@@ -36,7 +36,7 @@ When taking a photo, we must adjust the camera in such a way that the amount of 
 | <img src="/images/issue-21/underexposed.jpg" alt="underexposed" width="631px" height="489px"> | <img src="/images/issue-21/underexposed_adjusted.jpg" alt="underexposed" width="631px" height="489px"> |
 | <img src="/images/issue-21/overexposed.jpg" alt="overexposed" width="631px" height="489px"> | <img src="/images/issue-21/overexposed_adjusted.jpg" alt="overexposed" width="631px" height="489px"> |
 
-In the underexposed image, even after trying to make it brighter, the dark regions of the image are "stuck" as black, and there is no way to make out that the pens in the image actually have different colors. The overexposed image has large regions that are stuck at the same level of white / gray. Note how the pattern on the fabric band and the coins is completely lost.
+In the underexposed image, even after trying to make it brighter, the dark regions of the image are "stuck" as black, and there is no way to make out that the pens in the image actually have different colors. The overexposed image has large regions that are stuck at the same level of white/gray. Note how the pattern on the fabric band and the coins is completely lost.
 
 ### Stops
 
@@ -168,7 +168,7 @@ Now we know how the iPhone measures how much light hits each pixel. But this wou
 
 It may seem too obvious that a deep green forest is deep green, and that a bright yellow bike is bright yellow. But what is this thing called “color?” When working with computers, we might be tempted to answer that a particular color is just a combination of certain amounts of red, green, and blue. But in reality, things are more complicated.
 
-Some people ([CIE](https://en.wikipedia.org/wiki/International_Commission_on_Illumination) try to define color, but end up with confusing words like these:
+Some people ([CIE](https://en.wikipedia.org/wiki/International_Commission_on_Illumination)) try to define color, but end up with confusing words like these:
 
 > Color is the attribute of visual perception consisting of any combination of chromatic and achromatic content. This attribute can be described by chromatic color names such as yellow, orange, brown, red, pink, green, blue, purple, etc., or by achromatic color names such as white, grey, black, etc., and qualified by bright, dim, light, dark or by combinations of such names.
 >
