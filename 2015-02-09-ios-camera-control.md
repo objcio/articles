@@ -155,13 +155,13 @@ The simplest — and the most recommended — is to use a session preset:
 session.sessionPreset = AVCaptureSessionPresetPhoto
 ```
 
-The `AVCaptureSessionPresetPhoto` selects the best configuration for the capture of a photo, i.e. it enables the maximum ISO and exposure duration ranges, the phase detection autofocus (TODO: link to camera article), and a full resolution, JPEG-compressed still image output.
+The `AVCaptureSessionPresetPhoto` selects the best configuration for the capture of a photo, i.e. it enables the maximum ISO and exposure duration ranges, the [phase detection](https://en.wikipedia.org/wiki/Autofocus#Phase_detection) autofocus, and a full resolution, JPEG-compressed still image output.
 
 However, if you need more control, the `AVCaptureDeviceFormat` class describes the parameters applicable to the device, such as still image resolution, video preview resolution, the type of autofocus system, ISO, and exposure duration limits. Every device supports a set of formats, listed in the `AVCaptureDevice.formats` property, and the proper format can be set as the  `activeFormat` of the `AVCaptureDevice` (note that you cannot modify a format).
 
 ## Controlling the Camera
 
-The camera built into iPhones and iPads has more or less the same controls as other cameras, with some exceptions: parameters such as focus, exposure duration (the analog of the shutter speed on DSLR cameras), and ISO sensitivity can be adjusted, but the lens aperture is fixed. Since iOS 8, we have access to full manual control of all the adjustments.
+The camera built into iPhones and iPads has more or less the same controls as other cameras, with some exceptions: parameters such as focus, exposure duration (the analog of the [shutter speed](/issue-21/how-your-camera-works.html#shutterspeed) on DSLR cameras), and ISO sensitivity can be adjusted, but the lens aperture is fixed. Since iOS 8, we have access to full manual control of all the adjustments.
 
 We'll look at the details later, but first, it's time to start the camera:
 
@@ -190,7 +190,7 @@ else {
 
 Focus on an iOS camera is achieved by moving the lens closer to, or further from, the sensor.
 
-Autofocus is implemented with phase detection or contrast detection (TODO: link to the camera article). The latter, however, is available only for low-resolution, high-FPS video capture (slow motion).
+Autofocus is implemented with phase detection or contrast detection. The latter, however, is available only for low-resolution, high-FPS video capture (slow motion).
 
 The enum `AVCaptureFocusMode` describes the available focus modes:
 
@@ -238,11 +238,11 @@ currentCameraDevice.setFocusModeLockedWithLensPosition(lensPosition) {
 ... // unlock
 ```
 
-This means that the focus can be set with a `UISlider`, for example, which would be the equivalent of rotating the focusing ring on a DSLR. When focusing manually with these kinds of cameras, there is usually a visual aid that indicates the sharp areas. There is no such built-in mechanism in AVFoundation, but it could be interesting to display, for instance, a sort of "focus peaking" (TODO link to article or wikipedia). We won't go into details here, but focus peaking could be easily implemented by applying a threshold edge detect filter (with a custom `CIFilter` or [`GPUImageThresholdEdgeDetectionFilter`](https://github.com/BradLarson/GPUImage/blob/master/framework/Source/GPUImageThresholdEdgeDetectionFilter.h)), and overlaying it onto the live preview in the `AVCaptureAudioDataOutputSampleBufferDelegate.captureOutput(_:didOutputSampleBuffer:fromConnection:)` method seen above.
+This means that the focus can be set with a `UISlider`, for example, which would be the equivalent of rotating the focusing ring on a DSLR. When focusing manually with these kinds of cameras, there is usually a visual aid that indicates the sharp areas. There is no such built-in mechanism in AVFoundation, but it could be interesting to display, for instance, a sort of ["focus peaking"](https://en.wikipedia.org/wiki/Focus_peaking). We won't go into details here, but focus peaking could be easily implemented by applying a threshold edge detect filter (with a custom `CIFilter` or [`GPUImageThresholdEdgeDetectionFilter`](https://github.com/BradLarson/GPUImage/blob/master/framework/Source/GPUImageThresholdEdgeDetectionFilter.h)), and overlaying it onto the live preview in the `AVCaptureAudioDataOutputSampleBufferDelegate.captureOutput(_:didOutputSampleBuffer:fromConnection:)` method seen above.
 
 ### Exposure
 
-On iOS devices, the aperture of the lens is fixed (at f/2.2 for iPhones after 5s, and at f/2.4 for previous models), so only the exposure duration and the sensor sensibility can be tweaked to accomplish the most appropriate image brightness. As for the focus, we can have continuous auto exposure, one-time auto exposure on the point of interest, or manual exposure. Other than specifying a point of interest, we can modify the auto exposure by setting a compensation, known as *target bias*. The target bias is expressed in *f-stops*, and its values range between `minExposureTargetBias` and `maxExposureTargetBias`, with 0 being the default (no compensation):
+On iOS devices, the aperture of the lens is fixed (at f/2.2 for iPhones after 5s, and at f/2.4 for previous models), so only the exposure duration and the sensor sensibility can be tweaked to accomplish the most appropriate image brightness. As for the focus, we can have continuous auto exposure, one-time auto exposure on the point of interest, or manual exposure. Other than specifying a point of interest, we can modify the auto exposure by setting a compensation, known as *target bias*. The target bias is expressed in [*f-stops*](/issue-21/how-your-camera-works.html#stops), and its values range between `minExposureTargetBias` and `maxExposureTargetBias`, with 0 being the default (no compensation):
 
 ```swift
 var exposureBias:Float = ... // a value between minExposureTargetBias and maxExposureTargetBias
@@ -268,7 +268,7 @@ How do we know that the picture is correctly exposed? We can observe the `exposu
 
 ### White Balance
 
-Digital cameras need to compensate for different types of lighting. This means that the sensor should increase the red component, for example, in case of a cold light, and the blue component in case of a warm light. On an iPhone camera, the proper compensation can be automatically determined by the device, but sometimes, as it happens with any camera, it gets tricked by the colors in the scene. Luckily, iOS 8 made manual controls available for the white balance as well.
+Digital cameras [need to compensate](/issue-21/how-your-camera-works.html#whiteisnotwhite) for different types of lighting. This means that the sensor should increase the red component, for example, in case of a cold light, and the blue component in case of a warm light. On an iPhone camera, the proper compensation can be automatically determined by the device, but sometimes, as it happens with any camera, it gets tricked by the colors in the scene. Luckily, iOS 8 made manual controls available for the white balance as well.
 
 The automatic modes work in the same way as the focus and exposure, but there's no point of interest; the whole image is considered. In manual mode, we can compensate for the temperature and the tint, with the temperature expressed in Kelvin degrees. Lower values (around 3000) will look good in warm light, higher values (8000) with a blue sky. The tint ranges from a minimum of -150 (shift to green) to a maximum of 150 (shift to magenta).
 
