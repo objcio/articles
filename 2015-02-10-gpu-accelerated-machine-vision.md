@@ -17,7 +17,7 @@ GPUs are ideally suited to operate on images and video because they are tuned to
 
 One of the things I learned while working on GPUImage is how even seemingly complex image processing operations can be built from smaller, simpler ones. I'd like to break down the components of some common machine vision processes, and show how these processes can be accelerated to run on modern GPUs.
 
-Every operation analyzed here has a full implementation within GPUImage, and you can try them yourself by grabbing the project and building the FilterShowcase sample application either for OS X or iOS. Additionally, all of these operations have CPU-based (and some GPU-accelerated) implementations within the OpenCV framework, which Engin Kurutepe talks about in [his article within this issue](TODO: link to Engin Kurutepe's article).
+Every operation analyzed here has a full implementation within GPUImage, and you can try them yourself by grabbing the project and building the FilterShowcase sample application either for OS X or iOS. Additionally, all of these operations have CPU-based (and some GPU-accelerated) implementations within the OpenCV framework, which Engin Kurutepe talks about in [his article within this issue](/issue-21/face-recognition-with-opencv.html).
 
 ## Sobel Edge Detection
 
@@ -32,13 +32,13 @@ As I mentioned, this is often used for visual effects. If the colors of the abov
 
 <img src="/images/issue-21/MV-Sketch.png" style="width:240px" alt="Sketch filtered image"/>
 
-So how are these edges calculated? The first step in this process is a reduction of a color image to a luminance (grayscale) image. Janie Clayton explains how this is calculated in a fragment shader within [her article](TODO: link to Janie's article), but basically the red, green, and blue components of each pixel are weighted and summed to arrive at a single value for how bright that pixel is.
+So how are these edges calculated? The first step in this process is a reduction of a color image to a luminance (grayscale) image. Janie Clayton explains how this is calculated in a fragment shader within [her article](/issue-21/gpu-accelerated-image-processing.html), but basically the red, green, and blue components of each pixel are weighted and summed to arrive at a single value for how bright that pixel is.
 
 Some video sources and cameras provide YUV-format images, rather than RGB. The YUV color format splits luminance information (Y) from chrominance (UV), so for inputs like that, a color conversion step can be avoided. The luminance part of the image can be used directly.
 
 Once an image is reduced to its luminance, the edge strength near a pixel is calculated by looking at a 3x3 array of neighboring pixels. An image processing calculation performed over a block of pixels involves what is called a convolution kernel. Convolution kernels consist of a matrix of weights that are multiplied with the values of the pixels surrounding a central pixel, with the sum of those weighted values determining the final pixel value.
 
-These kernels are applied once per pixel across the entire image. The order in which pixels are processed doesn't matter, so a convolution across an image is an easy operation to parallelize. As a result, this can be greatly accelerated by running on a programmable GPU using fragment shaders. As described in [Janie's article](TODO: link to Janie's article), fragment shaders are C-like programs that can be used by GPUs to perform incredibly fast image processing.
+These kernels are applied once per pixel across the entire image. The order in which pixels are processed doesn't matter, so a convolution across an image is an easy operation to parallelize. As a result, this can be greatly accelerated by running on a programmable GPU using fragment shaders. As described in [Janie's article](/issue-21/gpu-accelerated-image-processing.html), fragment shaders are C-like programs that can be used by GPUs to perform incredibly fast image processing.
 
 This is the horizontal kernel of the Sobel operator:
 
@@ -214,7 +214,7 @@ As with the other processes we've talked about, the image is first reduced to lu
 
 A Gaussian blur is then applied to the result of that calculation. The values encoded in the red, green, and blue components are extracted from that blurred image and used to populate the variables of an equation for calculating the likelihood that a pixel is a corner point:
 
-R = I<sub>x</sub><sup>2</sup> * I<sub>y</sub><sup>2</sup> - I<sub>xy</sub> * I<sub>xy</sub> - k * (I<sub>x</sub><sup>2</sup> + I<sub>y</sub><sup>2</sup>)<sup>2</sup>
+R = I<sub>x</sub><sup>2</sup> × I<sub>y</sub><sup>2</sup> − I<sub>xy</sub> × I<sub>xy</sub> − k × (I<sub>x</sub><sup>2</sup> + I<sub>y</sub><sup>2</sup>)<sup>2</sup>
 
 Here, I<sub>x</sub> is the gradient intensity in the X direction (the red component in the blurred image), I<sub>y</sub> is the gradient intensity in Y (the green component), I<sub>xy</sub> is the product of these intensities (the blue component), k is a scaling factor for sensitivity, and R is the resulting "cornerness" of the pixel. Alternative implementations of this calculation have been proposed by Shi and Tomasi[^6] and Noble,[^7] but the results tend to be fairly similar.
 
@@ -260,9 +260,8 @@ You'll notice that the three lines on the right intersect at a point. This point
 
 If we take the distance from the center axis and call that u (2 in this case), take the vertical distance from zero and call that v (1/3 in this case), and then label the width between our axes d (6, based on how I spaced the axes in this drawing), we can calculate slope and Y-intercept using the following equations:
 
-slope = -1 + d/u
-
-intercept = d * v/u
+slope = −1 + d/u<br>
+intercept = d × v/u
 
 The slope is thus 2, and the Y-intercept 1, matching what we drew in our line above.
 
