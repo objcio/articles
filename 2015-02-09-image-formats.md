@@ -1,9 +1,9 @@
 ---
 title:  "Image Formats"
-category: "20"
-date: "2015-02-09 08:00:00"
+category: "21"
+date: "2015-02-10 10:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/ojmason\">Oliver Mason</a>"
+author: "<a href=\"https://twitter.com/ojmason\">Oliver Mason</a>"
 ---
 
 
