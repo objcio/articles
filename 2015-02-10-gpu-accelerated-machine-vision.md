@@ -1,14 +1,13 @@
 ---
-layout: post
-title:  "GPU-Accelerated Machine Vision Operations"
+title:  "GPU-Accelerated Machine Vision"
 category: "21"
-date: "2015-02-09 12:00:00"
+date: "2015-02-10 05:00:00"
 author: "<a href=\"https://twitter.com/bradlarson\">Brad Larson</a>"
 tags: article
 ---
 
 
-While the proliferation of cameras attached to mobile computers has been a boon for photography, there is much more that this can enable. Beyond simply capturing the outside world, the right software running on more powerful hardware can allow these computers to understand the things their cameras see. 
+While the proliferation of cameras attached to mobile computers has been a boon for photography, there is much more that this can enable. Beyond simply capturing the outside world, the right software running on more powerful hardware can allow these computers to understand the things their cameras see.
 
 This small bit of understanding can enable some truly powerful applications, such as barcode scanning, document recognition and imaging, translation of written words, real-time image stabilization, and augmented reality. As processing power, camera fidelity, and algorithms advance, this machine vision will be able to solve even more important problems.
 
@@ -37,7 +36,7 @@ So how are these edges calculated? The first step in this process is a reduction
 
 Some video sources and cameras provide YUV-format images, rather than RGB. The YUV color format splits luminance information (Y) from chrominance (UV), so for inputs like that, a color conversion step can be avoided. The luminance part of the image can be used directly.
 
-Once an image is reduced to its luminance, the edge strength near a pixel is calculated by looking at a 3x3 array of neighboring pixels. An image processing calculation performed over a block of pixels involves what is called a convolution kernel. Convolution kernels consist of a matrix of weights that are multiplied with the values of the pixels surrounding a central pixel, with the sum of those weighted values determining the final pixel value. 
+Once an image is reduced to its luminance, the edge strength near a pixel is calculated by looking at a 3x3 array of neighboring pixels. An image processing calculation performed over a block of pixels involves what is called a convolution kernel. Convolution kernels consist of a matrix of weights that are multiplied with the values of the pixels surrounding a central pixel, with the sum of those weighted values determining the final pixel value.
 
 These kernels are applied once per pixel across the entire image. The order in which pixels are processed doesn't matter, so a convolution across an image is an easy operation to parallelize. As a result, this can be greatly accelerated by running on a programmable GPU using fragment shaders. As described in [Janie's article](TODO: link to Janie's article), fragment shaders are C-like programs that can be used by GPUs to perform incredibly fast image processing.
 
@@ -112,7 +111,7 @@ void main()
    float h = -topLeftIntensity - 2.0 * topIntensity - topRightIntensity + bottomLeftIntensity + 2.0 * bottomIntensity + bottomRightIntensity;
    float v = -bottomLeftIntensity - 2.0 * leftIntensity - topLeftIntensity + bottomRightIntensity + 2.0 * rightIntensity + topRightIntensity;
    float mag = length(vec2(h, v));
-   
+
    gl_FragColor = vec4(vec3(mag), 1.0);
 }
 ```
@@ -131,7 +130,7 @@ The Canny edge detection process consists of a sequence of steps. First, like wi
 
 Once the image has been prepared, the edge detection can be performed. The specific GPU-accelerated process used here was originally described by Ensor and Hall in "GPU-based Image Analysis on Mobile Devices."[^4]
 
-First, both the edge strength at a given pixel and the direction of the edge gradient are determined. The edge gradient is the direction in which the greatest change in luminance is occurring. This is perpendicular to the direction the edge itself is running. 
+First, both the edge strength at a given pixel and the direction of the edge gradient are determined. The edge gradient is the direction in which the greatest change in luminance is occurring. This is perpendicular to the direction the edge itself is running.
 
 To find this, we use the Sobel kernel described in the previous section. The magnitude of the combined horizontal and vertical results gives the edge gradient strength, which is encoded in the red component of the output pixel. The horizontal and vertical Sobel results are then clamped to one of eight directions (corresponding to the eight pixels surrounding the central pixel), and the X component of that direction is encoded in the green component of the pixel. The Y component is placed into the blue component.
 
@@ -150,7 +149,7 @@ The shader used for this looks like the Sobel edge detection one above, only wit
 	gl_FragColor = vec4(gradientMagnitude, normalizedDirection.x, normalizedDirection.y, 1.0);
 ```
 
-To refine the Canny edges to be a single pixel wide, only the strongest parts of the edge are kept. For that, we need to find the local maximum of the edge gradient at each slice along its width. 
+To refine the Canny edges to be a single pixel wide, only the strongest parts of the edge are kept. For that, we need to find the local maximum of the edge gradient at each slice along its width.
 
 This is where the gradient direction we calculated in the last step comes into play. For each pixel, we look at the nearest neighboring pixels both forward and backward along this length, and compare their calculated gradient strength (edge intensity). If the current pixel's gradient strength is greater than those of the ones forward and backward along the gradient, we keep that pixel. If the strength is less than either of the neighboring pixels, we reject that pixel and turn it to black.
 
@@ -162,25 +161,25 @@ precision mediump float;
 varying highp vec2 textureCoordinate;
 
 uniform sampler2D inputImageTexture;
-uniform highp float texelWidth; 
-uniform highp float texelHeight; 
-uniform mediump float upperThreshold; 
-uniform mediump float lowerThreshold; 
+uniform highp float texelWidth;
+uniform highp float texelHeight;
+uniform mediump float upperThreshold;
+uniform mediump float lowerThreshold;
 
 void main()
 {
     vec3 currentGradientAndDirection = texture2D(inputImageTexture, textureCoordinate).rgb;
     vec2 gradientDirection = ((currentGradientAndDirection.gb * 2.0) - 1.0) * vec2(texelWidth, texelHeight);
-    
+
     float firstSampledGradientMagnitude = texture2D(inputImageTexture, textureCoordinate + gradientDirection).r;
     float secondSampledGradientMagnitude = texture2D(inputImageTexture, textureCoordinate - gradientDirection).r;
-    
+
     float multiplier = step(firstSampledGradientMagnitude, currentGradientAndDirection.r);
     multiplier = multiplier * step(secondSampledGradientMagnitude, currentGradientAndDirection.r);
-    
+
     float thresholdCompliance = smoothstep(lowerThreshold, upperThreshold, currentGradientAndDirection.r);
     multiplier = multiplier * thresholdCompliance;
-    
+
     gl_FragColor = vec4(multiplier, multiplier, multiplier, 1.0);
 }
 ```
@@ -233,7 +232,7 @@ The Harris corner detector is but one means of finding corners within a scene. E
 
 Straight lines are another large-scale feature we might want to detect in a scene. Finding straight lines can be useful in applications ranging from document scanning to barcode reading. However, traditional means of detecting lines within a scene haven't been amenable to implementation on a GPU, particularly on mobile GPUs.
 
-Many line detection processes are based on a Hough transform, which is a technique where points in a real-world, Cartesian coordinate space are converted to another coordinate space. Calculations are then performed in this alternate coordinate space and the results converted back into normal space to determine the location of lines or other features. Unfortunately, many of these proposed calculations aren't suited for being run on a GPU because they aren't sufficiently parallel in nature and they require intense mathematical operations, like trigonometry functions, to be performed at each pixel. 
+Many line detection processes are based on a Hough transform, which is a technique where points in a real-world, Cartesian coordinate space are converted to another coordinate space. Calculations are then performed in this alternate coordinate space and the results converted back into normal space to determine the location of lines or other features. Unfortunately, many of these proposed calculations aren't suited for being run on a GPU because they aren't sufficiently parallel in nature and they require intense mathematical operations, like trigonometry functions, to be performed at each pixel.
 
 In 2011, Dubská, *et al.*[^10] [^11]</sup> proposed a much simpler, more elegant way of performing this coordinate space transformation and analysis — one that was ideally suited to being run on a GPU. Their process relies on a concept called parallel coordinate space, which sounds completely abstract, but I'll show how it's actually fairly simple to understand.
 
@@ -285,8 +284,6 @@ Personally, the geometric elegance of this line drawing process is something I f
 
 These are but some of the many machine vision operations that have been developed in the last few decades, and only a small portion of the ones that can be adapted to work well on a GPU. I personally think there is exciting and groundbreaking work left to be done in this area, with important applications that can improve the way of life for many people. Hopefully, this has at least provided a brief introduction to the field of machine vision and shown that it's not as impenetrable as many developers believe.
 
-## References:
-
 [^1]: I. Sobel. An Isotropic 3x3 Gradient Operator, Machine Vision for Three-Dimensional Scenes, Academic Press, 1990.
 
 [^2]: J.M.S. Prewitt. Object Enhancement and Extraction, Picture processing and Psychopictorics, Academic Press, 1970.
@@ -299,7 +296,7 @@ These are but some of the many machine vision operations that have been develope
 
 [^6]: J. Shi and C. Tomasi. Good features to track. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pages 593-600, June 1994.
 
-[^7]: A. Noble. Descriptions of Image Surfaces. PhD thesis, Department of Engineering Science, Oxford University 1989, p45.  
+[^7]: A. Noble. Descriptions of Image Surfaces. PhD thesis, Department of Engineering Science, Oxford University 1989, p45.
 
 [^8]: G. Ziegler, A. Tevs, C. Theobalt, H.-P. Seidel. GPU Point List Generation through HistogramPyramids. Research Report, Max-Planck-Institut fur Informatik, 2006.
 

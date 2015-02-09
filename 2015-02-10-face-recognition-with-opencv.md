@@ -1,7 +1,7 @@
 ---
-title: "An Introduction to OpenCV on iOS: Let's Build a Facial Recognition App"
+title: "Face Recognition with OpenCV"
 category: "21"
-date: "2015-02-09 12:00:00"
+date: "2015-02-10 04:00:00"
 tags: article
 author: "<a href=\"http://twitter.com/ekurutepe\">Engin Kurutepe</a>"
 ---

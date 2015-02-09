@@ -1,9 +1,8 @@
 ---
-layout: post
-title: "Shaders for GPU-Accelerated Image Processing"
+title: "GPU-Accelerated Image Processing"
 category: "21"
-date: "2015-02-09 12:00:00"
-author: "<a href=\"https://twitter.com/RedQueenCoder">Janie Clayton</a>"
+date: "2015-02-10 06:00:00"
+author: "<a href=\"https://twitter.com/RedQueenCoder\">Janie Clayton</a>"
 tags: article
 ---
 

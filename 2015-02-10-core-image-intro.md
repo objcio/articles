@@ -1,12 +1,10 @@
 ---
 title:  "An Introduction to Core Image"
 category: "21"
-date: "2015-02-09 08:00:00"
+date: "2015-02-10 06:00:00"
 tags: article
 author: "<a href=\"http://twitter.com/warrenm\">Warren Moore</a>"
 ---
-
-# An Introduction to Core Image
 
 This article is a beginner's introduction to Core Image, an image processing framework for OS X and iOS.
 
@@ -135,7 +133,7 @@ filter.setValue(inputImage, forKey:"inputImage")
 
 ### Fetching a Filtered Image
 
-Filters have a property named `outputImage`. As you might guess, it has type `CIImage`. So how do we perform the inverse operation of creating a `UIImage` from a `CIImage`? Well, although we've spent all our time thus far building up a filter graph, now is the time to invoke the power of the `CIContext` and do the actual work of filtering the image. 
+Filters have a property named `outputImage`. As you might guess, it has type `CIImage`. So how do we perform the inverse operation of creating a `UIImage` from a `CIImage`? Well, although we've spent all our time thus far building up a filter graph, now is the time to invoke the power of the `CIContext` and do the actual work of filtering the image.
 
 The simplest way to create a context is to pass a nil options dictionary to its constructor:
 
@@ -188,7 +186,7 @@ You can determine whether a CPU or GPU renderer is in use by setting the `CI_PRI
 
 ## A Tour of the Sample App
 
-The [sample code](http://github.com/warrenm/core-image-explorer) for this article consists of an iPhone app that showcases a broad variety of the image filters available in Core Image for iOS. 
+The [sample code](http://github.com/warrenm/core-image-explorer) for this article consists of an iPhone app that showcases a broad variety of the image filters available in Core Image for iOS.
 
 ### Creating a GUI from Filter Parameters
 
@@ -208,7 +206,7 @@ In addition to numerous other built-in filters, the sample app demonstrates the 
 
 ## Conclusion
 
-This article has been a brief introduction to Core Image, a framework for high-performance image processing. We've tried to cover as many features of the framework as practically possible in this short format. You've learned how to instantiate and wire together Core Image filters, get images in and out of filter graphs, and tune parameters to get the desired outcome. You also learned how to access the system-provided photo filters, with which you can emulate the behavior of the Photos app on iOS. 
+This article has been a brief introduction to Core Image, a framework for high-performance image processing. We've tried to cover as many features of the framework as practically possible in this short format. You've learned how to instantiate and wire together Core Image filters, get images in and out of filter graphs, and tune parameters to get the desired outcome. You also learned how to access the system-provided photo filters, with which you can emulate the behavior of the Photos app on iOS.
 
 You now know enough to go out and write your own photo editing applications. With a little more exploration, you'll be able to write your own filters that exploit the amazing power of your Mac or iPhone to perform previously unimagined effects. Go forth and filter!
 
