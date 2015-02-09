@@ -3,7 +3,7 @@ title:  "How Your Camera Works"
 category: "21"
 date: "2015-02-10 11:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author: "<a href=\"https://twitter.com/danielboedewadt\">Daniel Eggert</a>"
 ---
 
 

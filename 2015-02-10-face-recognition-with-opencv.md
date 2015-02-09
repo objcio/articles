@@ -3,7 +3,7 @@ title: "Face Recognition with OpenCV"
 category: "21"
 date: "2015-02-10 04:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/ekurutepe\">Engin Kurutepe</a>"
+author: "<a href=\"https://twitter.com/ekurutepe\">Engin Kurutepe</a>"
 ---
 
 ##A Bit of Background

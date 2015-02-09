@@ -3,7 +3,7 @@ title: "Camera Capture on iOS"
 category: "21"
 date: "2015-02-10 09:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/matteo\">Matteo Caldari</a>"
+author: "<a href=\"https://twitter.com/matteo\">Matteo Caldari</a>"
 ---
 
 The iPhone has shipped with a camera since its first model. In the first SDKs, the only way to integrate the camera within an app was by using `UIImagePickerController`, but iOS 4 introduced the AVFoundation framework, which allowed more flexibility.
