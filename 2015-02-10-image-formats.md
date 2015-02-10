@@ -74,7 +74,7 @@ A straightforward way to manipulate images is to use UIKit's `UIGraphicsBeginIma
     CGRect rightRect = CGRectMake(rightCircleX, circleY, 16.0, 16.0);
     UIBezierPath *path = [UIBezierPath bezierPathWithOvalInRect:leftRect];
     [path appendPath:[UIBezierPath bezierPathWithOvalInRect:rightRect]];
-     [path fill];
+    [path fill];
     UIImage *savedImg = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return savedImg;
