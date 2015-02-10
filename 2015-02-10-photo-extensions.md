@@ -260,7 +260,7 @@ public func importFilterParameters(data: NSData?) {
 }
 ```
 
-Here, these two methods are on the shared `FilsterFilter` class, which is also
+Here, these two methods are on the shared `FiltsterFilter` class, which is also
 responsible for determining compatibility of the adjustment data:
 
 ```
