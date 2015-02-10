@@ -313,11 +313,12 @@ JPEG images are also sometimes converting pixel data from RGB to YCbCr for the s
 
 
 
-
+<a name="ImageFormats"></a>
 ## Image Formats
 
 Images on disk are mostly JPEG and PNG when you're dealing with iOS or OS X. Let's take a closer look.
 
+<a name="JPEG"></a>
 ### JPEG
 
 Everybody knows [JPEG](https://en.wikipedia.org/wiki/JPEG). It's the stuff that comes out of cameras. It's how photos are stored on computers. Even your mom has heard of JPEG.
@@ -330,6 +331,7 @@ That's why when you create a `UIImage` from a JPEG file and draw that onto the s
 
 So why would you use JPEG at all? The answer ist that JPEG can compress photos very, very well. An uncompressed photo from your iPhone 5 would take up almost 24MB. With the default compression setting, your photos in your camera roll are usually around 2MB to 3MB. JPEG compression works so well, because it is lossy. It throws away information that is less perceptible to the human eye, and in doing so, it can push the limits far beyond what "normal" compression algorithms such as gzip do. But this only works well on photos, because JPEG relies on the fact that there's a lot in photos that's not very perceptible to the human vision. If you take a screen shot of a web page that's mostly displaying text, JPEG is not going to do very well. Compression will be lower, and you'll most likely see that the JPEG compression has altered the image.
 
+<a name="PNG"></a>
 ### PNG
 
 [PNG](https://en.wikipedia.org/wiki/Portable_Network_Graphics) is pronounced "ping". As opposed to JPEG, it's a lossless compression format. When you save an image as PNG, and later open it (and decompress it), all pixel data is exactly what it was originally. Because of this restriction, PNG can't compress photos as well as JPEG, but for app artwork such as buttons, icons etc. it actually works very well. And what's more, decoding PNG data is a lot less complex than decoding JPEG.
