@@ -250,7 +250,7 @@ Let's take a line and pick three points within it:
 
 <img src="/images/issue-21/MV-ParallelCoordinateSpace.png" alt="An example line"/>
 
-To transform this to parallel coordinate space, we'll draw three parallel vertical axes. On the center axis, we'll take the X components of our line points and draw points at 1, 2, and 3 steps up from zero. On the left axis, we'll take the Y components of our line points and draw points at 4, 6, and 8 steps up from zero. On the right axis, we'll do the same, only we'll make the Y values negative.
+To transform this to parallel coordinate space, we'll draw three parallel vertical axes. On the center axis, we'll take the X components of our line points and draw points at 1, 2, and 3 steps up from zero. On the left axis, we'll take the Y components of our line points and draw points at 3, 5, and 7 steps up from zero. On the right axis, we'll do the same, only we'll make the Y values negative.
 
 We'll then connect the Y component points to the corresponding X coordinate component on the center axis. That creates a drawing like the following:
 
