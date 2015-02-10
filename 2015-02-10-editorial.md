@@ -15,7 +15,7 @@ Next, we have a section about the camera and photo library APIs. Matteo writes a
 
 Once you have captured an image, you will want to process it with optimum performance, and that often means filtering it on the GPU. The easiest way to do that is to use [Core Image](/issue-21/core-image-intro.html), introduced by Warren. The next step is writing your own [custom shaders for image processing](/issue-21/gpu-accelerated-image-processing.html). Many developers dread direct GPU programming, but Janie shows that it isn’t as hard as you might think. Brad then explains how you can use the same concepts to develop powerful [computer vision algorithms](/issue-21/gpu-accelerated-machine-vision.html). Finally, Engin [introduces us to OpenCV](/issue-21/face-recognition-with-opencv.html), a very popular open-source library for computer vision.
 
-Special thanks to [Ole Begemann](http://oleb.net) who helped with the editing of this issue.
+Next to all the contributors to this issue, we had great help from [Ole Begemann](http://oleb.net) this month. Ole really pulled the strings to make this issue happen. Thanks Ole!
 
 Best from Berlin,
 
