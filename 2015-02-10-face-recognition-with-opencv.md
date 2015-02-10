@@ -36,7 +36,7 @@ Below is a list of most important modules as described in the [official document
 - **calib3d**: basic multiple-view geometry algorithms, single and stereo camera calibration, object pose estimation, stereo correspondence algorithms, and elements of 3D reconstruction.
 - **features2d**: salient feature detectors, descriptors, and descriptor matchers.
 - **objdetect**: detection of objects and instances of the predefined classes (for example: faces, eyes, mugs, people, cars, and so on).
-- **ml*: various machine learning algorithms such as K-Means, Support Vector Machines, and Neural Networks.
+- **ml**: various machine learning algorithms such as K-Means, Support Vector Machines, and Neural Networks.
 - **highgui**: an easy-to-use interface for video capturing, image and video codecs, and simple UI capabilities (only a subset available on iOS).
 - **gpu**: GPU-accelerated algorithms from different OpenCV modules (unavailable on iOS).
 - **ocl**: common algorithms implemented using OpenCL (unavailable on iOS).
