@@ -31,7 +31,7 @@ Most image work deals with bitmaps, and from now on, we will focus on how they c
 
 The simplest way to represent bitmaps is as binary pixels: a pixel is either on, or off. We can then store eight pixels in a byte, which is very efficient. However, we can only have two colors, one for each state of a bit. While this does not sound very useful in the age of millions of colors, there is one application where this is still all that is needed: masking. Image masks can, for example, be used for transparency, and in iOS they are used in tab bar icons (even though the actual icons are not one-pixel bitmaps).
 
-For adding more colors, there are two basic options: a look-up table, or actual color values. [GIF](https://en.wikipedia.org/wiki/GIF) images have a color table (or a palette), which can store up to 256 colors. The pixels in the actual image are then values into this look-up table. As a result, GIFs are limited to 256 colors only. This is fine for simple line drawings or diagrams with filled colors, but not really enough for photos, which require a greater color depth. A further improvement are [PNG](https://en.wikipedia.org/wiki/Portable_Network_Graphics) files, which can either use a palette or separate channels, both supporting a variety of color depths. In a channel, the color components of each pixel (red, green, and blue, RGB, sometimes adding opacity/alpha, RGBA) are specified directly.
+For adding more colors, there are two basic options: a look-up table, or actual color values. [GIF](https://en.wikipedia.org/wiki/GIF) images have a color table (or a palette), which can store up to 256 colors. The values stored in the bitmap are indices into this look-up table, which specifies their respective color. As a result, GIFs are limited to 256 colors only. This is fine for simple line drawings or diagrams with filled colors, but not really enough for photos, which require a greater color depth. A further improvement are [PNG](https://en.wikipedia.org/wiki/Portable_Network_Graphics) files, which can either use a palette or separate channels, both supporting a variety of color depths. In a channel, the color components of each pixel (red, green, and blue, RGB, sometimes adding opacity/alpha, RGBA) are specified directly.
 
 GIF and PNG are best for images with large areas of identical color, as they use compression algorithms (mainly based on run-length encoding) to reduce the storage requirements. The compression is lossless, which means that the image quality is not affected by the process.
 
@@ -43,7 +43,7 @@ To summarize: for scalability, vector formats (such as SVG) are best. Line drawi
 
 ## Handling Image Data
 
-There are several classes for handling bitmap data in iOS: `UIImage` (UIKit), `CGImage` (Core Graphics), and `CIImage` (Core Image). There is also `NSData` for holding the actual data before creating one of those classes. Getting a `UIImage` is easy enough using the `imageWithContentsOfFile:` method, and for other sources there are `imageWithCGImage:`, `imageWithCIImage:`, and `imageWithData:`. This seems somewhat superfluous, but this is partly caused by optimizing aspects of image storage for different purposes across the different frameworks, and it is generally possible to easily convert between the different types.
+There are several classes for handling bitmap data in iOS: `UIImage` (UIKit), `CGImage` (Core Graphics), and `CIImage` (Core Image). There is also `NSData` for holding the actual data before creating one of those classes. Getting a `UIImage` is easy enough using the `imageWithContentsOfFile:` method, and for other sources there are `imageWithCGImage:`, `imageWithCIImage:`, and `imageWithData:`. This large number of different-but-similar classes seems somewhat superfluous, but it is partly caused by optimizing aspects of image storage for different purposes across the different frameworks, and it is generally possible to easily convert between the different types.
 
 
 ## Capturing an Image from the Camera
@@ -87,7 +87,9 @@ After placing the images on the canvas and adding two filled circles, we can tur
 
 It is composed of the two photos taken from slightly different camera positions, and a black strip with two centered white dots to aid the viewing process.
 
-It is a bit more complex if we want to mess with the actual pixel values. If we don't want to have two photos next to each other as a stereogram, but instead want a so-called anaglyph (a red/green image that you use colored 3D glasses to look at), we have to create a context with `CGBitmapContextCreate`, which includes a color space (such as RGB). We can then iterate over the bitmaps (left and right photos), and get at the individual color channel values. For example, we keep the green and blue values of one image as they were, and merge the green and blue values of the other photo into the red value:
+It is a bit more complex if we want to mess with the actual pixel values. With a stereogram we have two photos next to each other, and we need to align our eyes (or go cross-eyed) to see the 3D effect. An alternative to this is a so-called [anaglyph](http://www.3dtv.at/knowhow/anaglyphcomparison_en.aspx), a red/green image that you use colored 3D glasses to look at. (The function listed below implements the Optimized Anaglyphs method on that page).
+
+For working with individual pixels in this way, we have to create a context with `CGBitmapContextCreate`, which includes a color space (such as RGB). We can then iterate over the bitmaps (left and right photos), and get at the individual color channel values. For example, we keep the green and blue values of one image as they were, and merge the green and blue values of the other photo into the red value:
 
 ```objc
 UInt8 *rightPtr = rightBitmap;
@@ -120,7 +122,7 @@ CGImageRelease(composedImage);
 return retval;
 ```
 
-With this method, we have full access to the actual pixels, and can do with them whatever we like. However, it is worth checking whether there are already filters available via [Core Image](/issue-21/core-image-intro.html), as they will be much easier to use and generally more optimized than any processing of individual pixel values. [Learn more about anaglyphs](http://www.3dtv.at/knowhow/anaglyphcomparison_en.aspx). The function listed above implements the Optimized Anaglyphs method on that page.
+With this method, we have full access to the actual pixels, and can do with them whatever we like. However, it is worth checking whether there are already filters available via [Core Image](/issue-21/core-image-intro.html), as they will be much easier to use and generally more optimized than any processing of individual pixel values.
 
 
 ## Metadata
