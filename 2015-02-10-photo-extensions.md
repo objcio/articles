@@ -28,10 +28,10 @@ lifecycle before moving on to look at the photo editing workflow in more
 details. It will conclude by looking at some common concerns and scenarios
 associated with creating photo editing extensions.
 
-The __Filtster__ project, which accompanies this article, demonstrates how you
+The _Filtster_ project, which accompanies this article, demonstrates how you
 can set up your own image editing extension. It represents a really simple image
 filtering process using a couple of Core Image filters. You can get hold of the
-[complete __Filtster__ project on GitHub](https://github.com/objcio/issue-21-photo-extensions-Filtster).
+[complete _Filtster_ project on GitHub](https://github.com/objcio/issue-21-photo-extensions-Filtster).
 
 ## Creating an Extension
 
@@ -49,14 +49,14 @@ app project. There is a template target for the image editing extension:
 
 This template consists of three components:
 
-1. __Storyboard__ Image editing extensions can have an almost completely custom UI. The system provides only a toolbar across the top, containing __Cancel__ and
-__Done__ buttons:
+1. __Storyboard.__ Image editing extensions can have an almost completely custom UI. The system provides only a toolbar across the top, containing _Cancel_ and
+_Done_ buttons:
 
     ![Cancel/Done Buttons](/images/issue-21/cancel_done.png)
 
     Although the storyboard doesn't have size classes enabled by default, the system will respect them should you choose to activate them. Apple highly recommends using Auto Layout for building photo editing extensions, although there is no obvious reason why you couldn't perform manual layout. Still, you're flying in the face of danger if you decide to ignore Apple's advice.
 
-2. __Info.plist__ This specifies the extension type and accepted media types,
+2. __Info.plist.__ This specifies the extension type and accepted media types,
 and is common to all extension types. The `NSExtension` key has a
 dictionary containing all the extension-related configurations:
 
@@ -64,7 +64,7 @@ dictionary containing all the extension-related configurations:
 
     The  `NSExtensionPointIdentifier` entry informs the system that this is a photo editing extension with a value of `com.apple.photo-editing`. The only key that is specific to photo editing is `PHSupportedMediaTypes`, and this is related to what types of media the extension can operate on. By default, this is an array with a single entry of `Image`, but you have the option of adding `Video`.
 
-3. __View Controller__ This adopts the `PHContentEditingController` protocol,
+3. __View Controller.__ This adopts the `PHContentEditingController` protocol,
 which contains methods that form the lifecycle of an image editing extension.
 See the next section for further detail.
 
@@ -150,7 +150,7 @@ subclass to reduce the load on the CPU.
 
 ### Cancelation
 
-To finish editing, users can select either the __Cancel__ or __Done__ buttons
+To finish editing, users can select either the _Cancel_ or _Done_ buttons
 provided by the Photos UI. If the user decides to cancel with unsaved edits,
 then the `shouldShowCancelConfirmation` property should be overridden to return
 `true`:
@@ -162,7 +162,7 @@ called to allow you to clear up any temporary data that you've created.
 
 ### Commit Changes
 
-Once the user is happy with his or her edits and taps the __Done__ button, a call is
+Once the user is happy with his or her edits and taps the _Done_ button, a call is
 made to `finishContentEditingWithCompletionHandler(_:)`. At this point, the full-size image needs to be edited with the settings that are currently applied to
 the display-sized image, and the new adjustment data needs saving.
 
@@ -235,7 +235,7 @@ it should represent the settings to recreate the edit, rather than the edit
 itself, since the size of the `PHAdjustmentData` object is limited by the Photos
 framework.
 
-For non-complex extensions (such as __Filtster__), this can be as simple as an
+For non-complex extensions (such as _Filtster_), this can be as simple as an
 archived dictionary, which can be written as follows:
 
 ```swift
@@ -322,7 +322,7 @@ should select the Photos app:
 ![Select App](/images/issue-21/select_app.png)
 
 If this instead launches your container app, then you can edit the extension's
-scheme to set the executable to __Ask on Launch__.
+scheme to set the executable to _Ask on Launch_.
 
 Xcode then waits for you to start the photo editing extension before attaching
 to it. At this point, you can debug as you do with standard iOS apps. The
@@ -347,15 +347,15 @@ Image processing is a memory-hungry operation, particularly with the resolution
 of the photos from an iPhone camera. There are several things you can do to keep
 the memory usage of your photo editing extension to a minimum:
 
-- __Work with the display-sized image__ When beginning the edit process, the
+- __Work with the display-sized image.__ When beginning the edit process, the
 system provides an image suitably scaled for the screen. Using this instead of
 the original for the interactive editing phase will require significantly less
 memory.
-- __Limit the number of Core Graphics contexts__ Although it might seem like the way
+- __Limit the number of Core Graphics contexts.__ Although it might seem like the way
 to work with images, a Core Graphics context is essentially just a big chunk of
 memory. If you need to use contexts, then keep the number to a minimum. Reuse them
 where possible, and decide whether you're using the best approach.
-- __Use the GPU__ Whether it be through Core Image or a third-party framework such
+- __Use the GPU.__ Whether it be through Core Image or a third-party framework such
 as GPUImage, you can keep memory down by chaining filters together and
 eliminating the requirement for intermediate buffers.
 
