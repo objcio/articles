@@ -327,7 +327,7 @@ scheme to set the executable to _Ask on Launch_.
 Xcode then waits for you to start the Photo Editing extension before attaching
 to it. At this point, you can debug as you do with standard iOS apps. The
 process of attaching the debugger to the extension can take quite a long time,
-so when you activate the extension, it can appear to hang. Running in release
+so when you activate the extension, it can appear to hang. Running in release mode
 will allow you to evaluate the extension startup time.
 
 Profiling is similarly supported, with the profiler attaching as the extension
