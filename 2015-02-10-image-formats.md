@@ -43,7 +43,7 @@ To summarize: for scalability, vector formats (such as SVG) are best. Line drawi
 
 ## Handling Image Data
 
-There are several classes for handling bitmap data in iOS: `UIImage` (UIKit), `CGImage` (Core Graphics), and `CIImage` (Core Image). There is also `NSData` for holding the actual data before creating one of those classes. Getting a `UIImage` is easy enough using the `imageWithContentsOfFile:` method, and for other sources there are `imageWithCGImage:`, `imageWithCIImage:`, and `imageWithData:`. This large number of different-but-similar classes seems somewhat superfluous, but it is partly caused by optimizing aspects of image storage for different purposes across the different frameworks, and it is generally possible to easily convert between the different types.
+There are several classes for handling bitmap data in iOS: `UIImage` (UIKit), `CGImage` (Core Graphics), and `CIImage` (Core Image). There is also `NSData` for holding the actual data before creating one of those classes. Getting a `UIImage` is easy enough using the `imageWithContentsOfFile:` method, and for other sources we have `imageWithCGImage:`, `imageWithCIImage:`, and `imageWithData:`. This large number of different-but-similar classes seems somewhat superfluous, but it is partly caused by optimizing aspects of image storage for different purposes across the different frameworks, and it is generally possible to easily convert between the different types.
 
 
 ## Capturing an Image from the Camera
@@ -87,7 +87,7 @@ After placing the images on the canvas and adding two filled circles, we can tur
 
 It is composed of the two photos taken from slightly different camera positions, and a black strip with two centered white dots to aid the viewing process.
 
-It is a bit more complex if we want to mess with the actual pixel values. With a stereogram we have two photos next to each other, and we need to align our eyes (or go cross-eyed) to see the 3D effect. An alternative to this is a so-called [anaglyph](http://www.3dtv.at/knowhow/anaglyphcomparison_en.aspx), a red/green image that you use colored 3D glasses to look at. (The function listed below implements the Optimized Anaglyphs method on that page).
+It is a bit more complex if we want to mess with the actual pixel values. With a stereogram, we have two photos next to each other, and we need to align our eyes (or go cross-eyed) to see the 3D effect. An alternative to this is a so-called [anaglyph](http://www.3dtv.at/knowhow/anaglyphcomparison_en.aspx), a red/green image that you use colored 3D glasses to look at. (The function listed below implements the Optimized Anaglyphs method on that page.)
 
 For working with individual pixels in this way, we have to create a context with `CGBitmapContextCreate`, which includes a color space (such as RGB). We can then iterate over the bitmaps (left and right photos), and get at the individual color channel values. For example, we keep the green and blue values of one image as they were, and merge the green and blue values of the other photo into the red value:
 
