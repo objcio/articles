@@ -36,7 +36,7 @@ So how are these edges calculated? The first step in this process is a reduction
 
 Some video sources and cameras provide YUV-format images, rather than RGB. The YUV color format splits luminance information (Y) from chrominance (UV), so for inputs like that, a color conversion step can be avoided. The luminance part of the image can be used directly.
 
-Once an image is reduced to its luminance, the edge strength near a pixel is calculated by looking at a 3x3 array of neighboring pixels. An image processing calculation performed over a block of pixels involves what is called a convolution kernel. Convolution kernels consist of a matrix of weights that are multiplied with the values of the pixels surrounding a central pixel, with the sum of those weighted values determining the final pixel value.
+Once an image is reduced to its luminance, the edge strength near a pixel is calculated by looking at a 3×3 array of neighboring pixels. An image processing calculation performed over a block of pixels involves what is called a convolution kernel. Convolution kernels consist of a matrix of weights that are multiplied with the values of the pixels surrounding a central pixel, with the sum of those weighted values determining the final pixel value.
 
 These kernels are applied once per pixel across the entire image. The order in which pixels are processed doesn't matter, so a convolution across an image is an easy operation to parallelize. As a result, this can be greatly accelerated by running on a programmable GPU using fragment shaders. As described in [Janie's article](/issue-21/gpu-accelerated-image-processing.html), fragment shaders are C-like programs that can be used by GPUs to perform incredibly fast image processing.
 
@@ -126,7 +126,7 @@ void main()
 }
 ```
 
-The above shader has manual names for the pixels around the center one, passed in from a custom vertex shader, due to an optimization to reduce dependent texture reads on mobile devices. After these named pixels are sampled in a 3x3 grid, the horizontal and vertical Sobel kernels are applied using hand-coded calculations. The 0-weight entries are left out in order to simplify these calculations. The GLSL `length()` function calculates a Pythagorean hypotenuse between the results of the horizontal and vertical kernels. That magnitude value is then copied into the red, green, and blue channels of the output pixel to produce a grayscale indication of edge strength.
+The above shader has manual names for the pixels around the center one, passed in from a custom vertex shader, due to an optimization to reduce dependent texture reads on mobile devices. After these named pixels are sampled in a 3×3 grid, the horizontal and vertical Sobel kernels are applied using hand-coded calculations. The 0-weight entries are left out in order to simplify these calculations. The GLSL `length()` function calculates a Pythagorean hypotenuse between the results of the horizontal and vertical kernels. That magnitude value is then copied into the red, green, and blue channels of the output pixel to produce a grayscale indication of edge strength.
 
 ## Canny Edge Detection
 
