@@ -5,7 +5,7 @@ date: "2015-02-10 12:00:00"
 tags: editorial
 ---
 
-Welcome to objc.io issue 21. This month is all about photos and iPhone and iPad camera.
+Welcome to objc.io issue 21. This month is all about photos and the iPhone and iPad camera.
 
 This is an important area for developers. The iPhone has become [the most popular camera in the world](http://www.tuaw.com/2014/06/12/iphone-models-remain-the-most-popular-cameras-on-flickr/), and for many people, the camera is the most loved feature of their smartphone.
 
