@@ -17,7 +17,7 @@ GPUs are ideally suited to operate on images and video because they are tuned to
 
 One of the things I learned while working on GPUImage is how even seemingly complex image processing operations can be built from smaller, simpler ones. I'd like to break down the components of some common machine vision processes, and show how these processes can be accelerated to run on modern GPUs.
 
-Every operation analyzed here has a full implementation within GPUImage, and you can try them yourself by grabbing the project and building the FilterShowcase sample application either for OS X or iOS. Additionally, all of these operations have CPU-based (and some GPU-accelerated) implementations within the OpenCV framework, which Engin Kurutepe talks about in [his article within this issue](/issue-21/face-recognition-with-opencv.html).
+Every operation analyzed here has a full implementation within GPUImage, and you can try each one yourself by grabbing the project and building the `FilterShowcase` sample application either for OS X or iOS. Additionally, all of these operations have CPU-based (and some GPU-accelerated) implementations within the OpenCV framework, which Engin Kurutepe talks about in [his article within this issue](/issue-21/face-recognition-with-opencv.html).
 
 ## Sobel Edge Detection
 
@@ -34,7 +34,7 @@ As I mentioned, this is often used for visual effects. If the colors of the abov
 
 So how are these edges calculated? The first step in this process is a reduction of a color image to a luminance (grayscale) image. Janie Clayton explains how this is calculated in a fragment shader within [her article](/issue-21/gpu-accelerated-image-processing.html), but basically the red, green, and blue components of each pixel are weighted and summed to arrive at a single value for how bright that pixel is.
 
-Some video sources and cameras provide YUV-format images, rather than RGB. The YUV color format splits luminance information (Y) from chrominance (UV), so for inputs like that, a color conversion step can be avoided. The luminance part of the image can be used directly.
+Some video sources and cameras provide YUV-format images, rather than RGB. The YUV color format splits luminance information (Y) from chrominance (UV), so for these types of inputs, a color conversion step can be avoided. The luminance part of the image can be used directly.
 
 Once an image is reduced to its luminance, the edge strength near a pixel is calculated by looking at a 3×3 array of neighboring pixels. An image processing calculation performed over a block of pixels involves what is called a convolution kernel. Convolution kernels consist of a matrix of weights that are multiplied with the values of the pixels surrounding a central pixel, with the sum of those weighted values determining the final pixel value.
 
@@ -66,7 +66,7 @@ This is the horizontal kernel of the Sobel operator:
 
 To apply this to a pixel, the luminance is read from each surrounding pixel. If the input image has been converted to grayscale, this can be sampled from any of the red, green, or blue color channels. The luminance of a particular surrounding pixel is multiplied by the corresponding weight from the above matrix and added to the total.
 
-How this works to find an edge in a direction is that it looks for differences in luminance (brightness) on the left and right sides of a central pixel. If you have two equally bright pixels on the left and right of the center one (a smooth area in the image), the product of their intensities and the negative and positive weights will cancel out and no edge will be detected. If there is a difference between the brightness of pixels on the left and right (an edge), one brightness will be subtracted from the other. The greater the difference, the stronger the edge measured.
+How this works to find an edge in a direction is that it looks for differences in luminance (brightness) on the left and right sides of a central pixel. If you have two equally bright pixels on the left and right of the center one (a smooth area in the image), the product of their intensities and the negative and positive weights will cancel out, and no edge will be detected. If there is a difference between the brightness of pixels on the left and right (an edge), one brightness will be subtracted from the other. The greater the difference, the stronger the edge measured.
 
 The Sobel operator has two stages, the horizontal kernel being the first. A vertical kernel is applied at the same time, with the following matrix of weights:
 
@@ -138,7 +138,7 @@ A more involved form of edge detection, called Canny edge detection,[^3] might b
 
 The Canny edge detection process consists of a sequence of steps. First, like with Sobel edge detection (and the other techniques we'll discuss), the image needs to be converted to luminance before edge detection is applied to it. Once a grayscale luminance image has been obtained, a slight [Gaussian blur](http://www.sunsetlakesoftware.com/2013/10/21/optimizing-gaussian-blurs-mobile-gpu) is used to reduce the effect of sensor noise on the edges being detected.
 
-Once the image has been prepared, the edge detection can be performed. The specific GPU-accelerated process used here was originally described by Ensor and Hall in "GPU-based Image Analysis on Mobile Devices."[^4]
+After the image has been prepared, the edge detection can be performed. The specific GPU-accelerated process used here was originally described by Ensor and Hall in "GPU-based Image Analysis on Mobile Devices."[^4]
 
 First, both the edge strength at a given pixel and the direction of the edge gradient are determined. The edge gradient is the direction in which the greatest change in luminance is occurring. This is perpendicular to the direction the edge itself is running.
 
@@ -198,7 +198,7 @@ Here, `texelWidth` and `texelHeight` are the distances between neighboring pixel
 
 As a last step in the Canny edge detection process, pixel gaps in the edges are filled in to complete edges that might have had a few points failing the threshold or non-maximum suppression tests. This cleans up the edges and helps to make them continuous.
 
-This last step looks at all the pixels around a central pixel. If the center was a strong pixel from the previous non-maximum suppression step, it remains a white pixel. If it was a completely suppressed pixel, it stays as a black pixel. For middling grey pixels, the neighborhood around them is evaluated. Each one touched by more than one white pixel becomes a white pixel. If not, they go to black. This fills in the gaps in detected edges.
+This last step looks at all the pixels around a central pixel. If the center was a strong pixel from the previous non-maximum suppression step, it remains a white pixel. If it was a completely suppressed pixel, it stays as a black pixel. For middling grey pixels, the neighborhood around them is evaluated. Each one touched by more than one white pixel becomes a white pixel. If not, it goes to black. This fills in the gaps in detected edges.
 
 As you can tell, the Canny edge detection process is much more involved than Sobel edge detection, but it can yield nice, clean lines tracing around the edges of objects. This gives a good starting point for line detection, contour detection, or other image analysis, and can also be used to produce some interesting aesthetic effects.
 
@@ -210,7 +210,7 @@ A popular starting point for object detection and matching is feature detection.
 
 One technique for detecting corners was proposed by Harris and Stephens in "A Combined Corner and Edge Detector."[^5] This so-called Harris corner detector uses a multi-step process to identify corners within scenes.
 
-As with the other processes we've talked about, the image is first reduced to luminance. The X and Y gradients around a pixel are determined using a Sobel, Prewitt, or related kernel, but they aren't combined to yield a total edge magnitude. Instead, the X gradient strength is passed along in the red color component, the Y gradient strength in the green, and the product of the X and Y gradient strengths in the blue component.
+As with the other processes we've talked about, the image is first reduced to luminance. The X and Y gradients around a pixel are determined using a Sobel, Prewitt, or related kernel, but they aren't combined to yield a total edge magnitude. Instead, the X gradient strength is passed along in the red color component, the Y gradient strength in the green color component, and the product of the X and Y gradient strengths in the blue color component.
 
 A Gaussian blur is then applied to the result of that calculation. The values encoded in the red, green, and blue components are extracted from that blurred image and used to populate the variables of an equation for calculating the likelihood that a pixel is a corner point:
 
@@ -242,7 +242,7 @@ The Harris corner detector is but one means of finding corners within a scene. E
 
 Straight lines are another large-scale feature we might want to detect in a scene. Finding straight lines can be useful in applications ranging from document scanning to barcode reading. However, traditional means of detecting lines within a scene haven't been amenable to implementation on a GPU, particularly on mobile GPUs.
 
-Many line detection processes are based on a Hough transform, which is a technique where points in a real-world, Cartesian coordinate space are converted to another coordinate space. Calculations are then performed in this alternate coordinate space and the results converted back into normal space to determine the location of lines or other features. Unfortunately, many of these proposed calculations aren't suited for being run on a GPU because they aren't sufficiently parallel in nature and they require intense mathematical operations, like trigonometry functions, to be performed at each pixel.
+Many line detection processes are based on a Hough transform, which is a technique where points in a real-world, Cartesian coordinate space are converted to another coordinate space. Calculations are then performed in this alternate coordinate space and the results converted back into normal space to determine the location of lines or other features. Unfortunately, many of these proposed calculations aren't suited for being run on a GPU because they aren't sufficiently parallel in nature, and they require intense mathematical operations, like trigonometry functions, to be performed at each pixel.
 
 In 2011, Dubská, *et al.*[^10] [^11]</sup> proposed a much simpler, more elegant way of performing this coordinate space transformation and analysis — one that was ideally suited to being run on a GPU. Their process relies on a concept called parallel coordinate space, which sounds completely abstract, but I'll show how it's actually fairly simple to understand.
 
@@ -252,7 +252,7 @@ Let's take a line and pick three points within it:
 
 To transform this to parallel coordinate space, we'll draw three parallel vertical axes. On the center axis, we'll take the X components of our line points and draw points at 1, 2, and 3 steps up from zero. On the left axis, we'll take the Y components of our line points and draw points at 3, 5, and 7 steps up from zero. On the right axis, we'll do the same, only we'll make the Y values negative.
 
-We'll then connect the Y component points to the corresponding X coordinate component on the center axis. That creates a drawing like the following:
+We'll then connect the Y component points to the corresponding X-coordinate component on the center axis. That creates a drawing like the following:
 
 <img src="/images/issue-21/MV-ParallelCoordinateTransform.png" alt="Points transformed into parallel coordinate space"/>
 
@@ -285,9 +285,9 @@ Those bright central points are where we detect lines. A non-maximum suppression
 
 I should point out that the non-maximum suppression is one of the weaker points in the current implementation of this within GPUImage. It causes lines to be detected where there are none, or multiple lines to be detected near strong lines in a noisy scene.
 
-As mentioned earlier, line detection has a number of interesting applications. One particular application this enables is one-dimensional barcode reading. An interesting aspect of this parallel coordinate transform is that parallel lines in real space will always appear as a series of vertically aligned dots in parallel coordinate space. This is true no matter the orientation of the parallel lines. That means that you could potentially detect standard 1-D barcodes at any orientation or position by looking for a specific ordered spacing of vertical dots. This could be a huge benefit for blind users of mobile phone barcode scanners who cannot see the box or orientation they need to align barcodes within.
+As mentioned earlier, line detection has a number of interesting applications. One particular application this enables is one-dimensional barcode reading. An interesting aspect of this parallel coordinate transform is that parallel lines in real space will always appear as a series of vertically aligned dots in parallel coordinate space. This is true no matter the orientation of the parallel lines. That means that you could potentially detect standard 1D barcodes at any orientation or position by looking for a specific ordered spacing of vertical dots. This could be a huge benefit for blind users of mobile phone barcode scanners who cannot see the box or orientation they need to align barcodes within.
 
-Personally, the geometric elegance of this line drawing process is something I find fascinating and wanted to present to more developers.
+Personally, the geometric elegance of this line-drawing process is something I find fascinating and wanted to present to more developers.
 
 ## Summary
 
