@@ -8,7 +8,7 @@ author: "<a href=\"https://twitter.com/warrenm\">Warren Moore</a>"
 
 This article is a beginner's introduction to Core Image, an image processing framework for OS X and iOS.
 
-If you would like to follow along with the code in this article, you can download [the sample project at GitHub](https://github.com/objcio/issue-21-core-image-explorer). The sample project is an iOS app that lists a large selection of system-provided image filters, and provides a UI for tweaking their parameters and observing the effects.
+If you would like to follow along with the code in this article, you can download [the sample project at GitHub](https://github.com/objcio/issue-21-core-image-explorer). The sample project is an iOS app that lists a large selection of system-provided image filters, and it provides a UI for tweaking their parameters and observing the effects.
 
 Although the sample code is written in Swift for iOS, the concepts transfer readily to Objective-C and OS X.
 
@@ -149,7 +149,7 @@ let cgImage = ciContext.createCGImage(filter.outputImage, fromRect: inputImage.e
 
 The reason we use the input image's extent is that the output image often has different dimensions than the input image. For example, a blurred image has some extra pixels around its border, due to sampling beyond the edge of the input image.
 
-We can now create a `UIImage` from this newly-created `CGImage`:
+We can now create a `UIImage` from this newly created `CGImage`:
 
 ```
 let uiImage = UIImage(CGImage: cgImage)
@@ -194,7 +194,7 @@ To demonstrate a maximum number of filters, the sample app takes advantage of th
 
 ![Image being tweaked with the Color Controls filter](/images/issue-21/color-controls.png)
 
-The sample app is restricted to filters that have a single input image, and zero or more numerical inputs. There are some interesting filters that do not fall into this category (notably, the compositing and transition filters). Even so, the app gives a good overview of the functionality available in Core Image.
+The sample app is restricted to filters that have a single input image, and zero or more numerical inputs. There are some interesting filters that do not fall into this category (notably the compositing and transition filters). Even so, the app gives a good overview of the functionality available in Core Image.
 
 For each input parameter to the filter, a slider is configured with the minimum and maximum value of the parameter, and its value is set to the default value. When the value of the slider changes, it conveys the change to its delegate, which is a `UIImageView` subclass that holds a `CIFilter` reference.
 
