@@ -8,13 +8,13 @@ author: "<a href=\"https://twitter.com/ekurutepe\">Engin Kurutepe</a>"
 
 ##A Bit of Background
 
-OpenCV is an open-source computer vision and machine learning library. It contains thousands of optimized algorithms, which provide a common toolkit for various computer vision applications. According to the project's [About page](http://opencv.org/about.html), OpenCV is being used in many applications ranging from stitching Google's Street View images to running interactive art shows.
+OpenCV is an open-source computer vision and machine learning library. It contains thousands of optimized algorithms, which provide a common toolkit for various computer vision applications. According to the project's [about page](http://opencv.org/about.html), OpenCV is being used in many applications, ranging from stitching Google's Street View images to running interactive art shows.
 
 OpenCV started out as a research project inside Intel in 1999. It has been in active development since then, and evolved to support modern technologies like OpenCL and OpenGL and platforms like iOS and Android.
 
 In 1999, [Half-Life](http://en.wikipedia.org/wiki/Half-Life_(video_game)) was released and became extremely popular. [Intel Pentium 3](http://en.wikipedia.org/wiki/Pentium_III) was the state-of-the-art CPU, and 400-500MHz clock speeds were considered fast. And a typical CPU in 2006 when OpenCV 1.0 was released had about the same [CPU performance](http://browser.primatelabs.com/geekbench2/compare/212009/1030202) as the A6 in an iPhone 5. Even though computer vision is traditionally considered to be a computationally intensive application, clearly our mobile devices have already passed the threshold of being able to perform useful computer vision tasks, and can be extremely versatile computer vision platforms with their attached cameras.
 
-In this article, I will provide an overview of OpenCV from an iOS developer's perspective and introduce a few fundamental classes and concepts. Additionally, I cover how to integrate OpenCV to your iOS projects and basics of Objective-C++. Finally, we'll look at a demo project to see how OpenCV can be used on an iOS device to perform facial detection and recognition.
+In this article, I will provide an overview of OpenCV from an iOS developer's perspective and introduce a few fundamental classes and concepts. Additionally, I cover how to integrate OpenCV to your iOS projects, and share the basics of Objective-C++. Finally, we'll look at a demo project to see how OpenCV can be used on an iOS device to perform facial detection and recognition.
 
 ##Overview of OpenCV
 
@@ -22,25 +22,25 @@ In this article, I will provide an overview of OpenCV from an iOS developer's pe
 
 OpenCV is a C++ API consisting of various modules containing a wide range of functions, from low-level image color space conversions to high-level machine learning tools.
 
-Using C++ APIs for iOS development is not something most of us do daily. You need to use Objective-C++ for the files calling OpenCV methods, i.e. you cannot call OpenCV methods from Swift or Objective-C. The OpenCV [iOS tutorials](http://docs.opencv.org/doc/tutorials/ios/video_processing/video_processing.html#opencviosvideoprocessing) tell you to simply change the file extensions to `.mm` for all classes where you'd like to use OpenCV, including view controllers. While this might work, it is not a particularly good idea. The correct approach is to write Objective-C++ wrapper classes for all OpenCV functionality you would like to use in your app. These Objective-C++ wrappers translate OpenCV's C++ APIs to safe Objective-C APIs and can be used transparently in all Objective-C classes. Going the wrapper route, you will be able to contain C++ code in your project to the wrappers only and most likely save lots of headaches further down the road in resolving hard-to-track compile errors because a C++ header got erroneously included in a wrong file.
+Using C++ APIs for iOS development is not something most of us do daily. You need to use Objective-C++ for the files calling OpenCV methods, i.e. you cannot call OpenCV methods from Swift or Objective-C. The OpenCV [iOS tutorials](http://docs.opencv.org/doc/tutorials/ios/video_processing/video_processing.html#opencviosvideoprocessing) tell you to simply change the file extensions to `.mm` for all classes where you'd like to use OpenCV, including view controllers. While this might work, it is not a particularly good idea. The correct approach is to write Objective-C++ wrapper classes for all OpenCV functionality you would like to use in your app. These Objective-C++ wrappers translate OpenCV's C++ APIs to safe Objective-C APIs and can be used transparently in all Objective-C classes. Going the wrapper route, you will be able to contain C++ code in your project to the wrappers only and most likely save lots of headaches further down the road in resolving hard-to-track compile errors because a C++ header was erroneously included in a wrong file.
 
 OpenCV declares the `cv` namespace, such that classes are prefixed with `cv::`, like `cv::Mat`, `cv::Algorithm`, etc. It is possible to use `using namespace cv` in your `.mm` files in order to be able to drop the `cv::` prefixes for a lot of classes, but you will still need to write them out for classes like `cv::Rect` and `cv::Point`, due to collisions with `Rect` and `Point` defined in `MacTypes.h`. While it's a matter of personal preference, I prefer to use `cv::` everywhere for the sake of consistency.
 
 ###Modules
 
-Below is a list of most important modules as described in the [official documentation](http://docs.opencv.org/modules/core/doc/intro.html).
+Below is a list of the most important modules as described in the [official documentation](http://docs.opencv.org/modules/core/doc/intro.html).
 
-- **core**: a compact module defining basic data structures, including the dense multi-dimensional array `Mat`, and basic functions used by all other modules.
-- **imgproc**: an image processing module that includes linear and non-linear image filtering, geometrical image transformations (resize, affine and perspective warping, generic table-based remapping), color space conversion, histograms, and so on.
-- **video**: a video analysis module that includes motion estimation, background subtraction, and object tracking algorithms.
-- **calib3d**: basic multiple-view geometry algorithms, single and stereo camera calibration, object pose estimation, stereo correspondence algorithms, and elements of 3D reconstruction.
-- **features2d**: salient feature detectors, descriptors, and descriptor matchers.
-- **objdetect**: detection of objects and instances of the predefined classes (for example: faces, eyes, mugs, people, cars, and so on).
-- **ml**: various machine learning algorithms such as K-Means, Support Vector Machines, and Neural Networks.
-- **highgui**: an easy-to-use interface for video capturing, image and video codecs, and simple UI capabilities (only a subset available on iOS).
-- **gpu**: GPU-accelerated algorithms from different OpenCV modules (unavailable on iOS).
-- **ocl**: common algorithms implemented using OpenCL (unavailable on iOS).
-- a few more helper modules such as Python bindings and user-contributed algorithms.
+- **core**: a compact module defining basic data structures, including the dense multi-dimensional array `Mat`, and basic functions used by all other modules
+- **imgproc**: an image processing module that includes linear and non-linear image filtering, geometrical image transformations (resize, affine and perspective warping, generic table-based remapping), color space conversion, histograms, and so on
+- **video**: a video analysis module that includes motion estimation, background subtraction, and object tracking algorithms
+- **calib3d**: basic multiple-view geometry algorithms, single and stereo camera calibration, object pose estimation, stereo correspondence algorithms, and elements of 3D reconstruction
+- **features2d**: salient feature detectors, descriptors, and descriptor matchers
+- **objdetect**: detection of objects and instances of the predefined classes (for example: faces, eyes, mugs, people, cars, and so on)
+- **ml**: various machine learning algorithms such as K-Means, Support Vector Machines, and Neural Networks
+- **highgui**: an easy-to-use interface for video capturing, image and video codecs, and simple UI capabilities (only a subset available on iOS)
+- **gpu**: GPU-accelerated algorithms from different OpenCV modules (unavailable on iOS)
+- **ocl**: common algorithms implemented using OpenCL (unavailable on iOS)
+- a few more helper modules such as Python bindings and user-contributed algorithms
 
 
 ###Fundamental Classes and Operations
@@ -57,7 +57,7 @@ An instance of `cv::Mat` acts as a header for the image data and contains inform
 uchar *pixelPtr = cvMat.data + rowIndex * cvMat.step[0] + colIndex * cvMat.step[1]
 ```
 
-The data format for each pixel is retrieved by the `type()` function. In addition to common grayscale (1 channel, `CV_8UC1`) and color (3 channel, `CV_8UC3`) images with 8-bit unsigned integers per channel, OpenCV supports many less frequent formats, such as `CV_16SC3` (16-bit signed integer with 3 channels per pixel) or even `CV_64FC4` (64-bit floating point with 4 channels per pixel).
+The data format for each pixel is retrieved by the `type()` function. In addition to common grayscale (1-channel, `CV_8UC1`) and color (3-channel, `CV_8UC3`) images with 8-bit unsigned integers per channel, OpenCV supports many less frequent formats, such as `CV_16SC3` (16-bit signed integer with 3 channels per pixel) or even `CV_64FC4` (64-bit floating point with 4 channels per pixel).
 
 ####`cv::Algorithm`
 
@@ -67,7 +67,7 @@ The data format for each pixel is retrieved by the `type()` function. In additio
 
 ###Adding OpenCV to Your Project
 
-You have three options to integrate OpenCV into your iOS project:
+You have three options to integrate OpenCV into your iOS project.
 
 - Just use CocoaPods: `pod "OpenCV"`.
 - Download the official [iOS framework release](http://opencv.org/downloads.html) and add the framework to your project.
@@ -93,7 +93,7 @@ The source code for the demo app is available on [GitHub](https://github.com/obj
 
 ###Live Video Capture
 
-The highgui module in OpenCV comes with a class, `CvVideoCamera`, that abstracts the iPhone cameras and provides our app with a video feed through a delegate method: `- (void)processImage:(cv::Mat&)image`. An instance of the `CvVideoCamera` can be set up like this:
+The highgui module in OpenCV comes with a class, `CvVideoCamera`, that abstracts the iPhone camera and provides our app with a video feed through a delegate method, `- (void)processImage:(cv::Mat&)image`. An instance of the `CvVideoCamera` can be set up like this:
 
 ```objc
 CvVideoCamera *videoCamera = [[CvVideoCamera alloc] initWithParentView:view];
@@ -159,7 +159,7 @@ OpenCV comes with three algorithms for recognizing faces: Eigenfaces, Fisherface
 
 For the purposes of our demo app, we will be using the LBPH algorithm, mostly because it can be updated with user input without requiring a complete re-training every time a new person is added or a wrong recognition is corrected.
 
-In order to use the LBPH recognizer, let's create an Objective-C++ wrapper for it, which exposes following methods:
+In order to use the LBPH recognizer, let's create an Objective-C++ wrapper for it, which exposes the following methods:
 
 ```objc
 + (FJFaceRecognizer *)faceRecognizerWithFile:(NSString *)path;
@@ -191,7 +191,7 @@ Prediction can be implemented as follows:
 
 Please note that we had to convert from `UIImage` to `cv::Mat` through a category method. The conversion itself is quite straightforward and is achieved by creating a `CGContextRef` using `CGBitmapContextCreate` pointing to the `data` pointer of a `cv::Image`. When we draw our `UIImage` on this bitmap context, the `data` pointer of our `cv::Image` is filled with the correct data. What's more interesting is that we are able to create an Objective-C++ category on an Objective-C class and it just works!
 
-Additionally the OpenCV face recognizer only supports integers as labels, but we would like to be able to use a person's name as a label, and have to implement a simple conversion between them through an `NSArray` property.
+Additionally, the OpenCV face recognizer only supports integers as labels, but we would like to be able to use a person's name as a label, and have to implement a simple conversion between them through an `NSArray` property.
 
 Once the recognizer predicts a label for us, we present this label to the user. Then it's up to the user to give feedback to our recognizer. The user could either say, "Yes, that's correct!" or "No, this is person Y, not person X." In both cases, we can update our LBPH model to improve its performance in future predictions by updating our model with the face image and the correct label. Updating our facial recognizer with user feedback can be achieved by the following:
 
