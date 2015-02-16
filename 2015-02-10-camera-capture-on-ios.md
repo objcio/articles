@@ -14,7 +14,7 @@ In this article, we'll see how image capture with AVFoundation works, how to con
 
 ### AVFoundation vs. `UIImagePickerController`
 
-`UIImagePickerController` provides a very simple way to take a picture. It supports all the basic features, such as switching to the front-facing camera, toggling the flash, tapping on an area to lock focus and exposure, and, on iOS8, adjusting the exposure just as in the system camera app.
+`UIImagePickerController` provides a very simple way to take a picture. It supports all the basic features, such as switching to the front-facing camera, toggling the flash, tapping on an area to lock focus and exposure, and, on iOS 8, adjusting the exposure just as in the system camera app.
 
 However, when direct access to the camera is necessary, the AVFoundation framework allows full control, for example, for changing the hardware parameters programmatically, or manipulating the live preview.
 
@@ -24,7 +24,7 @@ An image capture implemented with the AVFoundation framework is based on a few c
 
 - `AVCaptureDevice` is the interface to the hardware camera. It is used to control the hardware features such as the position of the lens, the exposure, and the flash.
 - `AVCaptureDeviceInput` provides the data coming from the device.
-- `AVCaptureOutput` is an abstract class describing the result of a capture session. There are three concrete subclasses of interest to still-image capture:
+- `AVCaptureOutput` is an abstract class describing the result of a capture session. There are three concrete subclasses of interest to still image capture:
   - `AVCaptureStillImageOutput` is used to capture a still image.
   - `AVCaptureMetadataOutput` enables detection of faces and QR codes.
   - `AVCaptureVideoOutput` provides the raw frames for a live preview.
@@ -39,7 +39,7 @@ Let's start building the capture. First we need an `AVCaptureSession` object:
 let session = AVCaptureSession()
 ```
 
-Now we need a camera device input. On most iPhones and iPads, we can choose between the back camera and the front camera — aka the selfie camera. So first we have to iterate over all the devices that can provide video data (the microphone is also an `AVCaptureDevice`, so we'll skip it) and check for the `position` property:
+Now we need a camera device input. On most iPhones and iPads, we can choose between the back camera and the front camera — aka the selfie camera. So first we have to iterate over all the devices that can provide video data (the microphone is also an `AVCaptureDevice`, but we'll skip it) and check for the `position` property:
 
 ```swift
 let availableCameraDevices = AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo)
@@ -53,7 +53,7 @@ for device in availableCameraDevices as [AVCaptureDevice] {
 }
 ```
 
-Then, once we found the proper camera device, we can get the corresponding `AVCaptureDeviceInput` object. We'll set this as the session's input:
+Then, once we've found the proper camera device, we can get the corresponding `AVCaptureDeviceInput` object. We'll set this as the session's input:
 
 ```swift
 var error:NSError?
@@ -100,8 +100,8 @@ view.layer.addSublayer(previewLayer)
 
 The `AVCaptureVideoPreviewLayer` will automatically display the output from the camera. It also comes in handy when we need to translate a tap on the camera preview to the coordinate system of the device, e.g. when tapping on an area to focus. We'll see the details later.
 
-The second method is to capture the single frames from the output data stream and to manually display them in a view, using OpenGL. This is a bit more complicated, but necessary in case we want to manipulate or filter the live preview.
-To get the data stream, we just create an `AVCaptureVideoDataOutput`, so when the camera is running, we get all the frames (except the ones that will be dropped if our processing is too slow) via the delegate method, `captureOutput(_:didOutputSampleBuffer:fromConnection:)`, and draw them in a `GLKView`. Without going too deep into the OpenGL framework, we could setup the `GLKView` like this:
+The second method is to capture the single frames from the output data stream and to manually display them in a view using OpenGL. This is a bit more complicated, but necessary in case we want to manipulate or filter the live preview.
+To get the data stream, we just create an `AVCaptureVideoDataOutput`, so when the camera is running, we get all the frames (except the ones that will be dropped if our processing is too slow) via the delegate method, `captureOutput(_:didOutputSampleBuffer:fromConnection:)`, and draw them in a `GLKView`. Without going too deep into the OpenGL framework, we could set up the `GLKView` like this:
 
 ```swift
 glContext = EAGLContext(API: .OpenGLES2)
@@ -155,7 +155,7 @@ The simplest — and the most recommended — is to use a session preset:
 session.sessionPreset = AVCaptureSessionPresetPhoto
 ```
 
-The `AVCaptureSessionPresetPhoto` selects the best configuration for the capture of a photo, i.e. it enables the maximum ISO and exposure duration ranges, the [phase detection](https://en.wikipedia.org/wiki/Autofocus#Phase_detection) autofocus, and a full resolution, JPEG-compressed still image output.
+The `AVCaptureSessionPresetPhoto` selects the best configuration for the capture of a photo, i.e. it enables the maximum ISO and exposure duration ranges; the [phase detection](https://en.wikipedia.org/wiki/Autofocus#Phase_detection) autofocus; and a full resolution, JPEG-compressed still image output.
 
 However, if you need more control, the `AVCaptureDeviceFormat` class describes the parameters applicable to the device, such as still image resolution, video preview resolution, the type of autofocus system, ISO, and exposure duration limits. Every device supports a set of formats, listed in the `AVCaptureDevice.formats` property, and the proper format can be set as the  `activeFormat` of the `AVCaptureDevice` (note that you cannot modify a format).
 
@@ -172,7 +172,7 @@ dispatch_async(sessionQueue) { () -> Void in
 }
 ```
 
-All the actions and configurations done on the session or the camera device are blocking calls. For this reason, it's recommended to dispatch them to a background serial queue. Furthermore, the camera device must be locked before changing any of its parameters, and unlocked afterwards For example:
+All the actions and configurations done on the session or the camera device are blocking calls. For this reason, it's recommended to dispatch them to a background serial queue. Furthermore, the camera device must be locked before changing any of its parameters, and unlocked afterward. For example:
 
 ```swift
 var error:NSError?
@@ -210,7 +210,7 @@ if currentCameraDevice.isFocusModeSupported(focusMode) {
 }
 ```
 
-By default, the `AutoFocus` mode tries to get the center of the screen as the sharpest area, but it is possible to set another area by changing the "point of interest." This is a `CGPoint`, with values ranging from `{ 0.0 , 0.0 }` (top left) to `{ 1.0, 1.0 }` (bottom right), and `{ 0.5, 0.5 }` being the center of the frame.
+By default, the `AutoFocus` mode tries to get the center of the screen as the sharpest area, but it is possible to set another area by changing the "point of interest." This is a `CGPoint`, with values ranging from `{ 0.0 , 0.0 }` (top left) to `{ 1.0, 1.0 }` (bottom right), and `{ 0.5, 0.5 }` (center of the frame).
 Usually this can be implemented with a tap gesture recognizer on the video preview, and to help with translating the point from the coordinate of the view to the device's normalized coordinates, we can use  `AVVideoCaptureVideoPreviewLayer.captureDevicePointOfInterestForPoint()`:
 
 ```swift
@@ -238,7 +238,7 @@ currentCameraDevice.setFocusModeLockedWithLensPosition(lensPosition) {
 ... // unlock
 ```
 
-This means that the focus can be set with a `UISlider`, for example, which would be the equivalent of rotating the focusing ring on a DSLR. When focusing manually with these kinds of cameras, there is usually a visual aid that indicates the sharp areas. There is no such built-in mechanism in AVFoundation, but it could be interesting to display, for instance, a sort of ["focus peaking"](https://en.wikipedia.org/wiki/Focus_peaking). We won't go into details here, but focus peaking could be easily implemented by applying a threshold edge detect filter (with a custom `CIFilter` or [`GPUImageThresholdEdgeDetectionFilter`](https://github.com/BradLarson/GPUImage/blob/master/framework/Source/GPUImageThresholdEdgeDetectionFilter.h)), and overlaying it onto the live preview in the `captureOutput(_:didOutputSampleBuffer:fromConnection:)` method of `AVCaptureAudioDataOutputSampleBufferDelegate` seen above.
+This means that the focus can be set with a `UISlider`, for example, which would be the equivalent of rotating the focusing ring on a DSLR. When focusing manually with these kinds of cameras, there is usually a visual aid that indicates the sharp areas. There is no such built-in mechanism in AVFoundation, but it could be interesting to display, for instance, a sort of ["focus peaking."](https://en.wikipedia.org/wiki/Focus_peaking) We won't go into details here, but focus peaking could be easily implemented by applying a threshold edge detect filter (with a custom `CIFilter` or [`GPUImageThresholdEdgeDetectionFilter`](https://github.com/BradLarson/GPUImage/blob/master/framework/Source/GPUImageThresholdEdgeDetectionFilter.h)), and overlaying it onto the live preview in the `captureOutput(_:didOutputSampleBuffer:fromConnection:)` method of `AVCaptureAudioDataOutputSampleBufferDelegate` seen above.
 
 ### Exposure
 
@@ -317,7 +317,7 @@ Check out [Engin’s article in this issue](/issue-21/face-recognition-with-open
 
 Finally, we want to capture the high-resolution image, so we call the `captureStillImageAsynchronouslyFromConnection(connection, completionHandler)` method on the camera device. When the data is read, the completion handler will be called on an unspecified thread.
 
-If the still image output was set up to use the JPEG codec, either via the session `.Photo` preset or via the device's output settings, the `sampleBuffer` returned contains the image's metadata, i.e. EXIF data and also the detected faces — if enabled in the `AVCaptureMetadataOutput`:
+If the still image output was set up to use the JPEG codec, either via the session `.Photo` preset or via the device's output settings, the `sampleBuffer` returned contains the image's metadata, i.e. Exif data and also the detected faces — if enabled in the `AVCaptureMetadataOutput`:
 
 ```swift
 dispatch_async(sessionQueue) { () -> Void in
@@ -387,7 +387,7 @@ dispatch_async(sessionQueue) { () -> Void in
 }
 ```
 
-It looks quite similar to the single image capture, but the completion handler is called as many times as the number of elements in the settings array.
+It appears rather similar to the single image capture, but the completion handler is called as many times as the number of elements in the settings array.
 
 
 ### Conclusion
