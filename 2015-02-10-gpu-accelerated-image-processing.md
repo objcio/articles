@@ -10,7 +10,7 @@ Instagram. Snapchat. Photoshop.
 
 All of these applications are used to do image processing. Image processing can be as simple as converting a photo to grayscale and as complex as analyzing a video of a crowd for a specific person. In spite of how divergent these applications are, both of these examples go through the same process from creation to rendering.
 
-There are many ways to process images on your computer or mobile phone, but by far the most efficient is effectively using your Graphics Processing Unit, or GPU. Your phone contains two different processing units, the CPU and the GPU. The CPU is a generalist that has to deal with everything, while your GPU can focus on doing one thing really well, which is doing floating point math in parallel. It turns out that image processing and rendering is nothing more than doing a lot of floating-point math on the values for the pixels that render to your screen.
+There are many ways to process images on your computer or mobile phone, but by far the most efficient is effectively using your Graphics Processing Unit, or GPU. Your phone contains two different processing units, the CPU and the GPU. The CPU is a generalist that has to deal with everything, while your GPU can focus on doing one thing really well, which is doing floating-point math in parallel; it turns out that image processing and rendering is nothing more than doing a lot of floating-point math on the values for the pixels that render to your screen.
 
 By effectively utilizing your GPU, you can increase graphics-rendering performance on your phone by a hundred fold, if not a thousand fold. Being able to filter high-quality live video on your phone is impractical or even impossible without GPU-based processing.
 
@@ -21,13 +21,13 @@ This process can be incredibly daunting, especially to newer developers. The pur
 
 
 
-## What is a Shader?
+## What Is a Shader?
 
 We're going to take a short trip in The Wayback Machine to get an overview of what a shader is and how it came to be an integral part of our workflow.
 
 If you've been doing iOS programming since at least iOS 5, you might be aware that there was a shift in OpenGL programming on the iPhone, from OpenGL ES 1.1 to OpenGL ES 2.0.
 
-OpenGL ES 1.1 did not use shaders. Instead, OpenGL ES 1.1 used what is called a fixed-function pipeline. Instead of creating a separate program to direct the operation of the GPU, there was a set of fixed functions that you used to render objects on the screen. This was incredibly limiting, and you weren't able to get any specialized effects. If you want a good example of how much of a difference shaders can make in a project, [check out this blog post Brad Larson wrote about refactoring his Molecules app using shaders instead of the fixed-function pipeline.](http://www.sunsetlakesoftware.com/2011/05/08/enhancing-molecules-using-opengl-es-20)
+OpenGL ES 1.1 did not use shaders — it used what is called a fixed-function pipeline. Instead of creating a separate program to direct the operation of the GPU, there was a set of fixed functions that you used to render objects on the screen. This was incredibly limiting, and you weren't able to get any specialized effects. If you want a good example of how much of a difference shaders can make in a project, [check out this blog post Brad Larson wrote about refactoring his Molecules app using shaders instead of the fixed-function pipeline.](http://www.sunsetlakesoftware.com/2011/05/08/enhancing-molecules-using-opengl-es-20)
 
 OpenGL ES 2.0 introduced the programmable pipeline. The programmable pipeline allowed you to go in and write your own shaders, giving you far more power and flexibility.
 
@@ -37,7 +37,7 @@ Vertex shaders customize how geometry is handled in a 2D or 3D scene. A vertex i
 
 Your GPU then uses a fragment shader to perform calculations on each pixel in an object or image, ending with the final color for that pixel. An image, when you get right down to it, is simply a collection of data. The image document contains parameters for the value of each pixel, for each color component, and for the pixel's opacity. Because the equations are the same for each pixel, the GPU is able to streamline the process and do it more efficiently. If you are optimizing your shader properly, you can process image data on the GPU more than 100 times faster than if you were to run the same process on the CPU.
 
-One issue that has plagued OpenGL developers from the beginning is just being able to render anything on the screen. There is a lot of boilerplate code and setup that needs to be done just to get a screen that isn't black. The frustration and the inability to test out shaders because of all the hoops developers had to jump through in the past has discouraged a lot of people from even trying to get involved in writing shaders.
+One issue that has plagued OpenGL developers from the beginning is just being able to render anything on the screen. There is a lot of boilerplate code and setup that needs to be done in order to get a screen that isn't black. The frustration and the inability to test out shaders because of all the hoops developers had to jump through in the past has discouraged a lot of people from even trying to get involved in writing shaders.
 
 Fortunately, in the last few years, several tools and frameworks have been made available to take some of the anxiety out of trying out shaders:
 
@@ -82,7 +82,7 @@ attribute vec4 inputTextureCoordinate;
 
 At this point you might be wondering why we are getting a texture coordinate. Didn't we just get our vertex position? Aren't these the same thing?
 
-No, not necessarily. A texture coordinate is part of a texture map. What this means is that you have the image you want to filter, which is your texture. The upper left-hand corner has a coordinate space of (0, 0). The upper right-hand corner has a coordinate space of (1,0). If we wanted to select a texture coordinate that was inside the image and not at the edges, we would specify that the texture coordinate was something else in our base application, like (.25, .25), which would be located a quarter of the way in and down on our image. In our current image processing application, we want the texture coordinate and the vertex position to line up because we want to cover the entire length and breadth of our image. There are times where you might want these positions to be different, so it's important to remember that they don't necessarily need to be the same coordinate. Also, the coordinate space for vertices in this example extends from −1.0 to 1.0, where texture coordinates go from 0.0 to 1.0.
+No, not necessarily. A texture coordinate is part of a texture map. What this means is that you have the image you want to filter, which is your texture. The upper left-hand corner has a coordinate space of (0, 0). The upper right-hand corner has a coordinate space of (1,0). If we wanted to select a texture coordinate that was inside the image and not at the edges, we would specify that the texture coordinate was something else in our base application, like (.25, .25), which would be located a quarter of the way in and down on our image. In our current image processing application, we want the texture coordinate and the vertex position to line up, because we want to cover the entire length and breadth of our image. There are times where you might want these positions to be different, so it's important to remember that they don't necessarily need to be the same coordinate. Also, the coordinate space for vertices in this example extends from −1.0 to 1.0, where texture coordinates go from 0.0 to 1.0.
 
 ```glsl
 varying vec2 textureCoordinate;
@@ -100,14 +100,14 @@ gl_Position = position;
 textureCoordinate = inputTextureCoordinate.xy;
 ```
 
-Finally, we are extracting the X and Y positions of the texture coordinate at this vertex. We only care about the first two components of `inputTextureCoordinate`, X and Y. The coordinate was initially fed into the vertex shader with four attributes, but we only care about two of them. Instead of feeding more attributes than we need to to our fragment shader, we are stripping out the ones we need and assigning them to a variable type that will talk to the fragment shader.
+Finally, we are extracting the X and Y positions of the texture coordinate at this vertex. The coordinate was initially fed into the vertex shader with four attributes, but we only care about the first two components of `inputTextureCoordinate`, X and Y. Instead of feeding more attributes than we need to to our fragment shader, we are stripping out the ones we need and assigning them to a variable type that will talk to the fragment shader.
 
 This vertex shader stays pretty much the same for all of our various image filter programs, so the rest of the shaders we will be focusing on for this article will be fragment shaders.
 
 
 ### The Fragment Shader ###
 
-Now that we have gone over our simple vertex shader, let's take a look at the simplest fragment shader you can implement: a passthrough filter:
+Now that we have gone over our simple vertex shader, let's take a look at the simplest fragment shader you can implement — a passthrough filter:
 
 ```glsl
 varying highp vec2 textureCoordinate;
@@ -184,7 +184,7 @@ One last quick thing to mention before we move on. Look at those variables you c
 
 If you have something that doesn’t have to be very precise, you can indicate that and possibly allow more of these values to be operated on in a single clock cycle. On the other hand, in the case of the texture coordinate, we care a great deal about making sure this is as precise as possible, so we specify that we do indeed need this extra precision.
 
-Precision qualifiers exist in OpenGL ES because they are geared toward mobile devices. However, they are missing in older versions of desktop OpenGL. Since OpenGL ES is effectively a subset of OpenGL, you can almost always directly port an OpenGL ES project to OpenGL. If you do that, however, you do need to remember to strip the precision qualifiers out of your desktop shaders. This is an important thing to keep in mind, especially if you are planning to port your application between iOS and OS X.
+Precision qualifiers exist in OpenGL ES because they are geared toward mobile devices. However, they are missing in older versions of desktop OpenGL. Since OpenGL ES is effectively a subset of OpenGL, you can almost always directly port an OpenGL ES project to OpenGL. If you do that, however, you need to remember to strip the precision qualifiers out of your desktop shaders. This is an important thing to keep in mind, especially if you are planning to port your application between iOS and OS X.
 
 ## Vectors ##
 
@@ -202,7 +202,7 @@ These vector types contain a specified number of floating-point values: `vec2` c
 
 These types can be applied to several kinds of data you want to modify and persist in your shaders. One of the more obvious things you would want to keep track of is the X and Y coordinates of your fragment. An (X,Y) would fit quite nicely into the `vec2` data type.
 
-Another thing that you tend to keep track of in graphics processing are the red, green, blue, and alpha values of each pixel. Those can be nicely stored in a `vec4` data type.
+Another thing that you tend to keep track of in graphics processing is the red, green, blue, and alpha value of each pixel. Those can be nicely stored in a `vec4` data type.
 
 
 ## Matrices ##
@@ -215,7 +215,7 @@ As with vectors, the matrix objects you are going to deal with most often are:
 - `mat3`
 - `mat4`
 
-Where `vec2` holds two floating-point values, `mat2` holds the equivalent of two `vec2` objects. You don’t need to pass vector objects into your matrix objects, as long as you account for the correct number of floating-point elements needed to fill the matrix. In the case of the `mat2` object, you would either need to pass in two `vec2` objects or four floating-point values. Since you can name your vectors and you would only be responsible for two objects instead of four, it is highly encouraged for you to encapsulate your numbers in values that you can keep track of more easily. This only gets more complex when you move on to the `mat4` object and you are responsible for 16 numbers instead of four!
+Where `vec2` holds two floating-point values, `mat2` holds the equivalent of two `vec2` objects. You don’t need to pass vector objects into your matrix objects, as long as you account for the correct number of floating-point elements needed to fill the matrix. In the case of the `mat2` object, you would either need to pass in two `vec2` objects or four floating-point values. Since you can name your vectors and you would only be responsible for two objects instead of four, it is highly encouraged for you to encapsulate your numbers in values that you can keep track of more easily. This only gets more complex when you move on to the `mat4` object and you are responsible for 16 numbers instead of 4!
 
 In our `mat2` example, we have two sets of `vec2` objects. Each `vec2` object represents a row. The first element of each `vec2` represents a column. It’s very important to make sure that you are placing each value in the correct row and column when you are constructing your matrix object, or else the operations you perform on them will not work successfully.
 
@@ -296,7 +296,7 @@ Again, since this is a fragment shader that is talking to our baseline vertex sh
 const mediump vec3 luminanceWeighting = vec3(0.2125, 0.7154, 0.0721);
 ```
 
-This is where we are setting up a three-component vector to store our color weighting for our luminance extraction. All three of these values must add up to 1.0 so that we can calculate the luminance of a pixel on a scale from 0.0 to 1.0. Notice that the middle number, which represents green, uses 70 percent of the available color weighting, while blue only uses a tenth of that. The blue doesn’t show up as well to us, and it makes more sense to weigh toward green instead for brightness.
+This is where we are setting up a three-component vector to store our color weighting for our luminance extraction. All three of these values must add up to 1.0 so that we can calculate the luminance of a pixel on a scale from 0.0 to 1.0. Notice that the middle number, which represents green, uses 70 percent of the available color weighting, while blue only uses a tenth of that. The blue doesn’t show up as well to us, and it makes more sense to instead weigh toward green for brightness.
 
 ```glsl
 lowp vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);
@@ -373,7 +373,7 @@ We are bringing in a few parameters that we need in order to calculate out how m
 highp vec2 textureCoordinateToUse = vec2(textureCoordinate.x, (textureCoordinate.y * aspectRatio + 0.5 - 0.5 * aspectRatio));
 ```
 
-The texture coordinates of our image are in a normalized 0.0-1.0 coordinate space. Normalized coordinate spaces means that instead of thinking of the phone as being 320 pixels across and 480 pixels high, the screen is one unit long and one unit wide. Since the phone is taller than it is long, we need to calculate an offset ratio for our sphere so that the sphere is round instead of oval:
+The texture coordinates of our image are in a normalized 0.0-1.0 coordinate space. This means that instead of thinking of the phone as being 320 pixels across and 480 pixels high, the screen is one unit long and one unit wide. Since the phone is taller than it is long, we need to calculate an offset ratio for our sphere so that the sphere is round instead of oval:
 
 ![We want a correct aspect ratio](/images/issue-21/aspectRatio.png)
 
@@ -457,7 +457,7 @@ When profiling, I recommend measuring frame rendering time, rather than focusing
 
 The frame rendering time is the amount of time it takes for the frame to begin processing until it completely finishes and is rendered to the screen or to a final image. Many mobile GPUs use a technique called "deferred rendering," where rendering instructions are batched up and executed only as needed. Therefore, it's important to measure the entire rendering operation, rather than operations in the middle, because they may run in a different order than you expect.
 
-Optimizations can also vary wildly from device to device, desktop and mobile. You may need to profile on multiple classes of devices. For example, the GPUs in mobile iOS devices have grown increasingly more powerful. The CPU on an iPhone 5S is approximately ten times faster than the CPU on the iPhone 4, however its GPU is hundreds of times faster.
+Optimizations can also vary wildly from device to device, desktop, and mobile. You may need to profile on multiple classes of devices. For example, the GPUs in mobile iOS devices have grown increasingly more powerful. The CPU on an iPhone 5S is approximately 10 times faster than the CPU on the iPhone 4, however its GPU is hundreds of times faster.
 
 If you are testing your applications on devices with an A7 chip or higher, you are going to get vastly different results than you would with an iPhone 5 or lower. [Brad Larson profiled how long a Gaussian Blur took on various iOS devices and has clearly demonstrated a dramatic leap forward in processing times on newer devices:](http://www.sunsetlakesoftware.com/2013/10/21/optimizing-gaussian-blurs-mobile-gpu)
 
@@ -473,11 +473,11 @@ There is a tool that you can download, [Imagination Technologies PowerVR SDK](ht
 
 Here are some easy ways to help you hit your target:
 
-- **Eliminate conditional logic:** Sometimes it's necessary to include conditional logic, but try to keep it to a minimum. Using workarounds like the `step()` function can help you avoid expensive conditional logic in your shaders.
-- **Reduce dependent texture reads:** Dependent texture reads occur when a texture is sampled in a fragment shader from a texture coordinate that wasn't passed in directly as a varying, but was instead calculated in the fragment shader. These dependent texture reads can't take advantage of optimizations in caching that normal texture reads do, leading to much slower reads. For example, if you want to sample from nearby pixels, rather than calculate the offset to the neighboring pixel in your fragment shader, it's best to do this calculation in the vertex shader and have the result be passed along as a varying. A demonstration of this is present in [Brad Larson's article](/issue-21/gpu-accelerated-machine-vision.html), in the case of Sobel edge detection.
-- **Make your calculations as simple as possible:** If you can avoid an expensive operation and get an approximate value that is good enough, you should do so. Expensive calculations include calling trigonometric functions (like `sin()`, `cos()`, and `tan()`).
-- **Shift work over to the vertex shader, if it makes sense:** Our previous talk about dependent texture reads is a situation where it would make sense to move texture coordinate calculations to the vertex shader. If a calculation would have the same result across your image, or would linearly vary across it, look at moving that calculation into the vertex shader. Vertex shaders run once per vertex, whereas fragment shaders execute once per pixel, so a calculation performed in the former will run fewer times.
-- **Use appropriate precision on mobile devices:** On certain mobile devices, it can be much faster to work with lower precision values in vectors. Addition of two `lowp vec4`s can often be done in a single clock cycle on these device, where addition of two highp vec4s can take four clock cycles. This is less important on desktop GPUs and more recent mobile GPUs, though, as they don't have the same optimizations for low precision values.
+- **Eliminate conditional logic.** Sometimes it's necessary to include conditional logic, but try to keep it to a minimum. Using workarounds like the `step()` function can help you avoid expensive conditional logic in your shaders.
+- **Reduce dependent texture reads.** Dependent texture reads occur when a texture is sampled in a fragment shader from a texture coordinate that wasn't passed in directly as a varying, but was instead calculated in the fragment shader. These dependent texture reads can't take advantage of optimizations in caching that normal texture reads do, leading to much slower reads. For example, if you want to sample from nearby pixels, rather than calculate the offset to the neighboring pixel in your fragment shader, it's best to do this calculation in the vertex shader and have the result be passed along as a varying. A demonstration of this is present in [Brad Larson's article](/issue-21/gpu-accelerated-machine-vision.html), in the case of Sobel edge detection.
+- **Make your calculations as simple as possible.** If you can avoid an expensive operation and get an approximate value that is good enough, you should do so. Expensive calculations include calling trigonometric functions (like `sin()`, `cos()`, and `tan()`).
+- **Shift work over to the vertex shader, if it makes sense.** Our previous talk about dependent texture reads is a situation where it would make sense to move texture coordinate calculations to the vertex shader. If a calculation would have the same result across your image, or would linearly vary across it, look at moving that calculation into the vertex shader. Vertex shaders run once per vertex, whereas fragment shaders execute once per pixel, so a calculation performed in the former will run fewer times.
+- **Use appropriate precision on mobile devices.** On certain mobile devices, it can be much faster to work with lower precision values in vectors. The addition of two `lowp vec4`s can often be done in a single clock cycle on these devices, where the addition of two `highp vec4`s can take four clock cycles. This is less important on desktop GPUs and more recent mobile GPUs, though, as they don't have the same optimizations for low precision values.
 
 # Conclusions and Resources #
 
