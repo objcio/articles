@@ -16,7 +16,7 @@ Let's say you're outside and looking around you. The sun, 150 million kilometers
 
 Most of us carry a camera with us almost every minute of the day; today's smartphones are some of the [most used cameras](http://petapixel.com/assets/uploads/2015/01/rankings.jpg). Before the era of digital photography, photography would record light onto paper or film. Today, photography turns light into bits and bytes.
 
-This article will go through some of what's making this happen: how a smartphone camera works.
+This article will go through some of what's making this happen — how a smartphone camera works.
 
 
 
@@ -40,11 +40,11 @@ In the underexposed image, even after trying to make it brighter, the dark regio
 
 ### Stops
 
-There are three things that affect the amount of light of an exposure: shutter speed, aperture, and ISO value. We will go through these in a bit.
+There are three things that affect the amount of light of an exposure: shutter speed, ISO value, and aperture. We will go through these in a bit.
 
-In photography, a change to any one of these three which either doubles or halves the amount of light is called “1 stop.” For each of these three (shutter speed, aperture, and ISO), a single stop corresponds to a different numerical change. But if we adjust the shutter speed by 1 stop, we need to compensate by adjusting either the ISO or the aperture by exactly 1 stop, too, in order to get the same amount of light. We'll look at this in detail shortly.
+In photography, a change to any one of these three which either doubles or halves the amount of light is called “one stop.” For each of these three (shutter speed, ISO, aperture), a single stop corresponds to a different numerical change. But if we adjust the shutter speed by one stop, we need to compensate by adjusting either the ISO or the aperture by exactly one stop, too, in order to get the same amount of light. We'll look at this in detail shortly.
 
-The tricky part is that all three (shutter speed, aperture, and ISO) also affect other aspects of the exposure. And there are countless combinations of these three parameters that result in the same amount of light. Let's take a closer look.
+The tricky part is that all three (shutter speed, ISO, and aperture) also affect other aspects of the exposure. And there are countless combinations of these three parameters that result in the same amount of light. Let's take a closer look.
 
 <a name="ShutterSpeed"></a>
 ### Shutter Speed
@@ -53,7 +53,7 @@ When we capture an image, the image sensor captures light for a specific amount 
 
 A shutter speed of e.g. 1/50 second lets the image sensor capture light for 1/50 s (= 0.02 s or 20 ms). If we change the shutter speed to 1/25 s (40 ms), the image sensor will capture light for twice as long, and it will capture twice the amount of photons, i.e. twice the amount of light.
 
-A so-called *stop* for the shutter speed either doubles or halves the shutter speed. Going from 1/50 s to 1/25 s is an adjustment by 1 stop.
+A so-called *stop* for the shutter speed either doubles or halves the shutter speed. Going from 1/50 s to 1/25 s is an adjustment by one stop.
 
 The iPhone 6 can adjust the shutter speed from 1/8000 s up to 1/2 s. We can change the shutter speed to adjust the amount of light, but it will also affect motion blur of the image. If the camera and the scene that we're taking a photo of are completely still, we can make the exposure time (shutter speed) arbitrarily long, but more often than not, things around us are moving. And particularly with an iPhone, the camera itself is also moving.
 
@@ -85,7 +85,7 @@ The f-numbers can be a bit confusing. A *stop* with f-numbers corresponds to a m
 
 When using the iPhone camera, things are a lot easier because the aperture is fixed. An iPhone 6 has a fixed aperture of ƒ/2.2.
 
-In addition to the amount of light, aperture also affects the [depth of field](http://en.wikipedia.org/wiki/Depth_of_field). This relates to [focus](#Focus). The optical system in a camera will render things sharply within a range of distances away from the camera. As we change the aperture, this range becomes wider or narrower. We can use this to achieve nice effects. But sadly, we can not adjust the aperture on the iPhone.
+In addition to the amount of light, aperture also affects the [depth of field](http://en.wikipedia.org/wiki/Depth_of_field). This relates to [focus](#Focus). The optical system in a camera will render things sharply within a range of distances away from the camera. As we change the aperture, this range becomes wider or narrower. We can use this to achieve nice effects. But sadly, we cannot adjust the aperture on the iPhone.
 
 
 ### Combining
@@ -94,7 +94,7 @@ On the iPhone, we can only adjust the ISO and the shutter speed. We can hence tr
 
 That explains why photos at night often look worse than those taken during the day: At night there's a lot less light. In order to still have an acceptable shutter speed, the auto exposure will bump up the ISO, probably to the maximum of what the camera allows. And even that may not be enough to achieve enough light, so the auto exposure will also lower the shutter speed. This combination results in more noise in the image, and the image being blurred.
 
-Some [iOS apps](http://campl.us/) let you adjust the exposure manually. This can be done by either adjusting the [EV/exposure value](http://en.wikipedia.org/wiki/Exposure_value), which will still use the auto exposure logic of the camera, but lets you adjust the desired level of exposure. An EV value of −1 will result in an image that is 1 stop underexposed, according to the auto exposure logic. The auto exposure logic will still automatically pick some combination of ISO and shutter speed (since the aperture is fixed on the camera).
+Some [iOS apps](http://campl.us/) let you adjust the exposure manually. This can be done by either adjusting the [EV/exposure value](http://en.wikipedia.org/wiki/Exposure_value), which will still use the auto exposure logic of the camera, but lets you adjust the desired level of exposure. An EV value of −1 will result in an image that is one stop underexposed, according to the auto exposure logic. The auto exposure logic will still automatically pick some combination of ISO and shutter speed (since the aperture is fixed on the camera).
 
 Another option for adjusting the exposure is [shutter priority](http://en.wikipedia.org/wiki/Shutter_priority) (often denoted with an *S*). This lets us directly set the desired shutter speed, while the auto exposure will try to compensate for the exposure by automatically adjusting the ISO.
 
@@ -102,7 +102,7 @@ Finally, we can do a fully manual exposure (often denoted with an *M*) by adjust
 
 Cameras that allow you to adjust the aperture have something called [aperture priority](http://en.wikipedia.org/wiki/Aperture_priority) (often denoted with an *A*), which is conceptually the same as shutter priority, only that we manually control the aperture and let the auto exposure logic pick the shutter speed (and ISO level, unless it is fixed).
 
-There are several strategies for picking a good auto exposure. iOS has an auto exposure logic that looks at the overall image and makes a guess as to what you want to be exposed well. If parts of the image are very bright and others very dark, the camera can not expose everything well. The auto exposure has to pick something, and if it, for example, finds faces, it will pick those. The built-in iOS camera app lets you tap on something in the image to hint to the auto exposure that this part of the image should be exposed well. That will cause the auto exposure to adjust itself. The camera app also lets you adjust the exposure value by dragging up or down on the screen. But to explicitly set the shutter speed and/or ISO, you need to use a different app.
+There are several strategies for picking a good auto exposure. iOS has an auto exposure logic that looks at the overall image and makes a guess as to what you want to be exposed well. If parts of the image are very bright and others very dark, the camera cannot expose everything well. The auto exposure has to pick something, and if it, for example, finds faces, it will pick those. The built-in iOS camera app lets you tap on something in the image to hint to the auto exposure that this part of the image should be exposed well. That will cause the auto exposure to adjust itself. The camera app also lets you adjust the exposure value by dragging up or down on the screen. But to explicitly set the shutter speed and/or ISO, you need to use a different app.
 
 <a name="Focus"></a>
 ## Focus
@@ -133,11 +133,11 @@ Inside the camera of your iPhone, there's an image sensor. This is the part that
 
 The image sensor consists of a huge number of individual pixel sensors that are lined up into a huge rectangle. We can think of each pixel sensor as a charge bucket. As photons hit the photodiode of the pixel sensor, they slowly build up a charge in that pixel's bucket. As a result, each pixel has its own tiny bucket of electrons. The charge, in turn, depends on the number of photons — and ultimately the intensity of the light hitting that particular spot.
 
-Since we have a two-dimensional array of these pixel sensors, we now have a two dimensional array of charges that reflect the intensity of the light at all these positions. On the iPhone 6, there are eight million of these tiny pixel sensors with their corresponding charge buckets.
+Since we have a two-dimensional array of these pixel sensors, we now have a two-dimensional array of charges that reflect the intensity of the light at all these positions. On the iPhone 6, there are eight million of these tiny pixel sensors with their corresponding charge buckets.
 
 At this point, we need two things: First, we need to be able to reset the charge. Second, we need to be able to read out the charges once the pixel sensors have been exposed to light. The reset can be done globally for all pixels. But as for the eight million small charges, we want to be able to turn them into voltage levels individually.
 
-Digital cameras usually shift out rows of pixels: The image sensor will read the charge of the first electron bucket in the row, and then all buckets transfer their charge to the adjacent one. The first electron bucket now holds the charge that was in the second, which can now be read. Repeating this, one by one all pixel values are read off the sensor's row.
+Digital cameras usually shift out rows of pixels. The image sensor will read the charge of the first electron bucket in the row, and then all buckets transfer their charge to the adjacent one. The first electron bucket now holds the charge that was in the second, which can now be read. Repeating this, one by one, all pixel values are read off the sensor's row.
 
 The bucket or pixel sensor that is being read will have its value converted to a digital value through an [analog-to-digital converter](https://en.wikipedia.org/wiki/Analog-to-digital_converter) (ADC). The output of the ADC is a digital number for each pixel sensor corresponding to the amount of light that hit it. Finally, these values are then passed on to a digial image processor. We'll talk a bit more about the image processing below.
 
@@ -146,9 +146,9 @@ The bucket or pixel sensor that is being read will have its value converted to a
 
 With this, we can already start to understand why the number of megapixels don't matter for image quality. Or rather: what's very important for the quality of the image is the size of the individual pixel. These pixel sensors are tiny. On an iPhone 6, they're 1.5 µm ([microns or micrometers](https://en.wikipedia.org/wiki/Micrometre)) on each side. On prosumer DSLR cameras, they can be as large as 9 µm on each side.
 
-Two things happen as the size increases: First off, the larger the pixel, the more light will hit it, and the more charge will build up. The more charge we have, the lower the noise in the readout. Imagine you're listening to music next to a busy street. If all you have is the built-in speaker of your phone, you may barely be able to make out the music. If you have a large stereo set, the noise of the street will disappear. The same for the charge in the pixels vs. the noise in the image sensor. Larger pixels are good. A 9 µm image pixel will capture 36 times as many photons as a 1.5 µm pixel.
+Two things happen as the size increases. First, the larger the pixel, the more light will hit it, and the more charge will build up. The more charge we have, the lower the noise in the readout. Imagine you're listening to music next to a busy street. If all you have is the built-in speaker of your phone, you may barely be able to make out the music. If you have a large stereo set, the noise of the street will disappear. The same for the charge in the pixels vs. the noise in the image sensor. Larger pixels are good. A 9 µm image pixel will capture 36 times as many photons as a 1.5 µm pixel.
 
-The second thing is that lager pixels are less affected by bleed. The image sensor is a [semiconductor](https://en.wikipedia.org/wiki/Semiconductor) made out of [silicon](https://en.wikipedia.org/wiki/Silicon), just like the CPU and RAM. As light hits the sensor, it will, to some extent, bleed into neighboring pixels in a similar fashion to light hitting frosted glass. As pixels get smaller and smaller, the amount of light bleeding into neighboring pixels increases: the value for each pixel is affected more and more by the light that is actually hitting its neighboring pixels, but bleeds into this pixel.
+The second thing is that larger pixels are less affected by bleed. The image sensor is a [semiconductor](https://en.wikipedia.org/wiki/Semiconductor) made out of [silicon](https://en.wikipedia.org/wiki/Silicon), just like the CPU and RAM. As light hits the sensor, it will, to some extent, bleed into neighboring pixels in a similar fashion to light hitting frosted glass. As pixels get smaller and smaller, the amount of light bleeding into neighboring pixels increases: the value for each pixel is affected more and more by the light that is actually hitting its neighboring pixels, but bleeds into this pixel.
 
 
 
@@ -180,13 +180,13 @@ They define color recursively by referring to color itself, or *chromatic*, whic
 
 The important takeaway from the above is: "Color is a visual perception." Someone has to be looking at the thing for there to be color. Color doesn't exist outside our perception. You need a light source and something that reflects this light. And that light then has to be seen in order for there to be color.
 
-Newton first discovered that light is a spectrum. Light consist of wavelengths roughly in the range of 380-720 nm. This is visible light. But we see light at different wavelengths differently.
+Newton first discovered that light is a spectrum. Light consists of wavelengths roughly in the range of 380-720 nm. This is visible light. But we see light at different wavelengths differently.
 
 The human eye has photo detectors. Some of these are so-called cones. There are three different *kinds* of cones: S, M, and L. Each kind responds differently to different wavelengths of light. These cones are sometimes referred to as red, green, and blue photoreceptors, although that's not really true. It would be more accurate to call them reddish, slightly less reddish, and blueish. As this graph shows, there's a quite a bit of overlap between their response curves:
 
 <a title="Vanessaezekowitz at en.wikipedia [GFDL (http://www.gnu.org/copyleft/fdl.html), CC BY 3.0-2.5-2.0-1.0 (http://creativecommons.org/licenses/by/3.0-2.5-2.0-1.0) or CC BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0)], via Wikimedia Commons" href="http://commons.wikimedia.org/wiki/File%3ACones_SMJ2_E.svg"><img src="/images/issue-21/Cones_SMJ2_E.svg" alt="Simplified human cone response curves" width="287px" height="217px"></a>
 
-A light source such as a lightbulb has a certain spectrum of light — a certain intensity at each wavelength. An object, e.g. a bike's frame, will in turn reflect or absorb different wavelengths with different intensities. For each cone, we can multiply (in fact, integrate over the wavelength) the light source's spectrum with the object's reflectance spectrum and the cone's response curve. For each cone, that will result in a single value. The resulting S, M, and L cones' three *stimulus* values are the perceived color. Our brain interprets this combination of the values for the bluish, reddish, and slightly less reddish cones as a color. The perceived color, however, does not only depend on these three values, but also spatial and temporal information.
+A light source such as a lightbulb has a certain spectrum of light — a certain intensity at each wavelength. An object, e.g. a bike's frame, will in turn reflect or absorb different wavelengths with different intensities. For each cone, we can multiply (in fact, integrate over the wavelength) the light source's spectrum with the object's reflectance spectrum and the cone's response curve. For each cone, that will result in a single value. The resulting S, M, and L cones' three *stimulus* values are the perceived color. Our brain interprets this combination of the values for reddish, slightly less reddish, and blueish cones as a color. The perceived color, however, does not only depend on these three values, but also spatial and temporal information.
 
 ### Specifying a Color
 
@@ -206,7 +206,7 @@ It is worth pointing out that most color spaces can only represent a subset of t
 
 <a title="By CIExy1931.svg: Sakurambo derivative work: GrandDrake (CIExy1931.svg) [CC BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0), CC BY-SA 2.5-2.0-1.0 (http://creativecommons.org/licenses/by-sa/2.5-2.0-1.0) or GFDL (http://www.gnu.org/copyleft/fdl.html)], via Wikimedia Commons" href="http://commons.wikimedia.org/wiki/File%3ACIExy1931_Rec_709.svg"><img src="/images/issue-21/CIExy1931_Rec_709.svg" alt="The CIE 1931 color space" width="476px" height="540px"></a>
 
-The horseshoe-shaped diagram represents all colors visible to the human eye. The black triangle shows the colors that can be represented by the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space. The three corners are the primaries of the color space, i.e. the colors that consist of just one of the primaries at full intensity. The colors outside the triangle can not be represented by the sRGB color space, even though the human eye can perceive them. And on a side note: All the colors outside the triangle in this diagram appear to be very similar to those on the edge of the triangle. That's because the *real* colors outside the triangle can not be represented by the sRGB color space that the image file is using. It can only represent colors within the sRGB space and has to fall back to the one closest to the real color.
+The horseshoe-shaped diagram represents all colors visible to the human eye. The black triangle shows the colors that can be represented by the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space. The three corners are the primaries of the color space, i.e. the colors that consist of just one of the primaries at full intensity. The colors outside the triangle cannot be represented by the sRGB color space, even though the human eye can perceive them. And on a side note: All the colors outside the triangle in this diagram appear to be very similar to those on the edge of the triangle. That's because the *real* colors outside the triangle cannot be represented by the sRGB color space that the image file is using. It can only represent colors within the sRGB space and has to fall back to the one closest to the real color.
 
 When we pick a color using hex values, say `#dde834`, or use UIKit's API `UIColor(red:0.867, green:0.910, blue:0.204, alpha:1.000)`, we implicitly say 86.7 percent of the sRGB red primary, 91 percent of the sRGB green primary, and 20.4 percent of the sRGB blue primary.
 
@@ -219,11 +219,11 @@ Be sure to check out the [Wikipedia article on color spaces](https://en.wikipedi
 <a name="WhiteBalance"></a>
 ### White Is Not White
 
-One additional thing that makes color tricky is that our brains do a lot of processing to make things look "right" — a huge part of this is what's referred to as white balancing. We all know what white or gray is. When we see something as gray, it's more often than not, anything but gray. But our brains "figure out" that due to the lighting conditions, it ought to be gray. Hence we see it as such.
+One additional thing that makes color tricky is that our brains do a lot of processing to make things look "right" — a huge part of this is what's referred to as white balancing. We all know what white or gray is. When we see something as gray, it's, more often than not, anything but gray. But our brains "figure out" that due to the lighting conditions, it ought to be gray. Hence we see it as such.
 
 The light reflected from a white building will be vastly different in the light of the morning sun than in the evening. But our brains figure out that the building did not turn from one color into another. This may seem obvious, because we're used to our brains doing this all the time.
 
-Our brains are capable of chromatic adaption — it is color balancing for us by independently regulating the sensitivity of each cone type. In addition to that, our brains pull some very complicated tricks beyond just simple adjustments. How the brain interprets the color signals from the cones depends on local, spatial, and temporal effects. [Akiyoshi's illusion pages](http://www.ritsumei.ac.jp/~akitaoka/index-e.html) show some mind-boggling examples of what our brains are up to. When it comes to photos and color, the important takeaway is that a camera can not simply capture the color it *sees*, because that would look very wrong to us.
+Our brains are capable of chromatic adaption — it is color balancing for us by independently regulating the sensitivity of each cone type. In addition to that, our brains pull some very complicated tricks beyond just simple adjustments. How the brain interprets the color signals from the cones depends on local, spatial, and temporal effects. [Akiyoshi's illusion pages](http://www.ritsumei.ac.jp/~akitaoka/index-e.html) show some mind-boggling examples of what our brains are up to. When it comes to photos and color, the important takeaway is that a camera cannot simply capture the color it *sees*, because that would look very wrong to us.
 
 When we take a photo with a camera, the camera is not as clever as our brains are. But cameras have an automatic white balance algorithm that tries to figure out what the neutral color/gray in the scene is. The camera's image processor will then try to adjust all colors in the photo accordingly. Sometimes this works, sometimes it fails. When it fails, it's most often due to strange lighting conditions, for example, if part of the scene is lit by one kind of light, and another lit by a different kind of light source.
 
@@ -261,7 +261,7 @@ Image sensors have pixels that are outside the area that receives visible light.
 
 ### File Formats
 
-The final step of a digital camera is to write the image data to a file. In just about all cases, digital photos are saved as JPEGs. [JPEG compression](https://en.wikipedia.org/wiki/JPEG) modifies the image data in order to heavily compress it. The pixel data in an iPhone 6 image takes up almost 23 MB (3.264 x 2.448 x 3 = 23.970.816), while the JPEG files for such an image are typically 1.5 to 2.5 MB. Read more about JPEG compression in [issue #3](/issue-3/moving-pixels-onto-the-screen.html#JPEG)
+The final step of a digital camera is to write the image data to a file. In just about all cases, digital photos are saved as JPEGs. [JPEG compression](https://en.wikipedia.org/wiki/JPEG) modifies the image data in order to heavily compress it. The pixel data in an iPhone 6 image takes up almost 23 MB (3.264 x 2.448 x 3 = 23.970.816), while the JPEG files for such an image are typically 1.5 to 2.5 MB. Read more about JPEG compression in [issue #3](/issue-3/moving-pixels-onto-the-screen.html#JPEG).
 
 Some digital cameras allow the user to save a so-called RAW file. The camera's image processor will still have done some work on the raw image data coming off the sensor, but the file will contain something very close to the real pixel values. The benefit of this is that we can do the debayering at a later point.
 
