@@ -401,7 +401,7 @@ When an XPC service starts unrelated work as a side effect of a request to it, i
 
 ## Lower-Level API
 
-All of the `NSXPCConnection` API is built on top of a C API. This API is documented in the [`xpc(3) man age`][xpc3man] and its subpages.
+All of the `NSXPCConnection` API is built on top of a C API. This API is documented in the [`xpc(3) man page`][xpc3man] and its subpages.
 
 We can create an XPC service for our app and use the C API, as long as we use the C API on both ends.
 
