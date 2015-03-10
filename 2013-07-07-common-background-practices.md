@@ -44,6 +44,8 @@ Further reading:
 
 ### Core Data in the Background
 
+**Update March 2015**: This is based off of older recommendations in the now outdated Core Data Concurrency Guide.
+
 Before doing anything concurrent with Core Data, it is important to get
 the basics right. We strongly recommend reading through Apple's [Concurrency
 with Core Data](https://developer.apple.com/library/mac/#documentation/cocoa/conceptual/CoreData/Articles/cdConcurrency.html) guide.
