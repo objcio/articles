@@ -728,7 +728,7 @@ Here's an example for OSSpinLock:
     - (NSDictionary *)amountAttributes;
     {
         if (_amountAttributes == nil) {
-            static __weak NSDictionary *cachedAttributes = nil;
+            static NSDictionary * __weak cachedAttributes = nil;
             static OSSpinLock lock = OS_SPINLOCK_INIT;
             OSSpinLockLock(&lock);
             _amountAttributes = cachedAttributes;
