@@ -510,7 +510,7 @@ Imagine you have a variable in the debugger, `$myButton`, that you got from crea
 	_handleTap:
 	)
 
-Now you might want to add a breakpoint for when that happens. Just set a symbolic breakpoint on `-[MyEventListener _handleTap:]`, in LLDB or Xcode, and you are all set to go!
+Now you might want to add a breakpoint for when that happens. Just set a symbolic breakpoint on `-[MagicEventListener _handleTap:]`, in LLDB or Xcode, and you are all set to go!
 
 ### Observing an Instance Variable Changing
 
