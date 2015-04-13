@@ -15,7 +15,7 @@ In order to get a grasp on what is happening on our machines, we first need to u
 CPU load is expensive and codecs are complex. When video decoding with software on computers became popular, it was revolutionary. With the introduction of QuickTime 1.0 and its C-based API in the early 90s, you were able to have a thumbnail-sized video playing, with up to 32,768 possible colors per pixel decoded solely by the CPU. Up until this point, only specialized computers with certain graphics hardware were able to play color video.
 
 ![QuickTime 1.0](/images/issue-23/qt1_1.gif) 
-Image source: [http://www.emaculation.com/forum/viewtopic.php?t=5060](http://www.emaculation.com/forum/viewtopic.php?t=5060)
+[Image source](http://www.emaculation.com/forum/viewtopic.php?t=5060)
 
 By the end of the century, DVDs had been introduced using the then state-of-the-art [MPEG-2 video codec](http://en.wikipedia.org/wiki/MPEG-2). Subsequently, Apple added DVD drives to its PowerBooks and ran into an issue: the combination of G3 PowerPC CPUs and batteries was not efficient enough to play a full DVD on a single charge. The solution was to add a dedicated decoding chip by [C-Cube](http://en.wikipedia.org/wiki/C-Cube) to the motherboard for all the heavy lifting. This chip can be found on the Wallstreet, Lombard, and Pismo PowerBook generations, as well as on their professional desktop equivalents.
 
