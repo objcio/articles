@@ -9,13 +9,13 @@ author: "<a href=\"https://twitter.com/danielboedewadt\">Daniel Eggert</a> and <
 
 # Video with Core Image
 
-In this article, we'll look into applying Core Image effects to live video. We'll look at two examples: first, we'll apply effects to the camera image. Second, we'll apply effects to an existing movie file. It's also possible to do offline rendering, where you render the result back into a video instead of directly on the screen. The full code of both examples is available [here](TODO).
+In this article, we'll look into applying Core Image effects to live video. We'll look at two examples: first, we'll apply effects to the camera image. Second, we'll apply effects to an existing movie file. It's also possible to do offline rendering, where you render the result back into a video instead of directly on the screen. The full code of both examples is available [here](https://github.com/objcio/core-image-video).
 
 ## Quick Recap
 
 Performance is very important when it comes to video. And it's important to understand how things work under the hood — how Core Image does its work — in order to be able to deliver that performance. It's important to do as much work on the GPU as possible, and minimize the transferring of data between GPU and CPU. After the examples, we'll look into the details of this.
 
-To get a feeling for Core Image, it's good to read Warren's article: [An Introduction to Core Image](/issue-21/core-image-intro.html). We'll use the functional wrappers around `CIFilter` as described in [Functional Core Image](/issue-16/functional-swift-apis.html). To understand more about AVFoundation, have a look at [Adriaan's article](TODO) in this issue and the [Camera Capture](http://www.objc.io/issue-21/camera-capture-on-ios.html) article in Issue #21.
+To get a feeling for Core Image, it's good to read Warren's article: [An Introduction to Core Image](/issue-21/core-image-intro.html). We'll use the functional wrappers around `CIFilter` as described in [Functional Core Image](/issue-16/functional-swift-apis.html). To understand more about AVFoundation, have a look at [Adriaan's article](/issue-23/capturing-video.html) in this issue and the [Camera Capture](http://www.objc.io/issue-21/camera-capture-on-ios.html) article in Issue #21.
 
 ## Harnessing OpenGL ES
 
@@ -27,11 +27,11 @@ In this view, we also keep a reference to a `CIContext`. This context provides t
 
 The context has a method, `-drawImage:inRect:fromRect:`, which draws a `CIImage`. If you want to draw an entire image, it's easiest to use the image's `extent`. Note however, that it might be infinitely large, so make sure you either crop it beforehand or provide a finite rectangle. A caveat: Because we're dealing with Core Image, the drawing's destination rectangle is specified in pixels, not in points. As most new iOS devices are in Retina, we need to account for this when drawing. If we want to fill up our entire view, it's easiest to take the bounds and scale it up by the screen's scale.
 
-For a full code example, take a look at [CoreImageView.swift](TODO) in our sample project.
+For a full code example, take a look at [CoreImageView.swift](https://github.com/objcio/core-image-video/blob/master/CoreImageVideo/CoreImageView.swift) in our sample project.
 
 ## Getting Pixel Data from the Camera
 
-For an overview of how AVFoundation works, see [Adriaan's article](TODO) and the [Camera Capture](http://www.objc.io/issue-21/camera-capture-on-ios.html) article by Matteo. For our purposes, we want to get raw sample buffers from the camera. Given a camera, we do this by creating an `AVCaptureDeviceInput` object. Using an `AVCaptureSession`, we can connect it to an `AVCaptureVideoDataOutput`. This video data output has a delegate object that conforms to the `AVCaptureVideoDataOutputSampleBufferDelegate` protocol. This delegate will receive a message for each frame:
+For an overview of how AVFoundation works, see [Adriaan's article](/issue-23/capturing-video.html) and the [Camera Capture](/issue-21/camera-capture-on-ios.html) article by Matteo. For our purposes, we want to get raw sample buffers from the camera. Given a camera, we do this by creating an `AVCaptureDeviceInput` object. Using an `AVCaptureSession`, we can connect it to an `AVCaptureVideoDataOutput`. This video data output has a delegate object that conforms to the `AVCaptureVideoDataOutputSampleBufferDelegate` protocol. This delegate will receive a message for each frame:
 
     func captureOutput(captureOutput: AVCaptureOutput!,
                        didOutputSampleBuffer: CMSampleBuffer!,
@@ -139,13 +139,6 @@ The [Core Image Filter Reference](https://developer.apple.com/library/mac/docume
 The generators and gradient filters produce images without an input. They are rarely useful on their own, but can be very powerful when used as masks, such as with `CIBlendWithMask` in our example.
 
 The composite operation and `CIBlendWithAlphaMask` and `CIBlendWithMask` allow combining two images into one.
-
-### Custom Filters
-
-As of iOS 8, it is also possible to create custom filters.
-
-TODO: Write something about this?!?
-
 
 <a name="cpuvsgpu"></a>
 ## CPU vs. GPU
