@@ -1,7 +1,7 @@
 ---
 title:  "Video Toolbox and Hardware Acceleration"
 category: "23"
-date: "2015-04-10 11:00:00"
+date: "2015-04-13 09:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/feepk\">Felix Paul Kühne</a> and <a href=\"https://twitter.com/_caro_n\">Carola Nitz</a>"
 ---

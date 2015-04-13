@@ -1,13 +1,11 @@
 ---
 title:  "Core Image and Video"
 category: "23"
-date: "2015-04-13 11:00:00"
+date: "2015-04-13 10:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/danielboedewadt\">Daniel Eggert</a> and <a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a>"
 
 ---
-
-# Video with Core Image
 
 In this article, we'll look into applying Core Image effects to live video. We'll look at two examples: first, we'll apply effects to the camera image. Second, we'll apply effects to an existing movie file. It's also possible to do offline rendering, where you render the result back into a video instead of directly on the screen. The full code of both examples is available [here](https://github.com/objcio/core-image-video).
 
