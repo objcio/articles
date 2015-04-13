@@ -14,7 +14,8 @@ In order to get a grasp on what is happening on our machines, we first need to u
 
 CPU load is expensive and codecs are complex. When video decoding with software on computers became popular, it was revolutionary. With the introduction of QuickTime 1.0 and its C-based API in the early 90s, you were able to have a thumbnail-sized video playing, with up to 32,768 possible colors per pixel decoded solely by the CPU. Up until this point, only specialized computers with certain graphics hardware were able to play color video.
 
-![QuickTime 1.0](/images/issue-23/qt1_1.gif) [^1]
+![QuickTime 1.0](/images/issue-23/qt1_1.gif) 
+Image source: [http://www.emaculation.com/forum/viewtopic.php?t=5060](http://www.emaculation.com/forum/viewtopic.php?t=5060)
 
 By the end of the century, DVDs had been introduced using the then state-of-the-art [MPEG-2 video codec](http://en.wikipedia.org/wiki/MPEG-2). Subsequently, Apple added DVD drives to its PowerBooks and ran into an issue: the combination of G3 PowerPC CPUs and batteries was not efficient enough to play a full DVD on a single charge. The solution was to add a dedicated decoding chip by [C-Cube](http://en.wikipedia.org/wiki/C-Cube) to the motherboard for all the heavy lifting. This chip can be found on the Wallstreet, Lombard, and Pismo PowerBook generations, as well as on their professional desktop equivalents.
 
@@ -74,6 +75,7 @@ This is a plain CFDictionary. The result of a decompression session is a raw, un
 ###Data Callback Record
 
 `VTDecompressionOutputCallbackRecord` is a simple structure with a pointer to the callback function invoked when frame decompression (`decompressionOutputCallback`) is complete. Additionally, you need to provide the instance of where to find the callback function (`decompressionOutputRefCon`). The `VTDecompressionOutputCallback` function consists of seven parameters:
+
 * the callback's reference value
 * the frame's reference value
 * a status flag (with undefined codes)
@@ -97,10 +99,9 @@ Video Toolbox is a low-level, highly efficient way to speed up video processing 
 - [Apple Sample Code](https://developer.apple.com/devcenter/download.action?path=/wwdc_2014/wwdc_2014_sample_code/usingVideoToolboxtodecodecompressedsamplebuffers.zip)
 - [WWDC 2014 Session #513](https://developer.apple.com/videos/wwdc/2014/#513)
 
-[^1]: http://www.emaculation.com/forum/viewtopic.php?t=5060
 [^2]: DVD Player as we know it was introduced in OS X 10.1. Until then, third-party tools like VLC media player were the only playback option for DVDs on OS X.
 [^3]: Sorenson Spark, On2 TrueMotion VP6
 [^4]: `kVDADecoderHardwareNotSupportedErr`, `kVDADecoderFormatNotSupportedErr`, `kVDADecoderConfigurationError`, `kVDADecoderDecoderFailedErr`
 [^5]: Apple published a job description for a management position in HEVC development in summer 2013.
 [^6]: Namely the `kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms` *ESDS* or respectively *avcC*.
-[^7]: Remember, "memcpy is murder." Mans Rullgard, Embedded Linux Conference 2013, http://free-electrons.com/blog/elc-2013-videos/
+[^7]: Remember, "memcpy is murder." Mans Rullgard, Embedded Linux Conference 2013, [http://free-electrons.com/blog/elc-2013-videos/](http://free-electrons.com/blog/elc-2013-videos/)

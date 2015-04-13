@@ -7,8 +7,6 @@ author: "<a href=\"https://twitter.com/astellingwerff\">Adriaan Stellingwerff</a
 
 ---
 
-TODO: footnotes
-
 With processing power and camera hardware improving with every new release, using iPhones to capture video is getting more and more interesting. They’re small, light, and inconspicuous, and the quality gap with professional video cameras has been narrowing to the point where, in certain situations, an iPhone is a real alternative.
 This article discusses the different options to configure a video capture pipeline and get the most out of the hardware.
 A sample app with implementations of the different pipelines is available on [GitHub](https://github.com/objcio/VideoCaptureDemo).
