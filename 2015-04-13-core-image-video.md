@@ -174,7 +174,7 @@ It's important to understand how this moves pixel data between the CPU and GPU, 
 In our sample, we are using a few different *buffers* and *images*. This can be a bit confusing. The reason for this is quite simply that different frameworks have different uses for these “images.” Here's a very quick overview to show which ones are CPU- and GPU-based, respectively:
 
 
-| class          |                |
+| Class          | Description    |
 |----------------|----------------|
 | CIImage        | These can represent two things: image data or a recipe to generate image data. |
 |                | The output of a CIFilter is very lightweight. It's just a description of how it is generated and does not contain any actual pixel data.
