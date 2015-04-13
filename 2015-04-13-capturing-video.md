@@ -242,7 +242,8 @@ if ([device.activeFormat isVideoStabilizationModeSupported:stabilizationMode]) {
 
 Another new feature introduced with the iPhone 6 is **video HDR** (High Dynamic Range), which is “streaming high-dynamic-range video as opposed to the more traditional method of fusing a bracket of still images with differing EV values into a single high dynamic range photo.”[^1] It is built right into the sensor. There are two ways to configure video HDR: by directly enabling or disabling it through the capture device’s `videoHDREnabled` property, or by leaving it up to the system by using the `automaticallyAdjustsVideoHDREnabled` property.
 
-[^1] https://developer.apple.com/library/ios/technotes/tn2409/_index.html#//apple_ref/doc/uid/DTS40015038-CH1-OPTICAL_IMAGE_STABILIZATION
+
+[^1]: [Technical Note: New AV Foundation Camera Features for the iPhone 6 and iPhone 6 Plus](https://developer.apple.com/library/ios/technotes/tn2409/_index.html#//apple_ref/doc/uid/DTS40015038-CH1-OPTICAL_IMAGE_STABILIZATION)
 
 #### Audio Input
 
@@ -281,7 +282,7 @@ for (AVAudioSessionDataSourceDescription* source in builtInMic.dataSources) {
 
 In addition to setting up a non-default microphone configuration, you can also use the `AVAudioSession` to configure other audio settings, like the audio gain and sample rate.
 
-[^2]https://developer.apple.com/library/ios/qa/qa1799/_index.html
+[^2]: [Technical Q&A: AVAudioSession - Microphone Selection](https://developer.apple.com/library/ios/qa/qa1799/_index.html)
 
 #### Permissions
 
