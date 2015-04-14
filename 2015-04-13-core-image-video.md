@@ -124,9 +124,7 @@ By combining these various types, we can created unexpected effects.
 
 In our example, we use something like this:
 
-    image --------------------------->background|
-           \---> [kaleidoscope] ----->foreground| ----> resulting image
-              [generate circle] ----->mask      |
+<img src="/images/issue-23/combining-filters.svg" alt="Combining filters" width="620px" height="186px">
 
 The example above pixelates a circular part of an image.
 
@@ -157,7 +155,7 @@ If we want to render at 24 fps, we have 41 ms; if we render at the full 60 fps, 
 
 When we're using a CVPixelBuffer, we want a flow like this:
 
-<img src="/images/issue-23/flow.svg" alt="Flow of image data" width="620px" height="232px">
+<img src="/images/issue-23/flow.svg" alt="Flow of image data" width="620px" height="233px">
 
 The `CVPixelBuffer` is CPU based (see below). We wrap it with a `CIImage`. Building our filter chain does not move any data around; it simply builds a recipe. Once we draw the image, we're using a Core Image context based on the same EAGL context as the GLKView that will display the image. The EAGL context is GPU based. Note how we only cross the GPU-CPU boundary once. That's the crucial part.
 

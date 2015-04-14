@@ -87,23 +87,7 @@ If you want more control over the video capture process than `UIImagePickerContr
 
 The central AVFoundation class for video capture is `AVCaptureSession`. It coordinates the flow of data between audio and video inputs and outputs:
 
-```
-+------------------------------+   +------------------------------+
-|   AVCaptureDevice (video)    |   |   AVCaptureDevice (audio)    |
-+--------------+---------------+   +--------------+---------------+
-               v                                  v
-+------------------------------+   +------------------------------+
-| AVCaptureDeviceInput (video) |   | AVCaptureDeviceInput (audio) |
-+-----------------------+------+   +------+-----------------------+
-                        v                 v
-                 +-----------------------------+
-                 |      AVCaptureSession       |
-                 +--------------+--------------+
-                                v
-                 +-----------------------------+
-                 |  AVCaptureMovieFileOutput   |
-                 +-----------------------------+
-```
+<img src="/images/issue-23/AVCaptureSession.svg" alt="AVCaptureSession setup" width="620px" height="376px">
 
 To use a capture session, you instantiate it, add inputs and outputs, and start the flow of data from the connected inputs to the connected outputs:
 
@@ -316,30 +300,7 @@ To have more control over the video and audio output from our capture session, y
 
 These outputs will capture video and audio sample buffers respectively, and vend them to their delegates. The delegate can either apply some processing to the sample buffer (e.g. add a filter to the video) or pass them on unchanged. The sample buffers can then be written to file using an `AVAssetWriter` object:
 
-```
-                        |               |
-                        v               v
-                 +-----------------------------+
-                 |      AVCaptureSession       |
-                 +------+---------------+------+
-                        v               v
-+-----------------------------+   +-----------------------------+
-|  AVCaptureVideoDataOutput   |   |  AVCaptureAudioDataOutput   |
-+-----------------------+-----+   +-----+-----------------------+
-                        v               v
-      +--------------------------------------------------+
-      |   id <AVCaptureVideoDataSampleBufferDelegate,    |
-      |     AVCaptureAudioDataSampleBufferDelegate>      |
-      +-----------------+---------------+----------------+
-                        v               v
-+-----------------------------+   +-----------------------------+
-| AVAssetWriterInput (video)  |   | AVAssetWriterInput (audio)  |
-+-----------------------+-----+   +-----+-----------------------+
-                        v               v
-                 +-----------------------------+
-                 |        AVAssetWriter        |
-                 +-----------------------------+
-```
+<img src="/images/issue-23/AVAssetWriter.svg" alt="Using an AVAssetWriter" width="620px" height="507px">
 
 You configure an asset writer by defining an output URL and file format and adding one or more inputs to receive sample buffers. Because the writer inputs will be receiving data from the capture session’s outputs in real time, we also need to set the `expectsMediaInRealTime` attribute to YES:
 
