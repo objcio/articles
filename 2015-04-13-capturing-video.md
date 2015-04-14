@@ -152,7 +152,7 @@ To configure video input, create an `AVCaptureDeviceInput` object with the desir
 AVCaptureSession *captureSession = …
 AVCaptureDevice *cameraDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
 NSError *error;
-AVCaptureDeviceInput *cameraDeviceInput = [[AVCaptureDeviceInput alloc] initWithDevice: error:&error];
+AVCaptureDeviceInput *cameraDeviceInput = [[AVCaptureDeviceInput alloc] initWithDevice:cameraDevice error:&error];
 if ([captureSession canAddInput:input]) {
     [captureSession addInput:cameraDeviceInput];
 }
