@@ -216,4 +216,4 @@ The [Core Image Reference Collection](https://developer.apple.com/library/mac/do
 
 The [Core Image Filter Reference](https://developer.apple.com/library/ios/documentation/GraphicsImaging/Reference/CoreImageFilterReference/index.html#//apple_ref/doc/uid/TP40004346) contains a comprehensive list of the image filters available in Core Image, along with usage examples.
 
-For a take on writing Core Image code in a more functional style, see Florian Kluger's [article in objc.io issue #16](/issue-16/functional-swift-apis.html).
+For a take on writing Core Image code in a more functional style, see Florian Kugler's [article in objc.io issue #16](/issue-16/functional-swift-apis.html).
