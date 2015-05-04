@@ -34,7 +34,7 @@ PhotoKit defines an entity graph that models the objects presented to the user i
 
 `PHAsset` represents a single asset in the user's photo library, providing the [metadata](#Photo-metadata) for that asset.
 
-Groups of assets are called asset collections and are represented by the `PHAssetCollection` class. A single asset collection can be an album or a moment in the photo library, as well as one of the special "smart albums." These include collections of all videos, recently added items, user favorites, all burst photos, [and more](https://developer.apple.com/library/prerelease/ios/documentation/Photos/Reference/PHAssetCollection_Class/index.html#//apple_ref/c/tdef/PHAssetCollectionSubtype). `PHAssetCollection` is a subclass of `PHCollection`.
+Groups of assets are called asset collections and are represented by the `PHAssetCollection` class. A single asset collection can be an album or a moment in the photo library, as well as one of the special "smart albums." These include collections of all videos, recently added items, user favorites, all burst photos, [and more](https://developer.apple.com/library/ios/documentation/Photos/Reference/PHAssetCollection_Class/index.html#//apple_ref/c/tdef/PHAssetCollectionSubtype). `PHAssetCollection` is a subclass of `PHCollection`.
 
 `PHCollectionList` represents a group of `PHCollection`s. Since it is a `PHCollection` itself, a collection list can contain other collection lists, allowing for complex hierarchies of collections. In practice, this can be seen in the Moments tab in the Photos.app: Asset --- Moment --- Moment Cluster --- Moment Year.
 
@@ -52,7 +52,7 @@ Fetches are made using the class methods of the entities described above. Which 
 
 #### Fetch Result
 
-You may have noticed that these fetch methods aren't asynchronous. Instead, they return a `PHFetchResult` object, which allows access to the underlying collection of results with an interface similar to `NSArray`. It will dynamically load its contents as needed and cache contents around the most recently requested value. This behavior is similar to the result array of an `NSFetchRequest` with a set `batchSize` property. There is no way to parametrize this behavior for `PHFetchResult`, but the [documentation promises](https://developer.apple.com/library/prerelease/ios/documentation/Photos/Reference/PHFetchResult_Class/index.html) “optimal performance even when handling a large number of results.”
+You may have noticed that these fetch methods aren't asynchronous. Instead, they return a `PHFetchResult` object, which allows access to the underlying collection of results with an interface similar to `NSArray`. It will dynamically load its contents as needed and cache contents around the most recently requested value. This behavior is similar to the result array of an `NSFetchRequest` with a set `batchSize` property. There is no way to parametrize this behavior for `PHFetchResult`, but the [documentation promises](https://developer.apple.com/library/ios/documentation/Photos/Reference/PHFetchResult_Class/index.html) “optimal performance even when handling a large number of results.”
 
 The `PHFetchResult`s returned by the fetch methods will not be updated automatically if the photo library contents match the request change. Observing changes and processing updates for a given `PHFetchResult` are [described in a later section](#The-Times-They-Are-A-Changin).
 
