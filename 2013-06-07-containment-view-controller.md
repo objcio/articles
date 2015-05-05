@@ -73,7 +73,7 @@ controllers, as we will see later on.
 
 The `_startMapViewController`, which displays the starting position, is instantiated and set up with the annotation image.
 
-1. The `_startMapViewcontroller` is added as a child of the root view
+1. The `_startMapViewController` is added as a child of the root view
    controller. This automatically calls
 the method `willMoveToParentViewController:` on the child.
 2. The child's view is added as a subview of the first container view.
