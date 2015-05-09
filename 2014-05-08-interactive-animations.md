@@ -55,9 +55,9 @@ Looking at the `UIView` animation API for spring animations (`animateWithDuratio
 
 So let's take a look at how we can correctly implement interactive and interruptible animations. To do this, we're going to build something like the Control Center panel:
 
-<center><video style="display:block;max-width:100%;height:auto;border:0;" controls="1">
+<video style="display:block;max-width:100%;height:auto;border:0;" controls="1">
   <source src="/images/issue-12/interactive-animation.mov"></source>
-</video></center>
+</video>
 
 The panel has two states: opened and closed. You can toggle the states by tapping it, or dragging it up and down. The challenge is to make everything interactive, even while animating. For example, if you tap the panel while it's animating to the opened state, it should animate back to the closed state from its current position. In a lot of apps that use default animation APIs, you'll have to wait until the animation is finished before you can do anything. Or, if you don't have to wait, the animation exhibits a discontinuous velocity curve. We want to work around this.
 
