@@ -40,11 +40,11 @@ Core Animation is designed in a way that it decouples the layer's model properti
 
 The bigger problem with `CAAnimation` animations is that they directly operate on the spatial properties of a layer. This means, for example, that you specify that a layer should animate from position `(100, 100)` to position `(300, 300)`. If you want to stop this animation halfway and to animate the layer back to where it came from, things get very complicated. If you simply remove the current animation and add a new animation, then the layer's velocity would be discontinuous.
 
-<img src="/images/issue-12/abrupt.png" width="600" />
+![](/images/issue-12/abrupt.png)
 
 What we want to have, though, is a nice, smooth deceleration and acceleration.
 
-<img src="/images/issue-12/smooth.png" width="600" />
+![](/images/issue-12/smooth.png)
 
 This only becomes feasible once you start controlling animations *indirectly*, i.e. through simulated forces acting on the view. The new animation needs to take the layer's current velocity *vector* as input in order to produce a smooth result.
 

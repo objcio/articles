@@ -55,11 +55,11 @@ Many developers disregard Interface Builder without even learning it, and as suc
 
 Runtime attributes are one of the key features of using Interface Builder. They offer you a way to set up custom classes and even set properties on iOS's built-in classes. For example, have you ever had to set a corner radius on your layer? You can do that straight from Interface Builder by simply specifying runtime attributes for it: 
 
-<img src="/images/issue-13/cornerRadius.png" width="260">
+![](/images/issue-13/cornerRadius.png)
 
 When creating behaviors in Interface Builder, you are going to rely heavily on runtime attributes to set up the behavior options. As a result, there will typically be more runtime attributes: 
 
-<img src="/images/issue-13/runtimeAttributes.png" width="253">
+![](/images/issue-13/runtimeAttributes.png)
 
 
 ### Behavior Lifetime

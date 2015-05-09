@@ -73,7 +73,7 @@ Perhaps the most common case where everybody interacts with string drawing metho
 
 In our example, we will display a list of quotes in a table view:
 
-<img alt="Table view with quotes" src="/images/issue-9/uitableview-finished.png" width="50%" height="50%">
+![Table view with quotes](/images/issue-9/uitableview-finished.png)
 
 To do this, first we'll make sure we have full control of the `UITableViewCell` by creating a custom subclass. In that subclass, we'll do the layout of our label ourselves:
 
@@ -108,7 +108,7 @@ Note that, while our text is a plain `NSString`, we created the method `attribut
 
 Also, taking a look at the documentation (see the screenshot below), we can see that a lot of methods have been deprecated since iOS 7. If you browse the internet, or StackOverflow, you'll find a lot of answers and workarounds for measuring string sizes. Because the text system received a major overhaul (internally, everything is rendered using TextKit rather than WebKit), please use the new methods.
 
-<img alt="Deprecated string measuring methods" src="/images/issue-9/deprecated-methods.png">
+![Deprecated string measuring methods](/images/issue-9/deprecated-methods.png)
     
 Another option for dynamically sized table view cells is to use Auto Layout, for example, as explained in [this blog post](http://blog.amyworrall.com/post/66085151655/using-auto-layout-to-calculate-table-cell-height
 ). You can then piggyback on the `intrinsicContentSize` of the contained labels. However, Auto Layout is currently a lot slower than calculating things manually. For prototyping, however, it is perfect: it allows you to quickly adjust constraints and move things around (this is especially important if you have more than one element on your cell). Once you have finished the design iterations, you can then rewrite it to do the layout manually.
@@ -126,7 +126,7 @@ We want to give a few examples to highlight a few common layout problems, as wel
 
 First, let's take a look at some classic text. We'll use [Histoire des nombres et de la numération mécanique](http://www.gutenberg.org/ebooks/27936) by Jacomy-Régnier and set it in [Bodoni](http://www.myfonts.com/fonts/itc/bodoni-seventy-two/). The screenshot of the final result looks like this:
 
-<img src="/images/issue-9/Layout-Example-1.png" width="50%" height="50%">
+![](/images/issue-9/Layout-Example-1.png)
 
 This is all done with Text Kit. The ornament between sections is also text, set in the [Bodoni Ornaments](http://www.myfonts.com/fonts/itc/bodoni-ornaments/) font.
 
@@ -180,7 +180,7 @@ This is pretty self-explanatory. We're using the ornaments font and setting the 
 
 Next up, a table of numbers. We want to align fractional numbers on their decimal separators, i.e. “.” in English:
 
-<img src="/images/issue-9/Layout-Example-2.png" width="50%" height="50%">
+![](/images/issue-9/Layout-Example-2.png)
 
 To achieve this, we have to specify tab stops that center on the decimal separator.
 
@@ -203,7 +203,7 @@ For the above example, we're simply doing:
 
 Another common use case is a list like this:
 
-<img src="/images/issue-9/Layout-Example-3.png" width="50%" height="50%">
+![](/images/issue-9/Layout-Example-3.png)
 
 (from [Robert's Rules of Order](http://www.gutenberg.org/ebooks/9097) by Henry M. Robert)
 

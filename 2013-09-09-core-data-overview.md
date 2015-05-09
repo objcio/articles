@@ -30,7 +30,7 @@ When all components are tied together, we refer to them as the *Core Data Stack*
 
 In between the two parts, in the middle of the stack, sits the Persistent Store Coordinator (PSC), also known to friends as the *central scrutinizer*. It ties together the object graph management part with the persistence part. When one of the two needs to talk to the other, this is coordinated by the PSC.
 
-<img name="Complex core data stack" src="/images/issue-4/stack-complex.png" width="624" height="652">
+![Complex core data stack](/images/issue-4/stack-complex.png)
 
 The *object graph management* is where your application's model layer logic will live. Model layer objects live inside a context. In most setups, there's one context and all objects live in that context. Core Data supports multiple contexts, though, for more advanced use cases. Note that contexts are distinct from one another, as we'll see in a bit. The important thing to remember is that objects are tied to their context. Each *managed* object knows which context it's in, and each context knows which objects it is managing.
 
@@ -38,7 +38,7 @@ The other part of the stack is where persistency happens, i.e. where Core Data r
 
 The most common scenario, however, looks like this:
 
-<img name="Simple core data stack" src="/images/issue-4/stack-simple.png" width="550" height="293">
+![Simple core data stack](/images/issue-4/stack-simple.png)
 
 ## How the Components Play Together
 

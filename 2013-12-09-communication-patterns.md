@@ -112,7 +112,7 @@ A limitation of target-action-based communication is that the messages sent cann
 
 Based on the characteristics of the different patterns outlined above, we have constructed a flowchart that helps to make good decisions of which pattern to use in what situation. As a word of warning: the recommendation of this chart doesn't have to be the final answer; there might be other alternatives that work equally well. But in most cases it should guide you to the right pattern for the job.
 
-<img src="/images/issue-7/communication-patterns-flow-chart.png" title="Decision flow chart for communication patterns in Cocoa" width="585" height="688">
+![Decision flow chart for communication patterns in Cocoa](/images/issue-7/communication-patterns-flow-chart.png)
 
 There are a few other details in this chart which deserve further explanation:
 
@@ -134,7 +134,7 @@ In this section, we will go through some examples from Apple's frameworks to see
 
 The recipient of the messages (the operation queue) clearly knows the sender (the operation) and controls its lifespan by retaining it. Furthermore, this use case only requires a one-way communication mechanism. When it comes to the question of if the operation queue is only interested in value changes of the operation, the answer is less clear. But we can at least say that what has to be communicated (the change of state) can be modeled as value changes. Since the state properties are useful to have beyond the operation queue's need to be up to date about the operation's status, using KVO is a logical choice in this scenario.
 
-<img src="/images/issue-7/kvo-flow-chart.png" title="Decision flow chart for communication patterns in Cocoa" width="585" height="678">
+![Decision flow chart for communication patterns in Cocoa](/images/issue-7/kvo-flow-chart.png)
 
 KVO is not the only choice that would work though. We could also imagine that the operation queue becomes the operation's delegate, and the operation would call methods like `operationDidFinish:` or `operationDidBeginExecuting:` to signal changes in its state to the queue. This would be less convenient though, because the operation would have to keep its state properties up to date in addition to calling these methods. Furthermore, the queue would have to keep track of the state of all its operations, because it cannot ask for them anymore.
 
@@ -145,7 +145,7 @@ Core Data uses notifications to communicate events like changes within a managed
 
 The change notification is sent by managed object contexts, so that we cannot assume that the recipient of this message necessarily knows about the sender. Since the origin of the message is clearly not a UI event, multiple recipients might be interested in it, and all it needs is a one-way communication channel, notifications are the only feasible choice in this scenario.
 
-<img src="/images/issue-7/notification-flow-chart.png" title="Decision flow chart for communication patterns in Cocoa" width="585" height="687">
+![Decision flow chart for communication patterns in Cocoa](/images/issue-7/notification-flow-chart.png)
 
 
 ### Delegation
@@ -154,7 +154,7 @@ Table view delegates fulfill a variety of functions, from managing accessory vie
 
 As we've outlined in the flowchart above, target-action only works if you don't have to transport any custom payloads. In the selection case, the collection view tells us not only that a cell got selected, but also which cell got selected by handing over its index path. If we maintain this requirement to send the index path, our flowchart guides us straight to the delegation pattern.
 
-<img src="/images/issue-7/delegation-flow-chart.png" title="Decision flow chart for communication patterns in Cocoa" width="585" height="687">
+![Decision flow chart for communication patterns in Cocoa](/images/issue-7/delegation-flow-chart.png)
 
 What about the option to not send the index path with the selection message, but rather retrieve it by asking the table view about the selected cells once we've received the message? This would be pretty inconvenient, because then we would have to do our own bookkeeping of which cells are currently selected in order to tell which cell was newly selected in the case of multiple selection.
 
@@ -165,7 +165,7 @@ Similarly, we could envision being notified about a changed selection by simply 
 
 For a block-based API we're going to look at `-[NSURLSession dataTaskWithURL:completionHandler:]` as an example. What is the communication back from the URL loading system to the caller of it like? First, as caller of this API, we know the sender of the message, but we don't retain it. Furthermore, it's a one way-communication that is a directly coupled to the `dataTaskWithURL:` method call. If we apply all these factors into the flowchart, we directly end up at the block-based communication pattern.
 
-<img src="/images/issue-7/block-flow-chart.png" title="Decision flow chart for communication patterns in Cocoa" width="585" height="688">
+![Decision flow chart for communication patterns in Cocoa](/images/issue-7/block-flow-chart.png)
 
 Are there other options? For sure, Apple's own `NSURLConnection` is the best example. `NSURLConnection` was crafted before Objective-C had blocks, so they needed to take a different route and implemented this communication using the delegation pattern. Once blocks were available, Apple added the method `sendAsynchronousRequest:queue:completionHandler:` to `NSURLConnection` in OS X 10.7 and iOS 5, so that you didn't need the delegate any longer for simple tasks. 
 
@@ -176,7 +176,7 @@ Since `NSURLSession` is a very modern API that was just added in OS X 10.9 and i
 
 An obvious use case for the target-action pattern are buttons. Buttons don't have to send any information except that they have been clicked (or tapped). For this purpose, target-action is a very flexible pattern to inform the application of this user interface event. 
 
-<img src="/images/issue-7/target-action-flow-chart.png" title="Decision flow chart for communication patterns in Cocoa" width="585" height="678">
+![Decision flow chart for communication patterns in Cocoa](/images/issue-7/target-action-flow-chart.png)
 
 If the target is specified, the action message gets sent straight to this object. However, if the target is `nil`, the action message bubbles up the responder chain to look for an object that can process it. In this case, we have a completely decoupled communication mechanism where the sender doesn't have to know the recipient, and the other way around.
 

@@ -33,8 +33,8 @@ When taking a photo, we must adjust the camera in such a way that the amount of 
 
 | unadjusted | "adjusted" |
 |------------|------------|
-| <img src="/images/issue-21/underexposed.jpg" alt="underexposed" width="631px" height="489px"> | <img src="/images/issue-21/underexposed_adjusted.jpg" alt="underexposed" width="631px" height="489px"> |
-| <img src="/images/issue-21/overexposed.jpg" alt="overexposed" width="631px" height="489px"> | <img src="/images/issue-21/overexposed_adjusted.jpg" alt="overexposed" width="631px" height="489px"> |
+| ![underexposed](/images/issue-21/underexposed.jpg) | ![underexposed](/images/issue-21/underexposed_adjusted.jpg) |
+| ![overexposed](/images/issue-21/overexposed.jpg) | ![overexposed](/images/issue-21/overexposed_adjusted.jpg) |
 
 In the underexposed image, even after trying to make it brighter, the dark regions of the image are "stuck" as black, and there is no way to make out that the pens in the image actually have different colors. The overexposed image has large regions that are stuck at the same level of white/gray. Note how the pattern on the fabric band and the coins is completely lost.
 
@@ -72,7 +72,7 @@ Here are two samples of the same scene taken with the iPhone 6 mounted on a trip
 
 | ISO 32 | ISO 1600 |
 |--------|----------|
-| <a href="/images/issue-21/1-3s_ISO_32.jpg"><img src="/images/issue-21/1-3s_ISO_32.jpg" alt="ISO 32, 1/3 s" width="631px" height="489px"></a> | <a href="/images/issue-21/1-180s_ISO_1600.jpg"><img src="/images/issue-21/1-180s_ISO_1600.jpg" alt="ISO 1600, 1/180 s" width="631px" height="489px"></a> |
+| [![ISO 32, 1/3 s](/images/issue-21/1-3s_ISO_32.jpg)](/images/issue-21/1-3s_ISO_32.jpg) | [![ISO 1600, 1/180 s](/images/issue-21/1-180s_ISO_1600.jpg)](/images/issue-21/1-180s_ISO_1600.jpg) |
 
 
 
@@ -184,7 +184,7 @@ Newton first discovered that light is a spectrum. Light consists of wavelengths 
 
 The human eye has photo detectors. Some of these are so-called cones. There are three different *kinds* of cones: S, M, and L. Each kind responds differently to different wavelengths of light. These cones are sometimes referred to as red, green, and blue photoreceptors, although that's not really true. It would be more accurate to call them reddish, slightly less reddish, and blueish. As this graph shows, there's a quite a bit of overlap between their response curves:
 
-<a title="Vanessaezekowitz at en.wikipedia [GFDL (http://www.gnu.org/copyleft/fdl.html), CC BY 3.0-2.5-2.0-1.0 (http://creativecommons.org/licenses/by/3.0-2.5-2.0-1.0) or CC BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0)], via Wikimedia Commons" href="http://commons.wikimedia.org/wiki/File%3ACones_SMJ2_E.svg"><img src="/images/issue-21/Cones_SMJ2_E.svg" alt="Simplified human cone response curves" width="287px" height="217px"></a>
+[![Simplified human cone response curves. Vanessaezekowitz at en.wikipedia [GFDL (http://www.gnu.org/copyleft/fdl.html), CC BY 3.0-2.5-2.0-1.0 (http://creativecommons.org/licenses/by/3.0-2.5-2.0-1.0) or CC BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0)], via Wikimedia Commons](/images/issue-21/Cones_SMJ2_E.svg)](http://commons.wikimedia.org/wiki/File%3ACones_SMJ2_E.svg)
 
 A light source such as a lightbulb has a certain spectrum of light — a certain intensity at each wavelength. An object, e.g. a bike's frame, will in turn reflect or absorb different wavelengths with different intensities. For each cone, we can multiply (in fact, integrate over the wavelength) the light source's spectrum with the object's reflectance spectrum and the cone's response curve. For each cone, that will result in a single value. The resulting S, M, and L cones' three *stimulus* values are the perceived color. Our brain interprets this combination of the values for reddish, slightly less reddish, and blueish cones as a color. The perceived color, however, does not only depend on these three values, but also spatial and temporal information.
 
@@ -204,7 +204,7 @@ The de facto default color space used by modern computers, and iOS, is the [sRGB
 
 It is worth pointing out that most color spaces can only represent a subset of the visible colors. Let's take a look at the diagram of the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space:
 
-<a title="By CIExy1931.svg: Sakurambo derivative work: GrandDrake (CIExy1931.svg) [CC BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0), CC BY-SA 2.5-2.0-1.0 (http://creativecommons.org/licenses/by-sa/2.5-2.0-1.0) or GFDL (http://www.gnu.org/copyleft/fdl.html)], via Wikimedia Commons" href="http://commons.wikimedia.org/wiki/File%3ACIExy1931_Rec_709.svg"><img src="/images/issue-21/CIExy1931_Rec_709.svg" alt="The CIE 1931 color space" width="476px" height="540px"></a>
+[![The CIE 1931 color space. By CIExy1931.svg: Sakurambo derivative work: GrandDrake (CIExy1931.svg) [CC BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0), CC BY-SA 2.5-2.0-1.0 (http://creativecommons.org/licenses/by-sa/2.5-2.0-1.0) or GFDL (http://www.gnu.org/copyleft/fdl.html)], via Wikimedia Commons](/images/issue-21/CIExy1931_Rec_709.svg)](http://commons.wikimedia.org/wiki/File%3ACIExy1931_Rec_709.svg)
 
 The horseshoe-shaped diagram represents all colors visible to the human eye. The black triangle shows the colors that can be represented by the [sRGB](https://en.wikipedia.org/wiki/SRGB) color space. The three corners are the primaries of the color space, i.e. the colors that consist of just one of the primaries at full intensity. The colors outside the triangle cannot be represented by the sRGB color space, even though the human eye can perceive them. And on a side note: All the colors outside the triangle in this diagram appear to be very similar to those on the edge of the triangle. That's because the *real* colors outside the triangle cannot be represented by the sRGB color space that the image file is using. It can only represent colors within the sRGB space and has to fall back to the one closest to the real color.
 
@@ -238,13 +238,13 @@ The pixel sensors in and of themselves do not differentiate between different wa
 
 If we use green, red, and blue color filters, some pixel sensors will only receive green light, some will only receive red light, and some only blue light (in reality, they'll have response curves similar to how our eyes' cones do). Today, cameras almost exclusively use a so-called [Bayer filter](https://en.wikipedia.org/wiki/Bayer_filter). With such a filter, there are twice as many green pixel sensors as there are red or blue. It looks like this:
 
-<a title="By en:User:Cburnett [GFDL (http://www.gnu.org/copyleft/fdl.html), CC-BY-SA-3.0 (http://creativecommons.org/licenses/by-sa/3.0/) or GPL (http://www.gnu.org/licenses/gpl.html)], via Wikimedia Commons" href="http://commons.wikimedia.org/wiki/File%3ABayer_pattern_on_sensor.svg"><img src="/images/issue-21/Bayer_pattern_on_sensor.svg" alt="A bayer pattern on a sensor in isometric perspective/projection" width="700px" height="455px"></a>
+[![A bayer pattern on a sensor in isometric perspective/projection. By en:User:Cburnett [GFDL (http://www.gnu.org/copyleft/fdl.html), CC-BY-SA-3.0 (http://creativecommons.org/licenses/by-sa/3.0/) or GPL (http://www.gnu.org/licenses/gpl.html)], via Wikimedia Commons](/images/issue-21/Bayer_pattern_on_sensor.svg)](http://commons.wikimedia.org/wiki/File%3ABayer_pattern_on_sensor.svg)
 
 The digital camera now has color information, but it also looses a lot of information. It only knows what the level of red is for 1/4 of all pixels. Likewise for blue. For green, it knows what the level is for 1/2 of all pixels. In other words: 66 percent of the data is missing. The process of recreating full color information for all pixels is called debayering. This involves advanced algorithms which will interpolate the existing information into a full-resolution color image.
 
 A simple interpolation would cause a lot of artifacts, and over the years, more and more advanced methods have been developed by various debayering algorithms to work around these. As an example of a problem, most debayering algorithms rely heavily upon the green pixels for luminosity. As a result, almost all debayering algorithms perform poorly in areas that are mostly red. Here's a cutout of an image taken with an iPhone 6:
 
-<a href="/images/issue-21/red_debayer.jpg"><img src="/images/issue-21/red_debayer.jpg" alt"iPad cover and booklet" width="1262px" height="489px"></a>
+[![iPad cover and booklet](/images/issue-21/red_debayer.jpg)](/images/issue-21/red_debayer.jpg)
 
 Note how the letters C and T of the large “PRODUCT” written on the inside of the iPad cover are extremely fuzzy compared to the black text in the booklet. It seems like the denoise part of the debayering is getting confused by the lack of green information in the part of the image that's the iPad cover.
 

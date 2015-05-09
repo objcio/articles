@@ -179,8 +179,8 @@ These sorts of interactions lent to an application design that put the user in c
 
 It’s no secret to anyone in the tech world right now that Android wear is a fascinating introduction into the wearables space. Whether or not it will succeed as a consumer product is certainly up for debate. What isn’t up for debate is the barrier to entry for developers who want to support Android Wear. Living up to its legacy, Android Wear appears to have gotten notifications correct, in regards to syncing with your device. As a matter of fact, if you phone is connected to an Android Wear device, it will push any notifications created with a builder directly to the device, with no code modification necessary. The ongoing simplicity of the `NotificationBuilder` pattern will ensure that whatever devices that come out and support Android or Android Wear will almost immediately have an breadth of app developers who are already comfortable using the APIs to send and receive data.
 
-<img style="display:inline;" alt="Action notification" src="/images/issue-11/watch/picture.png" width="40%">
-<img style="display:inline;margin-left:1em;" alt="Action notification" src="/images/issue-11/watch/hunkosis.png" width="40%">
+![Action notification](/images/issue-11/watch/picture.png)
+![Action notification](/images/issue-11/watch/hunkosis.png)
 
 NotificationBuilder provides out-of-the-box support for Android Wear, no code required!
 

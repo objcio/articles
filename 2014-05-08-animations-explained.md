@@ -36,11 +36,11 @@ By using `-[CALayer presentationLayer]` and `-[CALayer modelLayer]`, you can swi
 
 Probably the most common case is to animate a view's property from one value to another. Consider this example:
 
-<img src="/images/issue-12/rocket-linear@2x.gif" width="400px">
+![](/images/issue-12/rocket-linear@2x.gif)
 
 Here, we animate our little red rocket from an x-position of `77.0` to one of `455.0`, which is just beyond the edge of its parent view. In order to fill in all the steps along the way, we need to determine where our rocket is going to be at any given point in time. This is commonly done using linear interpolation:
 
-<img src="/images/issue-12/lerp@2x.png" width="135">
+![](/images/issue-12/lerp@2x.png)
 
 That is, for a given fraction of the animation `t`, the x-coordinate of the rocket is the x-coordinate of the starting point `77`, plus the distance to the end point `∆x = 378`, multiplied with said fraction.
 
@@ -149,7 +149,7 @@ Thankfully, `CAKeyframeAnimation` offers the more convenient `path` property as 
 
 For instance, this is how we would animate a view in a circle:
 
-<img src="/images/issue-12/planets@2x.gif" width="400px">
+![](/images/issue-12/planets@2x.gif)
 
     CGRect boundingRect = CGRectMake(-150, -150, 300, 300);
 
@@ -171,7 +171,7 @@ Setting it to `kCAAnimationPaced` also disregards any `keyTimes` we would've set
 
 Setting the `rotationMode` property to `kCAAnimationRotateAuto` ensures that the satellite follows the rotation along the path. By contrast, this is what the animation would look like had we left the property `nil`:
 
-<img src="/images/issue-12/planets-incorrect@2x.gif" width="400px">
+![](/images/issue-12/planets-incorrect@2x.gif)
 
 You can achieve a couple of interesting effects using animations with paths;
 fellow objc.io author [Ole Begemann](https://twitter.com/olebegemann) wrote [a great post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
@@ -180,7 +180,7 @@ fellow objc.io author [Ole Begemann](https://twitter.com/olebegemann) wrote [a g
 
 Let's look at our first example again:
 
-<img src="/images/issue-12/rocket-linear@2x.gif" width="400px">
+![](/images/issue-12/rocket-linear@2x.gif)
 
 You'll notice that there is something very artificial about the animation of our rocket. That is because most movements we see in the real world take time to accelerate or decelerate. Objects that instantly reach their top speed and then stop immediately tend to look very unnatural. Unless you're [dancing the robot](https://www.youtube.com/watch?v=o8HkEprSaAs&t=1m2s), that's rarely a desired effect.
 
@@ -190,13 +190,13 @@ Instead, it's common practice to decouple the interpolation of the animated prop
 
 We can achieve this by introducing a _timing function_ (also sometimes referred to as an easing function). This function controls the speed of the animation by modifying the fraction of the duration:
 
-<img src="/images/issue-12/lerp-with-easing.png" width="145">
+![](/images/issue-12/lerp-with-easing.png)
 
 The simplest easing function is _linear_. It maintains a constant speed throughout the animation and is effectively what we see above.
 In Core Animation, this function is represented by the `CAMediaTimingFunction`
 class:
 
-<img src="/images/issue-12/rect-linear@2x.gif" width="540px">
+![](/images/issue-12/rect-linear@2x.gif)
 
     CABasicAnimation *animation = [CABasicAnimation animation];
     animation.keyPath = @"position.x";
@@ -213,19 +213,19 @@ class:
 Core Animation comes with a number of built-in easing functions beyond linear, such as:
 
 * Ease in (`kCAMediaTimingFunctionEaseIn`):  
-  <img src="/images/issue-12/rect-easein@2x.gif" width="540px">
+  ![](/images/issue-12/rect-easein@2x.gif)
 * Ease out (`kCAMediaTimingFunctionEaseOut`):  
-  <img src="/images/issue-12/rect-easeout@2x.gif" width="540px">
+  ![](/images/issue-12/rect-easeout@2x.gif)
 * Ease in ease out (`kCAMediaTimingFunctionEaseInEaseOut`):  
-  <img src="/images/issue-12/rect-easeineaseout@2x.gif" width="540px">
+  ![](/images/issue-12/rect-easeineaseout@2x.gif)
 * Default (`kCAMediaTimingFunctionDefault`):  
-  <img src="/images/issue-12/rect-default@2x.gif" width="540px">
+  ![](/images/issue-12/rect-default@2x.gif)
 
 It's also possible, within limits, to create your own easing function using `+functionWithControlPoints::::`.[^3] By passing in the _x_ and _y_ components of two control points of a cubic Bézier curve, you can easily create custom easing functions, such as the one I chose for our little red rocket:
 
 [^3]: This method is infamous for having three nameless parameters, not something that we recommend you make use of in your APIs.
 
-<img src="/images/issue-12/rocket-custom@2x.gif" width="400px">
+![](/images/issue-12/rocket-custom@2x.gif)
 
     CABasicAnimation *animation = [CABasicAnimation animation];
     animation.keyPath = @"position.x";
@@ -241,7 +241,7 @@ It's also possible, within limits, to create your own easing function using `+fu
 
 Without going into too much detail on Bézier curves, they are a common technique to create smooth curves in computer graphics. You've probably seen them in vector-based drawing tools such as Sketch or Adobe Illustrator.
 
-<img src="/images/issue-12/bezier.png">
+![](/images/issue-12/bezier.png)
 
 The values passed to `+functionWithControlPoints::::` effectively control the position of the handles. The resulting timing function will then adjust the speed of the animation based on the resulting path. The x-axis represents the fraction of the duration, while the y-axis is the input value of the interpolation function.
 
@@ -249,7 +249,7 @@ While [the documentation](https://developer.apple.com/library/mac/documentation/
 
 Since `CAMediaTimingFunction` is limited to functions that can be expressed as cubic Bézier curves, I wrote a small library, called [RBBAnimation](https://github.com/robb/RBBAnimation), that contains a custom `CAKeyframeAnimation` subclass which allows you to use [more complex easing functions](https://github.com/robb/RBBAnimation#rbbtweenanimation), including bounces:
 
-<img src="/images/issue-12/bounce@2x.gif" width="140">
+![](/images/issue-12/bounce@2x.gif)
 
     RBBTweenAnimation *animation = [RBBTweenAnimation animation];
     animation.keyPath = @"position.y";
@@ -263,7 +263,7 @@ Since `CAMediaTimingFunction` is limited to functions that can be expressed as c
 
 For certain complex effects, it may be necessary to animate multiple properties at once. Imagine we were to implement a shuffle animation when advancing to a random track in a media player app, it could look like this:
 
-<img src="/images/issue-12/covers@2x.gif" width="440">
+![](/images/issue-12/covers@2x.gif)
 
 You can see that we have to animate the position, rotation and z-position of the artworks at once. Using `CAAnimationGroup`, the code to animate one of the covers could look a little something like this:
 

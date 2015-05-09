@@ -128,7 +128,7 @@ Before starting, you need some basic understanding for the responder chain. Your
         // Respond to the event
     }
 	
-<img src="/images/issue-5/responder-chain.png" name="The Responder Chain at work" width="472" height="548">
+![The Responder Chain at work](/images/issue-5/responder-chain.png)
 
 Now don't get too excited; there are some caveats. This only works when the keyboard is visible (if there's some first responder like `UITextView`.) For truly global hotkeys, you still need to revert to the above-linked hackery. But apart from that, the routing is very elegant. Don't try overriding system shortcuts like cmd-V, as those will be mapped to `paste:` automatically.
 
@@ -199,7 +199,7 @@ Starting with iOS 7, you can now force decompression directly at image creation 
 	
 I was very excited when I first found out about this, but you really shouldn't be. In my tests, performance actually *decreased* when I enabled immediate caching. Either this method calls up to the main thread (unlikely) or perceived performance is simply worse because it locks in `copyImageBlockSetJPEG`, which is also used when showing a non-decrypted image on the main thread. In my app, I load small preview thumbnails from the main thread, and load the large page images from a background thread. Using `kCGImageSourceShouldCacheImmediately` now blocks the main thread where only a tiny decompression would take place, with a much more expensive operation on the background thread.
 
-<img src="/images/issue-5/image-decompression.png" name="Image Decompression Stack Trace" width="662" height="1008">
+![Image Decompression Stack Trace](/images/issue-5/image-decompression.png)
 
 There's a lot more to image decompression which isn't new to iOS 7, like `kCGImageSourceShouldCache`, which controls the ability where the system can automatically unload decompressed image data. Make sure you're setting this to YES, otherwise all the extra work could be pointless. Interesting detail: Apple changed the *default* of `kCGImageSourceShouldCache` from NO to YES with the 64-bit runtime.
 	
@@ -224,7 +224,7 @@ You should definitely read Apple's guide on [Validating Mac App Store Receipts](
 
 Admit it. You've missed Comic Sans MS. With iOS 7, you can finally get it back. Now, downloadable fonts have been added to iOS 6, but back then the list of fonts was pretty small and not really interesting. Apple added some more fonts in iOS 7, including "famous" ones like [PT Sans](http://www.fontsquirrel.com/fonts/PT-Sans) or [Comic Sans MS](http://sixrevisions.com/graphics-design/comic-sans-the-font-everyone-loves-to-hate/). The `kCTFontDownloadableAttribute` was not declared in iOS 6, so this wasn't really usable until iOS 7, but Apple retroactively declared this property to be available on iOS 6 upward.
 
-<img src="/images/issue-5/comic-sans-ms.png" name="Who doesn't love Comic Sans MS" width="414" height="559">
+![Who doesn't love Comic Sans MS](/images/issue-5/comic-sans-ms.png)
 
 The list of fonts is [dynamic](http://mesu.apple.com/assets/com_apple_MobileAsset_Font/com_apple_MobileAsset_Font.xml) and might change in the future. Apple lists some of the available fonts in [Tech Note HT5484](http://support.apple.com/kb/HT5484), but the document is outdated and doesn't yet reflect the changes on iOS 7.
 

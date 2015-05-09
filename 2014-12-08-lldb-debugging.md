@@ -48,7 +48,7 @@ In the meantime, let's begin our journey and start with how to print variables i
 
 Here is a small, simple program that logs a string. Notice that a breakpoint has been added on line 8, which was made by clicking in the gutter in the source view in Xcode:
 
-<img src="/images/issue-19/Image_2014-11-20_at_10.01.46_PM.png" width="400" />
+![](/images/issue-19/Image_2014-11-20_at_10.01.46_PM.png)
 
 The program will pause its execution at that line and the console will open, allowing us to interact with the debugger. What shall we type?
 
@@ -60,7 +60,7 @@ The easiest command to try is `help`, which will list all the commands. And if y
 
 Printing values is easy; just try the `print` command:
 
-<img src="/images/issue-19/Image_2014-11-20_at_10.09.38_PM.png" width="600" />
+![](/images/issue-19/Image_2014-11-20_at_10.09.38_PM.png)
 
 LLDB actually does prefix matching, so you would be fine to try `prin`, `pri`, or `p`. You can't use `pr`, since LLDB can't disambiguate it from the `process` command (luckily for us, `p` has been disambiguated).
 
@@ -70,7 +70,7 @@ You'll also notice that the result has a `$0` in it. You can actually use this t
 
 What if you want to modify a value? _Modify_, you say? Yes, modify! That's where the handy `expression` command comes in:
 
-<img src="/images/issue-19/Image_2014-11-20_at_10.15.01_PM.png" width="240" />
+![](/images/issue-19/Image_2014-11-20_at_10.15.01_PM.png)
 
 This doesn't just modify the value in the debugger. It actually modifies the value in the program! If you resume the program at this point, it will print `42 red balloons`. Magic.
 
@@ -178,7 +178,7 @@ When you insert a breakpoint in the gutter in the source editor in Xcode (or add
 
 Then there are four buttons in the debug bar that you can use to control the flow of execution of the program:
 
-<img src="/images/issue-19/Image_2014-11-22_at_10.37.45_AM.png" width="200" />
+![](/images/issue-19/Image_2014-11-22_at_10.37.45_AM.png)
 
 The buttons are, in order from left to right: continue, step over, step into, step out.
 
@@ -194,7 +194,7 @@ Most people know `c`, `n`, and `s`. But then there is the fourth button, step ou
 
 Consider this partial program:
 
-<img src="/images/issue-19/Image_2014-11-22_at_10.53.52_AM.png" width="320" />
+![](/images/issue-19/Image_2014-11-22_at_10.53.52_AM.png)
 
 Say we run the program, allow it to stop at the breakpoint, and then execute this sequence of commands:
 
@@ -263,7 +263,7 @@ Xcode offers a bunch of tools for creating and manipulating breakpoints. We'll g
 
 In the left pane in Xcode, there is a collection of buttons. One looks like a breakpoint. Clicking it opens the breakpoint navigator, a pane where you can manipulate all of your breakpoints at a glance:
 
-<img src="/images/issue-19/Image_2014-11-22_at_11.38.24_AM.png" width="620" />
+![](/images/issue-19/Image_2014-11-22_at_11.38.24_AM.png)
 
 Here you can see all of your breakpoints — `breakpoint list` (or `br li`) in LLDB. You can also click on an individual breakpoint to turn it on or off — `breakpoint enable <breakpointID>` and `breakpoint disable <breakpointID>` in LLDB:
 
@@ -320,17 +320,17 @@ These breakpoints will now stop exactly at the start of the function, and this w
 
 If you want to create a symbolic breakpoint in Xcode's UI, then click the `+` button at the bottom left of the breakpoint navigator:
 
-<img src="/images/issue-19/Image_2014-11-22_at_11.52.50_AM.png" width="300" />
+![](/images/issue-19/Image_2014-11-22_at_11.52.50_AM.png)
 
 Then choose the third option:
 
-<img src="/images/issue-19/Image_2014-11-22_at_11.54.44_AM.png" width="430" />
+![](/images/issue-19/Image_2014-11-22_at_11.54.44_AM.png)
 
 A popover will appear where you can enter in a symbol such as `-[NSArray objectAtIndex:]`, and then the breakpoint will cause the program to stop **any time** that method is called, whether from your code or Apple's!
 
 If we look at the other options, we can see that there are some enticing options, which are also available for **any** breakpoint if you right click it in Xcode's UI and select the "Edit Breakpoint" option:
 
-<img src="/images/issue-19/Image_2014-11-22_at_11.58.06_AM.png" width="570" />
+![](/images/issue-19/Image_2014-11-22_at_11.58.06_AM.png)
 
 Here, the breakpoint has been modified to **only** stop when `i` is `99`. You can also use the "ignore" option to tell the breakpoint to not stop the first `n` times it is called (and the condition is true).
 
@@ -340,11 +340,11 @@ And then there is that "Add Action" button...
 
 Perhaps in the example breakpoint above, you want to know the value of `i` every time the breakpoint is hit. We can use the action `p i`, and then when the breakpoint is hit and we enter the debugger, it will execute that command before giving you control:
 
-<img src="/images/issue-19/Screen_Shot_2014-11-22_at_12.01.32_PM.png" width="600" />
+![](/images/issue-19/Screen_Shot_2014-11-22_at_12.01.32_PM.png)
 
 You can also add multiple actions, which can be debugger commands, shell commands, or more robust printing:
 
-<img src="/images/issue-19/Image_2014-11-22_at_12.06.34_PM.png" width="400" />
+![](/images/issue-19/Image_2014-11-22_at_12.06.34_PM.png)
 
 You can see that it printed `i`, then it said that sentence aloud (!), and then printed the custom expression.
 
@@ -446,7 +446,7 @@ Now that we know the basic steps, it's time to dance and do some crazy things. I
 
 When an application is running, the debug bar in Xcode's UI shows a pause button instead of a continue one:
 
-<img src="/images/issue-19/Screen_Shot_2014_11_22_at_1_50_56_PM.png" width="300" />
+![](/images/issue-19/Screen_Shot_2014_11_22_at_1_50_56_PM.png)
 
 Clicking that button will pause the app (it runs `process interrupt`, since LLDB is always attached behind the scenes). This will then give you access to the debugger, but it might not look like you can do much, since there are no variables in scope, and there is no specific area of the code to look at.
 

@@ -35,7 +35,7 @@ Supplementary and decoration views must be subclasses of [`UICollectionReusableV
 
 As an example of a non-trivial custom collection view layout, consider a week view in a typical calendar app. The calendar displays one week at a time, with the days of the week arranged in columns. Each calendar event will be displayed by a cell in our collection view, positioned and sized so as to represent the event start date/time and duration.
 
-<img src="/images/issue-3/calendar-collection-view-layout.png" style="width:1024px" alt="Screenshot of our custom calendar collection view layout"/>
+![Screenshot of our custom calendar collection view layout](/images/issue-3/calendar-collection-view-layout.png)
 
 There are two general types of collection view layouts:
 

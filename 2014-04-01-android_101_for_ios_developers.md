@@ -101,7 +101,7 @@ The [Fragment](http://developer.android.com/guide/components/fragments.html) con
 
 Tablets are a great fragment use case example: you can place a list fragment on the left and a detail fragment on the right.[^4] Fragments allow you to break up your UI and controller logic into smaller, reusable chunks. But beware! The fragment lifecycle, detailed below, is more nuanced.
 
-<img alt="A multi-pane activity with two fragments" src="/images/issue-11/multipane_view_tablet.png">
+![A multi-pane activity with two fragments](/images/issue-11/multipane_view_tablet.png)
  
 Fragments are the new way of structuring apps on Android, just like `UICollectionView` is the new way of structuring list data instead of `UITableview` for iOS.[^5]  While it is initially easier to avoid using fragments and instead use nothing but activities, you could regret this decision later on. That said, resist the urge to give up on activities entirely by swapping fragments on a single activity -- this can leave you in a bind when wanting to take advantage of intents and using multiple fragments on the same activity.
 
@@ -111,7 +111,7 @@ Let's look at a sample `UITableViewController` and a sample `ListFragment` that 
 
 &nbsp;
 
-<img alt="TripDetailsTableViewController" src="/images/issue-11/IMG_0095.PNG" width="50%">
+![TripDetailsTableViewController](/images/issue-11/IMG_0095.PNG)
 
 &nbsp;
 
@@ -194,7 +194,7 @@ Let's look at a sample `UITableViewController` and a sample `ListFragment` that 
 
 &nbsp;
 
-<img alt="TripDetailFragment" src="/images/issue-11/Screenshot_2014-03-25-11-42-16.png" width="50%">
+![TripDetailFragment](/images/issue-11/Screenshot_2014-03-25-11-42-16.png)
 
 &nbsp;
 
@@ -386,7 +386,7 @@ Similar to other parts of Android development, there are pros and cons to specif
 
 ### Subway List View Layout
 
-<img alt="Subway ListView" src="/images/issue-11/Screenshot_2014-03-24-13-12-00.png" width="50%">
+![Subway ListView](/images/issue-11/Screenshot_2014-03-24-13-12-00.png)
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
@@ -415,7 +415,7 @@ Similar to other parts of Android development, there are pros and cons to specif
 
 Here is the same view on iOS with a `UITableView` and a `UIButton` pinned to the bottom via Auto Layout in Interface Builder:
 
-<img alt="iOS Subway Lines UIViewController" src="/images/issue-11/iOS_Screen1.png" width="50%">
+![iOS Subway Lines UIViewController](/images/issue-11/iOS_Screen1.png)
 
 ![Interface Builder Constraints](/images/issue-11/iOSConstraints.png)
 

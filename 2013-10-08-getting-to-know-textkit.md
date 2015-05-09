@@ -49,11 +49,11 @@ So here we are. iOS 7-land with TextKit. Let’s see what it can do! Before we 
 
 **Kerning**: Drop the idea that all characters have simple quadratic shapes and that these shapes must be placed exactly adjacent to each other. Modern text layout takes into account that, for example, a capital letter “T” does have a lot of free space under its “wings” and moves the following lowercase letters closer. This results in significantly improved legibility of text, especially in longer pieces of writing.
 
-<img alt="Kerning: the bounding box of the letter &ldquo;a&rdquo; (blue rect) clearly overlapp the capital &ldquo;T&rdquo; when kerning is enabled." src="/images/issue-5/kerning.png" width="50%" height="50%">
+![Kerning: the bounding box of the letter “a” (blue rect) clearly overlapp the capital “T” when kerning is enabled.](/images/issue-5/kerning.png)
     
 **Ligatures**: I consider this mostly an artistic feature, but some texts do look nicer (more artistic) when certain character combinations (like an “f” followed by an “l”) are drawn using combined symbols (so-called glyphs). 
     
-<img alt="Ligatures: the &ldquo;Futura&rdquo; font family contains special symbols for character combinations like &ldquo;fl&rdquo;." src="/images/issue-5/ligature.png" width="50%" height="50%">
+![Ligatures: the “Futura” font family contains special symbols for character combinations like “fl”.](/images/issue-5/ligature.png)
     
 **Image Attachments**: It is now possible to have images inside a text view.
 
@@ -61,7 +61,7 @@ So here we are. iOS 7-land with TextKit. Let’s see what it can do! Before we 
 _Anecdote:_ Before iOS 7, developers had to employ CoreText directly. Like so: Start by detecting the text language on a per-sentence basis, then get the possible hyphenation point for each word in the sentence, then insert a custom hyphenation placeholder character at each suggested point. After preparation is done, run CoreText’s layout and manually insert a hyphen into wrapped lines. If you want great results, check afterward if the text with the hyphen still fits into the line’s boundaries and if it doesn’t, re-run the lines’s layout without the previously used hyphenation point.
 With TextKit, enabling hyphenation is as easy as setting the `hyphenationFactor` property.
     
-<img alt="The text in this view would have looked much more compartmentalized without hyphenation." src="/images/issue-5/Screen%20Shot%202013-09-29%20at%2022.19.58.png" width="50%" height="50%">
+![The text in this view would have looked much more compartmentalized without hyphenation.](/images/issue-5/Screen%20Shot%202013-09-29%20at%2022.19.58.png)
 
 **Customizability**: For me, even more than the improved typesetting, this is *the* new feature. Before, developers had the choice between using what was there or rewriting it all from scratch on their own. Now there is a set of classes that have delegate protocols or can be overwritten to change *part* of their behavior. For example, you can now influence the line break behavior of certain words without having to re-write the complete text component. I consider this a win.
 
@@ -78,7 +78,7 @@ _Opinion: Really? What the…? In an OS that completely, radically, and unforgiv
 
 The best way to get an overview of a system is probably to draw an image. Here is a schematic of UIKit’s text system, TextKit:
 
-<img alt="The structure of all essential TextKit classes. Highlighted with a &ldquo;New&rdquo; badge are classes introduced in iOS&nbsp;7" src="/images/issue-5/TextKit.png" width="578" height="446">
+![The structure of all essential TextKit classes. Highlighted with a “New” badge are classes introduced in iOS 7](/images/issue-5/TextKit.png)
 
 As can be seen from the picture, putting a text engine to work requires a couple of actors. We will cover them starting from outside:
 
@@ -114,7 +114,7 @@ Here’s a number: out of the [131 public classes in UIKit][3], all but nine hav
 
 Here’s a schematic of the Cocoa Text System. Feel free to compare it to the one for TextKit above.
 
-<img alt="The structure of all essential classes of the Cocoa Text System as present on Mac OS today." src="/images/issue-5/CocoaTextSystem.png" width="606" height="372">
+![The structure of all essential classes of the Cocoa Text System as present on Mac OS today.](/images/issue-5/CocoaTextSystem.png)
 
 The similarity is staggering. It’s clear that, at least in huge parts, the two are the same. Obviously – with the exception of the right side with `NSTextView` and `UITextView` — the primary classes are all the same. TextKit is (at least a partial) port of Cocoa’s text system to iOS. _(The one I asked for in my anecdotes, yay!)_
 
@@ -285,7 +285,7 @@ And second, iterate all pattern matches and assign new highlights:
 
 That’s it. We built a dynamic text view with syntax highlighting. The highlighting will be applied *live* as the user types. And it only took a couple lines of code. How cool is that?
 
-<img alt="A screenshot from the TextKitDemo project showing the text view with iWords highlighted." src="/images/issue-5/SyntaxHighlighting.png" width="50%" height="50%">
+![A screenshot from the TextKitDemo project showing the text view with iWords highlighted.](/images/issue-5/SyntaxHighlighting.png)
 
 Please note that just using the *edited range* will not be sufficient. For example, when manually typing in iWords, the regexp would only match *after* the third character of a word has been entered. But then the `editedRange` covers just the third character and thus all processing would inspect this character only. By re-processing the complete paragraph, we’re on the safe side without giving up too much performance.
 
@@ -343,7 +343,7 @@ With this at hand, changing the line break behavior is as easy as implementing a
 
 For a working example, see the “Layout” tab in the aforementioned [TextKitDemo][4]. Here’s a screenshot:
 
-<img alt="A screenshot from the TextKitDemo project showing altered line break behavior for link URLs." src="/images/issue-5/LineBreaking.png" width="50%" height="50%">
+![A screenshot from the TextKitDemo project showing altered line break behavior for link URLs.](/images/issue-5/LineBreaking.png)
 
 By the way, the green outline in the shot above is something usually not possible with TextKit. In the same demo, I’ve added a little trick for drawing an outline around text right from within a layout manager subclass. Extending TextKit’s drawing in special ways is also done quite easily. Be sure to check it out!
 
@@ -354,7 +354,7 @@ Having covered `NSTextStorage` and `NSLayoutManager`, the last demo will play a 
 
 Not placing text in some regions of a view is a common requirement, for example, in magazine apps. For this case, `NSTextContainer` on iOS provides a property Mac developers have long sought after: `exclusionPaths` allows developers to set an array of `NSBezierPath`s that should not be filled with text. To get an idea of what this is, take a look at the following screenshot:
 
-<img alt="A screenshot from the TextKitDemo project showing text revolving around an excluded oval view." src="/images/issue-5/ReflowingTextAndClippy.png" width="50%" height="50%">
+![A screenshot from the TextKitDemo project showing text revolving around an excluded oval view.](/images/issue-5/ReflowingTextAndClippy.png)
 
 As you can see, all text is placed outside the blue shape. Getting this behavior into a text view is simple, but it has a small catch: The coordinates of the bezier path must be specified in container coordinates. Here is the conversion:
 

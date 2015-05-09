@@ -19,7 +19,7 @@ navigation controllers? Or put more precisely, what is the problem with:
     
     [viewControllerA.view addSubView:viewControllerB.view]
 
-<img src="/images/issue-1/view-insertion@2x.png" style="width:357px" alt="Inconsistent view hierarchy"/>
+![Inconsistent view hierarchy](/images/issue-1/view-insertion@2x.png)
 
 The UIWindow, which serves as an app's root view, is where rotation and
 initial layout messages originate from. In the
@@ -41,7 +41,7 @@ repo](https://github.com/objcio/issue-1-view-controller-containment) and run the
 app, which will make it easier to understand the example code.
 *(Spoiler: digging through the earth from western Denmark lands you somewhere in the South Pacific Ocean.)*
 
-<img src="/images/issue-1/tunnel-screenshot@2x.png" alt="Tunnel screenshot" style="width: 513px;" />
+![Tunnel screenshot](/images/issue-1/tunnel-screenshot@2x.png)
 
 To find the antipode, as the opposite location is called, move the little guy with the shovel around and the map will tell you where your exit location is. Tap the radar button and the map will flip to reveal the name of the location.
 

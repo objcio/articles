@@ -169,9 +169,8 @@ Once you know about the `actionForKey:` mechanism, UIView animations are a lot l
     
 When we are done, it is going to look like this (animating the position, size, color, and rotation of four different views):
 
-<img alt="The custom block animation API, used to animate the position, size, color, and rotation of four different views" src="/images/issue-12/2014-05-01-view-layer-synergy-custom-block-animations.gif" width="238">
+![The custom block animation API, used to animate the position, size, color, and rotation of four different views](/images/issue-12/2014-05-01-view-layer-synergy-custom-block-animations.gif)
 
-      
 To start with, we need to get the delegate callback when a layer property changes. Since we can't know what layers are going to change beforehand, I have chosen to swizzle `actionForLayer:forKey:` in a category on UIView:
 
     @implementation UIView (DR_CustomBlockAnimations)

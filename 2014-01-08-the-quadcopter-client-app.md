@@ -11,7 +11,7 @@ The client app is the component in [this project](/issue-8/the-quadcopter-projec
 
 The app exposes a very simple -- and not very pretty -- interface:
 
-<img title="Screenshot of the client app" src="/images/issue-8/client-app.jpg" width="320">
+![Screenshot of the client app](/images/issue-8/client-app.jpg)
 
 
 ## Multipeer Connectivity

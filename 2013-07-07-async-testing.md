@@ -54,7 +54,7 @@ Why doesn't this assertion fail?
 
 The testing framework used by Xcode 4 is based on [OCUnit][4], which allows us to have a closer look at the internals. To understand the problem with the asynchronous test, we need to have a look at the execution order of the different parts of the test suite. This diagram shows a simplified flow.
 
-<img src="/images/issue-2/SenTestingKit-call-stack@2x.png" style="width:698px" alt="SenTestingKit call stack"/>
+![SenTestingKit call stack](/images/issue-2/SenTestingKit-call-stack@2x.png)
 
 After the testing kit is started on the main run loop, it executes the following main steps:
 
@@ -73,7 +73,7 @@ There are several approaches to solve this problem. But all of them have to run 
 
 Our solution to this problem is an [extension][2] to the built-in testing kit, which winds up the synchronous execution on the stack and enqueues each part as a block on the main queue. As you can see in the diagram below, the block that reports the success or failure of the asynchronous test is enqueued before the results of the entire suite are checked. This execution order allows us to fire up a test and wait for its result.
 
-<img src="/images/issue-2/SenTestingKitAsync-call-stack@2x.png" style="width:531px" alt="SenTestingKitAsync call stack"/>
+![SenTestingKitAsync call stack](/images/issue-2/SenTestingKitAsync-call-stack@2x.png)
 
 To give the framework a hint that a test should be treated as asynchronous, the method name has to end with __Async__. Furthermore, in asynchronous tests, we have to report the success of the test case manually and include a timeout, in case the completion block never gets called. We can rewrite our faulty test from above like this:
 
@@ -97,7 +97,7 @@ To put all this into practice, we create an example framework called [Pinacoteca
 
 Although this is only an example project for the sake of demonstration, it shares the pattern we use in several of our apps.
 
-<img src="/images/issue-2/PinacotecaCore@2x.png" style="width:699px" alt="PinacotecaCore architecture"/>
+![PinacotecaCore architecture](/images/issue-2/PinacotecaCore@2x.png)
 
 With this high level overview of the architecture we can dive into the tests of the framework. In general there are three components which should be tested:
 

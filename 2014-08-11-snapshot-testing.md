@@ -20,7 +20,7 @@ View-based testing means verifying that what the user sees is what you want the 
 
 Here is an example of a failing test where we have less grid items than expected in a view controller:
 
-<img src="/images/issue-15/snapshots-reference.png" style="width:100%" alt="Snapshots examples"/>
+![Snapshots examples](/images/issue-15/snapshots-reference.png)
 
 It makes the comparison by drawing both the view or layer and the existing snapshot into two `CGContextRefs` and doing a memory comparison of them with the C function `memcmp()`. This makes it extremely quick, with my tests ranging from 0.013 to 0.086 seconds per image for fullscreen iPad and iPhone images on a MacBook Air.
 

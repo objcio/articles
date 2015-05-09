@@ -195,7 +195,7 @@ For each behavior in our dynamic animator, we divide the sum of the x and y dist
 
 That's really all there is to it. In my experience, this naïve approach is effective for collection views with up to a few hundred items. Beyond that, the burden of loading all the items into memory at once becomes too great and you'll begin to drop frames when scrolling. 
 
-<img alt="Springy Collection View" src="/images/issue-5/springyCollectionView.gif">
+![Springy Collection View](/images/issue-5/springyCollectionView.gif)
 
 ## Adding New Rows
 
@@ -366,7 +366,7 @@ Instead of just adding an attachment behavior for each individual item, we'll al
         }];
     }
 
-<img alt="Demo" src="/images/issue-5/newtonianCollectionView@2x.gif">
+![Demo](/images/issue-5/newtonianCollectionView@2x.gif)
 
 Deletion is far more complicated. We want the item to "fall off" instead of simply disappearing. This involves more than just removing the cell from the collection view, as we want it to remain in the collection view until it moves offscreen. I've implemented something to that effect in the code, but it is a bit of a cheat. 
 
