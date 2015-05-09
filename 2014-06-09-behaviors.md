@@ -128,13 +128,13 @@ So what kind of things are easiest to implement as behaviors?
 
 Here's how easy it is to add a parallax animation to a `UIViewController` class (no custom class):
 
-<video style="display:block;max-width:100%;height:auto;border:0;" controls="1">
+<video controls="1">
   <source src="/images/issue-13/parallaxAnimationBehaviour.mov"></source>
 </video>
 
 Ever needed to pick an image from your user library or camera?
 
-<video style="display:block;max-width:100%;height:auto;border:0;" controls="1">
+<video controls="1">
   <source src="/images/issue-13/imagePickerBehaviour.mp4"></source>
 </video>
 

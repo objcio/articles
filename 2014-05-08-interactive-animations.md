@@ -55,7 +55,7 @@ Looking at the `UIView` animation API for spring animations (`animateWithDuratio
 
 So let's take a look at how we can correctly implement interactive and interruptible animations. To do this, we're going to build something like the Control Center panel:
 
-<video style="display:block;max-width:100%;height:auto;border:0;" controls="1">
+<video controls="1">
   <source src="/images/issue-12/interactive-animation.mov"></source>
 </video>
 

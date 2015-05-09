@@ -11,7 +11,7 @@ Happy 2014!
 
 This issue of objc.io is a bit different than what we have done so far. This is our holiday issue, where we decided to spend a few days during the holiday break working on a small and fun project that we would then write about.
 
-<video style="display:block;max-width:100%;height:auto;border:0;" poster="/images/issue-8/quadcopter-video-poster.jpg" controls="1">
+<video poster="/images/issue-8/quadcopter-video-poster.jpg" controls="1">
   <source src="http://www.objc.io/images/quadcopter.m4v"></source>
 </video>
 

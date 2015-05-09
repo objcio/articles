@@ -71,7 +71,7 @@ When you run this, you might be surprised by the lack of CPU usage. The great th
 
 Here's a video of the result:
 
-<video style="display:block;max-width:100%;height:auto;border:0;" controls="1">
+<video controls="1">
   <source src="http://www.objc.io/images/issue-23/camera.m4v"></source>
 </video>
 
@@ -108,7 +108,7 @@ func displayLinkDidRefresh(link: CADisplayLink) {
 
 The pixel buffer that we get from a video output is a `CVPixelBuffer`, which we can directly convert into a `CIImage`. Like in the sample above, we will filter this image. In this case, we'll combine multiple filters: we use a kaleidoscope effect, and then use gradient mask to combine the original image with the filtered image. The result is slightly funky:
 
-<video style="display:block;max-width:100%;height:auto;border:0;" controls="1">
+<video controls="1">
   <source src="http://www.objc.io/images/issue-23/video.m4v"></source>
 </video>
 
