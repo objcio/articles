@@ -155,13 +155,13 @@ With this, only one thread will access the `NSMutableDictionary` instance.
 
 Note four things:
 
- 1. Don't use this code. First read about [multiple readers, single writer](#multiple-readers-single-writer) and also about [contention](#contention).
+1. Don't use this code. First read about [multiple readers, single writer](#multiple-readers-single-writer) and also about [contention](#contention).
 
- 2. We're using `async` when storing a value. This is important. We don't want to and don't need to block the current thread for the *write* to complete. When reading, we're using `sync` since we need to return the result.
+2. We're using `async` when storing a value. This is important. We don't want to and don't need to block the current thread for the *write* to complete. When reading, we're using `sync` since we need to return the result.
 
- 3. According to the method interface, `-setCount:forKey:` takes an `NSString`, which we're passing onto `dispatch_async`. The caller is free to pass in an `NSMutableString` and can modify it after the method returns, but before the block executes. Hence we *have* to copy the string to guarantee that the method works correctly. If the passed-in string isn't mutable (i.e. a normal `NSString`) the call to `-copy` is basically a no-op.
+3. According to the method interface, `-setCount:forKey:` takes an `NSString`, which we're passing onto `dispatch_async`. The caller is free to pass in an `NSMutableString` and can modify it after the method returns, but before the block executes. Hence we *have* to copy the string to guarantee that the method works correctly. If the passed-in string isn't mutable (i.e. a normal `NSString`) the call to `-copy` is basically a no-op.
 
- 4. The `isolationQueue` needs to have been created with a `dispatch_queue_attr_t` of `DISPATCH_QUEUE_SERIAL` (or `0`).
+4. The `isolationQueue` needs to have been created with a `dispatch_queue_attr_t` of `DISPATCH_QUEUE_SERIAL` (or `0`).
 
 <a name="multiple-readers-single-writer" id="multiple-readers-single-writer"> </a>
 
@@ -391,8 +391,8 @@ We can obviously do the same for `NSURLConnection`:
 
 In order for this to work, you need to make sure that
 
- * `dispatch_group_enter()` is guaranteed to run before `dispatch_group_leave()`
- * Calls to `dispatch_group_enter()` and `dispatch_group_leave()` are always balanced (even when errors happen)
+* `dispatch_group_enter()` is guaranteed to run before `dispatch_group_leave()`
+* Calls to `dispatch_group_enter()` and `dispatch_group_leave()` are always balanced (even when errors happen)
 
 
 ## Sources

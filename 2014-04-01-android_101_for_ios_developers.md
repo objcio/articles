@@ -23,10 +23,9 @@ This article will not delve deeply into the user experience and design pattern d
 
 There are many differences between Objective-C and Java, and while it may be tempting to bring some of Objective-C's styling into Java, it can lead to a codebase that heavily clashes with the primary framework that drives it. In brief, here are a few gotchas to watch for:
 
-
 - Leave class prefixes at home on Objective-C. Java has actual namespacing and package management, so there is no need for class prefixes here.
 - Instance variables are prefixed with `m`, not `_`.
-   - Take advantage of JavaDoc to write method and class descriptions for as much of your code as possible. It will make your life and the lives of others better.
+- Take advantage of JavaDoc to write method and class descriptions for as much of your code as possible. It will make your life and the lives of others better.
 - Null check! Objective-C gracefully handles message sending to nil objects, but Java does not.
 - Say goodbye to properties. If you want setters and getters, you have to remember to actually create a getVariableName() method and call it explicitly. Referencing `this.object` will **not** call your custom getter. You must use `this.getObject`.
 - Similarly, prefix method names with `get` and `set` to indicate getters and setters. Java methods are typically written as actions or queries, such as `getCell()`, instead of `cellForRowAtIndexPath:`.
@@ -447,10 +446,10 @@ See the the [responsive android applications](/issue-11/responsive-android-appli
 
 The [Data Storage Options](http://developer.android.com/guide/topics/data/data-storage.html) available on Android are also very similar to what is available on iOS:
 
- - [Shared Preferences](http://developer.android.com/guide/topics/data/data-storage.html#pref) <-> NSUserDefaults
- - In-memory objects
- - Saving to and fetching from file structure via the [internal](http://developer.android.com/guide/topics/data/data-storage.html#filesInternal) or [external](http://developer.android.com/guide/topics/data/data-storage.html#filesExternal) file storage <-> saving to the documents directory
- - [SQLite](http://developer.android.com/guide/topics/data/data-storage.html#db) <-> Core Data
+- [Shared Preferences](http://developer.android.com/guide/topics/data/data-storage.html#pref) <-> NSUserDefaults
+- In-memory objects
+- Saving to and fetching from file structure via the [internal](http://developer.android.com/guide/topics/data/data-storage.html#filesInternal) or [external](http://developer.android.com/guide/topics/data/data-storage.html#filesExternal) file storage <-> saving to the documents directory
+- [SQLite](http://developer.android.com/guide/topics/data/data-storage.html#db) <-> Core Data
  
 The primary difference is the lack of Core Data. Instead, Android offers straight access to the SQLite database and returns [cursor](http://developer.android.com/reference/android/database/Cursor.html) objects for results. Head over to the article in this issue about [using SQLite on Android](/issue-11/sqlite-database-support-in-android.html) for more details.
 
@@ -459,12 +458,12 @@ The primary difference is the lack of Core Data. Instead, Android offers straigh
 
 What we've discussed so far barely scratches the surface. To really take advantage of some of the things that make Android special, I recommend checking out some of these features:
 
- - [Action Bar, Overflow Menu, and the Menu Button](http://developer.android.com/guide/topics/ui/actionbar.html)
- - [Cross-App Data Sharing](https://developer.android.com/training/sharing/index.html)
- - [Respond to common OS actions](http://developer.android.com/guide/components/intents-common.html)
- - Take advantage of Java's features: generics, virtual methods and classes, etc.
- - [Google Compatibility Libraries](http://developer.android.com/tools/support-library/index.html)
- - The Android Emulator: install the [x86 HAXM plugin](http://software.intel.com/en-us/android/articles/intel-hardware-accelerated-execution-manager) to make the emulator buttery smooth.
+- [Action Bar, Overflow Menu, and the Menu Button](http://developer.android.com/guide/topics/ui/actionbar.html)
+- [Cross-App Data Sharing](https://developer.android.com/training/sharing/index.html)
+- [Respond to common OS actions](http://developer.android.com/guide/components/intents-common.html)
+- Take advantage of Java's features: generics, virtual methods and classes, etc.
+- [Google Compatibility Libraries](http://developer.android.com/tools/support-library/index.html)
+- The Android Emulator: install the [x86 HAXM plugin](http://software.intel.com/en-us/android/articles/intel-hardware-accelerated-execution-manager) to make the emulator buttery smooth.
  
 ## Final Words
 

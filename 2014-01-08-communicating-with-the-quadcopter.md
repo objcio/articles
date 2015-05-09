@@ -33,9 +33,9 @@ The AR Drone interface is built on top of three UDP ports. As discussed above, u
 
 The IP address of the drone is `192.168.1.1` and there are three ports we can use to connect over UDP:
 
- * Navigation Data Port = 5554
- * On-Board Video Port = 5555
- * AT Command Port = 5556
+* Navigation Data Port = 5554
+* On-Board Video Port = 5555
+* AT Command Port = 5556
 
 We need to use the *AT Command Port* to send commands to the drone. We can use the *Navigation Data Port* to retrieve data back from the drone. We'll talk about these two separately since they work quite differently. That said, they both rely on UDP sockets. Let's first see how that is done.
 
