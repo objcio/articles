@@ -31,9 +31,7 @@ As we'll see later, copy for immutable objects is free, but it increases the ret
 
 In older code, you might not see properties, as they are a relatively recent addition to Objective-C. Instead of properties, you might see custom getters and setters, or plain instance variables. For modern code, it seems most people agree on using properties, which is also what we recommend.
 
-##### More Reading
-
-[`NSString`: `copy` or `retain`](http://stackoverflow.com/questions/387959/nsstring-property-copy-or-retain)
+**More Reading:** [`NSString`: `copy` or `retain`](http://stackoverflow.com/questions/387959/nsstring-property-copy-or-retain)
 
 ##  Initializers
 
@@ -142,7 +140,7 @@ In [the documentation](https://developer.apple.com/library/mac/documentation/coc
 
 This is another very important reason to make sure your objects are immutable. Then you don't even have to worry about this problem.
 
-##### More Reading
+**More Reading:**
 
 * [A hash function for CGRect](https://gist.github.com/steipete/6133152)
 * [A Hash Function for Hash Table Lookup](http://www.burtleburtle.net/bob/hash/doobs.html)
@@ -282,9 +280,7 @@ Immutable objects are one of the concepts inspired by functional programming lan
 
 We can learn from this in Objective-C programming. By having immutable objects where possible, our programs become much easier to test. There's a great [talk by Gary Bernhardt](https://www.destroyallsoftware.com/talks/boundaries) that shows how having immutable objects helps us write better software. In the talk he uses Ruby, but the concepts apply equally well to Objective-C.
 
+**Further Reading:**
 
-
-##### Further Reading 
-
- * [Cocoa Encyclopedia: Object Mutability](https://developer.apple.com/library/mac/documentation/General/Conceptual/CocoaEncyclopedia/ObjectMutability/ObjectMutability.html#//apple_ref/doc/uid/TP40010810-CH5-SW1)
+* [Cocoa Encyclopedia: Object Mutability](https://developer.apple.com/library/mac/documentation/General/Conceptual/CocoaEncyclopedia/ObjectMutability/ObjectMutability.html#//apple_ref/doc/uid/TP40010810-CH5-SW1)
 * [Mutability and Caching](http://garbagecollective.quora.com/Mutability-aliasing-and-the-caches-you-didnt-know-you-had)

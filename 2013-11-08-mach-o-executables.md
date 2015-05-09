@@ -67,30 +67,30 @@ The compiler of choice nowadays is `clang` (pronounced /klæŋ/). Chris writes i
 
 Briefly put, the compiler will process the `helloworld.c` input file and produce the executable `a.out`. This processing consist of multiple steps/stages. What we just did is run all of them in succession:
 
-##### Preprocessing
+**Preprocessing**
 
 * Tokenization
 * Macro expansion
 * `#include` expansion
 
-##### Parsing and Semantic Analysis
+**Parsing and Semantic Analysis**
 
 * Translates preprocessor tokens into a parse tree
 * Applies semantic analysis to the parse tree
 * Outputs an *Abstract Syntax Tree* (AST)
 
-##### Code Generation and Optimization
+**Code Generation and Optimization**
 
 * Translates an AST into low-level intermediate code (LLVM IR)
 * Responsible for optimizing the generated code
 * target-specific code generation
 * Outputs assembly
 
-##### Assembler
+**Assembler**
 
 * Translates assembly code into a target object file
 
-##### Linker
+**Linker**
 
 * Merges multiple object files into an executable (or a dynamic library)
 

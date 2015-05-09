@@ -26,7 +26,7 @@ This is the user-facing component and is activated whenever you call a `pod` com
 
 The Core gem provides support for working with the files that are involved with CocoaPods, mainly the Podfile and podspecs.
 
-##### Podfile
+#### Podfile
 
 The Podfile is the file that defines the pods you want to use. It is highly customizable, and you can be as specific as you'd like. For more information, check out [the Podfile guide](http://guides.cocoapods.org/syntax/podfile.html).
 
