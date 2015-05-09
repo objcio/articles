@@ -49,7 +49,7 @@ For backing layers, the search for an action doesn't go further than the first s
 
 [^neverSeen]: At least I have never seen a case where the view returns `nil` so that the search for an action continues.
 
-# Learning from UIKit
+## Learning from UIKit
 
 I'm sure that we can all agree that UIView animation is a really nice API with its concise, declarative style. And the fact that it's using Core Animation to perform these animations gives us an opportunity to dig deep and see how UIKit uses Core Animation. There may even be some good practices and neat tricks to pick up along the way :)
 
@@ -158,7 +158,7 @@ Depending on personal preference, a block-based callback style, like this, may f
         NSLog(@"did fade %@", finished ? @"to the end" : @"but was cancelled");
     }];
 
-# Custom Block-Based Animation APIs
+## Custom Block-Based Animation APIs
 
 Once you know about the `actionForKey:` mechanism, UIView animations are a lot less magical than they might first seem. In fact, there isn't really anything stopping us from writing our own block-based animation APIs that are tailored to our needs. The one I'm designing will be used to draw attention to a view by animating the change inside of the block with a very aggressive timing curve, and then slowly animate back to the original value. You could say that it makes the view 'pop.'[^pop] Unlike a regular animation block with the `UIViewAnimationOptionAutoreverse` option, I'm also changing the model value back to what it was before, since that's what the animation conceptually does. Using the custom animation API will look like this:
 
@@ -311,7 +311,7 @@ Note that the old model value was set on the layer so that the model and the pre
 
 Creating your own API like this is not going to be a good fit for every case, but if you are doing the same animation in many places throughout your app, it can help clean up your code and reduce duplication. Even if you never end up using it, having walked through it once demystifies the UIView block animation APIs, especially if you are comfortable with Core Animation.
 
-# Other Animation Inspiration
+## Other Animation Inspiration
 
 I'd like to leave you with a completely different approach to a higher-level animation API: the UIImageView animation. On the surface, it barely resembles a traditional animation API. All that you are doing is specifying an array of images and a duration, and telling the image view to start animating. Behind that abstraction, it results in a discrete keyframe animation of the contents property being added to the image view's layer:
 

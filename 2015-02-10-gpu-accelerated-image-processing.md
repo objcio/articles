@@ -479,7 +479,7 @@ Here are some easy ways to help you hit your target:
 - **Shift work over to the vertex shader, if it makes sense.** Our previous talk about dependent texture reads is a situation where it would make sense to move texture coordinate calculations to the vertex shader. If a calculation would have the same result across your image, or would linearly vary across it, look at moving that calculation into the vertex shader. Vertex shaders run once per vertex, whereas fragment shaders execute once per pixel, so a calculation performed in the former will run fewer times.
 - **Use appropriate precision on mobile devices.** On certain mobile devices, it can be much faster to work with lower precision values in vectors. The addition of two `lowp vec4`s can often be done in a single clock cycle on these devices, where the addition of two `highp vec4`s can take four clock cycles. This is less important on desktop GPUs and more recent mobile GPUs, though, as they don't have the same optimizations for low precision values.
 
-# Conclusions and Resources #
+## Conclusions and Resources
 
 Shaders seem kind of scary at first, but they are nothing more than modified C programs. Everything involved in creating a shader is stuff that most of us have dealt with at one point or another, just in a different context.
 

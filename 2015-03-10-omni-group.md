@@ -6,8 +6,6 @@ tags: article
 author: "<a href=\"https://twitter.com/brentsimmons\">Brent Simmons</a>"
 ---
 
-# Inside Omni
-
 The Omni Group is an employee-owned company where people bring their dogs to work.
 
 In other words: when you think about managing large projects, think about culture *first*. It almost doesn’t matter what the details are — how we’re organized, what we use for source control management, and so on — because a great culture makes for a happy team that will figure out how to work together. And Omni has done a *great* job with that.

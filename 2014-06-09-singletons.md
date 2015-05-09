@@ -22,7 +22,7 @@ For these reasons, singletons are commonplace in iOS programming. The problem is
 
 While others have called singletons an 'anti-pattern,' 'evil,' and ['pathological liars'][pathologicalLiars], I won't completely rule out the merit of singletons. Instead, I want to demonstrate a few problems with singletons so that the next time you're about to auto-complete that `dispatch_once` snippet, you think twice about the implications.
 
-# Global State
+## Global State
 
 Most developers agree that global mutable state is a bad thing. Statefulness makes programs hard to understand and hard to debug. We object-oriented programmers have much to learn from functional programming, in terms of minimizing the statefulness of code.
 
@@ -102,7 +102,7 @@ It turns out someone changed the order of the tests. The success case test is ru
 
 Persistent state is the enemy of unit testing, since unit testing is made effective by each test being independent of all other tests. If state is left behind from one test to another, then the order of execution of tests suddenly matters. Buggy tests, especially when a test succeeds when it shouldn't, are a very bad thing.
 
-# Object Lifecycle
+## Object Lifecycle
 The other major problem with singletons is their lifecycle. When adding a singleton to your program, it's easy to think, "There will only ever be one of these." But in much of the iOS code I've seen in the wild, that assumption can break down.
 
 For example, suppose we're building an app where users can see a list of their friends. Each of their friends has a profile picture, and we want the app to be able to download and cache those images on the device. With the `dispatch_once` snippet handy, we might find ourselves writing an `SPThumbnailCache` singleton:
@@ -152,7 +152,7 @@ At this point, I hope you're saying, "The thumbnail cache shouldn't have ever be
 
 The lesson here is that singletons should be preserved only for state that is global, and not tied to any scope. If state is scoped to any session shorter than "a complete lifecycle of my app," that state should not be managed by a singleton. A singleton that's managing user-specific state is a code smell, and you should critically reevaluate the design of your object graph.
 
-# Avoiding Singletons
+## Avoiding Singletons
 
 So, if singletons are so bad for scoped state, how do we avoid using them?
 
@@ -227,7 +227,7 @@ When the user signs in to a new account, we should be able to construct and inte
 
 <img src="/images/issue-13/Screen%20Shot%202014-06-02%20at%206.43.56%20AM.png" width="412" />
 
-# Conclusion
+## Conclusion
 
 Hopefully nothing in this article reads as particularly novel. People have been complaining about the abuse of singletons for years and we all know global state is bad. But in the world of iOS development, singletons are so commonplace that we can sometimes forget the lessons learned from years of object-oriented programming elsewhere. 
 
