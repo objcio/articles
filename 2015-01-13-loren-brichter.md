@@ -2,7 +2,7 @@
 title:  "Something Slightly Less Terrible"
 category: "20"
 date: "2015-01-13 10:00:00"
-tags: article
+tags: article, interview
 author:
   - name: Loren Brichter
     url: https://twitter.com/lorenb

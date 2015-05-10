@@ -2,7 +2,7 @@
 title:  "A Generation of Lifelong Learners"
 category: "20"
 date: "2015-01-13 11:00:00"
-tags: article
+tags: article, interview
 author:
   - name: Andy Matuschak
     url: https://twitter.com/andy_matuschak

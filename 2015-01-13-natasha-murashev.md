@@ -2,7 +2,7 @@
 title:  "Infinite Things to Learn"
 category: "20"
 date: "2015-01-13 09:00:00"
-tags: article
+tags: article, interview
 author:
   - name: Natasha Murashev
     url: https://twitter.com/NatashaTheRobot
