@@ -3,7 +3,9 @@ title:  "The Build Process"
 category: "6"
 date: "2013-11-08 11:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: https://twitter.com/floriankugler
 ---
 
 We are kind of spoiled these days — we just hit a single button in Xcode which looks like it's supposed to play some music, and a few seconds later, our app is running. It's magical. Until something goes wrong.

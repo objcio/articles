@@ -2,7 +2,9 @@
 title: "Concurrent Programming: APIs and Challenges"
 category: "2"
 date: "2013-07-07 10:00:00"
-author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: http://twitter.com/floriankugler
 tags: article
 ---
 

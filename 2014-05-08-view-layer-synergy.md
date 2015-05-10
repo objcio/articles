@@ -3,7 +3,9 @@ title:  "View-Layer Synergy"
 category: "12"
 date: "2014-05-08 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/davidronnqvist\">David Rönnqvist</a>"
+author:
+  - name: David Rönnqvist
+    url: https://twitter.com/davidronnqvist
 ---
 
 On iOS, views always have an underlying layer. There is a very strong relationship between the view and its layer, and the view derives most of its data from the layer object directly. There are also standalone layers -- for example, `AVCaptureVideoPreviewLayer` and `CAShapeLayer` -- that present content on the screen without being attached to a view. In either case, there is a layer involved. Still, the layers that are attached to views and the standalone layers behave slightly differently. 

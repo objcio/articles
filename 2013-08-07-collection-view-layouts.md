@@ -2,7 +2,9 @@
 title: "Custom Collection View Layouts"
 category: "3"
 date: "2013-08-07 08:00:00"
-author: "<a href=\"http://oleb.net\">Ole Begemann</a>"
+author:
+  - name: Ole Begemann
+    url: http://oleb.net
 tags: article
 ---
 

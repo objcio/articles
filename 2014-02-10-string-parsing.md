@@ -3,7 +3,9 @@ title:  "String Parsing"
 category: "9"
 date: "2014-02-10 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: https://twitter.com/chriseidhof
 ---
 
 In almost every computer program, we have to parse strings. Sometimes these strings follow a very simple format, and sometimes they are very complicated. We will look at multiple ways to convert these strings into something we can reason and work with. We'll discuss regular expressions and scanners and parsers, as well as when to apply them.

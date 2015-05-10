@@ -3,7 +3,9 @@ title:  "Working with Strings"
 category: "9"
 date: "2014-02-10 10:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
 ---
 
 

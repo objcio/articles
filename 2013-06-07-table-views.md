@@ -2,7 +2,9 @@
 title: "Clean table view code"
 category: "1"
 date: "2013-06-07 10:00:00"
-author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: http://twitter.com/floriankugler
 tags: article
 ---
 

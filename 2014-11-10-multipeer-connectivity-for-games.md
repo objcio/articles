@@ -3,7 +3,9 @@ title:  "Multipeer Connectivity in Games"
 category: "18"
 date: "2014-11-10 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/simjp\">JP Simard</a>"
+author:
+  - name: JP Simard
+    url: https://twitter.com/simjp
 ---
 
 Since its unveiling at WWDC 2013, [Multipeer Connectivity][mpc] (or MPC as we'll refer to it here) has garnered much hype, but relatively few products have successfully integrated it in meaningful ways. So let's see what MPC is and how to leverage it to build impressive experiences, especially in games.

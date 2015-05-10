@@ -3,7 +3,9 @@ title:  "An Introduction to Core Image"
 category: "21"
 date: "2015-02-10 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/warrenm\">Warren Moore</a>"
+author:
+  - name: Warren Moore
+    url: https://twitter.com/warrenm
 ---
 
 This article is a beginner's introduction to Core Image, an image processing framework for OS X and iOS.

@@ -2,7 +2,9 @@
 title: On Using SQLite and FMDB Instead of Core Data
 category: "4"
 date: "2013-09-09 09:00:00"
-author: "<a href=\"http://inessential.com/\">Brent Simmons</a>"
+author:
+  - name: Brent Simmons
+    url: http://inessential.com/
 tags: article
 ---
 

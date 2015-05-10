@@ -3,7 +3,9 @@ title:  "Android’s Notification Center"
 category: "11"
 date: "2014-04-01 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/kevingrant5\">Kevin Grant</a>"
+author:
+  - name: Kevin Grant
+    url: https://twitter.com/kevingrant5
 ---
 
 

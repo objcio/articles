@@ -3,7 +3,9 @@ title:  "Android Intents"
 category: "11"
 date: "2014-04-01 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/Gryzor\">Martin Marconcini</a>"
+author:
+  - name: Martin Marconcini
+    url: https://twitter.com/Gryzor
 ---
 
 

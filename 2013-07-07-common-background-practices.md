@@ -2,7 +2,9 @@
 title:  "Common Background Practices"
 category: "2"
 date: "2013-07-07 09:00:00"
-author: "<a href=\"http://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: http://twitter.com/chriseidhof
 tags: article
 ---
 

@@ -2,7 +2,9 @@
 title:  "Receipt Validation"
 category: "17"
 date: "2014-10-10 09:00:00"
-author: "<a href=\"https://twitter.com/letiemble\">Laurent Etiemble</a>"
+author:
+  - name: Laurent Etiemble
+    url: https://twitter.com/letiemble
 tags: article
 ---
 

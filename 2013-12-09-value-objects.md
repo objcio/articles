@@ -3,7 +3,9 @@ title: "Value Objects"
 category: "7"
 date: "2013-12-09 10:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: http://twitter.com/chriseidhof
 ---
 
 

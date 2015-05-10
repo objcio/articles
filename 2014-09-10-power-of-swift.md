@@ -3,7 +3,9 @@ title:  "The Power of Swift"
 category: "16"
 date: "2014-09-10 11:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: https://twitter.com/chriseidhof
 ---
 
 Before writing anything else, I have to admit I'm very biased: I love Swift. I think it's the best thing that happened to the Cocoa ecosystem since I started. I want to let you know why I think this by sharing my experiences with Swift, Objective-C, and Haskell. This article is not really about any best practices (at the moment of writing, Swift is much too young to have any established best practices), but rather about showing some examples of where Swift really shines.

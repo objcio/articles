@@ -3,7 +3,9 @@ title:  "Communication Patterns"
 category: "7"
 date: "2013-12-09 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: https://twitter.com/floriankugler
 ---
 
 

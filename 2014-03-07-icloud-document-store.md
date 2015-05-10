@@ -3,7 +3,11 @@ title:  "Mastering the iCloud Document Store"
 category: "10"
 date: "2014-03-07 09:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/hdrxs\">Friedrich Gräter</a> & <a href=\"http://twitter.com/macguru17\">Max Seelemann</a>"
+author:
+  - name: Friedrich Gräter
+    url: https://twitter.com/hdrxs
+  - name: Max Seelemann
+    url: http://twitter.com/macguru17
 ---
 
 Even three years after its introduction, the iCloud document store is still a topic full of myth, misunderstanding, and resentment. iCloud synching has often been criticized for being unreliable or slow. And while there were imminent bugs in the early days of iCloud, application developers had to learn their lessons about file synchronization, too. File synchronization is non-trivial and brings new aspects to application development — aspects which are often underestimated, such as the requirement to handle asynchronous file changes while being cooperative regarding synchronization services.

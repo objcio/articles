@@ -3,7 +3,11 @@ title: "Re-Designing an App for iOS 7"
 category: "5"
 date: "2013-10-07 05:00:00"
 tags: article
-author: "<a href=\"http://pixelflut.net/\">Holger Riegel</a> & <a href=\"http://twitter.com/myrronth\">Tobias Kreß</a>"
+author:
+  - name: Holger Riegel
+    url: http://pixelflut.net/
+  - name: Tobias Kreß
+    url: http://twitter.com/myrronth
 ---
 
 

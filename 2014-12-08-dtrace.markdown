@@ -3,7 +3,9 @@ title:  "DTrace"
 category: "19"
 date: "2014-12-08 08:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
 ---
 
 Few have heard of DTrace, a little gem tucked away somewhere inside the OS. It's a debugging power tool — powerful because it's extremely flexible, and probably relatively unknown because it is so very different from other tools out there.

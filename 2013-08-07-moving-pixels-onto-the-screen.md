@@ -2,7 +2,9 @@
 title: "Getting Pixels onto the Screen"
 category: "3"
 date: "2013-08-07 10:00:00"
-author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
 tags: article
 ---
 

@@ -3,7 +3,9 @@ title: Debugging Checklist
 category: "19"
 date: "2014-12-08 09:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: http://twitter.com/chriseidhof
 ---
 
 Finding bugs can be very time-consuming; almost every experienced developer can

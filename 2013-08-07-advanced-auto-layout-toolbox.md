@@ -2,7 +2,9 @@
 title: "Advanced Auto Layout Toolbox"
 category: "3"
 date: "2013-08-07 06:00:00"
-author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: http://twitter.com/floriankugler
 tags: article
 ---
 

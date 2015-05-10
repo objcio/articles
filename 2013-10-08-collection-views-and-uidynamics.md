@@ -3,7 +3,9 @@ title:  "UICollectionView + UIKit Dynamics"
 category: "5"
 date: "2013-10-07 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/ashfurrow\">Ash Furrow</a>"
+author:
+  - name: Ash Furrow
+    url: https://twitter.com/ashfurrow
 ---
 
 UIKit Dynamics is the new physics-based animation engine in iOS 7 – it has been specifically designed to work well with collection views, which were first introduced in iOS 6. We're going to take a tour of how you put these two together. 

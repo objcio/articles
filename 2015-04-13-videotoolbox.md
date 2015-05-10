@@ -3,7 +3,11 @@ title:  "Video Toolbox and Hardware Acceleration"
 category: "23"
 date: "2015-04-13 09:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/feepk\">Felix Paul Kühne</a> and <a href=\"https://twitter.com/_caro_n\">Carola Nitz</a>"
+author:
+  - name: Felix Paul Kühne
+    url: https://twitter.com/feepk
+  - name: Carola Nitz
+    url: https://twitter.com/_caro_n
 ---
 
 The process of decoding a video on OS X and iOS is complex.

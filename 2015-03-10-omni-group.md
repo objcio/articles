@@ -3,7 +3,9 @@ title:  "Inside Omni"
 category: "22"
 date: "2015-03-10 12:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/brentsimmons\">Brent Simmons</a>"
+author:
+  - name: Brent Simmons
+    url: https://twitter.com/brentsimmons
 ---
 
 The Omni Group is an employee-owned company where people bring their dogs to work.

@@ -3,7 +3,9 @@ title:  "iOS 7: Hidden Gems and Workarounds"
 category: "5"
 date: "2013-10-07 06:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/steipete\">Peter Steinberger</a>"
+author:
+  - name: Peter Steinberger
+    url: https://twitter.com/steipete
 ---
 
 When iOS 7 was first announced, Apple developers all over the world tried to compile their apps, and spent the next few months fixing whatever was broken, or even rebuilding the app from scratch. As a result, there wasn't much time to take a closer look at what's new in iOS 7. Apart from the obvious great small tweaks like NSArray's `firstObject`, which has been retroactively made public all the way back to iOS 4, there are a lot more hidden gems waiting to be discovered.

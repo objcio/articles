@@ -3,7 +3,9 @@ title:  "Animating Collection Views"
 category: "12"
 date: "2014-05-08 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/ekurutepe\">Engin Kurutepe</a>"
+author:
+  - name: Engin Kurutepe
+    url: https://twitter.com/ekurutepe
 ---
 
 `UICollectionView` and the set of associated classes are extremely flexible and powerful. But with this flexibility comes a certain dose of complexity: a collection view is a good deal deeper and more capable than the good old `UITableView`.

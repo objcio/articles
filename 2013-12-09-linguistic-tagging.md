@@ -3,7 +3,9 @@ title:  "Linguistic Tagging"
 category: "7"
 date: "2013-12-09 06:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/ojmason\">Oliver Mason</a>"
+author:
+  - name: Oliver Mason
+    url: https://twitter.com/ojmason
 ---
 
 One of the main challenges when handling natural language (as opposed to programming languages) is ambiguity. While programming languages are designed to have one and only one possible interpretation, human languages derive a lot of their power from being vague and unspecific, because sometimes you don't want to tell someone exactly how you feel about something. This is perfectly fine for social interaction, but it's a real pain when trying to process human language with a computer.

@@ -2,7 +2,9 @@
 title: "GPU-Accelerated Image Processing"
 category: "21"
 date: "2015-02-10 06:00:00"
-author: "<a href=\"https://twitter.com/RedQueenCoder\">Janie Clayton</a>"
+author:
+  - name: Janie Clayton
+    url: https://twitter.com/RedQueenCoder
 tags: article
 ---
 

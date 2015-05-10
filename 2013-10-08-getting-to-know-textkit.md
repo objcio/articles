@@ -3,7 +3,9 @@ title:  "Getting to Know TextKit"
 category: "5"
 date: "2013-10-07 11:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/macguru17\">Max Seelemann</a>"
+author:
+  - name: Max Seelemann
+    url: http://twitter.com/macguru17
 ---
 
 

@@ -3,7 +3,9 @@ title:  "Dancing in the Debugger — A Waltz with LLDB"
 category: "19"
 date: "2014-12-08 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/ari_grant\">Ari Grant</a>"
+author:
+  - name: Ari Grant
+    url: https://twitter.com/ari_grant
 ---
 
 Have you ever been stuck trying to understand your code and logged the contents of a variable?

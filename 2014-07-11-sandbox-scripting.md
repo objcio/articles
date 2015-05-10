@@ -2,7 +2,9 @@
 title: Scripting from a Sandbox
 category: "14"
 date: "2014-07-11 10:00:00"
-author: "<a href=\"https://twitter.com/chockenberry/\">Craig Hockenberry</a>"
+author:
+  - name: Craig Hockenberry
+    url: https://twitter.com/chockenberry/
 tags: article
 ---
 

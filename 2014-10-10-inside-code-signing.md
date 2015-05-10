@@ -2,7 +2,9 @@
 title: Inside Code Signing
 category: "17"
 date: "2014-10-10 10:00:00"
-author: "<a href=\"https://thomas.kollba.ch/\">Thomas 'toto' Kollbach</a>"
+author:
+  - name: Thomas 'toto' Kollbach
+    url: https://thomas.kollba.ch/
 tags: article
 ---
 

@@ -2,7 +2,9 @@
 title:  "GPU-Accelerated Machine Vision"
 category: "21"
 date: "2015-02-10 05:00:00"
-author: "<a href=\"https://twitter.com/bradlarson\">Brad Larson</a>"
+author:
+  - name: Brad Larson
+    url: https://twitter.com/bradlarson
 tags: article
 ---
 

@@ -2,7 +2,9 @@
 title:  "Behavior-Driven Development"
 category: "15"
 date: "2014-08-11 11:00:00"
-author: "<a href=\"https://twitter.com/eldudi\">Pawel Dudek</a>"
+author:
+  - name: Pawel Dudek
+    url: https://twitter.com/eldudi
 tags: article
 ---
 

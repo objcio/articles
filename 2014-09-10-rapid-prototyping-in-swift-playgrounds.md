@@ -2,7 +2,9 @@
 title:  "Rapid Prototyping in Swift Playgrounds"
 category: "16"
 date: "2014-09-10 07:00:00"
-author: "<a href=\"https://twitter.com/bradlarson\">Brad Larson</a>"
+author:
+  - name: Brad Larson
+    url: https://twitter.com/bradlarson
 tags: article
 ---
 

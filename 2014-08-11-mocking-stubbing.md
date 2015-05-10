@@ -2,7 +2,9 @@
 title: "Test Doubles: Mocks, Stubs, and More"
 category: "15"
 date: "2014-08-11 07:00:00"
-author: "<a href=\"http://lazerwalker.com\">Mike Lazer-Walker</a>"
+author:
+  - name: Mike Lazer-Walker
+    url: http://lazerwalker.com
 tags: article
 ---
 

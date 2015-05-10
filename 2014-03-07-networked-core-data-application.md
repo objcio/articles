@@ -3,7 +3,9 @@ title:  "A Networked Core Data Application"
 category: "10"
 date: "2014-03-07 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: https://twitter.com/chriseidhof
 ---
 
 

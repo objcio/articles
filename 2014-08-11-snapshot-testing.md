@@ -2,7 +2,9 @@
 title:  "Snapshot Testing"
 category: "15"
 date: "2014-08-11 05:00:00"
-author: "<a href=\"https://orta.github.io\">Orta Therox</a>"
+author:
+  - name: Orta Therox
+    url: https://orta.github.io
 tags: article
 ---
 

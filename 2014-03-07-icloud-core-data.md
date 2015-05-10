@@ -3,7 +3,11 @@ title:  "iCloud and Core Data"
 category: "10"
 date: "2014-03-07 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/mb\">Matthew Bischoff</a> & <a href=\"https://twitter.com/bcapps\">Brian Capps</a>"
+author:
+  - name: Matthew Bischoff
+    url: https://twitter.com/mb
+  - name: Brian Capps
+    url: https://twitter.com/bcapps
 ---
 
 

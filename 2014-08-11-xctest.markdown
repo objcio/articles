@@ -3,7 +3,11 @@ title:  "Real-World Testing with XCTest"
 category: "15"
 date: "2014-08-11 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/arneschroppe\">Arne Schroppe</a> and <a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Arne Schroppe
+    url: https://twitter.com/arneschroppe
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
 ---
 
 Almost four months ago, our team (Marco, Arne, and Daniel) set out to write the model layer of a new app. We wanted to use testing as part of our development process. After some discussion, we chose [XCTest](https://developer.apple.com/library/prerelease/ios/documentation/DeveloperTools/Conceptual/testing_with_xcode/) as our testing framework.

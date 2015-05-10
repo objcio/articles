@@ -3,7 +3,9 @@ title:  "The Navigator App"
 category: "8"
 date: "2014-01-08 09:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: https://twitter.com/chriseidhof
 ---
 
 In this article, we'll tie together all the different parts of our system and build the navigator app. This is the app that will run on the iPhone that's attached to our drone; you can check out the app [on GitHub](https://github.com/objcio/issue-8-quadcopter-navigator). Even though the app is meant to be used without direct interaction, during testing we made a small UI that showed us the drone's state and allowed us to perform commands manually.

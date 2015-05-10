@@ -2,7 +2,9 @@
 title: Core Data Overview
 category: "4"
 date: "2013-09-09 11:00:00"
-author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
 tags: article
 ---
 

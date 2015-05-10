@@ -3,7 +3,9 @@ title: "Mach-O Executables"
 category: "6"
 date: "2013-11-08 09:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
 ---
 
 When we build an application in Xcode, part of what happens is that the sources files (`.m` and `.h`) get turned into an executable. This executable contains the byte code than will run on the CPU, the ARM processor on the iOS device, or the Intel processor on your Mac.

@@ -3,7 +3,9 @@ title:  "String Localization"
 category: "9"
 date: "2014-02-10 09:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: https://twitter.com/floriankugler
 ---
 
 Localizing apps into multiple languages comes with a variety of different tasks. Since this issue is all about strings, we're going to take a look at the topic of string localization. String localization comes in two different flavors: strings in code and strings in nib files and storyboards. We're going to focus on strings in code in this article.

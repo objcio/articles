@@ -3,7 +3,9 @@ title: "IP, TCP, and HTTP"
 category: "10"
 date: "2014-03-07 06:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
 ---
 
 When an app communicates with a server, more often than not, that communication happens over HTTP. HTTP was developed for web browsers: when you enter http://www.objc.io into your browser, the browser talks to the server named www.objc.io using HTTP.

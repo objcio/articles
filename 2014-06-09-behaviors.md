@@ -3,7 +3,9 @@ title:  "Behaviors in iOS Apps"
 category: "13"
 date: "2014-06-09 09:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/merowing_\">Krzysztof Zabłocki</a>"
+author:
+  - name: Krzysztof Zabłocki
+    url: https://twitter.com/merowing_
 ---
 
 As developers, we strive to write clean and well-structured code. There are many patterns we can use to make it happen, and one of the best ones is composition. Composition makes it easier to follow the Single Responsibility Principle and simplify our classes. 

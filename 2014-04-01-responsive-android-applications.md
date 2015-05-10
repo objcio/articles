@@ -3,7 +3,9 @@ title:  "Responsive Android Applications"
 category: "11"
 date: "2014-04-01 09:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/Cstew\">Chris Stewart</a>"
+author:
+  - name: Chris Stewart
+    url: https://twitter.com/Cstew
 ---
 
 ## Introduction

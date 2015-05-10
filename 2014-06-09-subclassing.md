@@ -3,7 +3,9 @@ title:  "Subclassing"
 category: "13"
 date: "2014-06-09 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: https://twitter.com/chriseidhof
 ---
 
 This article is a little bit different from the usual articles I write. It's more a collection of thoughts and patterns than a guide. Almost all the patterns I will describe are found out the hard way: by making mistakes. By no means do I consider myself an authority on subclassing, but I did want to share a few things I've learned. Don't read this as a definitive guide, but rather as a collection of examples.

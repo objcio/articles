@@ -3,7 +3,9 @@ title:  "The Client App"
 category: "8"
 date: "2014-01-08 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: https://twitter.com/floriankugler
 ---
 
 

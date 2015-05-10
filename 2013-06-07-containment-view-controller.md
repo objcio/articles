@@ -2,7 +2,9 @@
 title:  "View Controller Containment"
 category: "1"
 date: "2013-06-07 08:00:00"
-author: "<a href=\"https://twitter.com/rickigregersen\">Ricki Gregersen</a>"
+author:
+  - name: Ricki Gregersen
+    url: https://twitter.com/rickigregersen
 tags: article
 ---
 

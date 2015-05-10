@@ -3,7 +3,9 @@ title:  "Avoiding Singleton Abuse"
 category: "13"
 date: "2014-06-09 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/stephenpoletto\">Stephen Poletto</a>"
+author:
+  - name: Stephen Poletto
+    url: https://twitter.com/stephenpoletto
 ---
 
 Singletons are one of the core design patterns used throughout Cocoa. In fact, Apple's Developer Library considers the singleton one of the "Cocoa Core Competencies." As iOS developers, we're familiar with interacting with singletons, from `UIApplication` to `NSFileManager`. We've seen countless examples of singleton usage in open-source projects, in Apple's code samples, and on StackOverflow. Xcode even has a default code snippet, the "Dispatch Once" snippet, which makes it incredibly easy to add a singleton to your code:

@@ -3,7 +3,9 @@ title:  "Animations Explained"
 category: "12"
 date: "2014-05-08 11:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/ceterum_censeo\">Robert Böhnke</a>"
+author:
+  - name: Robert Böhnke
+    url: https://twitter.com/ceterum_censeo
 ---
 
 The applications we write are rarely a static experience, as they adapt to the user's needs and change states to perform a multitude of tasks.

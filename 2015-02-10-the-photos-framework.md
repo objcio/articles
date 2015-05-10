@@ -2,7 +2,9 @@
 title:  "The Photos Framework"
 category: "21"
 date: "2015-02-10 08:00:00"
-author: "<a href=\"https://twitter.com/saniul\">Saniul Ahmed</a>"
+author:
+  - name: Saniul Ahmed
+    url: https://twitter.com/saniul
 tags: article
 ---
 

@@ -3,7 +3,9 @@ title: "Key-Value Coding and Observing"
 category: "7"
 date: "2013-12-09 09:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
 ---
 
 

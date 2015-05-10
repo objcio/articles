@@ -3,7 +3,9 @@ title: "Communicating with the Quadcopter"
 category: "8"
 date: "2014-01-08 10:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
 ---
 
 

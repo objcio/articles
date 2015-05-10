@@ -2,7 +2,9 @@
 title: "Understanding Scroll Views"
 category: "3"
 date: "2013-08-07 09:00:00"
-author: "<a href=\"http://stablekernel.com\">Joe Conway</a>"
+author:
+  - name: Joe Conway
+    url: http://stablekernel.com
 tags: article
 ---
 

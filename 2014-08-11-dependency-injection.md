@@ -2,7 +2,9 @@
 title: Dependency Injection
 category: "15"
 date: "2014-08-11 09:00:00"
-author: "<a href=\"http://qualitycoding.org/about/\">Jon Reid</a>"
+author:
+  - name: Jon Reid
+    url: http://qualitycoding.org/about/
 tags: article
 ---
 

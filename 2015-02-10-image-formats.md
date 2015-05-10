@@ -3,7 +3,9 @@ title:  "Image Formats"
 category: "21"
 date: "2015-02-10 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/ojmason\">Oliver Mason</a>"
+author:
+  - name: Oliver Mason
+    url: https://twitter.com/ojmason
 ---
 
 

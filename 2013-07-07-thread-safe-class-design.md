@@ -2,7 +2,9 @@
 title:  "Thread-Safe Class Design"
 category: "2"
 date: "2013-07-07 07:00:00"
-author: "<a href=\"https://twitter.com/steipete\">Peter Steinberger</a>"
+author:
+  - name: Peter Steinberger
+    url: https://twitter.com/steipete
 tags: article
 ---
 

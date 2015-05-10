@@ -2,7 +2,9 @@
 title: Making Your Mac App’s Data Scriptable
 category: "14"
 date: "2014-07-11 11:00:00"
-author: "<a href=\"http://inessential.com/\">Brent Simmons</a>"
+author:
+  - name: Brent Simmons
+    url: http://inessential.com/
 tags: article
 ---
 

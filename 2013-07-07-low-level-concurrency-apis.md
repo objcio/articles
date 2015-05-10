@@ -2,7 +2,9 @@
 title:  "Low-Level Concurrency APIs"
 category: "2"
 date: "2013-07-07 8:00:00"
-author: "<a href=\"https://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Daniel Eggert
+    url: https://twitter.com/danielboedewadt
 tags: article
 ---
 

@@ -3,7 +3,9 @@ title:  "SQLite Database Support in Android"
 category: "11"
 date: "2014-04-01 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/jwkelso\">James Kelso</a>"
+author:
+  - name: James Kelso
+    url: https://twitter.com/jwkelso
 ---
 
 

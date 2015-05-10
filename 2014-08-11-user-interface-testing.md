@@ -2,7 +2,9 @@
 title: User Interface Testing
 category: "15"
 date: "2014-08-11 06:00:00"
-author: "<a href=\"http://annema.me\">Klaas Pieter Annema</a>"
+author:
+  - name: Klaas Pieter Annema
+    url: http://annema.me
 tags: article
 ---
 

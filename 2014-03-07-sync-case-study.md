@@ -3,7 +3,9 @@ title:  "A Sync Case Study"
 category: "10"
 date: "2014-03-07 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: https://twitter.com/floriankugler
 ---
 
 A while ago I was working together with [Chris](https://twitter.com/chriseidhof) on an enterprise iPad application that was to be deployed in a large youth sports organization. We chose to use Core Data for our persistency needs and built a custom data synchronization solution around it that fit our needs. In the syncing grid explained in [Drew's article](/issue-10/data-synchronization.html), this solution uses the asynchronous client-server approach.

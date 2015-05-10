@@ -3,7 +3,9 @@ title:  "Animating Custom Layer Properties"
 category: "12"
 date: "2014-05-08 10:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/nicklockwood\">Nick Lockwood</a>"
+author:
+  - name: Nick Lockwood
+    url: http://twitter.com/nicklockwood
 ---
 
 By default, almost every standard property of `CALayer` and its subclasses can be animated, either by adding a `CAAnimation` to the layer (explicit animation), or by specifying an action for the property and then modifying it (implicit animation).

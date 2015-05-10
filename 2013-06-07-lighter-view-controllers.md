@@ -2,7 +2,9 @@
 title:  "Lighter View Controllers"
 category: "1"
 date: "2013-06-07 11:00:00"
-author: "<a href=\"http://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: http://twitter.com/chriseidhof
 tags: article
 ---
 

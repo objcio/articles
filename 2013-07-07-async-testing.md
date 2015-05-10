@@ -3,7 +3,9 @@ title:  "Testing Concurrent Applications"
 category: "2"
 tags: article
 date: "2013-07-07 06:00:00"
-author: "<a href=\"http://twitter.com/anagrom_ataf/\">Tobias Kräntzer</a>"
+author:
+  - name: Tobias Kräntzer
+    url: http://twitter.com/anagrom_ataf/
 ---
 
 Testing is an important tool during the development process to create high quality applications. In the past, when concurrency was not such an important part of application architecture, testing was straightforward. Over the past few years it has become more and more important to use concurrent design patterns and we were challenged to develop new best practices to test them.

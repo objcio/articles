@@ -3,7 +3,11 @@ title:  "Core Image and Video"
 category: "23"
 date: "2015-04-13 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/danielboedewadt\">Daniel Eggert</a> and <a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Daniel Eggert
+    url: https://twitter.com/danielboedewadt
+  - name: Chris Eidhof
+    url: https://twitter.com/chriseidhof
 
 ---
 

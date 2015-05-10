@@ -2,7 +2,9 @@
 title: Importing Large Data Sets
 category: "4"
 date: "2013-09-09 07:00:00"
-author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: http://twitter.com/floriankugler
 tags: article
 ---
 

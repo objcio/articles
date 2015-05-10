@@ -3,7 +3,13 @@ title:  "String Rendering"
 category: "9"
 date: "2014-02-07 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/chriseidhof\">Chris</a>, <a href=\"http://twitter.com/danielboedewadt\">Daniel</a>, and <a href=\"https://twitter.com/floriankugler\">Florian</a>"
+author:
+  - name: Chris
+    url: https://twitter.com/chriseidhof
+  - name: Daniel
+    url: http://twitter.com/danielboedewadt
+  - name: Florian
+    url: https://twitter.com/floriankugler
 ---
 
 

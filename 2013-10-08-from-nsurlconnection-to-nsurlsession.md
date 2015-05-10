@@ -3,7 +3,9 @@ title:  "From NSURLConnection to NSURLSession"
 category: "5"
 date: "2013-10-07 08:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/mattt\">Mattt Thompson</a>"
+author:
+  - name: Mattt Thompson
+    url: http://twitter.com/mattt
 ---
 
 One of the more significant changes in iOS 7 and Mac OS X 10.9 Mavericks was the overhaul of the Foundation URL Loading System.

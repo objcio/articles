@@ -3,7 +3,9 @@ title:  "XPC"
 category: "14"
 date: "2014-07-11 08:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
 ---
 
 ## About XPC

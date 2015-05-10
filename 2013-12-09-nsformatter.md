@@ -3,7 +3,9 @@ title:  "Custom Formatters"
 category: "7"
 date: "2013-12-09 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/klaaspieter\">Klaas Pieter Annema</a>"
+author:
+  - name: Klaas Pieter Annema
+    url: https://twitter.com/klaaspieter
 ---
 
 When formatting data into a user-readable format we tend to use quick one-off solutions. This is a shame because Foundation comes with `NSFormatter`, which is perfectly suited for this task and can be easily reused throughout your code base. Heck, if you're on a Mac, AppKit classes have built-in support for `NSFormatter`, making your life a lot easier.

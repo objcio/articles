@@ -3,7 +3,9 @@ title:  "Data Synchronization"
 category: "10"
 date: "2014-03-07 11:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/drewmccormack\">Drew McCormack</a>"
+author:
+  - name: Drew McCormack
+    url: https://twitter.com/drewmccormack
 ---
 
 <br/>

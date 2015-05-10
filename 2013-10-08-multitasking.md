@@ -3,7 +3,9 @@ title: "Multitasking in iOS 7"
 category: "5"
 date: "2013-10-07 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/dcaunt\">David Caunt</a>"
+author:
+  - name: David Caunt
+    url: https://twitter.com/dcaunt
 ---
 
 

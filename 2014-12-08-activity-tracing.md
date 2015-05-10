@@ -3,7 +3,9 @@ title:  "Activity Tracing"
 category: "19"
 date: "2014-12-08 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: https://twitter.com/floriankugler
 ---
 
 

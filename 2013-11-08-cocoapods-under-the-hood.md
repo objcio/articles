@@ -3,7 +3,9 @@ title:  "CocoaPods Under The Hood"
 category: "6"
 date: "2013-11-08 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/micheletitolo\">Michele Titolo</a>"
+author:
+  - name: Michele Titolo
+    url: https://twitter.com/micheletitolo
 ---
 
 

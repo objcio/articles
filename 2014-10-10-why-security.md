@@ -2,7 +2,9 @@
 title: Why Security Still Matters Today
 category: "17"
 date: "2014-10-10 11:00:00"
-author: "<a href=\"http://twitter.com/secboffin\">Graham Lee</a>"
+author:
+  - name: Graham Lee
+    url: http://twitter.com/secboffin
 tags: article
 ---
 

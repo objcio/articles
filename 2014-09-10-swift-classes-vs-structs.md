@@ -2,7 +2,9 @@
 title:  "A Warm Welcome to Structs and Value Types"
 category: "16"
 date: "2014-09-10 10:00:00"
-author: "<a href=\"https://twitter.com/andy_matuschak\">Andy Matuschak</a>"
+author:
+  - name: Andy Matuschak
+    url: https://twitter.com/andy_matuschak
 tags: article
 ---
 

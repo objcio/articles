@@ -2,7 +2,9 @@
 title: Custom Core Data Migrations
 category: "4"
 date: "2013-09-06 05:00:00"
-author: "<a href=\"http://github.com/hwaxxer\">Martin Hwasser</a>"
+author:
+  - name: Martin Hwasser
+    url: http://github.com/hwaxxer
 tags: article
 ---
 

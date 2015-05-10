@@ -2,7 +2,9 @@
 title: "Testing View Controllers"
 category: "1"
 date: "2013-06-07 09:00"
-author: "<a href=\"https://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Daniel Eggert
+    url: https://twitter.com/danielboedewadt
 tags: article
 ---
 

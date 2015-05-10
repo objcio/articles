@@ -3,7 +3,9 @@ title:  Capturing Video on iOS
 category: "23"
 date: "2015-04-13 11:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/astellingwerff\">Adriaan Stellingwerff</a>"
+author:
+  - name: Adriaan Stellingwerff
+    url: https://twitter.com/astellingwerff
 
 ---
 

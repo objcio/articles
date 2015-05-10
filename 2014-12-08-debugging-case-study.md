@@ -2,7 +2,9 @@
 title:  "Debugging: A Case Study"
 category: "19"
 date: "2014-12-08 11:00:00"
-author: "<a href=\"https://twitter.com/steipete\">Peter Steinberger</a>"
+author:
+  - name: Peter Steinberger
+    url: https://twitter.com/steipete
 tags: article
 ---
 
