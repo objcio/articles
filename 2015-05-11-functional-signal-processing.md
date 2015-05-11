@@ -230,7 +230,7 @@ Frankly, I feel that Swift is in the right hands at Apple and we will see the po
 Future Work
 -----------
 
-I will keep this "Functional DSP" project up at GitHub if you would like to follow along or contribute ideas as I play around with the concepts. I plan to investigate more complex blocks, such as those that require FFTs to calculate their output, or blocks that require "memory" in order to operate (such as FIR filters, etc.)
+I will keep this ["Functional DSP" project](http://github.com/liscio/FunctionalDSP) up at GitHub if you would like to follow along or contribute ideas as I play around with the concepts. I plan to investigate more complex blocks, such as those that require FFTs to calculate their output, or blocks that require "memory" in order to operate (such as FIR filters, etc.)
 
 Bibliography
 ------------
