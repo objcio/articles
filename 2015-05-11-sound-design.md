@@ -6,10 +6,6 @@ tags: article
 author: "<a href=\"https://twitter.com/rx_tx\">Aaron Day</a>"
 ---
 
-
-
-# Play, Fail, Iterate: Sound Design for Products
-
 Our world gets noisier every day. This is the case for all modalities, and not just sound. Alerts and cues blink, beep, jingle, and vibrate from an ever-expanding array of sources. If there is a “war” for our attention, the only guarantee is that there will be no winners. Consider over-compressed and dynamically limited music where “everything is as loud as everything else.” This can be an impressive and even enjoyable experience for a limited amount of time. Over a longer period, however, the listener is left fatigued. If we create a product where modalities are unnecessarily stacked, e.g. you are looking at it and it blinks and it beeps and it vibrates, we will get the same effect: overloaded perceptual bandwidth, fatigue, and frustration with the product.
 
 We can do better. Let's reduce the collective load on our perceptual bandwidth. How? By starting with a careful integration of sound with the other aspects of interaction design. Use it where it's needed, and even then, with respect for the idea that a given sound or alert comprising sound and some visual or haptic element might be experienced by someone many thousands of times or more during his or her exposure to our product. 
@@ -32,7 +28,7 @@ The graphic below is a mental model that might help in implementing this idea.
 
 The user experience of a given interaction can be seen as the sum of the physical, graphical, and audio interfaces over time. The ratio of the different modalities changes over time according to context and interaction flow (see graphic). There are cases such as targeted interactions, e.g. looking directly at the GUI where the AUI (audio user interface) part of the venn diagram might be very small or nonexistent, whereas for an “eyes-free” interaction such as an incoming phone call, the AUI would be much more important. These rations change over time depending on the use case or cases, and in the end provide the basis for a user’s experience.
 
-![The user experience of an interaction can be seen as the sum of the physical, graphical, and audio interfaces over time](/images/sum-of-interfaces.png)
+![The user experience of an interaction can be seen as the sum of the physical, graphical, and audio interfaces over time](/images/issue-24/sum-of-interfaces.png)
 
 ### 3. Reproduce well on the target.
 
@@ -53,7 +49,7 @@ To hit a moving target, you have to aim ahead of it.
 Less-than-optimal audio hardware, such as tiny little speakers, underpowered amplifiers, extremely band-limited frequency response, etc. has been the hobgoblin of sound design for many products for a long time — especially mobile devices. There were mobile devices that had good sound hardware before the iPhone, but none that had the same impact. After the iPhone came out, user expectations went up. They are continuing to go up, and this should be reflected in whatever sound design you incorporate into your product. Design for the “late now” and the future. Furthermore, interfaces are getting smaller, to the point of disappearing altogether, e.g. wearables (see graphic). Sound design just got some new pants.
 
 
-![Size of physical display vs. importance of auditive and tactile display](/images/size-vs-auditive.png)
+![Size of physical display vs. importance of auditive and tactile display](/images/issue-24/size-vs-auditive.png)
 
 
 ### Is That All? 
@@ -69,12 +65,3 @@ No. There is more, but that is a start. These guidelines are no guarantee for su
  * Confirm stakeholder buy-in and integrate sound into the beginning of the design process.
  * Don’t let app store reviews rule your life! You will never make everyone happy all the time, especially with sound. 
  * Play. Fail. Iterate.
-
-
-
-
-
-----
-
-
-Aaron Day lives in Berlin, Germany, and has been designing sounds and interactions since 1998. He currently designs sound for Wire and tweets at @rx_tx.
