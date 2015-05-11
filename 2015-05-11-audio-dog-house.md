@@ -1,7 +1,7 @@
 ---
 title:  "The Audio Processing Dog House"
 category: "24"
-date: "2015-05-13 09:00:00"
+date: "2015-05-11 11:00:00"
 tags: article
 illustrations: true
 stylesheets: "issue-24/style.css"

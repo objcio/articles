@@ -1,7 +1,7 @@
 ---
 title:  "Functional Signal Processing Using Swift"
 category: "24"
-date: "2015-05-13 09:00:00"
+date: "2015-05-11 10:00:00"
 tags: article
 author: "<a href=\"https://twitter.com/liscio\">Chris Liscio</a>"
 ---

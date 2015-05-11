@@ -1,9 +1,8 @@
 ---
 title:  "Play, Fail, Iterate: Sound Design for Products"
 category: "24"
-date: "2015-05-13 10:00:00"
+date: "2015-05-11 9:00:00"
 tags: article
-author: "Aaron"
 author: "<a href=\"https://twitter.com/rx_tx\">Aaron Day</a>"
 ---
 
