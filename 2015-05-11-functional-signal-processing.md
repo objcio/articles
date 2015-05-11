@@ -237,8 +237,8 @@ Bibliography
 
 While writing this article, I stumbled upon the following papers that I recommend you delve further into if you are interested in this area of research. There are many more out there, but in the limited time I had, these seemed like really good starting points.
 
-Thielemann, H. (2004). Audio Processing using Haskell.
-Cheng, E., & Hudak, P. (2009). Audio Processing and Sound Synthesis in Haskell.
+* Thielemann, H. (2004). Audio Processing using Haskell.
+* Cheng, E., & Hudak, P. (2009). Audio Processing and Sound Synthesis in Haskell.
 
 
 [faust]: http://sourceforge.net/projects/faudiostream/
