@@ -72,7 +72,7 @@ author: "<a href=\"https://twitter.com/JackSchaedler\">Jack Schaedler</a>"
 I'm not sure if this concept is universal, but in North America, the archetypal project for a young and aspiring carpenter is the creation of a dog house; when children become curious about construction and want to fiddle around with hammers, levels, and saws, their parents will instruct them to make one. In many respects, the dog house is a perfect project for the enthusiastic novice. It's grand enough to be inspiring, but humble enough to preclude a sense of crushing defeat if the child happens to screw it up or lose interest halfway through. The dog house is appealing as an introductory project because it is a miniature "Gesamtwerk." It requires design, planning, engineering, and manual craftsmanship. It's easy to tell when the project is complete. When Puddles can overnight in the dog house without becoming cold or wet, the project is a success.
 
 
-<img src="http://jackschaedler.github.io/objcio-article/pic1.png"></img>
+<img src="/images/issue-24/pic1.png"></img>
 
 I'm certain that most earnest and curious developers — the kind that set aside their valuable time on evenings and weekends to read a periodical like objc.io — often find themselves in a situation where they're attempting to evaluate tools and understand new and difficult concepts without having an inspiring or meaningful project handy for application. If you're like me, you've probably experienced that peculiar sense of dread that follows the completion of a "Hello World!" tutorial. The jaunty phase of editor configuration and project setup comes to a disheartening climax when you realize that you haven't the foggiest idea what you actually want to <i>make</i> with your new tools. What was previously an unyielding desire to learn Haskell, Swift, or C++ becomes tempered by the utter absence of a compelling project to keep you engaged and motivated.
 
@@ -88,7 +88,7 @@ As an introductory project to learn audio signal processing, I suggest that you 
 
 Think of the game "Rock Band" and the algorithm that must exist in order to analyze and evaluate the singing player's vocal performance. This algorithm must listen to the device microphone and automatically compute the frequency at which the player is singing, in real time. Assuming that you have a plump opera singer at hand, we can only hope that the project will end up looking something like this:[^1a]
 
-<img src="http://jackschaedler.github.io/objcio-article/pic2.png"></img>
+<img src="/images/issue-24/pic2.png"></img>
 
 I've italicized the word monophonic because it's an important qualifier. A musical performance is <i>monophonic</i> if there is only ever a single note being played at any given time. A melodic line is monophonic. Harmonic and chordal performances are <i>not</i> monophonic, but instead <i>polyphonic</i>. If you're singing, playing the trumpet, blowing on a tin whistle, or tapping on the keyboard of a Minimoog, you are performing a monophonic piece of music. These instruments do not allow for the production of two or more simultaneous notes. If you're playing a piano or guitar, it's quite likely that you are generating a polyphonic audio signal, unless you're taking great pains to ensure that only one string rings out at any given time.
 
@@ -100,7 +100,7 @@ In the next section, I'll introduce the notion of wave <i>frequency</i> and begi
 
 ## Sound, Signals, and Frequency
 
-<img src="http://jackschaedler.github.io/objcio-article/pic3.png"></img>
+<img src="/images/issue-24/pic3.png"></img>
 
 Musical instruments generate sound by rapidly vibrating. As an object vibrates, it generates a <a href="http://jackschaedler.github.io/circles-sines-signals/sound.html">longitudinal pressure wave</a>, which radiates into the surrounding air. When this pressure wave reaches your ear, your auditory system will interpret the fluctuations in pressure as a sound. Objects that vibrate regularly and periodically generate sounds which we interpret as tones or notes. Objects that vibrate in a non-regular or random fashion generate atonal or noisy sounds. The most simple tones are described by the sine wave.
 
@@ -246,7 +246,7 @@ In the next section, we'll apply the dot product in a clever way to identify cyc
 
 ## Autocorrelation
 
-<img src="http://jackschaedler.github.io/objcio-article/pic5.png"></img>
+<img src="/images/issue-24/pic5.png"></img>
 
 The autocorrelation is like an auto portrait, or an autobiography. It's the correlation of a signal with <i>itself</i>. We compute the autocorrelation by computing the dot product of a signal with a copy of itself at various shifts or time <i>lags</i>. Let's assume that we have a compound signal that looks something like the waveform shown in the figure below.
 
@@ -304,7 +304,7 @@ Autocorrelation as implemented in its naive form is an <i>O(N<sup>2</sup>)</i> o
 
 ## Latency and the Waiting Game
 
-<img src="http://jackschaedler.github.io/objcio-article/pic4.png"></img>
+<img src="/images/issue-24/pic4.png"></img>
 
 
 Real-time audio applications partition time into chunks or <i>buffers</i>. In the case of iOS and OS X development, Core Audio will deliver buffers of audio to your application from an input source like a microphone or input jack and expect you to regularly provide a buffer's worth of audio in the rendering callback. It may seem trivial, but it's important to understand the relationship of your application's audio buffer size to the sort of audio material you want to consider in your analysis algorithms.
@@ -376,7 +376,7 @@ If you're interested in more advanced techniques for <i>polyphonic</i> fundament
 
 If you're feeling inspired enough to start on your own dog house, feel free to <a href="https://twitter.com/JackSchaedler">contact me</a> on Twitter with any questions, complaints, or comments about the content of this article. Happy building!
 
-<img src="http://jackschaedler.github.io/objcio-article/pic6.png"></img>
+<img src="/images/issue-24/pic6.png"></img>
 
 ## Footnotes
 
