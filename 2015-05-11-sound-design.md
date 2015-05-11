@@ -28,7 +28,7 @@ The graphic below is a mental model that might help in implementing this idea.
 
 The user experience of a given interaction can be seen as the sum of the physical, graphical, and audio interfaces over time. The ratio of the different modalities changes over time according to context and interaction flow (see graphic). There are cases such as targeted interactions, e.g. looking directly at the GUI where the AUI (audio user interface) part of the venn diagram might be very small or nonexistent, whereas for an “eyes-free” interaction such as an incoming phone call, the AUI would be much more important. These rations change over time depending on the use case or cases, and in the end provide the basis for a user’s experience.
 
-![The user experience of an interaction can be seen as the sum of the physical, graphical, and audio interfaces over time](/images/issue-24/sum-of-interfaces.png)
+![The user experience of an interaction can be seen as the sum of the physical, graphical, and audio interfaces over time](/images/issue-24/sum-of-interfaces.svg)
 
 ### 3. Reproduce well on the target.
 
@@ -49,7 +49,7 @@ To hit a moving target, you have to aim ahead of it.
 Less-than-optimal audio hardware, such as tiny little speakers, underpowered amplifiers, extremely band-limited frequency response, etc. has been the hobgoblin of sound design for many products for a long time — especially mobile devices. There were mobile devices that had good sound hardware before the iPhone, but none that had the same impact. After the iPhone came out, user expectations went up. They are continuing to go up, and this should be reflected in whatever sound design you incorporate into your product. Design for the “late now” and the future. Furthermore, interfaces are getting smaller, to the point of disappearing altogether, e.g. wearables (see graphic). Sound design just got some new pants.
 
 
-![Size of physical display vs. importance of auditive and tactile display](/images/issue-24/size-vs-auditive.png)
+![Size of physical display vs. importance of auditive and tactile display](/images/issue-24/size-vs-auditive.svg)
 
 
 ### Is That All? 
