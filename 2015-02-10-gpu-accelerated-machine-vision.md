@@ -246,7 +246,7 @@ Straight lines are another large-scale feature we might want to detect in a scen
 
 Many line detection processes are based on a Hough transform, which is a technique where points in a real-world, Cartesian coordinate space are converted to another coordinate space. Calculations are then performed in this alternate coordinate space and the results converted back into normal space to determine the location of lines or other features. Unfortunately, many of these proposed calculations aren't suited for being run on a GPU because they aren't sufficiently parallel in nature, and they require intense mathematical operations, like trigonometry functions, to be performed at each pixel.
 
-In 2011, Dubská, *et al.*[^10] [^11]</sup> proposed a much simpler, more elegant way of performing this coordinate space transformation and analysis — one that was ideally suited to being run on a GPU. Their process relies on a concept called parallel coordinate space, which sounds completely abstract, but I'll show how it's actually fairly simple to understand.
+In 2011, Dubská, *et al.*[^10] [^11] proposed a much simpler, more elegant way of performing this coordinate space transformation and analysis — one that was ideally suited to being run on a GPU. Their process relies on a concept called parallel coordinate space, which sounds completely abstract, but I'll show how it's actually fairly simple to understand.
 
 Let's take a line and pick three points within it:
 
