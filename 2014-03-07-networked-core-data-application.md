@@ -36,7 +36,7 @@ First, it is nice to create a separate class that imports things from the web se
         "name": "500px-iOS-api",
       ...
 
-We want to create a class that has only one method, `fetchAllPods:`, that takes a callback block, which gets called for every page. It could also have been done using delegation; why we chose to have a block is something you can read in the article on [communication patterns](http://www.objc.io/issue-7/communication-patterns.html):
+We want to create a class that has only one method, `fetchAllPods:`, that takes a callback block, which gets called for every page. It could also have been done using delegation; why we chose to have a block is something you can read in the article on [communication patterns](/issue-7/communication-patterns.html):
 
     @interface PodsWebservice : NSObject
     - (void)fetchAllPods:(void (^)(NSArray *pods))callback;

@@ -17,7 +17,7 @@ In this article, we'll look into applying Core Image effects to live video. We'l
 
 Performance is very important when it comes to video. And it's important to understand how things work under the hood — how Core Image does its work — in order to be able to deliver that performance. It's important to do as much work on the GPU as possible, and minimize the transferring of data between GPU and CPU. After the examples, we'll look into the details of this.
 
-To get a feeling for Core Image, it's good to read Warren's article: [An Introduction to Core Image](/issue-21/core-image-intro.html). We'll use the functional wrappers around `CIFilter` as described in [Functional Core Image](/issue-16/functional-swift-apis.html). To understand more about AVFoundation, have a look at [Adriaan's article](/issue-23/capturing-video.html) in this issue and the [Camera Capture](http://www.objc.io/issue-21/camera-capture-on-ios.html) article in Issue #21.
+To get a feeling for Core Image, it's good to read Warren's article: [An Introduction to Core Image](/issue-21/core-image-intro.html). We'll use the functional wrappers around `CIFilter` as described in [Functional Core Image](/issue-16/functional-swift-apis.html). To understand more about AVFoundation, have a look at [Adriaan's article](/issue-23/capturing-video.html) in this issue and the [Camera Capture](/issue-21/camera-capture-on-ios.html) article in Issue #21.
 
 ## Harnessing OpenGL ES
 
@@ -76,14 +76,14 @@ When you run this, you might be surprised by the lack of CPU usage. The great th
 Here's a video of the result:
 
 <video controls="1">
-  <source src="http://www.objc.io/images/issue-23/camera.m4v"></source>
+  <source src="/images/issue-23/camera.m4v"></source>
 </video>
 
 ## Getting Pixel Data from a Movie File
 
 Another thing we can do is filter a movie through Core Image. Instead of camera frames, we now generate pixel buffers from each movie frame. We will take a slightly different approach here. While the camera pushed frames to us, we use a pull-driven approach for the movie: using a display link, we ask AVFoundation for a frame at a specific time.
 
-A display link is an object that sends us messages every time a frame needs to be drawn, and sends this synchronously with the display's refresh rate. This is often used for [custom animations](http://www.objc.io/issue-12/interactive-animations.html), but can be used to play and manipulate video as well. The first thing we will do is create an `AVPlayer` and a video output:
+A display link is an object that sends us messages every time a frame needs to be drawn, and sends this synchronously with the display's refresh rate. This is often used for [custom animations](/issue-12/interactive-animations.html), but can be used to play and manipulate video as well. The first thing we will do is create an `AVPlayer` and a video output:
 
 ```swift
 player = AVPlayer(URL: url)
@@ -113,7 +113,7 @@ func displayLinkDidRefresh(link: CADisplayLink) {
 The pixel buffer that we get from a video output is a `CVPixelBuffer`, which we can directly convert into a `CIImage`. Like in the sample above, we will filter this image. In this case, we'll combine multiple filters: we use a kaleidoscope effect, and then use gradient mask to combine the original image with the filtered image. The result is slightly funky:
 
 <video controls="1">
-  <source src="http://www.objc.io/images/issue-23/video.m4v"></source>
+  <source src="/images/issue-23/video.m4v"></source>
 </video>
 
 ## Getting Creative with Filters
@@ -143,7 +143,7 @@ The composite operation and `CIBlendWithAlphaMask` and `CIBlendWithMask` allow c
 <a name="cpuvsgpu"></a>
 ## CPU vs. GPU
 
-Our article from Issue #3, [Getting Pixels onto the Screen](http://www.objc.io/issue-3/moving-pixels-onto-the-screen.html), describes the *graphics stack* of both iOS and OS X. The important thing to note is the notion of the CPU vs. the GPU, and how data moves between the two.
+Our article from Issue #3, [Getting Pixels onto the Screen](/issue-3/moving-pixels-onto-the-screen.html), describes the *graphics stack* of both iOS and OS X. The important thing to note is the notion of the CPU vs. the GPU, and how data moves between the two.
 
 When working on live video, we face performance challenges.
 

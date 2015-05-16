@@ -11,7 +11,7 @@ The very first issue of objc.io appeared one year ago, so we're celebrating our 
 
 You're probably still as overwhelmed as we are by the slew of developer-centric announcements Apple came out with at WWDC last week. We're very happy about the less strict NDA this year, because it means that we don't have to wait until fall to write about any of this. 
 
-However, before we take a deeper look at all the new stuff, this month we've prepared a more timeless topic for you. We wanted to pick something that comes back to what we've written about in our very first issue: [lighter view controllers](http://www.objc.io/issue-1). But this time around we chose a broader scope, so that the articles in this issue cover a variety of different issues you might encounter when thinking about app architecture. 
+However, before we take a deeper look at all the new stuff, this month we've prepared a more timeless topic for you. We wanted to pick something that comes back to what we've written about in our very first issue: [lighter view controllers](/issue-1). But this time around we chose a broader scope, so that the articles in this issue cover a variety of different issues you might encounter when thinking about app architecture. 
 
 Last month we got a chance to sit together with a fantastic group of developers at [UIKonf](http://www.uikonf.com) in Berlin to brainstorm about this topic:
 

@@ -448,7 +448,7 @@ This is a very common pattern in Objective-C for handling error scenarios. `NSJS
 }
 ```
 
-Since Swift is so new, there aren't clear conventions on handling errors just yet, but there are definitely a lot of options beyond inout parameters! Take a look at David Owen's recent blog post on [error handling in Swift](http://owensd.io/2014/08/22/error-handling-take-two.html). More on this topic should also be covered in [Functional Programming in Swift](http://www.objc.io/books/). 
+Since Swift is so new, there aren't clear conventions on handling errors just yet, but there are definitely a lot of options beyond inout parameters! Take a look at David Owen's recent blog post on [error handling in Swift](http://owensd.io/2014/08/22/error-handling-take-two.html). More on this topic should also be covered in [Functional Programming in Swift](/books/). 
 
 ### Generic Parameter Types
 

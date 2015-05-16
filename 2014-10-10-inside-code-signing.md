@@ -11,7 +11,7 @@ tags: article
 > "Users appreciate code signing."  
 >  – Apple Developer Library: [Code Signing Guide](https://developer.apple.com/library/mac/documentation/Security/Conceptual/CodeSigningGuide/Introduction/Introduction.html)
 
-There are many nice APIs you might encounter while building apps for iOS or OS X. You could do [beautiful animations](http://www.objc.io/issue-12/), [test your app](http://www.objc.io/issue-15) really well, or store your data safely in [Core Data](http://www.objc.io/issue-4). But at some point, you will encounter code signing and provisioning. And more often than not, this is when you will start cursing. 
+There are many nice APIs you might encounter while building apps for iOS or OS X. You could do [beautiful animations](/issue-12/), [test your app](/issue-15) really well, or store your data safely in [Core Data](/issue-4). But at some point, you will encounter code signing and provisioning. And more often than not, this is when you will start cursing. 
 
 If you have ever developed an application for iOS, you have probably fought with code signing or device provisioning at some point. Even as an OS X developer, you cannot avoid signing your code anymore, at least not if you want to be on the Mac App Store or are part of the Developer ID program. 
 

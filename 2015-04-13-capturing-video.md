@@ -189,7 +189,7 @@ To configure a specific device format, you first call `lockForConfiguration:` to
 
 Once you set the desired device format, you can configure specific settings on the capture device within the constraints of the device format.
 
-Focus, exposure, and white balance for video capture are managed in the same way as for image capture described in [“Camera Capture on iOS”](http://www.objc.io/issue-21/camera-capture-on-ios.html) from Issue #21. Aside from those, there are some video-specific configuration options.
+Focus, exposure, and white balance for video capture are managed in the same way as for image capture described in [“Camera Capture on iOS”](/issue-21/camera-capture-on-ios.html) from Issue #21. Aside from those, there are some video-specific configuration options.
 
 You set the **frame rate** using the capture device’s `activeVideoMinFrameDuration` and `activeVideoMaxFrameDuration` properties, where the frame duration is the inverse of the frame rate. To set the frame rate, first make sure the desired frame rate is supported by the device format, and then lock the capture device for configuration. To ensure a constant frame rate, set the minimum and maximum frame duration to the same value:
 
@@ -343,7 +343,7 @@ previewLayer.frame = cameraView.bounds;
 [cameraView.layer addSublayer:previewLayer];
 ```
 
-If you need more control, e.g. to apply filters to the live preview, you will instead need to add an `AVCaptureVideoDataOutput` object to the capture session and display the frames onscreen using OpenGL, as discussed in [“Camera Capture on iOS”](http://www.objc.io/issue-21/camera-capture-on-ios.html) from Issue #21.
+If you need more control, e.g. to apply filters to the live preview, you will instead need to add an `AVCaptureVideoDataOutput` object to the capture session and display the frames onscreen using OpenGL, as discussed in [“Camera Capture on iOS”](/issue-21/camera-capture-on-ios.html) from Issue #21.
 
 
 ## Summary

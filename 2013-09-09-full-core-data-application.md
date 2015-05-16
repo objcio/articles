@@ -500,7 +500,7 @@ is telling the application that we can do this:
 
 Now, whenever a shake is triggered, the application will ask the first
 responder for its undo manager, and perform an undo. In [last month's
-article](http://www.objc.io/issue-3/custom-controls.html), we saw that a
+article](/issue-3/custom-controls.html), we saw that a
 view controller is also in the responder chain, and this is exactly
 what we'll use. In our view controller, we override the following two
 methods from the `UIResponder` class:

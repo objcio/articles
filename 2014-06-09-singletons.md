@@ -239,5 +239,5 @@ The key takeaway from all of this is that in object-oriented programming we want
 [pathologicalLiars]: http://misko.hevery.com/2008/08/17/singletons-are-pathological-liars/
 [sheepsClothing]: http://misko.hevery.com/2008/08/25/root-cause-of-singletons/
 [dependencyInjection]: http://en.wikipedia.org/wiki/Dependency_injection
-[lighterViewControllers]: http://www.objc.io/issue-1/lighter-view-controllers.html
+[lighterViewControllers]: /issue-1/lighter-view-controllers.html
 [twoDropboxes]: https://www.dropbox.com/business/two-dropboxes

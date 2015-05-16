@@ -254,7 +254,7 @@ A common task is to use a color in your app that your designers have specified f
 
 ### Text System
 
-With [TextKit](http://www.objc.io/issue-5/getting-to-know-textkit.html), iOS 7 finally got an equivalent to what has been around on the Mac for ages as the [Cocoa Text System](https://developer.apple.com/library/mac/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextSystemArchitecture/ArchitectureOverview.html). But Apple didn't just transfer the system from the Mac to iOS; instead, Apple made some significant changes to it. 
+With [TextKit](/issue-5/getting-to-know-textkit.html), iOS 7 finally got an equivalent to what has been around on the Mac for ages as the [Cocoa Text System](https://developer.apple.com/library/mac/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextSystemArchitecture/ArchitectureOverview.html). But Apple didn't just transfer the system from the Mac to iOS; instead, Apple made some significant changes to it. 
 
 For example, AppKit exposes the `NSTypesetter` and `NSGlyphGenerator`, both of which you can subclass to customize their behaviors. On iOS, those classes are not exposed, but some of the hooks for customization are available via the `NSLayoutManagerDelegate` protocol. 
 

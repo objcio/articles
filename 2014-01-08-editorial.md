@@ -12,7 +12,7 @@ Happy 2014!
 This issue of objc.io is a bit different than what we have done so far. This is our holiday issue, where we decided to spend a few days during the holiday break working on a small and fun project that we would then write about.
 
 <video poster="/images/issue-8/quadcopter-video-poster.jpg" controls="1">
-  <source src="http://www.objc.io/images/quadcopter.m4v"></source>
+  <source src="/images/quadcopter.m4v"></source>
 </video>
 
 We wanted to do something with a [quadcopter](https://en.wikipedia.org/wiki/Quadrocopter), but we didn't yet have a detailed plan of what we wanted to build. Once we started experimenting with this, it quickly became apparent to us how complicated it is to work with real hardware. In the end, we had to cut quite a few corners to create something that would still end up as a self-contained project within a few days. 
