@@ -3,7 +3,9 @@ title:  "Play, Fail, Iterate: Sound Design for Products"
 category: "24"
 date: "2015-05-11 9:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/rx_tx\">Aaron Day</a>"
+author:
+  - name: Aaron Day
+    url: https://twitter.com/rx_tx
 ---
 
 Our world gets noisier every day. This is the case for all modalities, and not just sound. Alerts and cues blink, beep, jingle, and vibrate from an ever-expanding array of sources. If there is a “war” for our attention, the only guarantee is that there will be no winners. Consider over-compressed and dynamically limited music where “everything is as loud as everything else.” This can be an impressive and even enjoyable experience for a limited amount of time. Over a longer period, however, the listener is left fatigued. If we create a product where modalities are unnecessarily stacked, e.g. you are looking at it and it blinks and it beeps and it vibrates, we will get the same effect: overloaded perceptual bandwidth, fatigue, and frustration with the product.
@@ -14,7 +16,7 @@ Sound design is part of the interaction design process, and not something to be 
 
 Here are five guidelines and associated concepts that help me design and integrate sound into products — digital, physical, or otherwise. They can be used however you like: as a checklist, manifesto, guideline, etc.  
 
-### Sound design for products and interaction shall:
+## Sound design for products and interaction shall:
 
 ### 1. Not annoy the person using it.
 
@@ -52,11 +54,11 @@ Less-than-optimal audio hardware, such as tiny little speakers, underpowered amp
 ![Size of physical display vs. importance of auditive and tactile display](/images/issue-24/size-vs-auditive.svg)
 
 
-### Is That All? 
+## Is That All? 
 
 No. There is more, but that is a start. These guidelines are no guarantee for successful integration of sound into products, but they will definitely point the development and design process in the right direction.
 
-### In Conclusion
+## In Conclusion
 
  * The proper mix of beautiful sound and well-timed silence will make for happier customers.
  * Sound design is part of interaction design — not something added “on top.”
