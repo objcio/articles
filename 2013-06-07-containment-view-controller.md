@@ -133,7 +133,7 @@ takes care of a lot of the details for us:
     }
 
 1. Before the animation we add the `toController` as a child and we
-   inform the `fromController` that it will be removed. If the fromController's view is part of the container's view hierarchy, this is where `viewWillDisapear:` is called.
+   inform the `fromController` that it will be removed. If the fromController's view is part of the container's view hierarchy, this is where `viewWillDisappear:` is called.
 2. `toController` is informed of its new parent, and appropriate view
    event methods will be called.
 3. The `fromController` is removed.
