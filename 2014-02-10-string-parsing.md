@@ -100,7 +100,7 @@ Then, we define the set of hexadecimal characters. A lot of character sets are d
     NSCharacterSet *hexadecimalCharacterSet = 
       [NSCharacterSet characterSetWithCharactersInString:@"0123456789abcdefABCDEF"];
 
-First, let's write a version without error checking. A scanner works like this: it takes a string and sets its cursor to 0, the beginning of the string. You tell it to scan something specific, like `[sanner scanString:@"=" intoString:NULL]`. The method returns `YES` if the scan succeeds, and increases the cursor value to just after the scanned part. The method `scanCharactersFromSet:intoString:` works in a similar way: it keeps scanning characters from the set, and puts the result into the string pointer given by the second argument. Note that we combine the different scanning calls with `&&`. This way, the right-hand side of the `&&` is only scanned if the left-hand side succeeded:
+First, let's write a version without error checking. A scanner works like this: it takes a string and sets its cursor to 0, the beginning of the string. You tell it to scan something specific, like `[scanner scanString:@"=" intoString:NULL]`. The method returns `YES` if the scan succeeds, and increases the cursor value to just after the scanned part. The method `scanCharactersFromSet:intoString:` works in a similar way: it keeps scanning characters from the set, and puts the result into the string pointer given by the second argument. Note that we combine the different scanning calls with `&&`. This way, the right-hand side of the `&&` is only scanned if the left-hand side succeeded:
 
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
     while (!scanner.isAtEnd) {
