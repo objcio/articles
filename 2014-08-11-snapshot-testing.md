@@ -34,8 +34,6 @@ Let's not beat around the bush here: you should be using [CocoaPods][cocoapods].
 
 The default behavior of Snapshots is to subclass `FBSnapshotTestCase` instead of `XCTestCase`, and to then use the macro `FBSnapshotVerifyView(viewOrLayer, "optional identifier")` to verify against an already recorded image. There is a boolean property on the subclass `recordMode` that, when set, will make the macro record a new screenshot rather than check the result against a reference image.
 
-# Headers
-
     @interface ORSnapshotTestCase : FBSnapshotTestCase
     @end
   
@@ -86,8 +84,6 @@ I don't use vanilla XCTest. I uses [Specta and Expecta][specta], which provide a
     end
 
 In turn, my tests look like:
-
-# Headers
 
     SpecBegin(ORMusicViewController)
     
