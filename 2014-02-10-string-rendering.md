@@ -4,11 +4,11 @@ category: "9"
 date: "2014-02-07 07:00:00"
 tags: article
 author:
-  - name: Chris
+  - name: Chris Eidhof
     url: https://twitter.com/chriseidhof
-  - name: Daniel
+  - name: Daniel Eggert
     url: http://twitter.com/danielboedewadt
-  - name: Florian
+  - name: Florian Kugler
     url: https://twitter.com/floriankugler
 ---
 
