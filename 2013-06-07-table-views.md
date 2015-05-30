@@ -1,5 +1,5 @@
 ---
-title: "Clean table view code"
+title: "Clean Table View Code"
 category: "1"
 date: "2013-06-07 10:00:00"
 author:
