@@ -45,8 +45,10 @@ The original name of the resource points to a matter worth noting. An Apple even
 
 An sdef file always starts with the same header:
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
+```
 
 The top-level item is a dictionary — “dictionary” is AppleScript’s word for a scripting interface. Inside the dictionary you'll find one or more suites.
 
@@ -74,27 +76,35 @@ Once you’ve finished editing, use the command-line xmllint program — `xmllin
 
 A single app-defined suite is usually best, though not mandated: you could have more than one when it makes sense. Noteland defines just one, the Noteland Suite:
 
-    <suite name="Noteland Suite" code="Note" description="Noteland-specific classes.">
+```xml
+<suite name="Noteland Suite" code="Note" description="Noteland-specific classes.">
+```
 
 A scripting dictionary expects things to be contained by other things. The top-level container is the application object itself.
 
 In Noteland, its class name is `NLApplication`. You should always use the code `capp` for the application class: it’s a standard Apple event code. (Note that it’s also present in the standard suite.)
 
-    <class name="application" code="capp" description="Noteland’s top level scripting object." plural="applications" inherits="application">
-        <cocoa class="NLApplication"/>
+```xml
+<class name="application" code="capp" description="Noteland’s top level scripting object." plural="applications" inherits="application">
+    <cocoa class="NLApplication"/>
+```
 
 The application contains an array of notes. It’s important to differentiate elements (items there can be more than one of) and properties. In other words, an array in code should be an element in your dictionary:
 
-    <element type="note" access="rw">
-        <cocoa key="notes"/>
-    </element>`
+```xml
+<element type="note" access="rw">
+    <cocoa key="notes"/>
+</element>
+```
 
 Cocoa scripting uses Key-Value Coding (KVC), and the dictionary specifies the key names.
 
 #### Note Class
 
-    <class name="note" code="NOTE" description="A note" inherits="item" plural="notes">
-        <cocoa class="NLNote"/>`
+```xml
+<class name="note" code="NOTE" description="A note" inherits="item" plural="notes">
+    <cocoa class="NLNote"/>
+```
 
 The code is `NOTE`. It could be almost anything, but note that Apple reserves all lowercase codes for its own use, so `note` wouldn’t be allowed. It could be `NOT*`, or `NoTe`, or `XYzy`, or whatever you want. (Ideally the code wouldn’t collide with codes used by other apps. But there’s no way that we know of to ensure that, so we just, well, *guess*. That said, `NOTE` may not be all that great of a guess.)
 
@@ -102,17 +112,19 @@ Your classes should inherit from `item`. (In theory you could have a class the i
 
 The note class has several properties:
 
-    <property name="id" code="ID  " type="text" access="r" description="The unique identifier of the note.">
-        <cocoa key="uniqueID"/>
-    </property>
-    <property name="name" code="pnam" type="text" description="The name of the note — the first line of the text." access="r">
-        <cocoa key="title"/>
-    </property>
-    <property name="body" code="body" description="The plain text content of the note, including first line and subsequent lines." type="text" access="rw">
-        <cocoa key="text"/>
-    </property>
-    <property name="creationDate" code="CRdt" description="The date the note was created." type="date" access="r"/>
-    <property name="archived" code="ARcv" description="Whether or not the note has been archived." type="boolean" access="rw"/>
+```xml
+<property name="id" code="ID  " type="text" access="r" description="The unique identifier of the note.">
+    <cocoa key="uniqueID"/>
+</property>
+<property name="name" code="pnam" type="text" description="The name of the note — the first line of the text." access="r">
+    <cocoa key="title"/>
+</property>
+<property name="body" code="body" description="The plain text content of the note, including first line and subsequent lines." type="text" access="rw">
+    <cocoa key="text"/>
+</property>
+<property name="creationDate" code="CRdt" description="The date the note was created." type="date" access="r"/>
+<property name="archived" code="ARcv" description="Whether or not the note has been archived." type="boolean" access="rw"/>
+```
 
 Whenever possible, it’s best to provide unique IDs for your objects. Otherwise, scripters have to rely on names and positions, which may change. Use the code 'ID  ' for unique IDs. (Note the two spaces; codes are four-character codes.) The name of the unique ID should always be `id`.
 
@@ -124,32 +136,40 @@ Note the types: text, date, and boolean. AppleScript supports these and several 
 
 Notes can also have tags, and so there’s a tags element:
 
-    <element type="tag" access="rw">
-        <cocoa key="tags"/>
-    </element>
-    </class>`
+```xml
+<element type="tag" access="rw">
+    <cocoa key="tags"/>
+</element>
+</class>
+```
 
 #### Tag Class
 
 Tags are `NLTag` objects:
 
-    <class name="tag" code="TAG*" description="A tag" inherits="item" plural="tags">
-        <cocoa class="NLTag"/>`
+```xml
+<class name="tag" code="TAG*" description="A tag" inherits="item" plural="tags">
+    <cocoa class="NLTag"/>
+```
 
 Tags have just two properties, `id` and `name`:
 
-    <property name="id" code="ID  " type="text" access="r" description="The unique identifier of the tag.">
-        <cocoa key="uniqueID"/>
-    </property>
-    <property name="name" code="pnam" type="text" access="rw">
-        <cocoa key="name"/>
-    </property>
-    </class>
+```xml
+<property name="id" code="ID  " type="text" access="r" description="The unique identifier of the tag.">
+    <cocoa key="uniqueID"/>
+</property>
+<property name="name" code="pnam" type="text" access="rw">
+    <cocoa key="name"/>
+</property>
+</class>
+```
 
 That ends the Noteland suite and the entire dictionary:
 
-        </suite>
-    </dictionary>
+```xml
+    </suite>
+</dictionary>
+```
 
 ### App Configuration
 

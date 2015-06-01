@@ -206,25 +206,26 @@ Custom notifications are limited to a subset of view components that are support
 
 Creating these custom views takes a bit more work however. Custom notification views are created using Android's XML layout system, and you are responsible for making sure your notifications look decent on all the different versions of Android. It’s a pain, but when you see some of these beautiful notifications, you can instantly understand their value:
 
-    <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    	android:layout_width="match_parent"
-    	android:layout_height="match_parent"
-    	android:orientation="horizontal">
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="horizontal">
 
-    	<ImageView
-    		android:id="@+id/avatar"
-    		android:layout_width="32dp"
-    		android:layout_height="32dp"
-    		android:layout_gravity="center_vertical" />
+	<ImageView
+		android:id="@+id/avatar"
+		android:layout_width="32dp"
+		android:layout_height="32dp"
+		android:layout_gravity="center_vertical" />
 
-    	<TextView
-    		android:layout_width="wrap_content"
-    		android:layout_height="wrap_content"
-    		android:layout_gravity="center_vertical"
-    		android:text="You received a notification" />
-
-    </LinearLayout>
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_vertical"
+		android:text="You received a notification" />
+</LinearLayout>
+```
 An extremely basic custom-notification layout that shows an image, with some text beside it.
 
 ## Notification Behavior

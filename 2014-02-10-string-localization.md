@@ -137,28 +137,30 @@ Then we create a `.stringsdict` file next to the normal `.strings` file. So if t
 
 An example looks like this:
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>activity-profile.label.%lu out of %lu runs completed</key>
     <dict>
-        <key>activity-profile.label.%lu out of %lu runs completed</key>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%lu out of %#@lu_total_runs@ completed</string>
+        <key>lu_total_runs</key>
         <dict>
-            <key>NSStringLocalizedFormatKey</key>
-            <string>%lu out of %#@lu_total_runs@ completed</string>
-            <key>lu_total_runs</key>
-            <dict>
-                <key>NSStringFormatSpecTypeKey</key>
-                <string>NSStringPluralRuleType</string>
-                <key>NSStringFormatValueTypeKey</key>
-                <string>lu</string>
-                <key>one</key>
-                <string>%lu run</string>
-                <key>other</key>
-                <string>%lu runs</string>
-            </dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>lu</string>
+            <key>one</key>
+            <string>%lu run</string>
+            <key>other</key>
+            <string>%lu runs</string>
         </dict>
     </dict>
-    </plist>
+</dict>
+</plist>
+```
 
 The keys of the top-level dictionary are simply the keys of the localized strings. Each dictionary then contains the `NSStringLocalizedFormatKey` entry that specifies the format string to be used for this localization. In order to substitute different values for different numbers, the format string syntax has been extended. So we can write something like `%#@lu_total_runs@` and then define a dictionary for the `lu_total_runs` key. Within this dictionary, we specify that this is a plural rule (setting `NSStringFormatSpecTypeKey` to `NSStringPluralRuleType`), designate the format specifier to use (in this case `lu`), and define the different values for the different plural variants. We can choose from "zero," "one," "two," "few," "many," and "others."
 
@@ -175,41 +177,43 @@ But we can go even further than that and define recursive rules. To make the out
 
 We can achieve this using the string dictionary file without writing a single line of code. The strings dictionary for this example looks like this:
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>scope.%lu out of %lu runs</key>
     <dict>
-        <key>scope.%lu out of %lu runs</key>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%1$#@lu_completed_runs@</string>
+        <key>lu_completed_runs</key>
         <dict>
-            <key>NSStringLocalizedFormatKey</key>
-            <string>%1$#@lu_completed_runs@</string>
-            <key>lu_completed_runs</key>
-            <dict>
-                <key>NSStringFormatSpecTypeKey</key>
-                <string>NSStringPluralRuleType</string>
-                <key>NSStringFormatValueTypeKey</key>
-                <string>lu</string>
-                <key>zero</key>
-                <string>No runs completed yet</string>
-                <key>one</key>
-                <string>One %2$#@lu_total_runs@</string>
-                <key>other</key>
-                <string>%lu %2$#@lu_total_runs@</string>
-            </dict>
-            <key>lu_total_runs</key>
-            <dict>
-                <key>NSStringFormatSpecTypeKey</key>
-                <string>NSStringPluralRuleType</string>
-                <key>NSStringFormatValueTypeKey</key>
-                <string>lu</string>
-                <key>one</key>
-                <string>run completed</string>
-                <key>other</key>
-                <string>of %lu runs completed</string>
-            </dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>lu</string>
+            <key>zero</key>
+            <string>No runs completed yet</string>
+            <key>one</key>
+            <string>One %2$#@lu_total_runs@</string>
+            <key>other</key>
+            <string>%lu %2$#@lu_total_runs@</string>
+        </dict>
+        <key>lu_total_runs</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>lu</string>
+            <key>one</key>
+            <string>run completed</string>
+            <key>other</key>
+            <string>of %lu runs completed</string>
         </dict>
     </dict>
-    </plist>
+</dict>
+</plist>
+```
 
 Strings returned from `localizedStringForKey:value:table:` that were instantiated from a `.stringsdict` entry are proxy objects carrying the additional information contained in the strings dictionary file. This information is preserved through `copy` and `mutableCopy` calls. However, once you mutate such a string object, the additional localization information is lost. Please see the [Foundation release notes of OS X 10.9](https://developer.apple.com/library/Mac/releasenotes/Foundation/RN-Foundation/index.html) for further details.
 

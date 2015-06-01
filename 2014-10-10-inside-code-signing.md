@@ -136,29 +136,29 @@ Entitlements specify which resources of the system an app is allowed to use, and
 
 Entitlements are specified in — you might have guessed it at this point — a plist format. Xcode provides them to the `codesign` command using the `--entitlements` option. The format looks like this:
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-        <key>application-identifier</key>
-        <string>7TPNXN7G6K.ch.kollba.example</string>
-        <key>aps-environment</key>
-        <string>development</string>
-        <key>com.apple.developer.team-identifier</key>
-        <string>7TPNXN7G6K</string>
-        <key>com.apple.developer.ubiquity-container-identifiers</key>
-        <array>
-                <string>7TPNXN7G6K.ch.kollba.example</string>
-        </array>
-        <key>com.apple.developer.ubiquity-kvstore-identifier</key>
-        <string>7TPNXN7G6K.ch.kollba.example</string>
-        <key>com.apple.security.application-groups</key>
-        <array>
-                <string>group.ch.kollba.example</string>
-        </array>
-        <key>get-task-allow</key>
-        <true/>
+    <key>application-identifier</key>
+    <string>7TPNXN7G6K.ch.kollba.example</string>
+    <key>aps-environment</key>
+    <string>development</string>
+    <key>com.apple.developer.team-identifier</key>
+    <string>7TPNXN7G6K</string>
+    <key>com.apple.developer.ubiquity-container-identifiers</key>
+    <array>
+            <string>7TPNXN7G6K.ch.kollba.example</string>
+    </array>
+    <key>com.apple.developer.ubiquity-kvstore-identifier</key>
+    <string>7TPNXN7G6K.ch.kollba.example</string>
+    <key>com.apple.security.application-groups</key>
+    <array>
+            <string>group.ch.kollba.example</string>
+    </array>
+    <key>get-task-allow</key>
+    <true/>
 </dict>
 </plist>
 ```

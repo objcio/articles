@@ -300,17 +300,19 @@ I tapped on a YouTube link in the Facebook App. How did Android know that it was
 
 If we had access to YouTube's `AndroidManifest.xml`, we would likely see something like this: 
 
-    1 <activity android:name=".YouTubeActivity">
-    2     <intent-filter>
-    3        <action android:name="android.intent.action.VIEW" />
-    4       <category android:name="android.intent.category.DEFAULT" />
-    5         <category android:name="android.intent.category.BROWSABLE" />
-    6       <data
-    7        android:scheme="http"
-    8        android:host="www.youtube.com"
-    9        android:pathPrefix="/" />
-    10   </intent-filter>
-    11 </activity>
+```xml
+1 <activity android:name=".YouTubeActivity">
+2     <intent-filter>
+3        <action android:name="android.intent.action.VIEW" />
+4       <category android:name="android.intent.category.DEFAULT" />
+5         <category android:name="android.intent.category.BROWSABLE" />
+6       <data
+7        android:scheme="http"
+8        android:host="www.youtube.com"
+9        android:pathPrefix="/" />
+10   </intent-filter>
+11 </activity>
+```
 
 Let's examine this simple XML line by line.
 
@@ -336,19 +338,20 @@ The Android `PackageManager`[^6] will be queried using the `Intent` information 
 
 This works well for many apps, but sometimes you need to use the same iOS link (where your only choice is to use a custom URI). In Android, you could support both, since you can add more filters to the same activity. To continue with the YouTubeActivity, let's add now an imaginary YouTube URI scheme:
 
-    1 <activity android:name=".YouTubeActivity">
-    2     <intent-filter>
-    3        <action android:name="android.intent.action.VIEW" />
-    4       <category android:name="android.intent.category.DEFAULT" />
-    5         <category android:name="android.intent.category.BROWSABLE" />
-    6       <data
-    7        android:scheme="http"
-    8        android:host="www.youtube.com"
-    9        android:pathPrefix="/" />
-    10      <data android:scheme="youtube" android:host="path" />
-    11   </intent-filter>
-    12 </activity>
-
+```xml
+<activity android:name=".YouTubeActivity">
+  <intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+      <category android:name="android.intent.category.BROWSABLE" />
+    <data
+     android:scheme="http"
+     android:host="www.youtube.com"
+     android:pathPrefix="/" />
+    <data android:scheme="youtube" android:host="path" />
+  </intent-filter>
+</activity>
+```
 
 The filter is almost the same, except we added a new line 10, specifying our own scheme. 
 
@@ -403,13 +406,15 @@ Before wrapping up, let's see another example. This time, we'll see how to share
 
 We need to do something like this in our `AndroidManifest`:
 
-    1    <activity android:name="ImageActivity">
-    2        <intent-filter>
-    3            <action android:name="android.intent.action.SEND"/>
-    4            <category android:name="android.intent.category.DEFAULT"/>
-    5            <data android:mimeType="image/*"/>
-    6        </intent-filter>
-    7    </activity>
+```xml
+1 <activity android:name="ImageActivity">
+2   <intent-filter>
+3     <action android:name="android.intent.action.SEND"/>
+4     <category android:name="android.intent.category.DEFAULT"/>
+5     <data android:mimeType="image/*"/>
+6   </intent-filter>
+7 </activity>
+```
 
 Remember, we need at least one action and one category. 
 
@@ -421,35 +426,38 @@ Line 5 is they key that sets the MIME type as *any type of image*.
 
 Now, in our `ImageActivity`, we handle the Intent like this:
 
-    1    @Override
-    2    protected void onCreate(Bundle savedInstanceState) {
-    3        super.onCreate(savedInstanceState);
-    4        setContentView(R.layout.main);
-    5        
-    6        // Deal with the intent (if any)
-    7        Intent intent = getIntent();
-    8        if ( intent != null ) {
-    9            if (intent.getType().indexOf("image/") != -1) {
-    10                 Uri data = intent.getData();
-    11                 // handle the image…
-    12            } 
-    13        }
-    14    }
+```java
+1    @Override
+2    protected void onCreate(Bundle savedInstanceState) {
+3        super.onCreate(savedInstanceState);
+4        setContentView(R.layout.main);
+5        
+6        // Deal with the intent (if any)
+7        Intent intent = getIntent();
+8        if ( intent != null ) {
+9            if (intent.getType().indexOf("image/") != -1) {
+10                 Uri data = intent.getData();
+11                 // handle the image…
+12            } 
+13        }
+14    }
+```
 
 The relevant code is in line 9, where we're actually checking if the Intent contains image data.
 
 Now, let's do the opposite. This is how we *share* an image:
 
-    1    Uri imageUri = Uri.parse("/path/to/image.png");
-    2    Intent intent = new Intent(Intent.ACTION_SEND);
-    3    intent.setType("image/png");    
-    4    intent.putExtra(Intent.EXTRA_STREAM, imageUri);
-    5    startActivity(Intent.createChooser(intent , "Share"));
+```java
+1    Uri imageUri = Uri.parse("/path/to/image.png");
+2    Intent intent = new Intent(Intent.ACTION_SEND);
+3    intent.setType("image/png");    
+4    intent.putExtra(Intent.EXTRA_STREAM, imageUri);
+5    startActivity(Intent.createChooser(intent , "Share"));
+```
 
 The interesting code is in line 3, where we define the MIME type (so only `IntentFilters` capable of dealing with this type will be shown), and in line 4, where we actually place the data that will be shared.
 
 Finally, line 5 creates the *chooser* dialog we've seen before, but only containing apps that can handle `image/png`.
-    
 
 ## Summary
 
