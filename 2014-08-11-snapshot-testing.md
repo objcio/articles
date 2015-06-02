@@ -53,7 +53,7 @@ The default behavior of Snapshots is to subclass `FBSnapshotTestCase` instead of
 }
 
 @end
-``
+```
 
 <a name="disadvantages"> </a>
 

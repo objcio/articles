@@ -18,8 +18,10 @@ This has since changed to <q>a view controller manages a self-contained
 unit of content</q>.
 Why didn't Apple want us to build our own tab bar controllers and
 navigation controllers? Or put more precisely, what is the problem with: 
-    
-    [viewControllerA.view addSubView:viewControllerB.view]
+
+```objc    
+[viewControllerA.view addSubView:viewControllerB.view]
+```
 
 ![Inconsistent view hierarchy](/images/issue-1/view-insertion@2x.png)
 
@@ -55,23 +57,25 @@ The root view controller has two container views. These are added to
 make it easier to layout and animate the views of child view
 controllers, as we will see later on.
 
-    - (void)viewDidLoad
-    {
-        [super viewDidLoad];
+```objc
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
 
-        //Setup controllers
-        _startMapViewController = [RGMapViewController new];
-        [_startMapViewController setAnnotationImagePath:@"man"];
-        [self addChildViewController:_startMapViewController];          //  1
-        [topContainer addSubview:_startMapViewController.view];         //  2
-        [_startMapViewController didMoveToParentViewController:self];   //  3
-        [_startMapViewController addObserver:self
-                                  forKeyPath:@"currentLocation" 
-                                     options:NSKeyValueObservingOptionNew 
-                                     context:NULL];
-    
-        _startGeoViewController = [RGGeoInfoViewController new];        //  4
-    }
+    //Setup controllers
+    _startMapViewController = [RGMapViewController new];
+    [_startMapViewController setAnnotationImagePath:@"man"];
+    [self addChildViewController:_startMapViewController];          //  1
+    [topContainer addSubview:_startMapViewController.view];         //  2
+    [_startMapViewController didMoveToParentViewController:self];   //  3
+    [_startMapViewController addObserver:self
+                              forKeyPath:@"currentLocation" 
+                                 options:NSKeyValueObservingOptionNew 
+                                 context:NULL];
+
+    _startGeoViewController = [RGGeoInfoViewController new];        //  4
+}
+```
 
 The `_startMapViewController`, which displays the starting position, is instantiated and set up with the annotation image.
 
@@ -92,15 +96,17 @@ which determine the size of the child view controllers.
 The child view controllers do not know which container they will be
 added to, and therefore have to be flexible in size:
 
-    - (void) loadView
-    {
-        mapView = [MKMapView new];
-        mapView.autoresizingMask = UIViewAutoresizingFlexibleWidth |UIViewAutoresizingFlexibleHeight;
-        [mapView setDelegate:self];
-        [mapView setMapType:MKMapTypeHybrid];
-    
-        self.view = mapView;
-    }
+```objc
+- (void) loadView
+{
+    mapView = [MKMapView new];
+    mapView.autoresizingMask = UIViewAutoresizingFlexibleWidth |UIViewAutoresizingFlexibleHeight;
+    [mapView setDelegate:self];
+    [mapView setMapType:MKMapTypeHybrid];
+
+    self.view = mapView;
+}
+```
 
 Now they will layout using the bounds of their super view. This increases the reusability of the child view controller; if we were to push it on the stack of a navigation controller, it would still layout correctly.
 
@@ -114,25 +120,27 @@ The method
 `transitionFromViewController:toViewController:(...)`
 takes care of a lot of the details for us: 
 
-    - (void) flipFromViewController:(UIViewController*) fromController 
-                   toViewController:(UIViewController*) toController  
-                      withDirection:(UIViewAnimationOptions) direction
-    {
-        toController.view.frame = fromController.view.bounds;                           //  1
-        [self addChildViewController:toController];                                     //  
-        [fromController willMoveToParentViewController:nil];                            //  
-        
-        [self transitionFromViewController:fromController
-                          toViewController:toController
-                                  duration:0.2
-                                   options:direction | UIViewAnimationOptionCurveEaseIn
-                                animations:nil
-                                completion:^(BOOL finished) {
-                                    
-                                    [toController didMoveToParentViewController:self];  //  2
-                                    [fromController removeFromParentViewController];    //  3
-                                }];
-    }
+```objc
+- (void) flipFromViewController:(UIViewController*) fromController 
+               toViewController:(UIViewController*) toController  
+                  withDirection:(UIViewAnimationOptions) direction
+{
+    toController.view.frame = fromController.view.bounds;                           //  1
+    [self addChildViewController:toController];                                     //  
+    [fromController willMoveToParentViewController:nil];                            //  
+    
+    [self transitionFromViewController:fromController
+                      toViewController:toController
+                              duration:0.2
+                               options:direction | UIViewAnimationOptionCurveEaseIn
+                            animations:nil
+                            completion:^(BOOL finished) {
+                                
+                                [toController didMoveToParentViewController:self];  //  2
+                                [fromController removeFromParentViewController];    //  3
+                            }];
+}
+```
 
 1. Before the animation we add the `toController` as a child and we
    inform the `fromController` that it will be removed. If the fromController's view is part of the container's view hierarchy, this is where `viewWillDisapear:` is called.
@@ -154,18 +162,25 @@ Child view controllers should contain the necessary logic to manage their view t
 
 In the Tunnel example app, the parent view controller observes a property called `currentLocation` on the map view controllers:
 
-    [_startMapViewController addObserver:self 
-                              forKeyPath:@"currentLocation"
-                                 options:NSKeyValueObservingOptionNew
-                                 context:NULL];
+```objc
+[_startMapViewController addObserver:self 
+                          forKeyPath:@"currentLocation"
+                             options:NSKeyValueObservingOptionNew
+                             context:NULL];
+```
 
 When this property changes in response to moving the little guy with the shovel around on the map, the parent view controller communicates the antipode of the new location to the other map:
 
-	[oppositeController updateAnnotationLocation:[newLocation antipode]];
+```objc
+[oppositeController updateAnnotationLocation:[newLocation antipode]];
+```
+
 
 Likewise, when you tap the radar button, the parent view controller sets the locations to be reverse geocoded on the new child view controllers: 
 
-    [_startGeoViewController setLocation:_startMapViewController.currentLocation];
-    [_targetGeoViewController setLocation:_targetMapViewController.currentLocation];
+```objc
+[_startGeoViewController setLocation:_startMapViewController.currentLocation];
+[_targetGeoViewController setLocation:_targetMapViewController.currentLocation];
+```
 
 Independent of the technique you choose to communicate from child to parent view controllers (KVO, notifications, or the delegate pattern), the goal always stays the same: the child view controllers should be independent and reusable. In our example we could push one of the child view controllers on a navigation stack, but the communication would still work through the same API. 
