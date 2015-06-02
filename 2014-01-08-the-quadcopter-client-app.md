@@ -194,7 +194,7 @@ And last but not least, the `broadcastLocation` method that's now getting called
         }
     }
     
-And that's pretty much it. Follow along the other articles about the [navigation app on the drone](/issues/8-quadcopter/the-quadcopter-navigator-app/) and the [Core Foundation networking APIs](/issue-8/communicating-with-the-quadcopter.html) used to communicate with the drone to see how the receiving end of these commands interacts with the drone and actually makes it fly!
+And that's pretty much it. Follow along the other articles about the [navigation app on the drone](/issues/8-quadcopter/the-quadcopter-navigator-app/) and the [Core Foundation networking APIs](/issues/8-quadcopter/communicating-with-the-quadcopter.html) used to communicate with the drone to see how the receiving end of these commands interacts with the drone and actually makes it fly!
     
 
 
