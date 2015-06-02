@@ -124,7 +124,7 @@ CGImageRelease(composedImage);
 return retval;
 ```
 
-With this method, we have full access to the actual pixels, and can do with them whatever we like. However, it is worth checking whether there are already filters available via [Core Image](/issue-21/core-image-intro.html), as they will be much easier to use and generally more optimized than any processing of individual pixel values.
+With this method, we have full access to the actual pixels, and can do with them whatever we like. However, it is worth checking whether there are already filters available via [Core Image](/issues/21-camera-and-photos/core-image-intro/), as they will be much easier to use and generally more optimized than any processing of individual pixel values.
 
 
 ## Metadata

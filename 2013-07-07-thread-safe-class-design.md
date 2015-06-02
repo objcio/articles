@@ -292,14 +292,14 @@ There's no way to see how many operations are queued (unless you manually add co
 Of course there are some caveats; for example you can't set a target queue on your `NSOperationQueue` (like  `DISPATCH_QUEUE_PRIORITY_BACKGROUND` for throttled I/O). But that's a small price for debuggability, and it also prevents you from running into problem like [priority inversion][102]. I even recommend against the nice `NSBlockOperation` API and suggest real subclasses of NSOperation, including an implementation of description. It's more work, but later on, having a way to print all running/pending operations is insanely useful.
 
 
-[90]: /issue-2/editorial.html
-[100]: /issue-2/concurrency-apis-and-pitfalls.html
-[101]: /issue-2/concurrency-apis-and-pitfalls.html#challenges
-[102]: /issue-2/concurrency-apis-and-pitfalls.html#priority_inversion
-[103]: /issue-2/concurrency-apis-and-pitfalls.html#shared_resources
-[104]: /issue-2/concurrency-apis-and-pitfalls.html#dead_locks
-[200]: /issue-2/common-background-practices.html
-[300]: /issue-2/low-level-concurrency-apis.html
-[301]: /issue-2/low-level-concurrency-apis.html#async
-[302]: /issue-2/low-level-concurrency-apis.html#multiple-readers-single-writer
-[400]: /issue-2/thread-safe-class-design.html
+[90]: /issues/2-concurrency/editorial/
+[100]: /issues/2-concurrency/concurrency-apis-and-pitfalls/
+[101]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#challenges
+[102]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#priority_inversion
+[103]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#shared_resources
+[104]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#dead_locks
+[200]: /issues/2-concurrency/common-background-practices/
+[300]: /issues/2-concurrency/low-level-concurrency-apis/
+[301]: /issues/2-concurrency/low-level-concurrency-apis/#async
+[302]: /issues/2-concurrency/low-level-concurrency-apis/#multiple-readers-single-writer
+[400]: /issues/2-concurrency/thread-safe-class-design/

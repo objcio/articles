@@ -9,7 +9,7 @@ author:
 ---
 
 
-Tracking down crashes in asynchronous code is often very hard, because the stack trace is confined to the crashed thread and you're missing contextual information. At the same time, writing asynchronous code has become significantly easier with APIs like [libdispatch](/issue-2/low-level-concurrency-apis.html), operation queues, and [XPC](/issue-14/xpc.html).
+Tracking down crashes in asynchronous code is often very hard, because the stack trace is confined to the crashed thread and you're missing contextual information. At the same time, writing asynchronous code has become significantly easier with APIs like [libdispatch](/issues/2-concurrency/low-level-concurrency-apis/), operation queues, and [XPC](/issues/14-mac/xpc/).
 
 Activity tracing is a new technology introduced in iOS 8 and OS X 10.10 that aims to alleviate this problem. This year's WWDC had an excellent [session][wwdcsession] about it, but we thought it would be a good idea to give another overview here, since it is not widely known yet.
 

@@ -11,7 +11,7 @@ author:
 ---
 
 
-When Steve Jobs first introduced [iCloud](http://en.wikipedia.org/wiki/ICloud) at WWDC 2011, the promise of seamless syncing seemed too good to be true. And if you tried to implement iCloud [Core Data](/issue-4/core-data-overview.html) syncing in [iOS 5](http://adcdownload.apple.com//videos/wwdc_2011__hd/session_303__whats_new_in_core_data_on_ios.m4v) or [iOS 6](http://adcdownload.apple.com//videos/wwdc_2012__hd/session_227__using_icloud_with_core_data.mov), you know very well that it was.
+When Steve Jobs first introduced [iCloud](http://en.wikipedia.org/wiki/ICloud) at WWDC 2011, the promise of seamless syncing seemed too good to be true. And if you tried to implement iCloud [Core Data](/issues/4-core-data/core-data-overview/) syncing in [iOS 5](http://adcdownload.apple.com//videos/wwdc_2011__hd/session_303__whats_new_in_core_data_on_ios.m4v) or [iOS 6](http://adcdownload.apple.com//videos/wwdc_2012__hd/session_227__using_icloud_with_core_data.mov), you know very well that it was.
 
 Problems with syncing [library-style applications](https://developer.apple.com/library/mac/documentation/General/Conceptual/MOSXAppProgrammingGuide/CoreAppDesign/CoreAppDesign.html#//apple_ref/doc/uid/TP40010543-CH3-SW3) continued as [many](http://www.macworld.com/article/1167742/developers_dish_on_iclouds_challenges.html) [developers](http://blog.caffeine.lu/problems-with-core-data-icloud-storage.html) [abandoned](http://www.jumsoft.com/2013/01/response-to-sync-issues/) iCloud in favor of alternatives like [Simperium](http://simperium.com), [TICoreDataSync](https://github.com/nothirst/TICoreDataSync), and [WasabiSync](http://www.wasabisync.com).
 

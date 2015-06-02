@@ -277,7 +277,7 @@ A common task is to use a color in your app that your designers have specified f
 
 ### Text System
 
-With [TextKit](/issue-5/getting-to-know-textkit.html), iOS 7 finally got an equivalent to what has been around on the Mac for ages as the [Cocoa Text System](https://developer.apple.com/library/mac/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextSystemArchitecture/ArchitectureOverview.html). But Apple didn't just transfer the system from the Mac to iOS; instead, Apple made some significant changes to it. 
+With [TextKit](/issues/5-ios7/getting-to-know-textkit/), iOS 7 finally got an equivalent to what has been around on the Mac for ages as the [Cocoa Text System](https://developer.apple.com/library/mac/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextSystemArchitecture/ArchitectureOverview.html). But Apple didn't just transfer the system from the Mac to iOS; instead, Apple made some significant changes to it. 
 
 For example, AppKit exposes the `NSTypesetter` and `NSGlyphGenerator`, both of which you can subclass to customize their behaviors. On iOS, those classes are not exposed, but some of the hooks for customization are available via the `NSLayoutManagerDelegate` protocol. 
 
@@ -299,7 +299,7 @@ Take a look at Apple's [sandboxing guides](https://developer.apple.com/app-sandb
 
 ## What's Unique
 
-There are many things you can only do on the Mac, mostly either due to its different interaction model or to its more liberal security policies. In this issue, we have articles covering some of these things in depth: [cross-process communication](/issue-14/xpc.html), [making an app scriptable](/issue-14/scripting-data.html), [scripting other apps in the sandbox](/issue-14/sandbox-scripting.html), and creating a [plugin infrastructure](/issue-14/plugins.html) for your apps.
+There are many things you can only do on the Mac, mostly either due to its different interaction model or to its more liberal security policies. In this issue, we have articles covering some of these things in depth: [cross-process communication](/issues/14-mac/xpc/), [making an app scriptable](/issues/14-mac/scripting-data/), [scripting other apps in the sandbox](/issues/14-mac/sandbox-scripting/), and creating a [plugin infrastructure](/issues/14-mac/plugins/) for your apps.
 
 Of course, that's just a small subset of features unique to the Mac, but it gives you a good idea of the aspects that iOS 8 just starts to scratch the surface of in terms of extensibility and communication between apps. There's, of course, much more to explore: Drag and Drop, Printing, Bindings, OpenCL, to name just a few examples.
 

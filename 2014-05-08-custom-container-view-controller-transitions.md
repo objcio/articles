@@ -8,7 +8,7 @@ author:
     url: https://twitter.com/osteslag
 ---
 
-In [issue #5](/issue-5/index.html), [Chris Eidhof](http://twitter.com/chriseidhof) took us through the new custom [View Controller Transitions](/issue-5/view-controller-transitions.html) in iOS 7. He [concluded](/issue-5/view-controller-transitions.html#conclusion) (emphasis mine):
+In [issue #5](/issues/5-ios7/index/), [Chris Eidhof](http://twitter.com/chriseidhof) took us through the new custom [View Controller Transitions](/issues/5-ios7/view-controller-transitions/) in iOS 7. He [concluded](/issues/5-ios7/view-controller-transitions/#conclusion) (emphasis mine):
 
 > We only looked at animating between two view controllers in a navigation controller, but **you can do the same for** tab bar controllers or **your own custom container view controllers**…
 
@@ -24,7 +24,7 @@ There is no ready-to-use API for your custom container `UIViewController` subcla
 
 In this chapter I will demonstrate how you *can* build a custom container view controller yourself while supporting third-party animation controllers.
 
-If you need to brush up on view controller containment, introduced in iOS 5, make sure to read [Ricky Gregersen](https://twitter.com/rickigregersen)’s “[View Controller Containment](/issue-1/containment-view-controller.html)” in the very [first issue](/issue-1/).
+If you need to brush up on view controller containment, introduced in iOS 5, make sure to read [Ricky Gregersen](https://twitter.com/rickigregersen)’s “[View Controller Containment](/issues/1-view-controllers/containment-view-controller/)” in the very [first issue](/issues/1-view-controllers/).
 
 ## Before We Begin
 
@@ -124,7 +124,7 @@ We could gather this information in other ways, but it would require the animato
 
 We will keep this in mind when making our own animation controller next, now that we have the transition context available to us.
 
-You probably remember that this was exactly what we did in [View Controller Transitions](/issue-5/view-controller-transitions.html), [issue #5](/issue-5/). So why not just use that? In fact, because of the extensive use of protocols in this framework, we can take the animation controller, the `Animator` class, from that project and plug it right in to ours – without any modifications.
+You probably remember that this was exactly what we did in [View Controller Transitions](/issues/5-ios7/view-controller-transitions/), [issue #5](/issues/5-ios7/). So why not just use that? In fact, because of the extensive use of protocols in this framework, we can take the animation controller, the `Animator` class, from that project and plug it right in to ours – without any modifications.
 
 Using an `Animator` instance to animate our transition essentially looks like this:
 

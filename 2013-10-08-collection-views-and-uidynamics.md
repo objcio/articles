@@ -12,7 +12,7 @@ UIKit Dynamics is the new physics-based animation engine in iOS 7 – it has bee
 
 This article is going to discuss two examples of using collection views with UIKit Dynamics. The first example demonstrates how to reproduce the springy effect in the iOS 7 Messages app and is then amended to incorporate a tiling mechanism that makes the layout scalable. The second example shows how to use UIKit Dynamics to simulate a Newton's Cradle where items can be added to the collection view one at a time, interacting with one another. 
 
-Before we get started, I'm going to assume that you have a baseline understanding of how `UICollectionView` works – see [this objc.io post](/issue-3/collection-view-layouts.html) for all the details you'll need. I'll also assume that you understand how UIKit Dynamics works – see [this post](http://www.teehanlax.com/blog/introduction-to-uikit-dynamics/) for more. 
+Before we get started, I'm going to assume that you have a baseline understanding of how `UICollectionView` works – see [this objc.io post](/issues/3-views/collection-view-layouts/) for all the details you'll need. I'll also assume that you understand how UIKit Dynamics works – see [this post](http://www.teehanlax.com/blog/introduction-to-uikit-dynamics/) for more. 
 
 The two example projects for this article are on GitHub: 
 

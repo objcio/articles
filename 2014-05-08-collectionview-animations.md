@@ -10,7 +10,7 @@ author:
 
 `UICollectionView` and the set of associated classes are extremely flexible and powerful. But with this flexibility comes a certain dose of complexity: a collection view is a good deal deeper and more capable than the good old `UITableView`.
 
-It's so much deeper, in fact, that [Ole Begeman](http://oleb.net) and [Ash Furrow](https://twitter.com/ashfurrow) have written about [Custom Collection View Layouts](/issue-3/collection-view-layouts.html) and [Collection Views with UIKit Dynamics](/issue-5/collection-views-and-uidynamics.html) in objc.io previously, and I still have something to write about that they have not covered. In this post, I will assume that you're familiar with the basics of collection view layouts and have at least read Apple's excellent [programming guide](https://developer.apple.com/library/ios/documentation/WindowsViews/Conceptual/CollectionViewPGforIOS/Introduction/Introduction.html#//apple_ref/doc/uid/TP40012334) and Ole's [post](/issue-3/collection-view-layouts.html).
+It's so much deeper, in fact, that [Ole Begeman](http://oleb.net) and [Ash Furrow](https://twitter.com/ashfurrow) have written about [Custom Collection View Layouts](/issues/3-views/collection-view-layouts/) and [Collection Views with UIKit Dynamics](/issues/5-ios7/collection-views-and-uidynamics/) in objc.io previously, and I still have something to write about that they have not covered. In this post, I will assume that you're familiar with the basics of collection view layouts and have at least read Apple's excellent [programming guide](https://developer.apple.com/library/ios/documentation/WindowsViews/Conceptual/CollectionViewPGforIOS/Introduction/Introduction.html#//apple_ref/doc/uid/TP40012334) and Ole's [post](/issues/3-views/collection-view-layouts/).
 
 The first section of this article will concentrate on how different classes and methods work together to animate a collection view layout with the help of a few common examples. In the second section, we will look at view controller transitions with collection views and see how to use `useLayoutToLayoutNavigationTransitions` for the cases when it works, and implement custom transitions for the cases when it does not.
 
@@ -199,11 +199,11 @@ We looked at how to build custom animations in collection view layout by using a
 - `finalizeAnimatedBoundsChange`
 - `shouldInvalidateLayoutForBoundsChange:`
 
-in your `UICollectionViewLayout` subclass and returning the appropriate attributes from methods which return `UICollectionViewLayoutAttributes`. Even more engaging animations can be achieved by combining these techniques with UIKit Dynamics as introduced in objc.io [issue #5](/issue-5/collection-views-and-uidynamics.html).
+in your `UICollectionViewLayout` subclass and returning the appropriate attributes from methods which return `UICollectionViewLayoutAttributes`. Even more engaging animations can be achieved by combining these techniques with UIKit Dynamics as introduced in objc.io [issue #5](/issues/5-ios7/collection-views-and-uidynamics/).
 
 ## View Controller Transitions with Collection Views
 
-One of the big improvements in iOS 7 was with the custom view controller transitions, as [Chris](https://twitter.com/chriseidhof) [wrote about](/issue-5/view-controller-transitions.html) in objc.io [issue #5](/issue-5/index.html). In parallel to the custom transitions, Apple also added the `useLayoutToLayoutNavigationTransitions` flag to `UICollectionViewController` to enable navigation transitions which reuse a single collection view. Apple's own Photos and Calendar apps on iOS represent a great example of what is possible using such transitions.
+One of the big improvements in iOS 7 was with the custom view controller transitions, as [Chris](https://twitter.com/chriseidhof) [wrote about](/issues/5-ios7/view-controller-transitions/) in objc.io [issue #5](/issues/5-ios7/index/). In parallel to the custom transitions, Apple also added the `useLayoutToLayoutNavigationTransitions` flag to `UICollectionViewController` to enable navigation transitions which reuse a single collection view. Apple's own Photos and Calendar apps on iOS represent a great example of what is possible using such transitions.
 
 ### Transitions Between UICollectionViewController Instances
 

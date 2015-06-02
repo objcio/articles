@@ -23,7 +23,7 @@ tend to change very often. You don't want to have to change your tests every
 time you're tweaking the UI. That's not to say that you can't test the
 aesthetics at all. I have no experience with it, but verifying aesthetics could
 be done with snapshots. Read Orta’s article to learn more [about this
-method](/issue-15/snapshot-testing.html).
+method](/issues/15-testing/snapshot-testing/).
 
 The remainder of this article will be about testing user behavior. I've provided a project on [GitHub](https://github.com/objcio/issue-15-ui-testing) that includes some practical examples. It’s written for iOS using Objective-C, but the underlying principles can be applied to the Mac and other UI frameworks.
 

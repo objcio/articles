@@ -38,7 +38,7 @@ First, it is nice to create a separate class that imports things from the web se
   ...
 ```
 
-We want to create a class that has only one method, `fetchAllPods:`, that takes a callback block, which gets called for every page. It could also have been done using delegation; why we chose to have a block is something you can read in the article on [communication patterns](/issue-7/communication-patterns.html):
+We want to create a class that has only one method, `fetchAllPods:`, that takes a callback block, which gets called for every page. It could also have been done using delegation; why we chose to have a block is something you can read in the article on [communication patterns](/issues/7-foundation/communication-patterns/):
 
 ```objc
 @interface PodsWebservice : NSObject
@@ -87,7 +87,7 @@ Our importer has two methods:
 
 Injecting the context into the object via the constructor is a powerful trick. When writing tests, we could easily inject a different context. The same holds for the web service: we could easily have a different object mock the web service. 
 
-The `import` method is the one that has the logic. We call the `fetchAllPods:` method, and for each batch of pod specifications, we import them into the context. By wrapping the logic into a `performBlock:`, the context makes sure that everything happens on the correct thread. We then iterate over the specs, and for each one, we generate a unique identifier (this can be anything that uniquely determines a model object, as also explained in [Drew's article](/issue-10/data-synchronization.html)). We then try to find the model object, or create it if it doesn't exist. The method `loadFromDictionary:` takes the JSON dictionary and updates the model object with the values contained in the dictionary:
+The `import` method is the one that has the logic. We call the `fetchAllPods:` method, and for each batch of pod specifications, we import them into the context. By wrapping the logic into a `performBlock:`, the context makes sure that everything happens on the correct thread. We then iterate over the specs, and for each one, we generate a unique identifier (this can be anything that uniquely determines a model object, as also explained in [Drew's article](/issues/10-syncing-data/data-synchronization/)). We then try to find the model object, or create it if it doesn't exist. The method `loadFromDictionary:` takes the JSON dictionary and updates the model object with the values contained in the dictionary:
 
 ```objc
 - (void)import
@@ -106,7 +106,7 @@ The `import` method is the one that has the logic. We call the `fetchAllPods:` m
 }
 ```
 
-There are some more things to note about the code above. First of all, the find-or-create method is very inefficient. In production code, you would batch up the pods and find all of them at the same time, as explained in the section [Efficiently Importing Data](/issue-4/importing-large-data-sets-into-core-data.html) in the Core Data Programming Guide.
+There are some more things to note about the code above. First of all, the find-or-create method is very inefficient. In production code, you would batch up the pods and find all of them at the same time, as explained in the section [Efficiently Importing Data](/issues/4-core-data/importing-large-data-sets-into-core-data/) in the Core Data Programming Guide.
 
 Second, we created the `loadFromDictionary:` directly in the `Pod` class (which is the managed object subclass). This means that now our model object knows about the web service. In real code, we would probably put this into a category so that the two are nicely separated. For this example, it doesn't matter.
 
@@ -146,7 +146,7 @@ self.backgroundManagedObjectContext = [self setupManagedObjectContextWithConcurr
 
 Note that passing in the parameter `NSPrivateQueueConcurrencyType` tells Core Data to create a separate queue, which ensures that the background managed object context operations happen on a separate thread.
 
-Now there's only one more step left: whenever the background context is saved, we need to update the main thread. We described how to do this in a [previous article](/issue-2/common-background-practices.html) in issue #2. We register to get a notification whenever a context saves, and if it's the background context, call the method `mergeChangesFromContextDidSaveNotification:`. That's all there is to it:
+Now there's only one more step left: whenever the background context is saved, we need to update the main thread. We described how to do this in a [previous article](/issues/2-concurrency/common-background-practices/) in issue #2. We register to get a notification whenever a context saves, and if it's the background context, call the method `mergeChangesFromContextDidSaveNotification:`. That's all there is to it:
 
 ```objc
 [[NSNotificationCenter defaultCenter]
@@ -171,9 +171,9 @@ Note that your UI (even if it's read-only) has to be able to deal with changes t
 ## Implementing Writes from the UI
 
 
-You might think the above looks very simple, and that's because the only writing is done in the background thread. In our current application, we don't deal with merging in the other direction; there are no changes coming from the main managed object context. In order to add this, you could take multiple strategies. This is best described in [Drew's article](/issue-10/data-synchronization.html). 
+You might think the above looks very simple, and that's because the only writing is done in the background thread. In our current application, we don't deal with merging in the other direction; there are no changes coming from the main managed object context. In order to add this, you could take multiple strategies. This is best described in [Drew's article](/issues/10-syncing-data/data-synchronization/). 
 
-Depending on your requirements, one very simple pattern that might work is this: whenever the user changes something in the UI, you don't change the managed object context. Instead, you call the web service. If this succeeds, you get the diff from the web service, and update your background context. The changes will then propagate to the main context. There are two drawbacks with this: it might take a while before the user sees the changes in the UI, and if the user is not online, he or she can't change anything. In [Florian's article](/issue-10/sync-case-study.html), we describe how we used a different strategy that also works offline.
+Depending on your requirements, one very simple pattern that might work is this: whenever the user changes something in the UI, you don't change the managed object context. Instead, you call the web service. If this succeeds, you get the diff from the web service, and update your background context. The changes will then propagate to the main context. There are two drawbacks with this: it might take a while before the user sees the changes in the UI, and if the user is not online, he or she can't change anything. In [Florian's article](/issues/10-syncing-data/sync-case-study/), we describe how we used a different strategy that also works offline.
 
 If you're dealing with merges, you will also need to define a merge policy. This is again something very specific to your use case. You may want to throw an error if a merge fails, or always give priority to one managed object context. The [NSMergePolicy](https://developer.apple.com/library/mac/documentation/CoreData/Reference/NSMergePolicy_Class/Reference/Reference.html) class describes the possibilities.
 

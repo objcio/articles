@@ -14,8 +14,8 @@ In this article, we'll tie together all the different parts of our system and bu
 
 In our app, we have a couple of classes:
 
-* The `DroneCommunicator` takes care of all the communication with the drone over UDP. This is all explained in [Daniel's article](/issue-8/communicating-with-the-quadcopter.html). 
-* The `RemoteClient` is the class that takes care of communicating with our remote client over Multipeer Connectivity. What happens on the client's side is explained in [Florian's](/issue-8/the-quadcopter-client-app.html) article.
+* The `DroneCommunicator` takes care of all the communication with the drone over UDP. This is all explained in [Daniel's article](/issues/8-quadcopter/communicating-with-the-quadcopter/). 
+* The `RemoteClient` is the class that takes care of communicating with our remote client over Multipeer Connectivity. What happens on the client's side is explained in [Florian's](/issues/8-quadcopter/the-quadcopter-client-app/) article.
 * The `Navigator` takes a target location and calculates the direction we need to fly in, as well as the distance to the target.
 * The `DroneController` talks with the navigator and sends commands to the drone communicator based on the navigator's direction and distance.
 * The `ViewController` has a small UI, and takes care of setting up the other classes and connecting them. This last part could be done in a different class, but for our purposes, everything is simple enough to keep it in the view controller.

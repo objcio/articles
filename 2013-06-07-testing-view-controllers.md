@@ -16,7 +16,7 @@ Testing simple things is simple, and testing complex things is complex.  As we p
 
 Testing UI components is often tricky because there are too many moving parts involved. More often than not, the view controller interacts with a lot of classes from both the model and the view layer. In order to be able to test the view controller, we need things to work in isolation.
 
-There's hope, though: The techniques we describe to make [lighter view controllers](/issue-1/lighter-view-controllers.html) also make testing easier. Generally, if you find something difficult to test, that's a hint that your design may be broken and that you should refactor some of it. Again, refer to the article about [lighter view controllers](/issue-1/lighter-view-controllers.html) for some hints. An overall design goal is to have clear separation of concerns. Each class should do only one thing, and do that one thing well. That will then allow for testing of that one thing.
+There's hope, though: The techniques we describe to make [lighter view controllers](/issues/1-view-controllers/lighter-view-controllers/) also make testing easier. Generally, if you find something difficult to test, that's a hint that your design may be broken and that you should refactor some of it. Again, refer to the article about [lighter view controllers](/issues/1-view-controllers/lighter-view-controllers/) for some hints. An overall design goal is to have clear separation of concerns. Each class should do only one thing, and do that one thing well. That will then allow for testing of that one thing.
 
 Remember: You'll get diminishing returns as you add more tests. First and foremost, add simple tests. Branch into more sophisticated territory as you start to feel comfortable with it.
 

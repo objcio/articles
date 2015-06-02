@@ -17,7 +17,7 @@ In this article, we'll look into applying Core Image effects to live video. We'l
 
 Performance is very important when it comes to video. And it's important to understand how things work under the hood — how Core Image does its work — in order to be able to deliver that performance. It's important to do as much work on the GPU as possible, and minimize the transferring of data between GPU and CPU. After the examples, we'll look into the details of this.
 
-To get a feeling for Core Image, it's good to read Warren's article: [An Introduction to Core Image](/issue-21/core-image-intro.html). We'll use the functional wrappers around `CIFilter` as described in [Functional Core Image](/issue-16/functional-swift-apis.html). To understand more about AVFoundation, have a look at [Adriaan's article](/issue-23/capturing-video.html) in this issue and the [Camera Capture](/issue-21/camera-capture-on-ios.html) article in Issue #21.
+To get a feeling for Core Image, it's good to read Warren's article: [An Introduction to Core Image](/issues/21-camera-and-photos/core-image-intro/). We'll use the functional wrappers around `CIFilter` as described in [Functional Core Image](/issues/16-swift/functional-swift-apis/). To understand more about AVFoundation, have a look at [Adriaan's article](/issues/23-video/capturing-video/) in this issue and the [Camera Capture](/issues/21-camera-and-photos/camera-capture-on-ios/) article in Issue #21.
 
 ## Harnessing OpenGL ES
 
@@ -33,7 +33,7 @@ For a full code example, take a look at [CoreImageView.swift](https://github.com
 
 ## Getting Pixel Data from the Camera
 
-For an overview of how AVFoundation works, see [Adriaan's article](/issue-23/capturing-video.html) and the [Camera Capture](/issue-21/camera-capture-on-ios.html) article by Matteo. For our purposes, we want to get raw sample buffers from the camera. Given a camera, we do this by creating an `AVCaptureDeviceInput` object. Using an `AVCaptureSession`, we can connect it to an `AVCaptureVideoDataOutput`. This video data output has a delegate object that conforms to the `AVCaptureVideoDataOutputSampleBufferDelegate` protocol. This delegate will receive a message for each frame:
+For an overview of how AVFoundation works, see [Adriaan's article](/issues/23-video/capturing-video/) and the [Camera Capture](/issues/21-camera-and-photos/camera-capture-on-ios/) article by Matteo. For our purposes, we want to get raw sample buffers from the camera. Given a camera, we do this by creating an `AVCaptureDeviceInput` object. Using an `AVCaptureSession`, we can connect it to an `AVCaptureVideoDataOutput`. This video data output has a delegate object that conforms to the `AVCaptureVideoDataOutputSampleBufferDelegate` protocol. This delegate will receive a message for each frame:
 
 ```swift
 func captureOutput(captureOutput: AVCaptureOutput!,
@@ -62,7 +62,7 @@ extension CIImage {
 }
 ```
 
-Now, we can process our image in three steps. First, we convert our `CMSampleBuffer` into a `CIImage`, and apply a transform so the image is rotated correctly. Next, we apply a `CIFilter` to get a new `CIImage` out. We use the style in [Florian's article](/issue-16/functional-swift-apis.html) for creating filters. In this case, we use a hue adjust filter, and pass in an angle that depends on time. Finally, we use our custom view defined in the previous section to render our `CIImage` using a `CIContext`. This flow is very simple, and looks like this:
+Now, we can process our image in three steps. First, we convert our `CMSampleBuffer` into a `CIImage`, and apply a transform so the image is rotated correctly. Next, we apply a `CIFilter` to get a new `CIImage` out. We use the style in [Florian's article](/issues/16-swift/functional-swift-apis/) for creating filters. In this case, we use a hue adjust filter, and pass in an angle that depends on time. Finally, we use our custom view defined in the previous section to render our `CIImage` using a `CIContext`. This flow is very simple, and looks like this:
 
 ```swift
 source = CaptureBufferSource(position: AVCaptureDevicePosition.Front) {
@@ -85,7 +85,7 @@ Here's a video of the result:
 
 Another thing we can do is filter a movie through Core Image. Instead of camera frames, we now generate pixel buffers from each movie frame. We will take a slightly different approach here. While the camera pushed frames to us, we use a pull-driven approach for the movie: using a display link, we ask AVFoundation for a frame at a specific time.
 
-A display link is an object that sends us messages every time a frame needs to be drawn, and sends this synchronously with the display's refresh rate. This is often used for [custom animations](/issue-12/interactive-animations.html), but can be used to play and manipulate video as well. The first thing we will do is create an `AVPlayer` and a video output:
+A display link is an object that sends us messages every time a frame needs to be drawn, and sends this synchronously with the display's refresh rate. This is often used for [custom animations](/issues/12-animations/interactive-animations/), but can be used to play and manipulate video as well. The first thing we will do is create an `AVPlayer` and a video output:
 
 ```swift
 player = AVPlayer(URL: url)
@@ -145,7 +145,7 @@ The composite operation and `CIBlendWithAlphaMask` and `CIBlendWithMask` allow c
 <a name="cpuvsgpu"></a>
 ## CPU vs. GPU
 
-Our article from Issue #3, [Getting Pixels onto the Screen](/issue-3/moving-pixels-onto-the-screen.html), describes the *graphics stack* of both iOS and OS X. The important thing to note is the notion of the CPU vs. the GPU, and how data moves between the two.
+Our article from Issue #3, [Getting Pixels onto the Screen](/issues/3-views/moving-pixels-onto-the-screen/), describes the *graphics stack* of both iOS and OS X. The important thing to note is the notion of the CPU vs. the GPU, and how data moves between the two.
 
 When working on live video, we face performance challenges.
 

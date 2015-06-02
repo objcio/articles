@@ -100,7 +100,7 @@ additional methods such as
 `tableView:commitEditingStyle:forRowAtIndexPath:` and share that code among
 all your table view controllers.
 
-The nice thing is that we can [test this class](/issue-1/testing-view-controllers.html#testing-datasource) separately,
+The nice thing is that we can [test this class](/issues/1-view-controllers/testing-view-controllers/#testing-datasource) separately,
 and never have to worry about writing it again. The same principle
 applies if you use something else other than arrays.
 
