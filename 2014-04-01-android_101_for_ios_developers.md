@@ -39,7 +39,8 @@ Android applications are primarily broken into two sections, the first of which 
 The second major section is the `res` folder, short for 'resource' folder. The `res` folder is a collection of images, XML layout files, and XML value files that make up the bulk of the non-code assets. On iOS, images are either `@2x` or not, but on Android there are a number of screen density folders to consider.[^2] Android uses folders to arrange images, strings, and other values for screen density. The `res` folder also contains XML layout files that can be thought of as `xib` files. Lastly, there are other XML files that store resources for string, integer, and style resources.
 
 One last correlation in project structure is the `AndroidManifest.xml` file. This file is the equivalent of the `Project-Info.plist` file on iOS, and it stores information for activities, application names, and set Intents[^3] (system-level events) that the application can handle.
- For more information about Intents, keep on reading, or head over to the [Intents](/issue-11/android-intents.html) article.
+
+For more information about Intents, keep on reading, or head over to the [Intents](/issues/11-android/android-intents/) article.
 
 ## Activities
 
@@ -457,7 +458,7 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle sa
 - Don't bother nudging items for layouts in the visual editor -- often the visual editor will put individual points of spacing on objects instead of adjusting the height and width as you might like. Your best bet is to adjust the XML directly.
 - If you ever see the `fill_parent` value for a layout height or width, this value was deprecated years ago in API 8 and replaced with `match_parent`.
 
-See the the [responsive android applications](/issue-11/responsive-android-applications.html) article for more tips on this.
+See the the [responsive android applications](/issues/11-android/responsive-android-applications/) article for more tips on this.
  
 
 ## Data
@@ -469,7 +470,7 @@ The [Data Storage Options](http://developer.android.com/guide/topics/data/data-s
 - Saving to and fetching from file structure via the [internal](http://developer.android.com/guide/topics/data/data-storage.html#filesInternal) or [external](http://developer.android.com/guide/topics/data/data-storage.html#filesExternal) file storage <-> saving to the documents directory
 - [SQLite](http://developer.android.com/guide/topics/data/data-storage.html#db) <-> Core Data
  
-The primary difference is the lack of Core Data. Instead, Android offers straight access to the SQLite database and returns [cursor](http://developer.android.com/reference/android/database/Cursor.html) objects for results. Head over to the article in this issue about [using SQLite on Android](/issue-11/sqlite-database-support-in-android.html) for more details.
+The primary difference is the lack of Core Data. Instead, Android offers straight access to the SQLite database and returns [cursor](http://developer.android.com/reference/android/database/Cursor.html) objects for results. Head over to the article in this issue about [using SQLite on Android](/issues/11-android/sqlite-database-support-in-android/) for more details.
 
 
 ## Android Homework
