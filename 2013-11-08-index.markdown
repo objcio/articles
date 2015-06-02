@@ -1,7 +1,0 @@
----
-category: "6"
-date: "2013-11-08 12:00:00"
-tags: toc
----
-
-In issue #6 we show how the Xcode build tools generate binaries from code. We take a look behind the scenes of the Xcode build process, the compiler, and the linker. Furthermore, Michele Titolo explains how CocoaPods hooks into the build process, and Mattes Groeger demonstrates how to use Travis CI for iOS projects.
