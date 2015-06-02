@@ -268,7 +268,7 @@ Suppose we have a mutable object, `Account`, representing a bank account, that h
     }
 
 
-Multithreaded code can go wrong in many ways. For example, if thread A reads `self.balance`, thread B might be modifying it before thread A continues. For a good explanation of all the dangers involved, see our [second issue](/issue-2/).
+Multithreaded code can go wrong in many ways. For example, if thread A reads `self.balance`, thread B might be modifying it before thread A continues. For a good explanation of all the dangers involved, see our [second issue](/issues/2-concurrency/).
 
 If we have immutable objects instead, things are much easier. We cannot modify them, and this forces us to provide mutability at a completely different level, yielding much simpler code.
 
