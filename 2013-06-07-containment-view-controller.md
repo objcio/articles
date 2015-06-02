@@ -19,7 +19,7 @@ unit of content</q>.
 Why didn't Apple want us to build our own tab bar controllers and
 navigation controllers? Or put more precisely, what is the problem with: 
 
-```objc    
+```objc
 [viewControllerA.view addSubView:viewControllerB.view]
 ```
 

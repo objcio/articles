@@ -54,66 +54,74 @@ and `–dataTaskWithRequest:completionHandler:`. Similar to `NSURLConnection -se
 
 In iOS 5, `NSURLConnection` added the method `sendAsynchronousRequest:queue:completionHandler:`, which greatly simplified its use for one-off requests, and offered an asynchronous alternative to `-sendSynchronousRequest:returningResponse:error:`:
 
-     NSURL *URL = [NSURL URLWithString:@"http://example.com"];
-     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-     
-     [NSURLConnection sendAsynchronousRequest:request
-                                        queue:[NSOperationQueue mainQueue]
-                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-         // ...
-     }];
+```objc
+ NSURL *URL = [NSURL URLWithString:@"http://example.com"];
+ NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+ 
+ [NSURLConnection sendAsynchronousRequest:request
+                                    queue:[NSOperationQueue mainQueue]
+                        completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+     // ...
+ }];
+```
 
 `NSURLSession` iterates on this pattern with its task constructor methods. Rather than running immediately, the task object is returned to allow for further configuration before being kicked off with `-resume`.
 
 Data tasks can be created with either an `NSURL` or `NSURLRequest` (the former being a shortcut for a standard `GET` request to that URL):
 
-     NSURL *URL = [NSURL URLWithString:@"http://example.com"];
-     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+```objc
+ NSURL *URL = [NSURL URLWithString:@"http://example.com"];
+ NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+ 
+ NSURLSession *session = [NSURLSession sharedSession];
+ NSURLSessionDataTask *task = [session dataTaskWithRequest:request
+                                         completionHandler:
+     ^(NSData *data, NSURLResponse *response, NSError *error) {
+         // ...
+     }];
      
-     NSURLSession *session = [NSURLSession sharedSession];
-     NSURLSessionDataTask *task = [session dataTaskWithRequest:request
-                                             completionHandler:
-         ^(NSData *data, NSURLResponse *response, NSError *error) {
-             // ...
-         }];
-         
-     [task resume];
+ [task resume];
+```
 
 Upload tasks can also be created with a request and either an `NSData` object for a URL to a local file to upload:
 
-     NSURL *URL = [NSURL URLWithString:@"http://example.com/upload"];
-     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-     NSData *data = ...;
+```objc
+ NSURL *URL = [NSURL URLWithString:@"http://example.com/upload"];
+ NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+ NSData *data = ...;
+ 
+ NSURLSession *session = [NSURLSession sharedSession];
+ NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request
+                                                            fromData:data
+                                                   completionHandler:
+     ^(NSData *data, NSURLResponse *response, NSError *error) {
+         // ...
+     }];
      
-     NSURLSession *session = [NSURLSession sharedSession];
-     NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request
-                                                                fromData:data
-                                                       completionHandler:
-         ^(NSData *data, NSURLResponse *response, NSError *error) {
-             // ...
-         }];
-         
-     [uploadTask resume];
+ [uploadTask resume];
+```
 
 Download requests take a request as well, but differ in their `completionHandler`. Rather than being returned all at once upon completion, as data and upload tasks, download tasks have their data written to a local temp file. It's the responsibility of the completion handler to move the file from its temporary location to a permanent location.
 
-     NSURL *URL = [NSURL URLWithString:@"http://example.com/file.zip"];
-     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-     
-     NSURLSession *session = [NSURLSession sharedSession];
-     NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithRequest:request
-                                                             completionHandler:
-        ^(NSURL *location, NSURLResponse *response, NSError *error) {
-            NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-            NSURL *documentsDirectoryURL = [NSURL fileURLWithPath:documentsPath];
-            NSURL *documentURL = [documentsDirectoryURL URLByAppendingPathComponent:[response 
-    suggestedFilename]];
-            [[NSFileManager defaultManager] moveItemAtURL:location
-                                                    toURL:documentURL
-                                                    error:nil];
-     }];
+```objc
+ NSURL *URL = [NSURL URLWithString:@"http://example.com/file.zip"];
+ NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+ 
+ NSURLSession *session = [NSURLSession sharedSession];
+ NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithRequest:request
+                                                         completionHandler:
+    ^(NSURL *location, NSURLResponse *response, NSError *error) {
+        NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+        NSURL *documentsDirectoryURL = [NSURL fileURLWithPath:documentsPath];
+        NSURL *documentURL = [documentsDirectoryURL URLByAppendingPathComponent:[response 
+suggestedFilename]];
+        [[NSFileManager defaultManager] moveItemAtURL:location
+                                                toURL:documentURL
+                                                error:nil];
+ }];
 
-     [downloadTask resume];
+ [downloadTask resume];
+```
 
 ### NSURLSession & NSURLConnection Delegate Methods
 
@@ -157,16 +165,18 @@ There are 20 properties on `NSURLSessionConfiguration`. Having a working knowled
 
 `HTTPAdditionalHeaders` specifies a set of default headers to be set on outbound requests. This is useful for information that is shared across a session, such as content type, language, user agent, and authentication:
 
-    NSString *userPasswordString = [NSString stringWithFormat:@"%@:%@", user, password];
-    NSData * userPasswordData = [userPasswordString dataUsingEncoding:NSUTF8StringEncoding];
-    NSString *base64EncodedCredential = [userPasswordData base64EncodedStringWithOptions:0];
-    NSString *authString = [NSString stringWithFormat:@"Basic %@", base64EncodedCredential];
-    NSString *userAgentString = @"AppName/com.example.app (iPhone 5s; iOS 7.0.2; Scale/2.0)";
-    
-    configuration.HTTPAdditionalHeaders = @{@"Accept": @"application/json",
-                                            @"Accept-Language": @"en",
-                                            @"Authorization": authString,
-                                            @"User-Agent": userAgentString};
+```objc
+NSString *userPasswordString = [NSString stringWithFormat:@"%@:%@", user, password];
+NSData * userPasswordData = [userPasswordString dataUsingEncoding:NSUTF8StringEncoding];
+NSString *base64EncodedCredential = [userPasswordData base64EncodedStringWithOptions:0];
+NSString *authString = [NSString stringWithFormat:@"Basic %@", base64EncodedCredential];
+NSString *userAgentString = @"AppName/com.example.app (iPhone 5s; iOS 7.0.2; Scale/2.0)";
+
+configuration.HTTPAdditionalHeaders = @{@"Accept": @"application/json",
+                                        @"Accept-Language": @"en",
+                                        @"Authorization": authString,
+                                        @"User-Agent": userAgentString};
+```
 
 `networkServiceType` distinguishes between standard network traffic, VOIP, voice, video, and traffic used by a background process. Most applications won't need to set this.
 

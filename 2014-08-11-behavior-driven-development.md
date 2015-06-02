@@ -20,7 +20,9 @@ The answer to that question is not simple. In fact, it is a rather complicated i
 
 But you still wanted to pursue the idea of having tests. So you wrote tests that just called your methods (unit testing right?):
 
-    -(void)testDownloadData;
+```objc
+-(void)testDownloadData;
+```
 
 There is one fundamental issue with tests like this: they don't really tell you what should happen. They don't tell you what is actually being expected. It is not *clear* what the requirements are. 
 
@@ -42,66 +44,68 @@ And that is what you should be aiming at: testing how your object behaves.
 
 Before we talk about benefits of BDD DSL, let's first go through its basics and see how a simple test suite for class `Car` looks:
 
-    SpecBegin(Car)
-        describe(@"Car", ^{
+```objc
+SpecBegin(Car)
+    describe(@"Car", ^{
+    
+        __block Car *car;
+    
+        // Will be run before each enclosed it
+        beforeEach(^{
+            car = [Car new];
+        });
         
-            __block Car *car;
+        // Will be run after each enclosed it
+        afterEach(^{
+            car = nil;
+        });
+    
+        // An actual test
+        it(@"should be red", ^{
+            expect(car.color).to.equal([UIColor redColor]);
+        });
         
-            // Will be run before each enclosed it
+        describe(@"when it is started", ^{
+        
             beforeEach(^{
-                car = [Car new];
-            });
-            
-            // Will be run after each enclosed it
-            afterEach(^{
-                car = nil;
+                [car start];
             });
         
-            // An actual test
-            it(@"should be red", ^{
-                expect(car.color).to.equal([UIColor redColor]);
+            it(@"should have engine running", ^{
+                expect(car.engine.running).to.beTruthy();
             });
+        });
+        
+        describe(@"move to", ^{
             
-            describe(@"when it is started", ^{
+            context(@"when the engine is running", ^{
             
                 beforeEach(^{
-                    [car start];
+                    car.engine.running = YES;
+                    [car moveTo:CGPointMake(42,0)];
                 });
-            
-                it(@"should have engine running", ^{
-                    expect(car.engine.running).to.beTruthy();
+                
+                it(@"should move to given position", ^{
+                    expect(car.position).to.equal(CGPointMake(42, 0));
                 });
             });
+        
+            context(@"when the engine is not running", ^{
             
-            describe(@"move to", ^{
-                
-                context(@"when the engine is running", ^{
-                
-                    beforeEach(^{
-                        car.engine.running = YES;
-                        [car moveTo:CGPointMake(42,0)];
-                    });
-                    
-                    it(@"should move to given position", ^{
-                        expect(car.position).to.equal(CGPointMake(42, 0));
-                    });
+                beforeEach(^{
+                    car.engine.running = NO;
+                    [car moveTo:CGPointMake(42,0)];
                 });
-            
-                context(@"when the engine is not running", ^{
                 
-                    beforeEach(^{
-                        car.engine.running = NO;
-                        [car moveTo:CGPointMake(42,0)];
-                    });
-                    
-                    it(@"should not move to given position", ^{
-                        expect(car.position).to.equal(CGPointZero);
-                    });
+                it(@"should not move to given position", ^{
+                    expect(car.position).to.equal(CGPointZero);
                 });
             });
         });
-    SpecEnd
-    
+    });
+SpecEnd
+```
+
 `SpecBegin` declares a test class named `CarSpec`. `SpecEnd` closes that class declaration. 
 
 The `describe` block declares a group of examples.
@@ -167,23 +171,27 @@ Keep in mind that you shouldn't put *all* of your object dependencies and proper
 
 Let's start with a simple example. We'll build a component that is responsible for formatting a text message for a given event object: 
 
-    @interface EventDescriptionFormatter : NSObject
-    @property(nonatomic, strong) NSDateFormatter *dateFormatter;
-    
-    - (NSString *)eventDescriptionFromEvent:(id <Event>)event;
-    
-    @end
+```objc
+@interface EventDescriptionFormatter : NSObject
+@property(nonatomic, strong) NSDateFormatter *dateFormatter;
+
+- (NSString *)eventDescriptionFromEvent:(id <Event>)event;
+
+@end
+```
 
 This is how our interface looks. The event protocol defines three basic properties of an event:
 
-    @protocol Event <NSObject>
-    
-    @property(nonatomic, readonly) NSString *name;
-    
-    @property(nonatomic, readonly) NSDate *startDate;
-    @property(nonatomic, readonly) NSDate *endDate;
-    
-    @end
+```objc
+@protocol Event <NSObject>
+
+@property(nonatomic, readonly) NSString *name;
+
+@property(nonatomic, readonly) NSDate *startDate;
+@property(nonatomic, readonly) NSDate *endDate;
+
+@end
+```
 
 Our goal is to test whether `EventDescriptionFormatter` returns a formatted description that looks like `My Event starts at Aug 21, 2014, 12:00 AM and ends at Aug 21, 2014, 1:00 AM.` 
 
@@ -191,79 +199,87 @@ Please note that this (and all other examples in this article) use mocking frame
 
 We'll start by mocking our only dependency in the component, which is the date formatter. We'll use the created mock to return fixture strings for the start and end dates. Then we'll check whether the string returned from the event formatter is constructed using the values that we have just mocked: 
 
-    __block id mockDateFormatter;
-    __block NSString *eventDescription;
-    __block id mockEvent;
+```objc
+__block id mockDateFormatter;
+__block NSString *eventDescription;
+__block id mockEvent;
 
-    beforeEach(^{
-        // Prepare mock date formatter
-        mockDateFormatter = mock([NSDateFormatter class]);
-        descriptionFormatter.dateFormatter = mockDateFormatter;
+beforeEach(^{
+    // Prepare mock date formatter
+    mockDateFormatter = mock([NSDateFormatter class]);
+    descriptionFormatter.dateFormatter = mockDateFormatter;
 
-        NSDate *startDate = [NSDate mt_dateFromYear:2014 month:8 day:21];
-        NSDate *endDate = [startDate mt_dateHoursAfter:1];
+    NSDate *startDate = [NSDate mt_dateFromYear:2014 month:8 day:21];
+    NSDate *endDate = [startDate mt_dateHoursAfter:1];
 
-        // Pepare mock event
-        mockEvent = mockProtocol(@protocol(Event));
-        [given([mockEvent name]) willReturn:@"Fixture Name"];
-        [given([mockEvent startDate]) willReturn:startDate];
-        [given([mockEvent endDate]) willReturn:endDate];
+    // Pepare mock event
+    mockEvent = mockProtocol(@protocol(Event));
+    [given([mockEvent name]) willReturn:@"Fixture Name"];
+    [given([mockEvent startDate]) willReturn:startDate];
+    [given([mockEvent endDate]) willReturn:endDate];
 
-        [given([mockDateFormatter stringFromDate:startDate]) willReturn:@"Fixture String 1"];
-        [given([mockDateFormatter stringFromDate:endDate]) willReturn:@"Fixture String 2"];
+    [given([mockDateFormatter stringFromDate:startDate]) willReturn:@"Fixture String 1"];
+    [given([mockDateFormatter stringFromDate:endDate]) willReturn:@"Fixture String 2"];
 
-        eventDescription = [descriptionFormatter eventDescriptionFromEvent:mockEvent];
-    });
+    eventDescription = [descriptionFormatter eventDescriptionFromEvent:mockEvent];
+});
 
-    it(@"should return formatted description", ^{
-        expect(eventDescription).to.equal(@"Fixture Name starts at Fixture String 1 and ends at Fixture String 2.");
-    });
-        
+it(@"should return formatted description", ^{
+    expect(eventDescription).to.equal(@"Fixture Name starts at Fixture String 1 and ends at Fixture String 2.");
+});
+```
+
 Note that we have only tested whether our `EventDescriptionFormatter` uses its `NSDateFormatter` for formatting the dates. We haven't actually tested the format style. Thus, to have a fully tested component, we need to add two more tests that check format style:
 
-    it(@"should have appropriate date style on date formatter", ^{
-        expect(descriptionFormatter.dateFormatter.dateStyle).to.equal(NSDateFormatterMediumStyle);
-    });
+```objc
+it(@"should have appropriate date style on date formatter", ^{
+    expect(descriptionFormatter.dateFormatter.dateStyle).to.equal(NSDateFormatterMediumStyle);
+});
 
-    it(@"should have appropriate time style on date formatter", ^{
-        expect(descriptionFormatter.dateFormatter.timeStyle).to.equal(NSDateFormatterMediumStyle);
-    });
-    
+it(@"should have appropriate time style on date formatter", ^{
+    expect(descriptionFormatter.dateFormatter.timeStyle).to.equal(NSDateFormatterMediumStyle);
+});
+```
+
 Even though we have a fully tested component, we wrote quite a few tests. And this is a really small component, isn't it? Let's try approaching this issue from a slightly different angle.
 
 The example above doesn't exactly test *behavior* of `EventDescriptionFormatter`. It mostly tests its internal implementation by mocking the `NSDateFormatter`. In fact, we don't actually care whether there's a date formatter underneath at all. From an interface perspective, we could've been formatting the date manually by using date components. All we care about at this point is whether we got our string right. And that is the behavior that we want to test.
 
 We can easily achieve this by not mocking the `NSDateFormatter`. As said before, we don't even care whether its there, so let's actually remove it from the interface: 
 
-    @interface EventDescriptionFormatter : NSObject
-    
-    - (NSString *)eventDescriptionFromEvent:(id <Event>)event;
-    
-    @end
-    
+```objc
+@interface EventDescriptionFormatter : NSObject
+
+- (NSString *)eventDescriptionFromEvent:(id <Event>)event;
+
+@end
+```
+
 The next step is, of course, refactoring our tests. Now that we no longer need to know the internals of the event formatter, we can focus on the actual behavior:
 
-    describe(@"event description from event", ^{
+```objc
+describe(@"event description from event", ^{
 
-        __block NSString *eventDescription;
-        __block id mockEvent;
+    __block NSString *eventDescription;
+    __block id mockEvent;
+    
+    beforeEach(^{
+        NSDate *startDate = [NSDate mt_dateFromYear:2014 month:8 day:21];
+        NSDate *endDate = [startDate mt_dateHoursAfter:1];
         
-        beforeEach(^{
-            NSDate *startDate = [NSDate mt_dateFromYear:2014 month:8 day:21];
-            NSDate *endDate = [startDate mt_dateHoursAfter:1];
-            
-            mockEvent = mockProtocol(@protocol(Event));
-            [given([mockEvent name]) willReturn:@"Fixture Name"];
-            [given([mockEvent startDate]) willReturn:startDate];
-            [given([mockEvent endDate]) willReturn:endDate];
-        
-            eventDescription = [descriptionFormatter eventDescriptionFromEvent:mockEvent];
-        });
-        
-        it(@"should return formatted description", ^{
-            expect(eventDescription).to.equal(@"Fixture Name starts at Aug 21, 2014, 12:00 AM and ends at Aug 21, 2014, 1:00 AM.");
-        });
+        mockEvent = mockProtocol(@protocol(Event));
+        [given([mockEvent name]) willReturn:@"Fixture Name"];
+        [given([mockEvent startDate]) willReturn:startDate];
+        [given([mockEvent endDate]) willReturn:endDate];
+    
+        eventDescription = [descriptionFormatter eventDescriptionFromEvent:mockEvent];
     });
+    
+    it(@"should return formatted description", ^{
+        expect(eventDescription).to.equal(@"Fixture Name starts at Aug 21, 2014, 12:00 AM and ends at Aug 21, 2014, 1:00 AM.");
+    });
+});
+```
 
 Note how simple our test has become. We only have a minimalistic setup block where we prepare a data model and call a tested method. By focusing more on the result of behavior, rather than the way it actually works, we have simplified our test suite while still retaining functional test coverage of our object. This is exactly what BDD is about — trying to think about results of behaviors, and not the actual implementation.
 
@@ -271,93 +287,113 @@ Note how simple our test has become. We only have a minimalistic setup block whe
 
 In this example, we will build a simple data downloader. We will specifically focus on one single behavior of our data downloader: making a request and canceling the download. Let's start with defining our interface:
 
-    @interface CalendarDataDownloader : NSObject
-    
-    @property(nonatomic, weak) id <CalendarDataDownloaderDelegate> delegate;
-    
-    @property(nonatomic, readonly) NetworkLayer *networkLayer;
-    
-    - (instancetype)initWithNetworkLayer:(NetworkLayer *)networkLayer;
-    
-    - (void)updateCalendarData;
-    
-    - (void)cancel;
-    
-    @end
-    
+```objc
+@interface CalendarDataDownloader : NSObject
+
+@property(nonatomic, weak) id <CalendarDataDownloaderDelegate> delegate;
+
+@property(nonatomic, readonly) NetworkLayer *networkLayer;
+
+- (instancetype)initWithNetworkLayer:(NetworkLayer *)networkLayer;
+
+- (void)updateCalendarData;
+
+- (void)cancel;
+
+@end
+```
+
 And of course, the interface for our network layer: 
 
-    @interface NetworkLayer : NSObject
-    
-    // Returns an identifier that can be used for canceling a request.
-    - (id)makeRequest:(id <NetworkRequest>)request completion:(void (^)(id <NetworkRequest>, id, NSError *))completion;
-    
-    - (void)cancelRequestWithIdentifier:(id)identifier;
-    
-    @end
+```objc
+@interface NetworkLayer : NSObject
+
+// Returns an identifier that can be used for canceling a request.
+- (id)makeRequest:(id <NetworkRequest>)request completion:(void (^)(id <NetworkRequest>, id, NSError *))completion;
+
+- (void)cancelRequestWithIdentifier:(id)identifier;
+
+@end
+```
 
 We will first check whether the actual download took place. The mock network layer has been created and injected in a `describe` block above: 
 
-    describe(@"update calendar data", ^{
-        beforeEach(^{
-            [calendarDataDownloader updateCalendarData];
-        });
-
-        it(@"should make a download data request", ^{
-            [verify(mockNetworkLayer) makeRequest:instanceOf([CalendarDataRequest class]) completion:anything()];
-        });
+```objc
+describe(@"update calendar data", ^{
+    beforeEach(^{
+        [calendarDataDownloader updateCalendarData];
     });
-    
+
+    it(@"should make a download data request", ^{
+        [verify(mockNetworkLayer) makeRequest:instanceOf([CalendarDataRequest class]) completion:anything()];
+    });
+});
+```
+
 This part was pretty simple. The next step is to check whether that request was canceled when we called the cancel method. We need to make sure we don't call the cancel method with no identifier. Specifications for such behavior can look like this:
 
-    describe(@"cancel ", ^{
-        context(@"when there's an identifier", ^{
-            beforeEach(^{
-                calendarDataDownloader.identifier = @"Fixture Identifier";
-                [calendarDataDownloader cancel];
-            });
-
-            it(@"should tell the network layer to cancel request", ^{
-                [verify(mockNetworkLayer) cancelRequestWithIdentifier:@"Fixture Identifier"];
-            });
-
-            it(@"should remove the identifier", ^{
-                expect(calendarDataDownloader.identifier).to.beNil();
-            });
+```objc
+describe(@"cancel ", ^{
+    context(@"when there's an identifier", ^{
+        beforeEach(^{
+            calendarDataDownloader.identifier = @"Fixture Identifier";
+            [calendarDataDownloader cancel];
         });
 
-        context(@"when there's no identifier", ^{
-            beforeEach(^{
-                calendarDataDownloader.identifier = nil;
-                [calendarDataDownloader cancel];
-            });
+        it(@"should tell the network layer to cancel request", ^{
+            [verify(mockNetworkLayer) cancelRequestWithIdentifier:@"Fixture Identifier"];
+        });
 
-            it(@"should not ask the network layer to cancel request", ^{
-                [verifyCount(mockNetworkLayer, never()) cancelRequestWithIdentifier:anything()];
-            });
+        it(@"should remove the identifier", ^{
+            expect(calendarDataDownloader.identifier).to.beNil();
         });
     });
-    
+
+    context(@"when there's no identifier", ^{
+        beforeEach(^{
+            calendarDataDownloader.identifier = nil;
+            [calendarDataDownloader cancel];
+        });
+
+        it(@"should not ask the network layer to cancel request", ^{
+            [verifyCount(mockNetworkLayer, never()) cancelRequestWithIdentifier:anything()];
+        });
+    });
+});
+```
+
 The request identifier is a private property of `CalendarDataDownloader`, so we will need to expose it in our tests:
 
-    @interface CalendarDataDownloader (Specs)
-    @property(nonatomic, strong) id identifier;
-    @end
-    
+```objc
+@interface CalendarDataDownloader (Specs)
+@property(nonatomic, strong) id identifier;
+@end
+```
+
 You can probably gauge that there's something wrong with these tests. Even though they are valid and they check for specific behavior, they expose the internal workings of our `CalendarDataDownloader`. There's no need for our tests to have knowledge of how the `CalendarDataDownloader` holds its request identifier. Let's see how we can write our tests without exposing internal implementation:
 
-    describe(@"update calendar data", ^{
+```objc
+describe(@"update calendar data", ^{
+    beforeEach(^{
+        [given([mockNetworkLayer makeRequest:instanceOf([CalendarDataRequest class])
+                                  completion:anything()]) willReturn:@"Fixture Identifier"];
+        [calendarDataDownloader updateCalendarData];
+    });
+
+    it(@"should make a download data request", ^{
+        [verify(mockNetworkLayer) makeRequest:instanceOf([CalendarDataRequest class]) completion:anything()];
+    });
+
+    describe(@"canceling request", ^{
         beforeEach(^{
-            [given([mockNetworkLayer makeRequest:instanceOf([CalendarDataRequest class])
-                                      completion:anything()]) willReturn:@"Fixture Identifier"];
-            [calendarDataDownloader updateCalendarData];
+            [calendarDataDownloader cancel];
         });
 
-        it(@"should make a download data request", ^{
-            [verify(mockNetworkLayer) makeRequest:instanceOf([CalendarDataRequest class]) completion:anything()];
+        it(@"should tell the network layer to cancel previous request", ^{
+            [verify(mockNetworkLayer) cancelRequestWithIdentifier:@"Fixture Identifier"];
         });
 
-        describe(@"canceling request", ^{
+        describe(@"canceling it again", ^{
             beforeEach(^{
                 [calendarDataDownloader cancel];
             });
@@ -365,19 +401,11 @@ You can probably gauge that there's something wrong with these tests. Even thoug
             it(@"should tell the network layer to cancel previous request", ^{
                 [verify(mockNetworkLayer) cancelRequestWithIdentifier:@"Fixture Identifier"];
             });
-
-            describe(@"canceling it again", ^{
-                beforeEach(^{
-                    [calendarDataDownloader cancel];
-                });
-
-                it(@"should tell the network layer to cancel previous request", ^{
-                    [verify(mockNetworkLayer) cancelRequestWithIdentifier:@"Fixture Identifier"];
-                });
-            });
         });
     });
-    
+});
+```
+
 We started by stubbing the `makeRequest:completion:` method. We returned a fixture identifier. In the same `describe` block, we defined a cancel `describe` block, which calls the `cancel` method on our `CalendarDataDownloader` object. We then check out whether the fixture string was passed to our mocked network layer `cancelRequestWithIdentifier:` method. 
 
 Note that, at this point, we don't actually need a test that checks whether the network request was made — we would not get an identifier and the `cancelRequestWithIdentifier:` would never be called. However, we retained that test to make sure we know what happened should that functionality break.
@@ -396,79 +424,89 @@ In this example, we will build a simple photo uploader view controller with a se
 
 Simple, right? Let's start with the interface of `PhotoUploaderViewController`:
 
-    @interface PhotoUploadViewController : UIViewController
-    @property(nonatomic, readonly) PhotoUploader *photoUploader;
-    
-    - (instancetype)initWithPhotoUploader:(PhotoUploader *)photoUploader;
-    
-    @end
-    
+```objc
+@interface PhotoUploadViewController : UIViewController
+@property(nonatomic, readonly) PhotoUploader *photoUploader;
+
+- (instancetype)initWithPhotoUploader:(PhotoUploader *)photoUploader;
+
+@end
+```
+
 There's not much happening here, as we're only defining an external dependency on `PhotoUploader`. Our implementation is also pretty simple. For the sake of simplicity, we won't actually grab a photo from anywhere; we'll just create an empty `UIImage`: 
 
-    @implementation PhotoUploadViewController
-    
-    - (instancetype)initWithPhotoUploader:(PhotoUploader *)photoUploader {
-        self = [super init];
-        if (self) {
-            _photoUploader = photoUploader;
-    
-            self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Upload", nil) style:UIBarButtonItemStyleBordered target:self action:@selector(didTapUploadButton:)];
-        }
-    
-        return self;
+```objc
+@implementation PhotoUploadViewController
+
+- (instancetype)initWithPhotoUploader:(PhotoUploader *)photoUploader {
+    self = [super init];
+    if (self) {
+        _photoUploader = photoUploader;
+
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Upload", nil) style:UIBarButtonItemStyleBordered target:self action:@selector(didTapUploadButton:)];
     }
-    
-    #pragma mark -
-    
-    - (void)didTapUploadButton:(UIBarButtonItem *)uploadButton {
-        void (^completion)(NSError *) = ^(NSError* error){};
-        [self.photoUploader uploadPhoto:[UIImage new] completion:completion];
-    }
-    
-    @end
+
+    return self;
+}
+
+#pragma mark -
+
+- (void)didTapUploadButton:(UIBarButtonItem *)uploadButton {
+    void (^completion)(NSError *) = ^(NSError* error){};
+    [self.photoUploader uploadPhoto:[UIImage new] completion:completion];
+}
+
+@end
+```
 
 Let's see how we could test this component. First of all, we'll need to check whether our bar button item is properly set up by asserting that the title, target, and action have been properly initialized: 
 
-    describe(@"right bar button item", ^{
+```objc
+describe(@"right bar button item", ^{
 
-        __block UIBarButtonItem *barButtonItem;
+    __block UIBarButtonItem *barButtonItem;
 
-        beforeEach(^{
-            barButtonItem = [[photoUploadViewController navigationItem] rightBarButtonItem];
-        });
-
-        it(@"should have a title", ^{
-            expect(barButtonItem.title).to.equal(@"Upload");
-        });
-
-        it(@"should have a target", ^{
-            expect(barButtonItem.target).to.equal(photoUploadViewController);
-        });
-
-        it(@"should have an action", ^{
-            expect(barButtonItem.action).to.equal(@selector(didTapUploadButton:));
-        });
+    beforeEach(^{
+        barButtonItem = [[photoUploadViewController navigationItem] rightBarButtonItem];
     });
-    
+
+    it(@"should have a title", ^{
+        expect(barButtonItem.title).to.equal(@"Upload");
+    });
+
+    it(@"should have a target", ^{
+        expect(barButtonItem.target).to.equal(photoUploadViewController);
+    });
+
+    it(@"should have an action", ^{
+        expect(barButtonItem.action).to.equal(@selector(didTapUploadButton:));
+    });
+});
+```
+
 But this is only half of what actually needs to be tested — we are now sure that the appropriate method will be called when the button is pressed, but we're not sure whether the appropriate action will be taken (in fact, we don't even know whether that method actually exists). So let's test that as well:
 
-    describe(@"tapping right bar button item", ^{
-        beforeEach(^{
-            [photoUploadViewController didTapUploadButton:nil];
-        });
-
-        it(@"should tell the mock photo uploader to upload the photo", ^{
-            [verify(mockPhotoUploader) uploadPhoto:instanceOf([UIImage class])
-                                        completion:anything()];
-        });
+```objc
+describe(@"tapping right bar button item", ^{
+    beforeEach(^{
+        [photoUploadViewController didTapUploadButton:nil];
     });
+
+    it(@"should tell the mock photo uploader to upload the photo", ^{
+        [verify(mockPhotoUploader) uploadPhoto:instanceOf([UIImage class])
+                                    completion:anything()];
+    });
+});
+```
 
 Unfortunately for us, the `didTapUploadButton:` is not visible in the interface. We can work around this issue by defining a category visible in our tests that exposes this method:
 
-    @interface PhotoUploadViewController (Specs)
-    - (void)didTapUploadButton:(UIBarButtonItem *)uploadButton;
-    @end
-    
+```objc
+@interface PhotoUploadViewController (Specs)
+- (void)didTapUploadButton:(UIBarButtonItem *)uploadButton;
+@end
+```
+
 At this point, we can say that `PhotoUploadViewController` is fully tested. 
 
 But what is wrong with the example above? The problem is that we are testing the internal implementation of `PhotoUploadViewController`. We shouldn't actually *care* what the target/action values on the bar button item are. We should only care about what happens when it is pressed. Everything else is an implementation detail.
@@ -479,47 +517,53 @@ First of all, we don't need to know that the `didTapUploadButton:` method exists
 
 Second of all, we don't need to know what target/action is defined on our `rightBarButtonItem`. Our *only* concern is what happens when it is tapped. Let's simulate that action in tests. We can use a helper category on `UIBarButtonItem` to do this:
 
-    @interface UIBarButtonItem (Specs)
-    
-    - (void)specsSimulateTap;
-    
-    @end
-    
+```objc
+@interface UIBarButtonItem (Specs)
+
+- (void)specsSimulateTap;
+
+@end
+```
+
 Its implementation is pretty simple, as we're performing `action` on the `target` of the `UIBarButtonItem`:
 
-    @implementation UIBarButtonItem (Specs)
-    
-    - (void)specsSimulateTap {
-        [self.target performSelector:self.action withObject:self];
-    }
-    
-    @end
+```objc
+@implementation UIBarButtonItem (Specs)
+
+- (void)specsSimulateTap {
+    [self.target performSelector:self.action withObject:self];
+}
+
+@end
+```
 
 Now that we have a helper method that simulates a tap, we can simplify our tests to one top-level `describe` block:
 
-    describe(@"right bar button item", ^{
+```objc
+describe(@"right bar button item", ^{
 
-        __block UIBarButtonItem *barButtonItem;
+    __block UIBarButtonItem *barButtonItem;
 
+    beforeEach(^{
+        barButtonItem = [[photoUploadViewController navigationItem] rightBarButtonItem];
+    });
+
+    it(@"should have a title", ^{
+        expect(barButtonItem.title).to.equal(@"Upload");
+    });
+
+    describe(@"when it is tapped", ^{
         beforeEach(^{
-            barButtonItem = [[photoUploadViewController navigationItem] rightBarButtonItem];
+            [barButtonItem specsSimulateTap];
         });
 
-        it(@"should have a title", ^{
-            expect(barButtonItem.title).to.equal(@"Upload");
-        });
-
-        describe(@"when it is tapped", ^{
-            beforeEach(^{
-                [barButtonItem specsSimulateTap];
-            });
-
-            it(@"should tell the mock photo uploader to upload the photo", ^{
-                [verify(mockPhotoUploader) uploadPhoto:instanceOf([UIImage class])
-                                            completion:anything()];
-            });
+        it(@"should tell the mock photo uploader to upload the photo", ^{
+            [verify(mockPhotoUploader) uploadPhoto:instanceOf([UIImage class])
+                                        completion:anything()];
         });
     });
+});
+```
 
 Note that we have managed to remove two tests and we still have a fully tested component. Moreover, our test suite is less prone to breaking, as we no longer rely on the existence of the `didTapUploadButton:` method. Last but not least, we have focused more on the behavioral aspect of our controller, rather than its internal implementation.
 
@@ -533,221 +577,239 @@ Our requirements are as follows: when the user presses our sign-in button, and w
 
 The first thing that we will want to test is the view part:
 
-    @interface SignInViewController : UIViewController
-    
-    @property(nonatomic, readwrite) IBOutlet UIButton *signInButton;
-    
-    @property(nonatomic, readwrite) IBOutlet UITextField *usernameTextField;
-    @property(nonatomic, readwrite) IBOutlet UITextField *passwordTextField;
-    
-    @property(nonatomic, readwrite) IBOutlet UILabel *fillInBothFieldsLabel;
-    
-    @property(nonatomic, readonly) SignInManager *signInManager;
-    
-    - (instancetype)initWithSignInManager:(SignInManager *)signInManager;
-    
-    - (IBAction)didTapSignInButton:(UIButton *)signInButton;
-    
-    @end
-    
+```objc
+@interface SignInViewController : UIViewController
+
+@property(nonatomic, readwrite) IBOutlet UIButton *signInButton;
+
+@property(nonatomic, readwrite) IBOutlet UITextField *usernameTextField;
+@property(nonatomic, readwrite) IBOutlet UITextField *passwordTextField;
+
+@property(nonatomic, readwrite) IBOutlet UILabel *fillInBothFieldsLabel;
+
+@property(nonatomic, readonly) SignInManager *signInManager;
+
+- (instancetype)initWithSignInManager:(SignInManager *)signInManager;
+
+- (IBAction)didTapSignInButton:(UIButton *)signInButton;
+
+@end
+```
+
 First, we will check some basic information about our text fields:
 
-        beforeEach(^{
-            // Force view load from xib
-            [signInViewController view];
-        });
+```objc
+    beforeEach(^{
+        // Force view load from xib
+        [signInViewController view];
+    });
 
-        it(@"should have a placeholder on user name text field", ^{
-            expect(signInViewController.usernameTextField.placeholder).to.equal(@"Username");
-        });
+    it(@"should have a placeholder on user name text field", ^{
+        expect(signInViewController.usernameTextField.placeholder).to.equal(@"Username");
+    });
 
-        it(@"should have a placeholder on password text field", ^{
-             expect(signInViewController.passwordTextField.placeholder).to.equal(@"Password");
-        });
-        
+    it(@"should have a placeholder on password text field", ^{
+         expect(signInViewController.passwordTextField.placeholder).to.equal(@"Password");
+    });
+```
+
 Next, we will check whether the sign-in button is correctly configured and has it actions wired:
 
-        describe(@"sign in button", ^{
+```objc
+    describe(@"sign in button", ^{
 
-            __block UIButton *button;
+        __block UIButton *button;
 
-            beforeEach(^{
-                button = signInViewController.signInButton;
-            });
-
-            it(@"should have a title", ^{
-                expect(button.currentTitle).to.equal(@"Sign In");
-            });
-
-            it(@"should have sign in view controller as only target", ^{
-                expect(button.allTargets).to.equal([NSSet setWithObject:signInViewController]);
-            });
-
-            it(@"should have the sign in action as action for login view controller target", ^{
-                NSString *selectorString = NSStringFromSelector(@selector(didTapSignInButton:));
-                expect([button actionsForTarget:signInViewController forControlEvent:UIControlEventTouchUpInside]).to.equal(@[selectorString]);
-            });
+        beforeEach(^{
+            button = signInViewController.signInButton;
         });
-        
+
+        it(@"should have a title", ^{
+            expect(button.currentTitle).to.equal(@"Sign In");
+        });
+
+        it(@"should have sign in view controller as only target", ^{
+            expect(button.allTargets).to.equal([NSSet setWithObject:signInViewController]);
+        });
+
+        it(@"should have the sign in action as action for login view controller target", ^{
+            NSString *selectorString = NSStringFromSelector(@selector(didTapSignInButton:));
+            expect([button actionsForTarget:signInViewController forControlEvent:UIControlEventTouchUpInside]).to.equal(@[selectorString]);
+        });
+    });
+```
+
 And last but not least, we will check how our controller behaves when the button is tapped:
 
-    describe(@"tapping the logging button", ^{
-         context(@"when login and password are present", ^{
+```objc
+describe(@"tapping the logging button", ^{
+     context(@"when login and password are present", ^{
 
-             beforeEach(^{
-                 signInViewController.usernameTextField.text = @"Fixture Username";
-                 signInViewController.passwordTextField.text = @"Fixture Password";
+         beforeEach(^{
+             signInViewController.usernameTextField.text = @"Fixture Username";
+             signInViewController.passwordTextField.text = @"Fixture Password";
 
-                 // Make sure state is different than the one expected
-                 signInViewController.fillInBothFieldsLabel.alpha = 1.0f;
+             // Make sure state is different than the one expected
+             signInViewController.fillInBothFieldsLabel.alpha = 1.0f;
 
-                 [signInViewController didTapSignInButton:nil];
-             });
-
-             it(@"should tell the sign in manager to sign in with given username and password", ^{
-                 [verify(mockSignInManager) signInWithUsername:@"Fixture Username" password:@"Fixture Password"];
-             });
+             [signInViewController didTapSignInButton:nil];
          });
 
-         context(@"when login or password are not present", ^{
-             beforeEach(^{
-                 signInViewController.usernameTextField.text = @"Fixture Username";
-                 signInViewController.passwordTextField.text = nil;
-
-                 [signInViewController didTapSignInButton:nil];
-             });
-
-             it(@"should not tell the sign in manager to sign in", ^{
-                 [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
-             });
-         });
-
-         context(@"when neither login or password are present", ^{
-             beforeEach(^{
-                 signInViewController.usernameTextField.text = nil;
-                 signInViewController.passwordTextField.text = nil;
-
-                 [signInViewController didTapSignInButton:nil];
-             });
-
-             it(@"should not tell the sign in manager to sign in", ^{
-                 [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
-             });
+         it(@"should tell the sign in manager to sign in with given username and password", ^{
+             [verify(mockSignInManager) signInWithUsername:@"Fixture Username" password:@"Fixture Password"];
          });
      });
+
+     context(@"when login or password are not present", ^{
+         beforeEach(^{
+             signInViewController.usernameTextField.text = @"Fixture Username";
+             signInViewController.passwordTextField.text = nil;
+
+             [signInViewController didTapSignInButton:nil];
+         });
+
+         it(@"should not tell the sign in manager to sign in", ^{
+             [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
+         });
+     });
+
+     context(@"when neither login or password are present", ^{
+         beforeEach(^{
+             signInViewController.usernameTextField.text = nil;
+             signInViewController.passwordTextField.text = nil;
+
+             [signInViewController didTapSignInButton:nil];
+         });
+
+         it(@"should not tell the sign in manager to sign in", ^{
+             [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
+         });
+     });
+ });
+```
 
 The code presented in the example above has quite a few issues. First of all, we've exposed a lot of internal implementation of `SignInViewController`, including buttons, text fields, and methods. The truth is that we didn't really need to do all of this. 
 
 Let's see how we can refactor these tests to make sure we are not touching internal implementation. We will start by removing the need to actually know what target and method are hooked to the sign-in button:
 
-    @interface UIButton (Specs)
-    
-    - (void)specsSimulateTap;
-    
-    @end
-    
-    @implementation UIButton (Specs)
-    
-    - (void)specsSimulateTap {
-        [self sendActionsForControlEvents:UIControlEventTouchUpInside];
-    }
-    
-    @end
+```objc
+@interface UIButton (Specs)
+
+- (void)specsSimulateTap;
+
+@end
+
+@implementation UIButton (Specs)
+
+- (void)specsSimulateTap {
+    [self sendActionsForControlEvents:UIControlEventTouchUpInside];
+}
+
+@end
+```
 
 Now we can just call this method on our button and assert whether the sign-in manager received the appropriate message. But we can still improve how this test is written. 
 
 Let's assume that we do not want to know who has the sign-in button. Perhaps it is a direct subview of the view controller's view. Or perhaps we encapsulated it within a separate view that has its own delegate. We shouldn't actually care where it is; we should only care about whether it is somewhere within our view controller's view and what happens when it is tapped. We can use a helper method to grab the sign-in button, no matter where it is:
 
-    @interface UIView (Specs)
-    
-    - (UIButton *)specsFindButtonWithTitle:(NSString *)title;
-    
-    @end
-    
+```objc
+@interface UIView (Specs)
+
+- (UIButton *)specsFindButtonWithTitle:(NSString *)title;
+
+@end
+```
+
 Our method will traverse subviews of the view and return the first button that has a title that matches the title argument. We can write similar methods for text fields or labels:
 
-    @interface UIView (Specs)
-    
-    - (UITextField *)specsFindTextFieldWithPlaceholder:(NSString *)placeholder;
-    - (UILabel *)specsFindLabelWithText:(NSString *)text;
-    
-    @end
-    
+```objc
+@interface UIView (Specs)
+
+- (UITextField *)specsFindTextFieldWithPlaceholder:(NSString *)placeholder;
+- (UILabel *)specsFindLabelWithText:(NSString *)text;
+
+@end
+```
+
 Let's see how our tests look now:
 
-    describe(@"view", ^{
+```objc
+describe(@"view", ^{
 
-        __block UIView *view;
-        
+    __block UIView *view;
+    
+    beforeEach(^{
+        view = [signInViewController view];
+    });
+
+    describe(@"login button", ^{
+
+        __block UITextField *usernameTextField;
+        __block UITextField *passwordTextField;
+        __block UIButton *signInButton;
+
         beforeEach(^{
-            view = [signInViewController view];
+            signInButton = [view specsFindButtonWithTitle:@"Sign In"];
+            usernameTextField = [view specsFindTextFieldWithPlaceholder:@"Username"];
+            passwordTextField = [view specsFindTextFieldWithPlaceholder:@"Password"];
         });
 
-        describe(@"login button", ^{
-
-            __block UITextField *usernameTextField;
-            __block UITextField *passwordTextField;
-            __block UIButton *signInButton;
-
+        context(@"when login and password are present", ^{
             beforeEach(^{
-                signInButton = [view specsFindButtonWithTitle:@"Sign In"];
-                usernameTextField = [view specsFindTextFieldWithPlaceholder:@"Username"];
-                passwordTextField = [view specsFindTextFieldWithPlaceholder:@"Password"];
+                usernameTextField.text = @"Fixture Username";
+                passwordTextField.text = @"Fixture Password";
+
+                [signInButton specsSimulateTap];
             });
 
-            context(@"when login and password are present", ^{
-                beforeEach(^{
-                    usernameTextField.text = @"Fixture Username";
-                    passwordTextField.text = @"Fixture Password";
+            it(@"should tell the sign in manager to sign in with given username and password", ^{
+                [verify(mockSignInManager) signInWithUsername:@"Fixture Username" password:@"Fixture Password"];
+            });
+        });
 
-                    [signInButton specsSimulateTap];
-                });
+        context(@"when login or password are not present", ^{
+            beforeEach(^{
+                usernameTextField.text = @"Fixture Username";
+                passwordTextField.text = nil;
 
-                it(@"should tell the sign in manager to sign in with given username and password", ^{
-                    [verify(mockSignInManager) signInWithUsername:@"Fixture Username" password:@"Fixture Password"];
-                });
+                [signInButton specsSimulateTap];
             });
 
-            context(@"when login or password are not present", ^{
-                beforeEach(^{
-                    usernameTextField.text = @"Fixture Username";
-                    passwordTextField.text = nil;
+            it(@"should not tell the sign in manager to sign in", ^{
+                [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
+            });
+        });
 
-                    [signInButton specsSimulateTap];
-                });
+        context(@"when neither login or password are present", ^{
+            beforeEach(^{
+                usernameTextField.text = nil;
+                passwordTextField.text = nil;
 
-                it(@"should not tell the sign in manager to sign in", ^{
-                    [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
-                });
+                [signInButton specsSimulateTap];
             });
 
-            context(@"when neither login or password are present", ^{
-                beforeEach(^{
-                    usernameTextField.text = nil;
-                    passwordTextField.text = nil;
-
-                    [signInButton specsSimulateTap];
-                });
-
-                it(@"should not tell the sign in manager to sign in", ^{
-                    [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
-                });
+            it(@"should not tell the sign in manager to sign in", ^{
+                [verifyCount(mockSignInManager, never()) signInWithUsername:anything() password:anything()];
             });
         });
     });
-    
+});
+```
+
 Looks much simpler, doesn't it? Note that by looking for a button with "Sign In" as the title, we also tested whether such a button exists at all. Moreover, by simulating a tap, we tested whether the action is correctly hooked up. And in the end, by asserting that our `SignInManager` should be called, we tested whether or not that part is correctly implemented — all of this using three simple tests.
 
 What is also great is that we no longer need to expose any of those properties. As a matter of fact, our interface could be as simple as this:
 
-    @interface SignInViewController : UIViewController
-    
-    @property(nonatomic, readonly) SignInManager *signInManager;
-    
-    - (instancetype)initWithSignInManager:(SignInManager *)signInManager;
-    
-    @end
-    
+```objc
+@interface SignInViewController : UIViewController
+
+@property(nonatomic, readonly) SignInManager *signInManager;
+
+- (instancetype)initWithSignInManager:(SignInManager *)signInManager;
+
+@end
+```
+
 In these tests, we have leveraged the capabilities of BDD DSL. Note how we used `context` blocks to define different requirements for how `SignInViewController` should behave, based on its text fields state. This is a great example of how you can use BDD to make your tests simpler and more readable while retaining their functionality.
 
 ## Conclusion

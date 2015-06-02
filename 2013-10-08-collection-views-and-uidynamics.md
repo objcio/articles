@@ -33,129 +33,143 @@ So to recap, the layout creates the dynamic animator and adds behaviors correspo
 
 We're going to build a simple example of how to use UIKit Dynamics with a collection view layout. The first thing we need is, of course, a data source to drive our collection view. I know that you're smart enough to provide your own data source, but for the sake of completeness, I've provided one for you: 
 
-    @implementation ASHCollectionViewController
+```objc
+@implementation ASHCollectionViewController
 
-    static NSString * CellIdentifier = @"CellIdentifier";
+static NSString * CellIdentifier = @"CellIdentifier";
 
-    -(void)viewDidLoad 
-    {
-        [super viewDidLoad];
-        [self.collectionView registerClass:[UICollectionViewCell class] 
-                forCellWithReuseIdentifier:CellIdentifier];
-    }
+-(void)viewDidLoad 
+{
+    [super viewDidLoad];
+    [self.collectionView registerClass:[UICollectionViewCell class] 
+            forCellWithReuseIdentifier:CellIdentifier];
+}
 
-    -(UIStatusBarStyle)preferredStatusBarStyle 
-    {
-        return UIStatusBarStyleLightContent;
-    }
+-(UIStatusBarStyle)preferredStatusBarStyle 
+{
+    return UIStatusBarStyleLightContent;
+}
 
-    -(void)viewDidAppear:(BOOL)animated 
-    {
-        [super viewDidAppear:animated];
-        [self.collectionViewLayout invalidateLayout];
-    }
+-(void)viewDidAppear:(BOOL)animated 
+{
+    [super viewDidAppear:animated];
+    [self.collectionViewLayout invalidateLayout];
+}
 
-    #pragma mark - UICollectionView Methods
+#pragma mark - UICollectionView Methods
 
-    -(NSInteger)collectionView:(UICollectionView *)collectionView 
-        numberOfItemsInSection:(NSInteger)section 
-    {
-        return 120;
-    }
+-(NSInteger)collectionView:(UICollectionView *)collectionView 
+    numberOfItemsInSection:(NSInteger)section 
+{
+    return 120;
+}
 
-    -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView 
-                     cellForItemAtIndexPath:(NSIndexPath *)indexPath 
-    {
-        UICollectionViewCell *cell = [collectionView 
-            dequeueReusableCellWithReuseIdentifier:CellIdentifier 
-                                      forIndexPath:indexPath];
-        
-        cell.backgroundColor = [UIColor orangeColor];
-        return cell;
-    }
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView 
+                 cellForItemAtIndexPath:(NSIndexPath *)indexPath 
+{
+    UICollectionViewCell *cell = [collectionView 
+        dequeueReusableCellWithReuseIdentifier:CellIdentifier 
+                                  forIndexPath:indexPath];
+    
+    cell.backgroundColor = [UIColor orangeColor];
+    return cell;
+}
 
-    @end
+@end
+```
 
 Notice that it's invalidating the layout when the view first appears. That's a consequence of not using Storyboards (the timing of the first invocation of the prepareLayout method is different when using Storyboards – or not – something they didn't tell you in the WWDC video). As a result, we need to manually invalidate the collection view layout once the view appears. When we use tiling, this isn't necessary.
 
 Let's create our collection view layout. We need to have a strong reference to a dynamic animator that will drive the attributes of our collection view layout. We'll have a private property declared in the implementation file:
 
-    @interface ASHSpringyCollectionViewFlowLayout ()
+```objc
+@interface ASHSpringyCollectionViewFlowLayout ()
 
-    @property (nonatomic, strong) UIDynamicAnimator *dynamicAnimator;
+@property (nonatomic, strong) UIDynamicAnimator *dynamicAnimator;
 
-    @end
+@end
+```
 
 We'll initialize our dynamic animator in the init method of the layout. We'll also set up some of our properties belonging to `UICollectionViewFlowLayout`, our superclass:
 
-    - (id)init 
-    {
-        if (!(self = [super init])) return nil;
-        
-        self.minimumInteritemSpacing = 10;
-        self.minimumLineSpacing = 10;
-        self.itemSize = CGSizeMake(44, 44);
-        self.sectionInset = UIEdgeInsetsMake(10, 10, 10, 10);
-        
-        self.dynamicAnimator = [[UIDynamicAnimator alloc] initWithCollectionViewLayout:self];
-        
-        return self;
-    }
+```objc
+- (id)init 
+{
+    if (!(self = [super init])) return nil;
+    
+    self.minimumInteritemSpacing = 10;
+    self.minimumLineSpacing = 10;
+    self.itemSize = CGSizeMake(44, 44);
+    self.sectionInset = UIEdgeInsetsMake(10, 10, 10, 10);
+    
+    self.dynamicAnimator = [[UIDynamicAnimator alloc] initWithCollectionViewLayout:self];
+    
+    return self;
+}
+```
 
 The next method we'll implement is prepareLayout. We'll need to call our superclass's implementation first. Since we're subclassing `UICollectionViewFlowLayout`, calling super's prepareLayout method will position the collection view layout attributes for us. We can now rely on them being laid out and can ask for all of the attributes in a given rect. Let's load *all* of them.
 
-    [super prepareLayout];
-    
-    CGSize contentSize = self.collectionView.contentSize;
-    NSArray *items = [super layoutAttributesForElementsInRect:
-        CGRectMake(0.0f, 0.0f, contentSize.width, contentSize.height)];
+```objc
+[super prepareLayout];
+
+CGSize contentSize = self.collectionView.contentSize;
+NSArray *items = [super layoutAttributesForElementsInRect:
+    CGRectMake(0.0f, 0.0f, contentSize.width, contentSize.height)];
+```
     
 This is *really* inefficient code. Since our collection view could have tens of thousands of cells, loading all of them at once is potentially an incredibly memory-intensive operation. We're going to iterate over those elements in a moment, making this a time-intensive operation as well. An efficiency double-whammy! Don't worry – we're responsible developers so we'll solve this problem shortly. For now, we'll just continue on with a simple, naïve implementation. 
 
 After loading all of our collection view layout attributes, we need to check and see if they've already been added to our animator. If a behavior for an item already exists in the animator, then we can't re-add it or we'll get a very obscure runtime exception:
 
-    <UIDynamicAnimator: 0xa5ba280> (0.004987s) in 
-    <ASHSpringyCollectionViewFlowLayout: 0xa5b9e60> \{\{0, 0}, \{0, 0\}\}: 
-    body <PKPhysicsBody> type:<Rectangle> representedObject:
-    [<UICollectionViewLayoutAttributes: 0xa281880> 
-    index path: (<NSIndexPath: 0xa281850> {length = 2, path = 0 - 0}); 
-    frame = (10 10; 300 44); ] 0xa2877c0  
-    PO:(159.999985,32.000000) AN:(0.000000) VE:(0.000000,0.000000) AV:(0.000000) 
-    dy:(1) cc:(0) ar:(1) rs:(0) fr:(0.200000) re:(0.200000) de:(1.054650) gr:(0) 
-    without representedObject for item <UICollectionViewLayoutAttributes: 0xa3833e0> 
-    index path: (<NSIndexPath: 0xa382410> {length = 2, path = 0 - 0}); 
-    frame = (10 10; 300 44);
+```
+<UIDynamicAnimator: 0xa5ba280> (0.004987s) in 
+<ASHSpringyCollectionViewFlowLayout: 0xa5b9e60> \{\{0, 0}, \{0, 0\}\}: 
+body <PKPhysicsBody> type:<Rectangle> representedObject:
+[<UICollectionViewLayoutAttributes: 0xa281880> 
+index path: (<NSIndexPath: 0xa281850> {length = 2, path = 0 - 0}); 
+frame = (10 10; 300 44); ] 0xa2877c0  
+PO:(159.999985,32.000000) AN:(0.000000) VE:(0.000000,0.000000) AV:(0.000000) 
+dy:(1) cc:(0) ar:(1) rs:(0) fr:(0.200000) re:(0.200000) de:(1.054650) gr:(0) 
+without representedObject for item <UICollectionViewLayoutAttributes: 0xa3833e0> 
+index path: (<NSIndexPath: 0xa382410> {length = 2, path = 0 - 0}); 
+frame = (10 10; 300 44);
+```
 
 If you see this error, then it basically means that you're adding two behaviors for identical `UICollectionViewLayoutAttributes`, which the system doesn't know how to handle. 
 
 At any rate, once we've checked that we haven't already added behaviors to our dynamic animator, we'll need to iterate over each of our collection view layout attributes to create and add a new dynamic behavior:
 
-    if (self.dynamicAnimator.behaviors.count == 0) {
-        [items enumerateObjectsUsingBlock:^(id<UIDynamicItem> obj, NSUInteger idx, BOOL *stop) {
-            UIAttachmentBehavior *behaviour = [[UIAttachmentBehavior alloc] initWithItem:obj 
-                                                                        attachedToAnchor:[obj center]];
-            
-            behaviour.length = 0.0f;
-            behaviour.damping = 0.8f;
-            behaviour.frequency = 1.0f;
-            
-            [self.dynamicAnimator addBehavior:behaviour];
-        }];
-    }
+```objc
+if (self.dynamicAnimator.behaviors.count == 0) {
+    [items enumerateObjectsUsingBlock:^(id<UIDynamicItem> obj, NSUInteger idx, BOOL *stop) {
+        UIAttachmentBehavior *behaviour = [[UIAttachmentBehavior alloc] initWithItem:obj 
+                                                                    attachedToAnchor:[obj center]];
+        
+        behaviour.length = 0.0f;
+        behaviour.damping = 0.8f;
+        behaviour.frequency = 1.0f;
+        
+        [self.dynamicAnimator addBehavior:behaviour];
+    }];
+}
+```
 
 The code is very straightforward. For each of our items, we create a new `UIAttachmentBehavior` with the center of the item as the attachment point. We then set the length of our attachment behavior to zero so that it requires the cell to be centered under the behavior's attachment point at all times. We then set the damping and frequency to some values that I determined experimentally to be visually pleasing and not over-the-top. 
 
 That's it for prepareLayout. We now need to respond to two methods that UIKit will call to query us about the layout of collection view layout attributes, `layoutAttributesForElementsInRect:` and `layoutAttributesForItemAtIndexPath:`. Our implementations will forward these queries onto the dynamic animator, which has methods specifically designed to respond to these queries: 
 
-	-(NSArray *)layoutAttributesForElementsInRect:(CGRect)rect 
-	{
-        return [self.dynamicAnimator itemsInRect:rect];
-    }
+```objc
+-(NSArray *)layoutAttributesForElementsInRect:(CGRect)rect 
+{
+    return [self.dynamicAnimator itemsInRect:rect];
+}
 
-    -(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath 
-    {
-        return [self.dynamicAnimator layoutAttributesForCellAtIndexPath:indexPath];
-    }
+-(UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath 
+{
+    return [self.dynamicAnimator layoutAttributesForCellAtIndexPath:indexPath];
+}
+```
 
 ## Responding to Scroll Events
 
@@ -163,33 +177,35 @@ What we've implemented so far will provide a static-feeling `UICollectionView` t
 
 In order to behave dynamically, we need our layout and dynamic animator to react to changes in the scroll position of the collection view. Luckily there is a method perfectly suited for our task called `shouldInvalidateLayoutForBoundsChange:`. This method is called when the bounds of the collection view change and it provides us with an opportunity to adjust the behaviors' items in our dynamic animator to the new [content offset](/issue-3/scroll-view.html#scroll_views_content_offset). After adjusting the behaviors' items, we're going to return NO from this method; since the dynamic animator will take care of invalidating our layout, there's no need to invalidate it in this case:
 
-	-(BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds 
-	{
-        UIScrollView *scrollView = self.collectionView;
-        CGFloat delta = newBounds.origin.y - scrollView.bounds.origin.y;
+```objc
+-(BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds 
+{
+    UIScrollView *scrollView = self.collectionView;
+    CGFloat delta = newBounds.origin.y - scrollView.bounds.origin.y;
+    
+    CGPoint touchLocation = [self.collectionView.panGestureRecognizer locationInView:self.collectionView];
+    
+    [self.dynamicAnimator.behaviors enumerateObjectsUsingBlock:^(UIAttachmentBehavior *springBehaviour, NSUInteger idx, BOOL *stop) {
+        CGFloat yDistanceFromTouch = fabsf(touchLocation.y - springBehaviour.anchorPoint.y);
+        CGFloat xDistanceFromTouch = fabsf(touchLocation.x - springBehaviour.anchorPoint.x);
+        CGFloat scrollResistance = (yDistanceFromTouch + xDistanceFromTouch) / 1500.0f;
         
-        CGPoint touchLocation = [self.collectionView.panGestureRecognizer locationInView:self.collectionView];
+        UICollectionViewLayoutAttributes *item = springBehaviour.items.firstObject;
+        CGPoint center = item.center;
+        if (delta < 0) {
+            center.y += MAX(delta, delta*scrollResistance);
+        }
+        else {
+            center.y += MIN(delta, delta*scrollResistance);
+        }
+        item.center = center;
         
-        [self.dynamicAnimator.behaviors enumerateObjectsUsingBlock:^(UIAttachmentBehavior *springBehaviour, NSUInteger idx, BOOL *stop) {
-            CGFloat yDistanceFromTouch = fabsf(touchLocation.y - springBehaviour.anchorPoint.y);
-            CGFloat xDistanceFromTouch = fabsf(touchLocation.x - springBehaviour.anchorPoint.x);
-            CGFloat scrollResistance = (yDistanceFromTouch + xDistanceFromTouch) / 1500.0f;
-            
-            UICollectionViewLayoutAttributes *item = springBehaviour.items.firstObject;
-            CGPoint center = item.center;
-            if (delta < 0) {
-                center.y += MAX(delta, delta*scrollResistance);
-            }
-            else {
-                center.y += MIN(delta, delta*scrollResistance);
-            }
-            item.center = center;
-            
-            [self.dynamicAnimator updateItemUsingCurrentState:item];
-        }];
-        
-        return NO;
-    }
+        [self.dynamicAnimator updateItemUsingCurrentState:item];
+    }];
+    
+    return NO;
+}
+```
 
 Let's go through this implementation in detail. First, we grab the scroll view (that's our collection view) and calculate the change in the content offset's y component (our collection view scrolls vertically in this example). Once we have the delta, we need to grab the location of the user's touch. This is important because we want items closer to the touch to move more immediately while items further from the touch should lag behind.
 
@@ -203,21 +219,27 @@ That's really all there is to it. In my experience, this naïve approach is effe
 
 Now let's say that you want to add new rows. For that, we will need to add behaviors to our dynamic animator for each new row. Let's start off by creating a public instance method for our flow layout.
 
-    @interface ASHSpringyCollectionViewFlowLayout : UICollectionViewFlowLayout
-    - (void)resetLayout;
-    @end
+```objc
+@interface ASHSpringyCollectionViewFlowLayout : UICollectionViewFlowLayout
+- (void)resetLayout;
+@end
+```
 
 And in its implementation we remove the current behaviors and prepare for layout with the new items.
 
-    - (void)resetLayout {
-        [self.dynamicAnimator removeAllBehaviors];
-        [self prepareLayout];
-    }
+```objc
+- (void)resetLayout {
+    [self.dynamicAnimator removeAllBehaviors];
+    [self prepareLayout];
+}
+```
 
 And in your collection view, call the new method after you reload your data.
 
-    [self.collectionView reloadData];
-    [(ASHSpringyCollectionViewFlowLayout *)[self collectionViewLayout] resetLayout];
+```objc
+[self.collectionView reloadData];
+[(ASHSpringyCollectionViewFlowLayout *)[self collectionViewLayout] resetLayout];
+```
     
 Please note that the code above for adding rows is a naïve implementation that wouldn't work with the tiling mechanism outlined below to improve performance.
 
@@ -230,7 +252,9 @@ Instead of loading *all* of our items in prepareLayout, it would be nice if we c
 
 The first thing we need to do is keep track of all of the index paths that are currently represented by behaviors' items in the dynamic animator. We'll add a property to our collection view layout to do this:
 
-    @property (nonatomic, strong) NSMutableSet *visibleIndexPathsSet;
+```objc
+@property (nonatomic, strong) NSMutableSet *visibleIndexPathsSet;
+```
 
 We're using a set because it features constant-time lookup for testing inclusion, and we'll be testing for inclusion *a lot*. 
 
@@ -238,11 +262,15 @@ Before we dive into a whole new prepareLayout method – one that tiles behavior
 
 Since we're creating these new behaviors in flight, we need to maintain some state of our current collection view. In particular, we need to keep track of the latest delta in our bounds change. This state will be used to create our behaviors in flight:
 
-    @property (nonatomic, assign) CGFloat latestDelta;
+```objc
+@property (nonatomic, assign) CGFloat latestDelta;
+```
 
 After adding this property, we'll add the following line to our `shouldInvalidateLayoutForBoundsChange:` method:
 
-    self.latestDelta = delta;
+```objc
+self.latestDelta = delta;
+```
 
 That's all we need to modify to our method that responds to scrolling events. Our two methods for relaying queries about the layout of items in the collection view to the dynamic animator remain completely unchanged. Actually, most of the time, when backing your collection view with a dynamic animator, you'll have `layoutAttributesForElementsInRect:` and `layoutAttributesForItemAtIndexPath:` implemented the way we have them above. 
 
@@ -254,73 +282,85 @@ Like before, we're going to call `[super prepareLayout]` so that we can rely on 
 
 So we need to calculate the visible rect. But not so fast! There's one thing to keep in mind. Our user might scroll the collection view too fast for the dynamic animator to keep up, so we need to expand the visible rect slightly so that we're including items that are *about* to become visible. Otherwise, flickering could appear when scrolling quickly. Let's calculate our visible rect: 
 
-    CGRect originalRect = (CGRect){.origin = self.collectionView.bounds.origin, .size = self.collectionView.frame.size};
-    CGRect visibleRect = CGRectInset(originalRect, -100, -100);
+```objc
+CGRect originalRect = (CGRect){.origin = self.collectionView.bounds.origin, .size = self.collectionView.frame.size};
+CGRect visibleRect = CGRectInset(originalRect, -100, -100);
+```
 
 I determined that insetting the actual visible rect by -100 points in both directions works for my demo. Double-check these values for your collection view, especially if your cells are really small. 
 
 Next we need to collect the collection view layout attributes which lie within the visible rect. Let's also collect their index paths: 
 
-    NSArray *itemsInVisibleRectArray = [super layoutAttributesForElementsInRect:visibleRect];
-    
-    NSSet *itemsIndexPathsInVisibleRectSet = [NSSet setWithArray:[itemsInVisibleRectArray valueForKey:@"indexPath"]];
+```objc
+NSArray *itemsInVisibleRectArray = [super layoutAttributesForElementsInRect:visibleRect];
+
+NSSet *itemsIndexPathsInVisibleRectSet = [NSSet setWithArray:[itemsInVisibleRectArray valueForKey:@"indexPath"]];
+```
 
 Notice that we're using an NSSet. That's because we're going to be testing for inclusion within that set and we want constant-time lookup: 
 
 What we're going to do is iterate over our dynamic animator's behaviors and filter out the ones that represent items that are in our `itemsIndexPathsInVisibleRectSet`. Once we've filtered our behaviors, we'll iterate over the ones that are no longer visible and remove those behaviors from the animator (along with the index paths from the `visibleIndexPathsSet` property):
 
-	NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(UIAttachmentBehavior *behaviour, NSDictionary *bindings) {
-        BOOL currentlyVisible = [itemsIndexPathsInVisibleRectSet member:[[[behaviour items] firstObject] indexPath]] != nil;
-        return !currentlyVisible;
-    }]
-    NSArray *noLongerVisibleBehaviours = [self.dynamicAnimator.behaviors filteredArrayUsingPredicate:predicate];
-    
-    [noLongerVisibleBehaviours enumerateObjectsUsingBlock:^(id obj, NSUInteger index, BOOL *stop) {
-        [self.dynamicAnimator removeBehavior:obj];
-        [self.visibleIndexPathsSet removeObject:[[[obj items] firstObject] indexPath]];
-    }];
+```objc
+NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(UIAttachmentBehavior *behaviour, NSDictionary *bindings) {
+    BOOL currentlyVisible = [itemsIndexPathsInVisibleRectSet member:[[[behaviour items] firstObject] indexPath]] != nil;
+    return !currentlyVisible;
+}]
+NSArray *noLongerVisibleBehaviours = [self.dynamicAnimator.behaviors filteredArrayUsingPredicate:predicate];
+
+[noLongerVisibleBehaviours enumerateObjectsUsingBlock:^(id obj, NSUInteger index, BOOL *stop) {
+    [self.dynamicAnimator removeBehavior:obj];
+    [self.visibleIndexPathsSet removeObject:[[[obj items] firstObject] indexPath]];
+}];
+```
 
 The next step is to calculate a list of `UICollectionViewLayoutAttributes` that are *newly* visible – that is, ones whose index paths are in `itemsIndexPathsInVisibleRectSet` but not in our property `visibleIndexPathsSet`:
 
-    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(UICollectionViewLayoutAttributes *item, NSDictionary *bindings) {
-        BOOL currentlyVisible = [self.visibleIndexPathsSet member:item.indexPath] != nil;
-        return !currentlyVisible;
-    }];
-    NSArray *newlyVisibleItems = [itemsInVisibleRectArray filteredArrayUsingPredicate:predicate];
+```objc
+NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(UICollectionViewLayoutAttributes *item, NSDictionary *bindings) {
+    BOOL currentlyVisible = [self.visibleIndexPathsSet member:item.indexPath] != nil;
+    return !currentlyVisible;
+}];
+NSArray *newlyVisibleItems = [itemsInVisibleRectArray filteredArrayUsingPredicate:predicate];
+```
 
 Once we have our newly visible layout attributes, we can iterate over them to create our new behaviors and add their index paths to our `visibleIndexPathsSet` property. First, however, we'll need to grab the touch location of our user's finger. If it's CGPointZero, then we know that the user isn't scrolling the collection view and we can *assume* that we don't have to create new behaviors in flight: 
 
-    CGPoint touchLocation = [self.collectionView.panGestureRecognizer locationInView:self.collectionView];
+```objc
+CGPoint touchLocation = [self.collectionView.panGestureRecognizer locationInView:self.collectionView];
+```
 
 This is a potentially dangerous assumption. What if the user has scrolled the collection view quickly and released his or her finger? The collection view would still be scrolling but our method wouldn't create the new behaviors in flight. Luckily, that also means that the scroll view is scrolling too fast to notice! Huzzah! This might become a problem, however, for collection views using large cells. In this case, increase the bounds of your visible rect so you're loading more items. 
 
 Now we need to enumerate our newly visible items and create new behaviors for them and add their index paths to our `visibleIndexPathsSet` property. We'll also need to do some [math](http://www.youtube.com/watch?v=gENVB6tjq_M) to create the behavior in flight:
 
-    [newlyVisibleItems enumerateObjectsUsingBlock:^(UICollectionViewLayoutAttributes *item, NSUInteger idx, BOOL *stop) {
-        CGPoint center = item.center;
-        UIAttachmentBehavior *springBehaviour = [[UIAttachmentBehavior alloc] initWithItem:item attachedToAnchor:center];
+```objc
+[newlyVisibleItems enumerateObjectsUsingBlock:^(UICollectionViewLayoutAttributes *item, NSUInteger idx, BOOL *stop) {
+    CGPoint center = item.center;
+    UIAttachmentBehavior *springBehaviour = [[UIAttachmentBehavior alloc] initWithItem:item attachedToAnchor:center];
+    
+    springBehaviour.length = 0.0f;
+    springBehaviour.damping = 0.8f;
+    springBehaviour.frequency = 1.0f;
+    
+    if (!CGPointEqualToPoint(CGPointZero, touchLocation)) {
+        CGFloat yDistanceFromTouch = fabsf(touchLocation.y - springBehaviour.anchorPoint.y);
+        CGFloat xDistanceFromTouch = fabsf(touchLocation.x - springBehaviour.anchorPoint.x);
+        CGFloat scrollResistance = (yDistanceFromTouch + xDistanceFromTouch) / 1500.0f;
         
-        springBehaviour.length = 0.0f;
-        springBehaviour.damping = 0.8f;
-        springBehaviour.frequency = 1.0f;
-        
-        if (!CGPointEqualToPoint(CGPointZero, touchLocation)) {
-            CGFloat yDistanceFromTouch = fabsf(touchLocation.y - springBehaviour.anchorPoint.y);
-            CGFloat xDistanceFromTouch = fabsf(touchLocation.x - springBehaviour.anchorPoint.x);
-            CGFloat scrollResistance = (yDistanceFromTouch + xDistanceFromTouch) / 1500.0f;
-            
-            if (self.latestDelta < 0) {
-                center.y += MAX(self.latestDelta, self.latestDelta*scrollResistance);
-            }
-            else {
-                center.y += MIN(self.latestDelta, self.latestDelta*scrollResistance);
-            }
-            item.center = center;
+        if (self.latestDelta < 0) {
+            center.y += MAX(self.latestDelta, self.latestDelta*scrollResistance);
         }
-        
-        [self.dynamicAnimator addBehavior:springBehaviour];
-        [self.visibleIndexPathsSet addObject:item.indexPath];
-    }];
+        else {
+            center.y += MIN(self.latestDelta, self.latestDelta*scrollResistance);
+        }
+        item.center = center;
+    }
+    
+    [self.dynamicAnimator addBehavior:springBehaviour];
+    [self.visibleIndexPathsSet addObject:item.indexPath];
+}];
+```
 
 A lot of this code should look familiar. About half of it is from our naïve implementation of prepareLayout without tiling. The other half is from our `shouldInvalidateLayoutForBoundsChange:` method. We use our latestDelta property in lieu of a calculated delta from a bounds change and adjust the center point of our `UICollectionViewLayoutAttributes` appropriately so that the cell it represents will be "pulled" by the attachment behavior. 
 
@@ -334,39 +374,43 @@ This is true when dealing with UIKit Dynamics as well.
 
 Let's subclass `UICollectionViewLayout`. It's very important to implement `collectionViewContentSize` when subclassing `UICollectionViewLayout`. Otherwise the collection view won't have any idea how to display itself and nothing will be displayed at all. Since we want our collection view not to scroll at all, we'll return our collection view's frame's size, minus its contentInset.top component:
 
-    -(CGSize)collectionViewContentSize 
-    {
-        return CGSizeMake(self.collectionView.frame.size.width, 
-            self.collectionView.frame.size.height - self.collectionView.contentInset.top);
-    }
+```objc
+-(CGSize)collectionViewContentSize 
+{
+    return CGSizeMake(self.collectionView.frame.size.width, 
+        self.collectionView.frame.size.height - self.collectionView.contentInset.top);
+}
+```
 
 In this (somewhat pedagogical) example, our collection view *always begins* with zero cells and items are added via `performBatchUpdates:`. That means that we have to use the `-[UICollectionViewLayout prepareForCollectionViewUpdates:]` method to add our behaviors (i.e. the collection view data source always starts at zero).
 
 Instead of just adding an attachment behavior for each individual item, we'll also maintain two other behaviors: gravity and collision. For each item we add to the collection view, we'll have to add these items to our collision and attachment behaviors. The final step is to set the item's initial position to somewhere offscreen so that it's pulled onscreen by the attachment behavior: 
 
-	-(void)prepareForCollectionViewUpdates:(NSArray *)updateItems
-	{
-        [super prepareForCollectionViewUpdates:updateItems];
-    
-        [updateItems enumerateObjectsUsingBlock:^(UICollectionViewUpdateItem *updateItem, NSUInteger idx, BOOL *stop) {
-            if (updateItem.updateAction == UICollectionUpdateActionInsert) {
-                UICollectionViewLayoutAttributes *attributes = [UICollectionViewLayoutAttributes 
-                    layoutAttributesForCellWithIndexPath:updateItem.indexPathAfterUpdate];
-            
-                attributes.frame = CGRectMake(CGRectGetMaxX(self.collectionView.frame) + kItemSize, 300, kItemSize, kItemSize);
+```objc
+-(void)prepareForCollectionViewUpdates:(NSArray *)updateItems
+{
+    [super prepareForCollectionViewUpdates:updateItems];
 
-                UIAttachmentBehavior *attachmentBehaviour = [[UIAttachmentBehavior alloc] initWithItem:attributes 
-                                                                                      attachedToAnchor:attachmentPoint];
-                attachmentBehaviour.length = 300.0f;
-                attachmentBehaviour.damping = 0.4f;
-                attachmentBehaviour.frequency = 1.0f;
-                [self.dynamicAnimator addBehavior:attachmentBehaviour];
-            
-                [self.gravityBehaviour addItem:attributes];
-                [self.collisionBehaviour addItem:attributes];
-            }
-        }];
-    }
+    [updateItems enumerateObjectsUsingBlock:^(UICollectionViewUpdateItem *updateItem, NSUInteger idx, BOOL *stop) {
+        if (updateItem.updateAction == UICollectionUpdateActionInsert) {
+            UICollectionViewLayoutAttributes *attributes = [UICollectionViewLayoutAttributes 
+                layoutAttributesForCellWithIndexPath:updateItem.indexPathAfterUpdate];
+        
+            attributes.frame = CGRectMake(CGRectGetMaxX(self.collectionView.frame) + kItemSize, 300, kItemSize, kItemSize);
+
+            UIAttachmentBehavior *attachmentBehaviour = [[UIAttachmentBehavior alloc] initWithItem:attributes 
+                                                                                  attachedToAnchor:attachmentPoint];
+            attachmentBehaviour.length = 300.0f;
+            attachmentBehaviour.damping = 0.4f;
+            attachmentBehaviour.frequency = 1.0f;
+            [self.dynamicAnimator addBehavior:attachmentBehaviour];
+        
+            [self.gravityBehaviour addItem:attributes];
+            [self.collisionBehaviour addItem:attributes];
+        }
+    }];
+}
+```
 
 ![Demo](/images/issue-5/newtonianCollectionView@2x.gif)
 

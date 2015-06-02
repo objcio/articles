@@ -26,13 +26,13 @@ Playgrounds provide a great opportunity to document functions and library interf
 
 As a sample, we create our initial array using this:
 
-```swift
+```objc
 let testArray = [0, 1, 2, 3, 4]
 ```
 
 We then want to demonstrate the filter() function, so we write the following:
 
-```swift
+```objc
 let odds = testArray.filter{$0 % 2 == 1}
 odds
 ```
@@ -63,7 +63,7 @@ To prototype this process, we'll be using the [AccelerateFunctions.playground](h
 
 The first thing to do is to generate some sample waveforms for us to experiment with. An easy way to do that is by the use of Swift's map() operator:
 
-```swift
+```objc
 let sineArraySize = 64
 
 let frequency1 = 4.0
@@ -78,7 +78,7 @@ For later use in the FFT, our starting waveform array sizes need to be powers of
 
 To plot our waveforms, we'll use the new XCPlayground framework (which needs to be imported first) and the following helper function:
 
-```swift
+```objc
 func plotArrayInPlayground<T>(arrayToPlot:Array<T>, title:String) {
     for currentValue in arrayToPlot {
         XCPCaptureValue(title, currentValue)
@@ -88,7 +88,7 @@ func plotArrayInPlayground<T>(arrayToPlot:Array<T>, title:String) {
 
 When we do this:
 
-```swift
+```objc
 plotArrayInPlayground(sineWave, "Sine wave 1")
 ```
 
@@ -98,7 +98,7 @@ We see a graph that looks like the following:
 
 That's a sine wave with a frequency of 4.0, amplitude of 2.0, and phase of 0.0. Let's make this more interesting by creating a second sine wave to add to the first, this time of frequency 1.0, amplitude 1.0, and a phase of pi / 2.0:
 
-```swift
+```objc
 let frequency2 = 1.0
 let phase2 = M_PI / 2.0
 let amplitude2 = 1.0
@@ -111,7 +111,7 @@ let sineWave2 = (0..<sineArraySize).map {
 
 Now we want to combine them. This is where Accelerate starts to help us. Adding two arrays of independent floating-point values is well-suited to parallel processing. Accelerate's vDSP library has functions for just this sort of thing, so let's put them to use. For the fun of it, let's set up a Swift operator to use for this vector addition. Unfortunately, + is already used for array concatenation (perhaps confusingly so), and ++ is more appropriate as an increment operator, so we'll define a +++ operator for this vector addition:
 
-```swift
+```objc
 infix operator  +++ {}
 func +++ (a: [Double], b: [Double]) -> [Double] {
     assert(a.count == b.count, "Expected arrays of the same length, instead got arrays of two different lengths")
@@ -126,7 +126,7 @@ This sets up an operator that takes in two Swift arrays of `Double` values and o
 
 To verify that this is actually performing a correct addition, we can graph the results of our sine wave combination using a for loop and our Accelerate function:
 
-```swift
+```objc
 var combinedSineWave = [Double](count:sineArraySize, repeatedValue:0.0)
 for currentIndex in 0..<sineArraySize {
     combinedSineWave[currentIndex] = sineWave[currentIndex] + sineWave2[currentIndex]
@@ -146,7 +146,7 @@ Before moving on to the FFT itself, we will need another vector operation to wor
 
 Accelerate's vecLib library has parallel equivalents of many mathematical functions, including square roots in the form of `vvsqrt()`. This is a great case for the use of function overloading, so let's create a version of `sqrt()` that works on arrays of `Double` values:
 
-```swift
+```objc
 func sqrt(x: [Double]) -> [Double] {
     var results = [Double](count:x.count, repeatedValue:0.0)
     vvsqrt(&results, x, [Int32(x.count)])
@@ -156,7 +156,7 @@ func sqrt(x: [Double]) -> [Double] {
 
 Like with our addition operator, this takes in a `Double` array, creates a blank `Double` array for output values, and passes those directly into the `vvsqrt()` Accelerate function. We can verify that this works by typing the following into the playground:
 
-```swift
+```objc
 sqrt(4.0)
 sqrt([4.0, 3.0, 16.0])
 ```
@@ -165,7 +165,7 @@ You'll see that the standard `sqrt()` function returns 2.0, and our new overload
 
 With that done, let's implement the FFT. We're not going to go into extensive detail on the setup of this, but this is our FFT function:
 
-```swift
+```objc
 let fft_weights: FFTSetupD = vDSP_create_fftsetupD(vDSP_Length(log2(Float(sineArraySize))), FFTRadix(kFFTRadix2))
 
 func fft(var inputArray:[Double]) -> [Double] {

@@ -35,9 +35,11 @@ For a full code example, take a look at [CoreImageView.swift](https://github.com
 
 For an overview of how AVFoundation works, see [Adriaan's article](/issue-23/capturing-video.html) and the [Camera Capture](/issue-21/camera-capture-on-ios.html) article by Matteo. For our purposes, we want to get raw sample buffers from the camera. Given a camera, we do this by creating an `AVCaptureDeviceInput` object. Using an `AVCaptureSession`, we can connect it to an `AVCaptureVideoDataOutput`. This video data output has a delegate object that conforms to the `AVCaptureVideoDataOutputSampleBufferDelegate` protocol. This delegate will receive a message for each frame:
 
-    func captureOutput(captureOutput: AVCaptureOutput!,
-                       didOutputSampleBuffer: CMSampleBuffer!,
-                       fromConnection: AVCaptureConnection!) {
+```swift
+func captureOutput(captureOutput: AVCaptureOutput!,
+                   didOutputSampleBuffer: CMSampleBuffer!,
+                   fromConnection: AVCaptureConnection!) {
+```
 
 We will use this to drive our image rendering. In our sample code, we have wrapped up the configuration, initialization, and delegate object into a simple interface called `CaptureBufferSource`. You can initialize it with a camera position (either front or back), and a callback, which, for each sample buffer, gets a callback with the buffer and the transform for that camera:
 

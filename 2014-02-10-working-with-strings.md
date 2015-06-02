@@ -19,18 +19,22 @@ Apple's *String Programming Guide* has a section called [“Characters and Graph
 
 `NSString` has methods to help us with this complexity. First off, there's:
 
-    - (NSComparisonResult)compare:(NSString *)aString options:(NSStringCompareOptions)mask range:(NSRange)range locale:(id)locale
+```objc
+- (NSComparisonResult)compare:(NSString *)aString options:(NSStringCompareOptions)mask range:(NSRange)range locale:(id)locale
+```
 
 which gives us full flexibility. Then there are a slew of convenience functions that all map to the aforementioned method.
 
 The available options for comparison are:
 
-    NSCaseInsensitiveSearch
-    NSLiteralSearch
-    NSNumericSearch
-    NSDiacriticInsensitiveSearch
-    NSWidthInsensitiveSearch
-    NSForcedOrderingSearch
+```
+NSCaseInsensitiveSearch
+NSLiteralSearch
+NSNumericSearch
+NSDiacriticInsensitiveSearch
+NSWidthInsensitiveSearch
+NSForcedOrderingSearch
+```
 
 These can be or'd together.
 
@@ -48,20 +52,25 @@ It's worth mentioning `-localizedStandardCompare:`, which sorts items the same w
 
 Case-insensitive compare and diacritic-insensitive compare are relatively complicated and expensive operations. If we need to compare strings too many times that it becomes a bottleneck (e.g. sorting large datasets), a common solution is to store both the original string and a folded string. For example, our `Contact` class would have a normal `name` property and internally it would also have a `foldedName` property that would get updated automatically when the name is changed. We can then use `NSLiteralSearch` to compare the folded version of the name. `NSString` has a method to create such a folded version:
 
-    - (NSString *)stringByFoldingWithOptions:(NSStringCompareOptions)options locale:(NSLocale *)locale
-
+```objc
+- (NSString *)stringByFoldingWithOptions:(NSStringCompareOptions)options locale:(NSLocale *)locale
+```
 
 ### Searching
 
 When searching for a substring inside a string, the method with the most flexibility is:
 
-    - (NSRange)rangeOfString:(NSString *)aString options:(NSStringCompareOptions)mask range:(NSRange)searchRange locale:(NSLocale *)locale
+```objc
+- (NSRange)rangeOfString:(NSString *)aString options:(NSStringCompareOptions)mask range:(NSRange)searchRange locale:(NSLocale *)locale
+```
 
 Again, there are quite a few convenience methods, all of which end up calling into this one. We can pass the same options listed above, as well as these additional ones:
 
-    NSBackwardsSearch
-    NSAnchoredSearch
-    NSRegularExpressionSearch
+```
+NSBackwardsSearch
+NSAnchoredSearch
+NSRegularExpressionSearch
+```
 
 `NSBackwardsSearch`: Start at the end of the string.
 
@@ -71,7 +80,9 @@ Again, there are quite a few convenience methods, all of which end up calling in
 
 In addition, there's also a method called:
 
-    - (NSRange)rangeOfCharacterFromSet:(NSCharacterSet *)aSet options:(NSStringCompareOptions)mask range:(NSRange)aRange
+```objc
+- (NSRange)rangeOfCharacterFromSet:(NSCharacterSet *)aSet options:(NSStringCompareOptions)mask range:(NSRange)aRange
+```
 
 Instead of searching for a string, it searches for the first character in the given character set. Even though this only searches for one character, the length of the returned range can be larger than one due to composed character sequences.
 
@@ -80,32 +91,40 @@ Instead of searching for a string, it searches for the first character in the gi
 
 We must never use `-uppercaseString` or `-lowercaseString` for strings that are supposed to be displayed in the UI. Instead, we must use `-uppercaseStringWithLocale:`, like so:
 
-    NSString *name = @"Tómas";
-    cell.text = [name uppercaseStringWithLocale:[NSLocale currentLocale]];
+```objc
+NSString *name = @"Tómas";
+cell.text = [name uppercaseStringWithLocale:[NSLocale currentLocale]];
+```
 
 ## Formatting Strings
 
 Analogous to the C function `sprintf()` (part of the ANSI C89 standard), Objective C's `NSString` class has these methods:
 
-    -initWithFormat:
-    -initWithFormat:arguments:
-    +stringWithFormat:
+```
+-initWithFormat:
+-initWithFormat:arguments:
++stringWithFormat:
+```
 
 Note that these formatting methods are *non-localized*. They should *not* be used for strings to be shown in the UI. For that we need to use:
 
-    -initWithFormat:locale:
-    -initWithFormat:locale:arguments:
-    +localizedStringWithFormat:
+```
+-initWithFormat:locale:
+-initWithFormat:locale:arguments:
++localizedStringWithFormat:
+```
 
 Florian's article about [string localization](/issue-9/string-localization.html#localized-format-strings) talks about this in more detail.
 
 
 The man page for [printf(3)](https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man3/printf.3.html) has all the gory details on how format strings work. The format string is copied verbatim, except for the so-called conversion specification, which starts with a `%` character:
 
-    double a = 25812.8074434;
-    float b = 376.730313461;
-    NSString *s = [NSString stringWithFormat:@"%g :: %g", a, b];
-    // "25812.8 :: 376.73"
+```objc
+double a = 25812.8074434;
+float b = 376.730313461;
+NSString *s = [NSString stringWithFormat:@"%g :: %g", a, b];
+// "25812.8 :: 376.73"
+```
 
 We're formatting two floating point values. Note that both single-precision `float` and double-precision `double` can be formatted with the same conversion specifications.
 
@@ -119,10 +138,11 @@ When using integer numbers, there are a few things to be aware of. First, there 
 
 If we're using something that's not in the list of types that printf knows about, we have to typecast the value. The same thing goes for types such as `NSUInteger`, which is not the same on 64-bit and 32-bit platforms. Here's an example that works for both 32-bit and 64-bit platforms:
 
-    uint64_t p = 2305843009213693951;
-    NSString *s = [NSString stringWithFormat:@"The ninth Mersenne prime is %llu", (unsigned long long) p];
-    // "The ninth Mersenne prime is 2305843009213693951"
-
+```objc
+uint64_t p = 2305843009213693951;
+NSString *s = [NSString stringWithFormat:@"The ninth Mersenne prime is %llu", (unsigned long long) p];
+// "The ninth Mersenne prime is 2305843009213693951"
+```
 
 <table>
   <thead>
@@ -142,10 +162,12 @@ If we're using something that's not in the list of types that printf knows about
 
 The conversion specifiers for integer numbers work like this:
 
-    int m = -150004021;
-    uint n = 150004021U;
-    NSString *s = [NSString stringWithFormat:@"d:%d i:%i o:%o u:%u x:%x X:%X", m, m, n, n, n, n];
-    // "d:-150004021 i:-150004021 o:1074160465 u:150004021 x:8f0e135 X:8F0E135"
+```objc
+int m = -150004021;
+uint n = 150004021U;
+NSString *s = [NSString stringWithFormat:@"d:%d i:%i o:%o u:%u x:%x X:%X", m, m, n, n, n, n];
+// "d:-150004021 i:-150004021 o:1074160465 u:150004021 x:8f0e135 X:8F0E135"
+```
 
 `%d` and `%i` both do the same thing. They simply print the signed decimal value. `%o` is slightly obscure: it uses the [octal](https://en.wikipedia.org/wiki/Octal) notation. `%u` gives us the unsigned decimal value -- it's what we usually want. Finally, `%x` and `%X` use hexadecimal notation -- the latter with capital letters.
 
@@ -153,13 +175,14 @@ For `%x` and `%X`, we can use a `#` flag to prefix `0x` in front of the string t
 
 And we can pass a minimum field width and a minimum number of digits (both are zero if omitted), as well as left / right alignment. Check the man page for details. Here are some samples:
 
-    int m = 42;
-    NSString *s = [NSString stringWithFormat:@"'%4d' '%-4d' '%+4d' '%4.3d' '%04d'", m, m, m, m, m];
-    // "[  42] [42  ] [ +42] [ 042] [0042]"
-    m = -42;
-    NSString *s = [NSString stringWithFormat:@"'%4d' '%-4d' '%+4d' '%4.3d' '%04d'", m, m, m, m, m];
-    // "[ -42] [-42 ] [ -42] [-042] [-042]"
-
+```objc
+int m = 42;
+NSString *s = [NSString stringWithFormat:@"'%4d' '%-4d' '%+4d' '%4.3d' '%04d'", m, m, m, m, m];
+// "[  42] [42  ] [ +42] [ 042] [0042]"
+m = -42;
+NSString *s = [NSString stringWithFormat:@"'%4d' '%-4d' '%+4d' '%4.3d' '%04d'", m, m, m, m, m];
+// "[ -42] [-42 ] [ -42] [-042] [-042]"
+```
 
 `%p` is what we'd use to print pointer values -- it's similar to `%#x` but does the correct thing on both 32-bit and 64-bit platforms.
 
@@ -170,11 +193,13 @@ There are eight conversion specifiers for floating-point values: `eEfFgGaA`. But
 
 Usually `%g` is the go-to conversion specifier for floating-point values. The difference to `%f` is best illustrated with this sample:
 
-    double v[5] = {12345, 12, 0.12, 0.12345678901234, 0.0000012345678901234};
-    NSString *s = [NSString stringWithFormat:@"%g %g %g %g %g", v[0], v[1], v[2], v[3], v[4]];
-    // "12345 12 0.12 0.123457 1.23457e-06"
-    NSString *s = [NSString stringWithFormat:@"%f %f %f %f %f", v[0], v[1], v[2], v[3], v[4]];
-    // "12345.000000 12.000000 0.120000 0.123457 0.000001"
+```objc
+double v[5] = {12345, 12, 0.12, 0.12345678901234, 0.0000012345678901234};
+NSString *s = [NSString stringWithFormat:@"%g %g %g %g %g", v[0], v[1], v[2], v[3], v[4]];
+// "12345 12 0.12 0.123457 1.23457e-06"
+NSString *s = [NSString stringWithFormat:@"%f %f %f %f %f", v[0], v[1], v[2], v[3], v[4]];
+// "12345.000000 12.000000 0.120000 0.123457 0.000001"
+```
 
 Like with integer values, we can specify a minimum field width and a minimum number of digits.
 
@@ -183,8 +208,10 @@ Like with integer values, we can specify a minimum field width and a minimum num
 
 The format string allows the parameters to be *consumed* in another order:
 
-    [NSString stringWithFormat:@"%2$@ %1$@", @"1st", @"2nd"];
-    // "2nd 1st"
+```objc
+[NSString stringWithFormat:@"%2$@ %1$@", @"1st", @"2nd"];
+// "2nd 1st"
+```
 
 We simply have to put the 1-based index of the parameter and a `$` sign after the `%`. This is mostly relevant for localized strings, because the order in which certain parts occur in the string might be different for other languages.
 
@@ -192,13 +219,17 @@ We simply have to put the 1-based index of the parameter and a `$` sign after th
 
 The `NSLog()` function works the same way as `+stringWithFormat:`. When we call:
 
-    int magic = 42;
-    NSLog(@"The answer is %d", magic);
+```objc
+int magic = 42;
+NSLog(@"The answer is %d", magic);
+```
 
 the code will construct the string in the same way as:
 
-    int magic = 42;
-    NSString *output = [NSString stringWithFormat:@"The answer is %d", magic];
+```objc
+int magic = 42;
+NSString *output = [NSString stringWithFormat:@"The answer is %d", magic];
+```
 
 Obviously `NSLog()` will then also output the string. And it prefixes it with a timestamp, process name, process identifier, and thread identifier.
 
@@ -206,26 +237,34 @@ Obviously `NSLog()` will then also output the string. And it prefixes it with a 
 
 It's sometimes convenient to provide a method on our own class that also takes a format string. Let's say we're implementing a To Do app which has an `Item` class. We want to provide:
 
-    + (instancetype)itemWithTitleFormat:(NSString *)format, ...
+```objc
++ (instancetype)itemWithTitleFormat:(NSString *)format, ...
+```
 
 so we can use it with:
 
-    Item *item = [Item itemWithFormat:@"Need to buy %@ for %@", food, pet];
+```objc
+Item *item = [Item itemWithFormat:@"Need to buy %@ for %@", food, pet];
+```
 
 This kind of method, which takes a variable number of arguments, is called a *variadic* method. We have to use the macros defined in `stdarg.h` to use these. An implementation of the above method would look like this:
 
-    + (instancetype)itemWithTitleFormat:(NSString *)format, ...;
-    {
-        va_list ap;
-        va_start(ap, format);
-        NSString *title = [[NSString alloc] initWithFormat:format locale:[NSLocale currentLocale] arguments:ap];
-        va_end(ap);
-        return [self itemWithTitle:title];
-    }
+```objc
++ (instancetype)itemWithTitleFormat:(NSString *)format, ...;
+{
+    va_list ap;
+    va_start(ap, format);
+    NSString *title = [[NSString alloc] initWithFormat:format locale:[NSLocale currentLocale] arguments:ap];
+    va_end(ap);
+    return [self itemWithTitle:title];
+}
+```
 
 Additionally, we should add `NS_FORMAT_FUNCTION` to the method definition (in the header file), like so:
 
-    + (instancetype)itemWithTitleFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1,2);
+```objc
++ (instancetype)itemWithTitleFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1,2);
+```
 
 The `NS_FORMAT_FUNCTION` expands to a method `__attribute__`, which tells the compiler that the argument at index **1** is a format string, and that the arguments start at index **2**. This allows the compiler to check the format string and output warnings in the same way it would do for `NSLog()` and `-[NSString stringWithFormat:]`.
 
@@ -235,16 +274,20 @@ Given a string like "bird," it is straightforward to know what the individual le
 
 What looks like three characters can be represented in several ways, e.g.
 
-    A    LATIN CAPITAL LETTER A
-     ̊    COMBINING RING ABOVE
-    s    LATIN SMALL LETTER S
-    e    LATIN SMALL LETTER E
+```
+A    LATIN CAPITAL LETTER A
+ ̊    COMBINING RING ABOVE
+s    LATIN SMALL LETTER S
+e    LATIN SMALL LETTER E
+```
 
 or
 
-    Å    LATIN CAPITAL LETTER A WITH RING ABOVE
-    s    LATIN SMALL LETTER S
-    e    LATIN SMALL LETTER E
+```
+Å    LATIN CAPITAL LETTER A WITH RING ABOVE
+s    LATIN SMALL LETTER S
+e    LATIN SMALL LETTER E
+```
 
 Read more about combining marks in [Ole's article on Unicode](/issue-9/unicode.html#peculiar-unicode-features). Other scripts have more complicated surrogate pairs.
 
@@ -252,32 +295,38 @@ If we need to work on the character level of a string, we need to be careful. Ap
 
 `NSString` has these two methods:
 
-    -rangeOfComposedCharacterSequencesForRange:
-    -rangeOfComposedCharacterSequenceAtIndex:
+```
+-rangeOfComposedCharacterSequencesForRange:
+-rangeOfComposedCharacterSequenceAtIndex:
+```
 
 that help us if we need to, for example, split a string, to make sure that we don't split so-called *surrogate pairs*. The range can then be passed to `-substringWithRange:`.
 
 If we need to need to work with the characters of a string, `NSString` has a method called:
 
-    -enumerateSubstringsInRange:options:usingBlock:
+```
+-enumerateSubstringsInRange:options:usingBlock:
+```
 
 Passing `NSStringEnumerationByComposedCharacterSequences` as the option will allow us to scan through all characters. For example, with the below method, we'd turn the string “International Business Machines” into “IBM”:
 
-    - (NSString *)initials;
-    {
-        NSMutableString *result = [NSMutableString string];
-        [self enumerateSubstringsInRange:NSMakeRange(0, self.length) options:NSStringEnumerationByWords | NSStringEnumerationLocalized usingBlock:^(NSString *word, NSRange wordRange, NSRange enclosingWordRange, BOOL *stop1) {
-            __block NSString *firstLetter = nil;
-              [self enumerateSubstringsInRange:NSMakeRange(0, word.length) options:NSStringEnumerationByComposedCharacterSequences usingBlock:^(NSString *letter, NSRange letterRange, NSRange enclosingLetterRange, BOOL *stop2) {
-                  firstLetter = letter;
-                  *stop2 = YES;
-              }];
-              if (firstLetter != nil) {
-                  [result appendString:firstLetter];
-            };
-        }];
-        return result;
-    }
+```objc
+- (NSString *)initials;
+{
+    NSMutableString *result = [NSMutableString string];
+    [self enumerateSubstringsInRange:NSMakeRange(0, self.length) options:NSStringEnumerationByWords | NSStringEnumerationLocalized usingBlock:^(NSString *word, NSRange wordRange, NSRange enclosingWordRange, BOOL *stop1) {
+        __block NSString *firstLetter = nil;
+          [self enumerateSubstringsInRange:NSMakeRange(0, word.length) options:NSStringEnumerationByComposedCharacterSequences usingBlock:^(NSString *letter, NSRange letterRange, NSRange enclosingLetterRange, BOOL *stop2) {
+              firstLetter = letter;
+              *stop2 = YES;
+          }];
+          if (firstLetter != nil) {
+              [result appendString:firstLetter];
+        };
+    }];
+    return result;
+}
+```
 
 As noted in the documentation, word and sentence boundaries may also change depending on the locale. Hence the `NSStringEnumerationLocalized` option.
 
@@ -287,21 +336,27 @@ As noted in the documentation, word and sentence boundaries may also change depe
 
 An admittedly obscure feature of the compiler is that it will join several string literals separated by nothing but white space. What does that mean? These two are identical:
 
-    NSString *limerick = @"A lively young damsel named Menzies\n"
-    @"Inquired: «Do you know what this thenzies?»\n"
-    @"Her aunt, with a gasp,\n"
-    @"Replied: "It's a wasp,\n"
-    @"And you're holding the end where the stenzies.\n";
+```objc
+NSString *limerick = @"A lively young damsel named Menzies\n"
+@"Inquired: «Do you know what this thenzies?»\n"
+@"Her aunt, with a gasp,\n"
+@"Replied: "It's a wasp,\n"
+@"And you're holding the end where the stenzies.\n";
+```
 
 and:
 
-    NSString *limerick = @"A lively young damsel named Menzies\nInquired: «Do you know what this thenzies?»\nHer aunt, with a gasp,\nReplied: "It's a wasp,\nAnd you're holding the end where the stenzies.\n";
+```objc
+NSString *limerick = @"A lively young damsel named Menzies\nInquired: «Do you know what this thenzies?»\nHer aunt, with a gasp,\nReplied: "It's a wasp,\nAnd you're holding the end where the stenzies.\n";
+```
 
 The former is easier on the eye. Just be sure not to insert a semicolon or comma at the end of any lines.
 
 We can also do things like
 
-    NSString *string = @"The man " @"who knows everything " @"learns nothing" @".";
+```objc
+NSString *string = @"The man " @"who knows everything " @"learns nothing" @".";
+```
 
 The pieces are concatenated at compile time. It's merely a convenience provided by our friend, the compiler.
 
@@ -315,18 +370,20 @@ There are two common scenarios where mutable strings are useful: (1) when piecin
 
 Mutable strings make your code easier when you need to build up your string from multiple pieces:
 
-    - (NSString *)magicToken
-    {
-        NSMutableString *string = [NSMutableString string];
-        if (usePrefix) {
-            [string appendString:@">>>"];
-        }
-        [string appendFormat:@"%d--%d", self.foo, self.bar];
-        if (useSuffix) {
-            [string appendString:@">>>"];
-        }
-        return string;
+```objc
+- (NSString *)magicToken
+{
+    NSMutableString *string = [NSMutableString string];
+    if (usePrefix) {
+        [string appendString:@">>>"];
     }
+    [string appendFormat:@"%d--%d", self.foo, self.bar];
+    if (useSuffix) {
+        [string appendString:@">>>"];
+    }
+    return string;
+}
+```
 
 Also note how we're simply returning an instance of `NSMutableString` to the caller.
 
@@ -334,87 +391,104 @@ Also note how we're simply returning an instance of `NSMutableString` to the cal
 
 Aside from appending, `NSMutableString` also has these four methods:
 
-    -deleteCharactersInRange:
-    -insertString:atIndex:
-    -replaceCharactersInRange:withString:
-    -replaceOccurrencesOfString:withString:options:range:
+```
+-deleteCharactersInRange:
+-insertString:atIndex:
+-replaceCharactersInRange:withString:
+-replaceOccurrencesOfString:withString:options:range:
+```
 
 These are similar to the `NSString` methods:
 
-    -stringByReplacingOccurrencesOfString:withString:
-    -stringByReplacingOccurrencesOfString:withString:options:range:
-    -stringByReplacingCharactersInRange:withString:
+```
+-stringByReplacingOccurrencesOfString:withString:
+-stringByReplacingOccurrencesOfString:withString:options:range:
+-stringByReplacingCharactersInRange:withString:
+```
 
 but they don't create a new string -- they mutate the string in place. This can make your code easier to read and will most likely also improve performance:
 
-    NSMutableString *string; // assume we have this
-    // Remove prefix string:
-    NSString *prefix = @"WeDon’tWantThisPrefix"
-    NSRange r = [string rangeOfString:prefix options:NSAnchoredSearch range:NSMakeRange(0, string.length) locale:nil];
-    if (r.location != NSNotFound) {
-        [string deleteCharactersInRange:r];
-    }
-
+```objc
+NSMutableString *string; // assume we have this
+// Remove prefix string:
+NSString *prefix = @"WeDon’tWantThisPrefix"
+NSRange r = [string rangeOfString:prefix options:NSAnchoredSearch range:NSMakeRange(0, string.length) locale:nil];
+if (r.location != NSNotFound) {
+    [string deleteCharactersInRange:r];
+}
+```
 
 ## Joining Components
 
 A seemingly trivial, yet common case is joining strings. Let's say we have a few strings:
 
-    Hildr
-    Heidrun
-    Gerd
-    Guðrún
-    Freya
-    Nanna
-    Siv
-    Skaði
-    Gróa
+```
+Hildr
+Heidrun
+Gerd
+Guðrún
+Freya
+Nanna
+Siv
+Skaði
+Gróa
+```
 
 and we want to create the string:
 
-    Hildr, Heidrun, Gerd, Guðrún, Freya, Nanna, Siv, Skaði, Gróa
+```
+Hildr, Heidrun, Gerd, Guðrún, Freya, Nanna, Siv, Skaði, Gróa
+```
 
 We can do this with:
 
-    NSArray *names = @["Hildr", @"Heidrun", @"Gerd", @"Guðrún", @"Freya", @"Nanna", @"Siv", @"Skaði", @"Gróa"];
-    NSString *result = [names componentsJoinedByString:@", "];
+```objc
+NSArray *names = @["Hildr", @"Heidrun", @"Gerd", @"Guðrún", @"Freya", @"Nanna", @"Siv", @"Skaði", @"Gróa"];
+NSString *result = [names componentsJoinedByString:@", "];
+```
 
 If we were to display this to users, we'd want to use the locale and make sure we replace the last part with “, and”:
 
-    @implementation NSArray (ObjcIO_GroupedComponents)
-    
-    - (NSString *)groupedComponentsWithLocale:(NSLocale *)locale;
-    {
-        if (self.count < 1) {
-            return @"";
-        } else if (self.count < 2) {
-            return self[0];
-        } else if (self.count < 3) {
-            NSString *joiner = NSLocalizedString(@"joiner.2components", @"");
-            return [NSString stringWithFormat:@"%@%@%@", self[0], joiner, self[1]];
-        } else {
-            NSString *joiner = [NSString stringWithFormat:@"%@ ", [locale objectForKey:NSLocaleGroupingSeparator]];
-            NSArray *first = [self subarrayWithRange:NSMakeRange(0, self.count - 1)];
-            NSMutableString *result = [NSMutableString stringWithString:[first componentsJoinedByString:joiner]];
-            
-            NSString *lastJoiner = NSLocalizedString(@"joiner.3components", @"");
-            [result appendString:lastJoiner];
-            [result appendString:self.lastObject];
-            return result;
-        }
+```objc
+@implementation NSArray (ObjcIO_GroupedComponents)
+
+- (NSString *)groupedComponentsWithLocale:(NSLocale *)locale;
+{
+    if (self.count < 1) {
+        return @"";
+    } else if (self.count < 2) {
+        return self[0];
+    } else if (self.count < 3) {
+        NSString *joiner = NSLocalizedString(@"joiner.2components", @"");
+        return [NSString stringWithFormat:@"%@%@%@", self[0], joiner, self[1]];
+    } else {
+        NSString *joiner = [NSString stringWithFormat:@"%@ ", [locale objectForKey:NSLocaleGroupingSeparator]];
+        NSArray *first = [self subarrayWithRange:NSMakeRange(0, self.count - 1)];
+        NSMutableString *result = [NSMutableString stringWithString:[first componentsJoinedByString:joiner]];
+        
+        NSString *lastJoiner = NSLocalizedString(@"joiner.3components", @"");
+        [result appendString:lastJoiner];
+        [result appendString:self.lastObject];
+        return result;
     }
-    
-    @end
+}
+
+@end
+```
 
 and then have:
 
-    "joiner.2components" = " and ";
-    "joiner.3components" = ", and ";
+```
+"joiner.2components" = " and ";
+"joiner.3components" = ", and ";
+```
 
 for US English or:
 
-    "joiner.2components" = " und ";
-    "joiner.3components" = " und ";
+```
+"joiner.2components" = " und ";
+"joiner.3components" = " und ";
+```
 
 for German.
 
@@ -427,63 +501,79 @@ The inverse of joining components can be done with the `-componentsSeparatedBySt
 
 In many object-oriented programming languages, it's common for objects to have a `toString()` or similarly named method. In Objective C, this method is:
 
-    - (NSString *)description
+```objc
+- (NSString *)description
+```
 
 along with its sibling:
 
-    - (NSString *)debugDescription
+```objc
+- (NSString *)debugDescription
+```
 
 It is good practice to override `-description` for model objects in such a way that the return value can be used to display the object in UI. Let's say we have a `Contact` class. It would make sense to implement:
 
-    - (NSString *)description
-    {
-        return self.name;
-    }
+```objc
+- (NSString *)description
+{
+    return self.name;
+}
+```
 
 which would allow us to use format strings, like so:
 
-    label.text = [NSString stringWithFormat:NSLocalizedString(@"%@ has been added to the group “%@”.", @""), contact, group];
+```objc
+label.text = [NSString stringWithFormat:NSLocalizedString(@"%@ has been added to the group “%@”.", @""), contact, group];
+```
 
 Since this string is for the UI, we may need access to the locale. If that's the case, we can instead override:
 
-    - (NSString *)descriptionWithLocale:(NSLocale *)locale;
+```objc
+- (NSString *)descriptionWithLocale:(NSLocale *)locale;
+```
 
 The format sequence `%@` looks for `-descriptionWithLocale:` first, and falls back to `-description`.
 
 Inside the debugger, we can print and object with `po` (short for print object):
 
-    (lldb) po contact
+```
+(lldb) po contact
+```
 
 This will call `-debugDescription` on the object. By default, `-debugDescription` calls `-description`. If we want to output different info, simply override both. In most cases (particularly for non-model objects) simply overriding `-description` will fit the bill.
 
 The de-facto standard output format for objects is:
 
-    - (NSString *)description;
-    {
-        return [NSString stringWithFormat:@"<%@: %p>", self.class, self];
-    }
+```objc
+- (NSString *)description;
+{
+    return [NSString stringWithFormat:@"<%@: %p>", self.class, self];
+}
+```
 
 This is what `NSObject` will return to us. When we override this method, it most likely makes sense to use this as a starting point. If we have a `DetailViewController` that controls UI to display a `contact`, we might want to implement it, like so:
 
-    - (NSString *)description;
-    {
-        return [NSString stringWithFormat:@"<%@: %p> contact = %@", self.class, self, self.contact.debugDescription];
-    }
-
-
+```objc
+- (NSString *)description;
+{
+    return [NSString stringWithFormat:@"<%@: %p> contact = %@", self.class, self, self.contact.debugDescription];
+}
+```
 
 ### Description of `NSManagedObject` Subclasses
 
 We should take special care when adding `-description` / `-debugDescription` to subclasses of `NSManagedObject`. Core Data's faulting mechanism allows for objects to be around without their data. We most likely don't want to alter the state of our application when calling `-debugDescription`, hence we should make sure to check `isFault`. For example, we might implement it like this:
 
-    - (NSString *)debugDescription;
-    {
-        NSMutableString *description = [NSMutableString stringWithFormat:@"<%@: %p>", self.class, self];
-        if (! self.isFault) {
-            [description appendFormat:@" %@ \"%@\" %gL", self.identifier, self.name, self.metricVolume];
-        }
-        return description;
+```objc
+- (NSString *)debugDescription;
+{
+    NSMutableString *description = [NSMutableString stringWithFormat:@"<%@: %p>", self.class, self];
+    if (! self.isFault) {
+        [description appendFormat:@" %@ \"%@\" %gL", self.identifier, self.name, self.metricVolume];
     }
+    return description;
+}
+```
 
 Again, since these are model objects, it makes sense to override `-description` to simply return the property that describes the instance such as the `name`.
 
@@ -498,23 +588,25 @@ Particularly when enumerating directory content, using `-[NSFileManager enumerat
 
 Here's a short example on how to put this together:
 
-    NSError *error = nil;
-    NSFileManager *fm = [[NSFileManager alloc] init];
-    NSURL *documents = [fm URLForDirectory:NSDocumentationDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
-    NSArray *properties = @[NSURLLocalizedNameKey, NSURLCreationDateKey];
-    NSDirectoryEnumerator *dirEnumerator = [fm enumeratorAtURL:documents
-                                    includingPropertiesForKeys:properties
-                                                       options:0
-                                                  errorHandler:nil];
-    for (NSURL *fileURL in dirEnumerator) {
-        NSString *name = nil;
-        NSDate *creationDate = nil;
-        if ([fileURL getResourceValue:&name forKey:NSURLLocalizedNameKey error:NULL] &&
-            [fileURL getResourceValue:&creationDate forKey:NSURLCreationDateKey error:NULL])
-        {
-            NSLog(@"'%@' was created at %@", name, creationDate);
-        }
+```objc
+NSError *error = nil;
+NSFileManager *fm = [[NSFileManager alloc] init];
+NSURL *documents = [fm URLForDirectory:NSDocumentationDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
+NSArray *properties = @[NSURLLocalizedNameKey, NSURLCreationDateKey];
+NSDirectoryEnumerator *dirEnumerator = [fm enumeratorAtURL:documents
+                                includingPropertiesForKeys:properties
+                                                   options:0
+                                              errorHandler:nil];
+for (NSURL *fileURL in dirEnumerator) {
+    NSString *name = nil;
+    NSDate *creationDate = nil;
+    if ([fileURL getResourceValue:&name forKey:NSURLLocalizedNameKey error:NULL] &&
+        [fileURL getResourceValue:&creationDate forKey:NSURLCreationDateKey error:NULL])
+    {
+        NSLog(@"'%@' was created at %@", name, creationDate);
     }
+}
+```
 
 We're passing the keys for properties into the `-enumeratorAtURL:...` method, which will make sure they're fetched in a very efficient manner as we enumerate the directory content. Inside the loop, the calls to `-getSourceValue:...` will then simply get the already cached values from that `NSURL` without having to touch the file system.
 
@@ -522,26 +614,32 @@ We're passing the keys for properties into the `-enumeratorAtURL:...` method, wh
 
 Because Unicode is very complex and can represent the same letter in multiple ways, we need to be careful when passing paths to UNIX APIs. We must absolutely not use `UTF8String` in these cases. The correct thing is to use the `-fileSystemRepresentation` method, like so:
 
-    NSURL *documentURL = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:NULL];
-    documentURL = [documentURL URLByAppendingPathComponent:name];
-    int fd = open(documentURL.fileSystemRepresentation, O_RDONLY);
+```objc
+NSURL *documentURL = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:NULL];
+documentURL = [documentURL URLByAppendingPathComponent:name];
+int fd = open(documentURL.fileSystemRepresentation, O_RDONLY);
+```
 
 The very same thing goes for `NSString` as for `NSURL`. If we fail to do this, we'll see random failure when opening files that have any composed characters in their name or anywhere in their path. On OS X, this is particularly bad when the user's short name happens to contain composed characters, e.g. `tómas`.
 
 Common cases where we need a `char const *` version of a path are the UNIX `open()` and `close()` commands. But this also occurs with GCD / libdispatch's I/O API:
     
-    dispatch_io_t
-    dispatch_io_create_with_path(dispatch_io_type_t type,
-    	const char *path, int oflag, mode_t mode,
-    	dispatch_queue_t queue,
-    	void (^cleanup_handler)(int error));
+```objc
+dispatch_io_t
+dispatch_io_create_with_path(dispatch_io_type_t type,
+    const char *path, int oflag, mode_t mode,
+    dispatch_queue_t queue,
+    void (^cleanup_handler)(int error));
+```
 
 If we want to use this with an `NSString`, we need to make sure to do it like this:
 
-    NSString *path = ... // assume we have this
-    io = dispatch_io_create_with_path(DISPATCH_IO_STREAM,
-        path.fileSystemRepresentation,
-        O_RDONLY, 0, queue, cleanupHandler);
+```objc
+NSString *path = ... // assume we have this
+io = dispatch_io_create_with_path(DISPATCH_IO_STREAM,
+    path.fileSystemRepresentation,
+    O_RDONLY, 0, queue, cleanupHandler);
+```
 
 What `-fileSystemRepresentation` does is that it first converts the string to the file system's [normalization form](/issue-9/unicode.html#normalization-forms) and then encodes it as UTF-8.
 

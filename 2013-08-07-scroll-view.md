@@ -35,14 +35,18 @@ Remember, we're talking about just one composite operation between a view and it
 
 Think about the math behind compositing an image onto another. The top-left corner of a view's image is offset by its frame's origin and then drawn onto its superview's image:
 
-	CompositedPosition.x = View.frame.origin.x - Superview.bounds.origin.x;
-	CompositedPosition.y = View.frame.origin.y - Superview.bounds.origin.y;
+```objc
+CompositedPosition.x = View.frame.origin.x - Superview.bounds.origin.x;
+CompositedPosition.y = View.frame.origin.y - Superview.bounds.origin.y;
+```
 
 Now, as we have said before, the origin of a view's bounds rectangle is typically just `{0, 0}`. Thus, when doing the math, we just drop out one of the values and we get:
 
-	CompositedPosition.x = View.frame.origin.x;
-	CompositedPosition.y = View.frame.origin.y;
-	
+```objc
+CompositedPosition.x = View.frame.origin.x;
+CompositedPosition.y = View.frame.origin.y;
+```
+
 So, we can look at a few different frames and see how they would look:
 
 ![](/images/issue-3/SV3@2x.png)
@@ -55,8 +59,10 @@ Now, what does all of this have to do with UIScrollView? *Everything*. Think abo
 
 The problem with that, of course, is that there are typically many views in a scroll view. To implement this panning feature, you would have to change the frames of every view every time the user moved his or her finger. But we're missing something. Remember that equation that we came up with to determine where a view composited its image onto its superview?
 
-	CompositedPosition.x = View.frame.origin.x - Superview.bounds.origin.x;
-	CompositedPosition.y = View.frame.origin.y - Superview.bounds.origin.y;
+```objc
+CompositedPosition.x = View.frame.origin.x - Superview.bounds.origin.x;
+CompositedPosition.y = View.frame.origin.y - Superview.bounds.origin.y;
+```
 
 We dropped the `Superview.bounds.origin` values because they were always 0. But what if they weren't? What if, say, we used the same frames from the previous diagram, but we changed the purple view's `bounds` origin to something like {-30, -30}. We'd get this:
 
@@ -64,12 +70,14 @@ We dropped the `Superview.bounds.origin` values because they were always 0. But 
 
 Now, the beauty of this is that every single subview of this purple view is shifted by the change to its bounds. This is, in fact, exactly how a scroll view works when you set its [`contentOffset`](http://developer.apple.com/library/ios/documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html#//apple_ref/occ/instp/UIScrollView/contentOffset) property: it changes the origin of the scroll view's bounds. In fact, `contentOffset` isn't even real! Its code probably looks like this:
 
-	- (void)setContentOffset:(CGPoint)offset
-	{
-		CGRect bounds = [self bounds];
-		bounds.origin = offset;
-		[self setBounds:bounds];
-	}
+```objc
+- (void)setContentOffset:(CGPoint)offset
+{
+    CGRect bounds = [self bounds];
+    bounds.origin = offset;
+    [self setBounds:bounds];
+}
+```
 
 Notice that in the previous diagram, changing the bounds' origin enough moved the button outside of the composited image produced by the purple view and the button. This is just what happens when you scroll a scroll view enough so that a view disappears!
 
@@ -87,8 +95,10 @@ When the content offset is `{x:0, y:0}`, the viewing window's top-left corner is
 
 The maximum value for the content offset is the difference between the content size and the scroll view's bounds' size. This makes sense; scrolling all the way to the bottom right, the user is stopped so that the bottom-right edge of the scrolling area is flush with the bottom-right edge of the scroll view's bounds. You could write the maximum content offset like this:
 
-	contentOffset.x = contentSize.width - bounds.size.width;
-	contentOffset.y = contentSize.height - bounds.size.height;
+```objc
+contentOffset.x = contentSize.width - bounds.size.width;
+contentOffset.y = contentSize.height - bounds.size.height;
+```
 
 ## Tweaking the Window with Content Insets
 

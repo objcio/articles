@@ -82,36 +82,38 @@ This means that if at some point we need to remove a specific behavior, we just 
 
 This can be implemented as follows:
 
-    @interface KZBehavior : UIControl
-    
-    //! object that this controller life will be bound to
-    @property(nonatomic, weak) IBOutlet id owner;
-    
-    @end
-    
-    
-    @implementation KZBehavior
-    
-    - (void)setOwner:(id)owner
-    {
-        if (_owner != owner) {
-            [self releaseLifetimeFromObject:_owner];
-            _owner = owner;
-            [self bindLifetimeToObject:_owner];
-        }
+```objc
+@interface KZBehavior : UIControl
+
+//! object that this controller life will be bound to
+@property(nonatomic, weak) IBOutlet id owner;
+
+@end
+
+
+@implementation KZBehavior
+
+- (void)setOwner:(id)owner
+{
+    if (_owner != owner) {
+        [self releaseLifetimeFromObject:_owner];
+        _owner = owner;
+        [self bindLifetimeToObject:_owner];
     }
-    
-    - (void)bindLifetimeToObject:(id)object
-    {
-        objc_setAssociatedObject(object, (__bridge void *)self, self, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    
-    - (void)releaseLifetimeFromObject:(id)object
-    {
-        objc_setAssociatedObject(object, (__bridge void *)self, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    
-    @end
+}
+
+- (void)bindLifetimeToObject:(id)object
+{
+    objc_setAssociatedObject(object, (__bridge void *)self, self, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (void)releaseLifetimeFromObject:(id)object
+{
+    objc_setAssociatedObject(object, (__bridge void *)self, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+@end
+```
 
 Here we leverage associated objects to create a strong reference to a specific owner object.
 
@@ -119,7 +121,9 @@ Here we leverage associated objects to create a strong reference to a specific o
 
 It's very useful to have behaviors be able to post events, e.g. when an animation finishes. One can enable that in Interface Builder by making behaviors inherit from `UIControl`. Then a specific behavior can just call:
 
-    [self sendActionsForControlEvents:UIControlEventValueChanged];
+```objc
+[self sendActionsForControlEvents:UIControlEventValueChanged];
+```
 
 This will allow you to connect events from behaviors to your view controller code.
 
@@ -147,50 +151,52 @@ The above behaviors were straightforward, but have you ever wondered what to do 
 
 If your behavior needs a delegate of some kind, like `UIScrollViewDelegate`, you will soon run into a situation where you can't have more than one behavior like that on a specific screen. But we can deal with that by implementing a simple multiplexer proxy object:
 
-    @interface MultiplexerProxyBehavior : KZBehavior
-    
-    //! targets to propagate messages to
-    @property(nonatomic, strong) IBOutletCollection(id) NSArray *targets;
-    
-    @end
-    
-    
-    @implementation MultiplexerProxyBehavior
-    
-    - (NSMethodSignature *)methodSignatureForSelector:(SEL)sel
-    {
-        NSMethodSignature *sig = [super methodSignatureForSelector:sel];
-        if (!sig) {
-            for (id obj in self.targets) {
-                if ((sig = [obj methodSignatureForSelector:sel])) {
-                    break;
-                }
-            }
-        }
-        return sig;
-    }
-    
-    - (BOOL)respondsToSelector:(SEL)aSelector
-    {
-        BOOL base = [super respondsToSelector:aSelector];
-        if (base) {
-            return base;
-        }
-        
-        return [self.targets.firstObject respondsToSelector:aSelector];
-    }
-    
-    
-    - (void)forwardInvocation:(NSInvocation *)anInvocation
-    {
+```objc
+@interface MultiplexerProxyBehavior : KZBehavior
+
+//! targets to propagate messages to
+@property(nonatomic, strong) IBOutletCollection(id) NSArray *targets;
+
+@end
+
+
+@implementation MultiplexerProxyBehavior
+
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)sel
+{
+    NSMethodSignature *sig = [super methodSignatureForSelector:sel];
+    if (!sig) {
         for (id obj in self.targets) {
-            if ([obj respondsToSelector:anInvocation.selector]) {
-                [anInvocation invokeWithTarget:obj];
+            if ((sig = [obj methodSignatureForSelector:sel])) {
+                break;
             }
         }
     }
+    return sig;
+}
+
+- (BOOL)respondsToSelector:(SEL)aSelector
+{
+    BOOL base = [super respondsToSelector:aSelector];
+    if (base) {
+        return base;
+    }
     
-    @end
+    return [self.targets.firstObject respondsToSelector:aSelector];
+}
+
+
+- (void)forwardInvocation:(NSInvocation *)anInvocation
+{
+    for (id obj in self.targets) {
+        if ([obj respondsToSelector:anInvocation.selector]) {
+            [anInvocation invokeWithTarget:obj];
+        }
+    }
+}
+
+@end
+```
 
 By creating an instance of that multiplexer behavior, you can assign it as a delegate of a scroll view (or any other object that has a delegate) so that the delegate calls are forwarded to all of them.
 

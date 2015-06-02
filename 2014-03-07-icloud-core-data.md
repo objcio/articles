@@ -53,65 +53,67 @@ Setting up a managed object context for your application is as simple as allocat
 
 While Apple hasn’t released official sample code for iCloud Core Data in iOS 7, an Apple engineer on the Core Data team provided this basic template [on the Developer Forums](https://devforums.apple.com/message/828503#828503). We’ve edited it slightly for clarity:
 
-    #pragma mark - Notification Observers
-    - (void)registerForiCloudNotifications {
-        NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-    	
-        [notificationCenter addObserver:self 
-                               selector:@selector(storesWillChange:) 
-                                   name:NSPersistentStoreCoordinatorStoresWillChangeNotification 
-                                 object:self.persistentStoreCoordinator];
+```objc
+#pragma mark - Notification Observers
+- (void)registerForiCloudNotifications {
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     
-        [notificationCenter addObserver:self 
-                               selector:@selector(storesDidChange:) 
-                                   name:NSPersistentStoreCoordinatorStoresDidChangeNotification 
-                                 object:self.persistentStoreCoordinator];
+    [notificationCenter addObserver:self 
+                           selector:@selector(storesWillChange:) 
+                               name:NSPersistentStoreCoordinatorStoresWillChangeNotification 
+                             object:self.persistentStoreCoordinator];
+
+    [notificationCenter addObserver:self 
+                           selector:@selector(storesDidChange:) 
+                               name:NSPersistentStoreCoordinatorStoresDidChangeNotification 
+                             object:self.persistentStoreCoordinator];
+
+    [notificationCenter addObserver:self 
+                           selector:@selector(persistentStoreDidImportUbiquitousContentChanges:) 
+                               name:NSPersistentStoreDidImportUbiquitousContentChangesNotification 
+                             object:self.persistentStoreCoordinator];
+}
+
+# pragma mark - iCloud Support
+
+/// Use these options in your call to -addPersistentStore:
+- (NSDictionary *)iCloudPersistentStoreOptions {
+    return @{NSPersistentStoreUbiquitousContentNameKey: @"MyAppStore"};
+}
+
+- (void) persistentStoreDidImportUbiquitousContentChanges:(NSNotification *)changeNotification {
+    NSManagedObjectContext *context = self.managedObjectContext;
     
-        [notificationCenter addObserver:self 
-                               selector:@selector(persistentStoreDidImportUbiquitousContentChanges:) 
-                                   name:NSPersistentStoreDidImportUbiquitousContentChangesNotification 
-                                 object:self.persistentStoreCoordinator];
-    }
+    [context performBlock:^{
+        [context mergeChangesFromContextDidSaveNotification:changeNotification];
+    }];
+}
+
+- (void)storesWillChange:(NSNotification *)notification {
+    NSManagedObjectContext *context = self.managedObjectContext;
     
-    # pragma mark - iCloud Support
-    
-    /// Use these options in your call to -addPersistentStore:
-    - (NSDictionary *)iCloudPersistentStoreOptions {
-        return @{NSPersistentStoreUbiquitousContentNameKey: @"MyAppStore"};
-    }
-    
-    - (void) persistentStoreDidImportUbiquitousContentChanges:(NSNotification *)changeNotification {
-        NSManagedObjectContext *context = self.managedObjectContext;
-    	
-        [context performBlock:^{
-            [context mergeChangesFromContextDidSaveNotification:changeNotification];
-        }];
-    }
-    
-    - (void)storesWillChange:(NSNotification *)notification {
-        NSManagedObjectContext *context = self.managedObjectContext;
-    	
-        [context performBlockAndWait:^{
-            NSError *error;
-    		
-            if ([context hasChanges]) {
-                BOOL success = [context save:&error];
-                
-                if (!success && error) {
-                    // perform error handling
-                    NSLog(@"%@",[error localizedDescription]);
-                }
-            }
+    [context performBlockAndWait:^{
+        NSError *error;
+        
+        if ([context hasChanges]) {
+            BOOL success = [context save:&error];
             
-            [context reset];
-        }];
-    
-        // Refresh your User Interface.
-    }
-    
-    - (void)storesDidChange:(NSNotification *)notification {
-        // Refresh your User Interface.
-    }
+            if (!success && error) {
+                // perform error handling
+                NSLog(@"%@",[error localizedDescription]);
+            }
+        }
+        
+        [context reset];
+    }];
+
+    // Refresh your User Interface.
+}
+
+- (void)storesDidChange:(NSNotification *)notification {
+    // Refresh your User Interface.
+}
+```
 
 ### Asynchronous Persistent Store Setup
 
@@ -139,32 +141,34 @@ The framework will manage one persistent store file per account inside the appli
 
 Implementing a switch to enable or disable iCloud in your app is also much easier in iOS 7, although it probably isn’t necessary for most applications. Because the API now automatically creates a separate file structure when iCloud options are passed to the `NSPersistentStore` upon creation, we can have the same store URL and many of the same options between both local and iCloud stores. This means that switching from an iCloud store to a local store can be done by migrating the iCloud persistent store to the same URL with the same options, plus the `NSPersistentStoreRemoveUbiquitousMetadataOption`. This option will disassociate the ubiquitous metadata from the store, and is specifically designed for these kinds of migration or copying scenarios. Here's a sample:
 
-    - (void)migrateiCloudStoreToLocalStore {
-        // assuming you only have one store.
-        NSPersistentStore *store = [[_coordinator persistentStores] firstObject]; 
-        
-        NSMutableDictionary *localStoreOptions = [[self storeOptions] mutableCopy];
-        [localStoreOptions setObject:@YES forKey:NSPersistentStoreRemoveUbiquitousMetadataOption];
-        
-        NSPersistentStore *newStore =  [_coordinator migratePersistentStore:store 
-                                                                      toURL:[self storeURL] 
-                                                                    options:localStoreOptions 
-                                                                   withType:NSSQLiteStoreType error:nil];
-        
-        [self reloadStore:newStore];
-    }
+```objc
+- (void)migrateiCloudStoreToLocalStore {
+    // assuming you only have one store.
+    NSPersistentStore *store = [[_coordinator persistentStores] firstObject]; 
     
-    - (void)reloadStore:(NSPersistentStore *)store {
-        if (store) {
-            [_coordinator removePersistentStore:store error:nil];
-        }
+    NSMutableDictionary *localStoreOptions = [[self storeOptions] mutableCopy];
+    [localStoreOptions setObject:@YES forKey:NSPersistentStoreRemoveUbiquitousMetadataOption];
     
-        [_coordinator addPersistentStoreWithType:NSSQLiteStoreType 
-                                   configuration:nil 
-                                             URL:[self storeURL] 
-                                         options:[self storeOptions] 
-                                           error:nil];
+    NSPersistentStore *newStore =  [_coordinator migratePersistentStore:store 
+                                                                  toURL:[self storeURL] 
+                                                                options:localStoreOptions 
+                                                               withType:NSSQLiteStoreType error:nil];
+    
+    [self reloadStore:newStore];
+}
+
+- (void)reloadStore:(NSPersistentStore *)store {
+    if (store) {
+        [_coordinator removePersistentStore:store error:nil];
     }
+
+    [_coordinator addPersistentStoreWithType:NSSQLiteStoreType 
+                               configuration:nil 
+                                         URL:[self storeURL] 
+                                     options:[self storeOptions] 
+                                       error:nil];
+}
+```
 
 Switching from a local store back to iCloud is just as easy; simply migrate with iCloud-enabled options, and add a persistent store with same options to the coordinator.
 

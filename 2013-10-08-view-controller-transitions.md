@@ -39,17 +39,19 @@ thing: having a custom animation when pushing a view controller in a
 navigation controller (the [sample project](https://github.com/objcio/issue5-view-controller-transitions) for this article is on github). To do this, we have to implement one of the new
 `UINavigationControllerDelegate` methods:
 
-    - (id<UIViewControllerAnimatedTransitioning>)
-                       navigationController:(UINavigationController *)navigationController
-            animationControllerForOperation:(UINavigationControllerOperation)operation
-                         fromViewController:(UIViewController*)fromVC
-                           toViewController:(UIViewController*)toVC
-    {
-        if (operation == UINavigationControllerOperationPush) {
-            return self.animator;
-        }
-        return nil;
+```objc
+- (id<UIViewControllerAnimatedTransitioning>)
+                   navigationController:(UINavigationController *)navigationController
+        animationControllerForOperation:(UINavigationControllerOperation)operation
+                     fromViewController:(UIViewController*)fromVC
+                       toViewController:(UIViewController*)toVC
+{
+    if (operation == UINavigationControllerOperationPush) {
+        return self.animator;
     }
+    return nil;
+}
+```
 
 We can look at the kind of operation (either push or pop) and return a
 different animator based on that. Or, if we want to share code, it might
@@ -60,37 +62,43 @@ here.
 To perform the animation, we create a custom object that implements the
 `UIViewControllerAnimatedTransitioning` protocol:
 
-    @interface Animator : NSObject <UIViewControllerAnimatedTransitioning>
-    
-    @end
+```objc
+@interface Animator : NSObject <UIViewControllerAnimatedTransitioning>
+
+@end
+```
 
 The protocol requires us to implement two methods, one for the animation
 duration:
 
-    - (NSTimeInterval)transitionDuration:(id <UIViewControllerContextTransitioning>)transitionContext
-    {
-        return 0.25;
-    }
+```objc
+- (NSTimeInterval)transitionDuration:(id <UIViewControllerContextTransitioning>)transitionContext
+{
+    return 0.25;
+}
+```
 
 and one that performs the animation:
 
-    - (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext
-    {
-        UIViewController* toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
-        UIViewController* fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
-        [[transitionContext containerView] addSubview:toViewController.view];
-        toViewController.view.alpha = 0;
+```objc
+- (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext
+{
+    UIViewController* toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+    UIViewController* fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+    [[transitionContext containerView] addSubview:toViewController.view];
+    toViewController.view.alpha = 0;
+    
+    [UIView animateWithDuration:[self transitionDuration:transitionContext] animations:^{
+        fromViewController.view.transform = CGAffineTransformMakeScale(0.1, 0.1);
+        toViewController.view.alpha = 1;
+    } completion:^(BOOL finished) {
+        fromViewController.view.transform = CGAffineTransformIdentity;
+        [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
         
-        [UIView animateWithDuration:[self transitionDuration:transitionContext] animations:^{
-            fromViewController.view.transform = CGAffineTransformMakeScale(0.1, 0.1);
-            toViewController.view.alpha = 1;
-        } completion:^(BOOL finished) {
-            fromViewController.view.transform = CGAffineTransformIdentity;
-            [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
-            
-        }];
+    }];
 
-    }
+}
+```
 
 Here, you can see how the protocols are used: instead of giving a
 concrete object with properties, this methods gets a transition context
@@ -112,11 +120,13 @@ interactive anymore. Let's fix that.
 Making this animation interactive is really simple. We need to override another new
 navigation controller delegate method:
 
-    - (id <UIViewControllerInteractiveTransitioning>)navigationController:(UINavigationController*)navigationController
-                              interactionControllerForAnimationController:(id <UIViewControllerAnimatedTransitioning>)animationController
-    {
-        return self.interactionController;
-    }
+```objc
+- (id <UIViewControllerInteractiveTransitioning>)navigationController:(UINavigationController*)navigationController
+                          interactionControllerForAnimationController:(id <UIViewControllerAnimatedTransitioning>)animationController
+{
+    return self.interactionController;
+}
+```
 
 Note that, in a non-interactive animation, this will return nil.
 
@@ -125,12 +135,14 @@ The interaction controller is an instance of
 necessary. We create a pan recognizer, and here's the code that handles
 the panning:
 
-    if (panGestureRecognizer.state == UIGestureRecognizerStateBegan) {
-        if (location.x >  CGRectGetMidX(view.bounds)) {
-            navigationControllerDelegate.interactionController = [[UIPercentDrivenInteractiveTransition alloc] init];
-            [self performSegueWithIdentifier:PushSegueIdentifier sender:self];
-        }
-    } 
+```objc
+if (panGestureRecognizer.state == UIGestureRecognizerStateBegan) {
+    if (location.x >  CGRectGetMidX(view.bounds)) {
+        navigationControllerDelegate.interactionController = [[UIPercentDrivenInteractiveTransition alloc] init];
+        [self performSegueWithIdentifier:PushSegueIdentifier sender:self];
+    }
+} 
+```
 
 Only when the user is on the right-hand side of the screen, do we set the
 next animation to be interactive (by setting the `interactionController`
@@ -138,10 +150,12 @@ property). Then we just perform the segue (or if
 you're not using storyboards, push the view controller). To drive the
 transition, we call a method on the interaction controller: 
 
-    else if (panGestureRecognizer.state == UIGestureRecognizerStateChanged) {
-        CGFloat d = (translation.x / CGRectGetWidth(view.bounds)) * -1;
-        [interactionController updateInteractiveTransition:d];
-    } 
+```objc
+else if (panGestureRecognizer.state == UIGestureRecognizerStateChanged) {
+    CGFloat d = (translation.x / CGRectGetWidth(view.bounds)) * -1;
+    [interactionController updateInteractiveTransition:d];
+} 
+```
 
 This will set the percentage based on how much we have panned. The
 really cool thing here is that the interaction controller cooperates
@@ -153,14 +167,16 @@ this happens automatically in a decoupled way.
 Finally, when the gesture recognizer ends or is canceled, we need to
 call the appropriate methods on the interaction controller:
 
-    else if (panGestureRecognizer.state == UIGestureRecognizerStateEnded) {
-        if ([panGestureRecognizer velocityInView:view].x < 0) {
-            [interactionController finishInteractiveTransition];
-        } else {
-            [interactionController cancelInteractiveTransition];
-        }
-        navigationControllerDelegate.interactionController = nil;
+```objc
+else if (panGestureRecognizer.state == UIGestureRecognizerStateEnded) {
+    if ([panGestureRecognizer velocityInView:view].x < 0) {
+        [interactionController finishInteractiveTransition];
+    } else {
+        [interactionController cancelInteractiveTransition];
     }
+    navigationControllerDelegate.interactionController = nil;
+}
+```
 
 It's important that we set the interaction controller to nil after the
 transition was completed or canceled. If the next transition is
@@ -189,17 +205,19 @@ controllers, and apply GPUIImage's image filters on the two snapshots.
 First, we create a custom class that implements both the animation and
 interactive transition protocols:
 
-    @interface GPUImageAnimator : NSObject
-      <UIViewControllerAnimatedTransitioning,
-       UIViewControllerInteractiveTransitioning>
-    
-    @property (nonatomic) BOOL interactive;
-    @property (nonatomic) CGFloat progress;
-    
-    - (void)finishInteractiveTransition;
-    - (void)cancelInteractiveTransition;
-    
-    @end
+```objc
+@interface GPUImageAnimator : NSObject
+  <UIViewControllerAnimatedTransitioning,
+   UIViewControllerInteractiveTransitioning>
+
+@property (nonatomic) BOOL interactive;
+@property (nonatomic) CGFloat progress;
+
+- (void)finishInteractiveTransition;
+- (void)cancelInteractiveTransition;
+
+@end
+```
 
 To make the animations perform really fast, we want to upload the images
 to the GPU once, and then do all the processing and drawing on the GPU,
@@ -213,20 +231,24 @@ is animating the filters. With GPUImage, we don't get automatic
 animation, so we want to update our filters at each frame that's
 rendered. We can use the `CADisplayLink` class to do this:
 
-    self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(frame:)];
-    [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+```objc
+self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(frame:)];
+[self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+```
 
 In the `frame:` method, we can update our progress based on how much
 time has elapsed, and update the filters accordingly:
 
-    - (void)frame:(CADisplayLink*)link
-    {
-        self.progress = MAX(0, MIN((link.timestamp - self.startTime) / duration, 1));
-        self.blend.mix = self.progress;
-        self.sourcePixellateFilter.fractionalWidthOfAPixel = self.progress *0.1;
-        self.targetPixellateFilter.fractionalWidthOfAPixel = (1- self.progress)*0.1;
-        [self triggerRenderOfNextFrame];
-    }
+```objc
+- (void)frame:(CADisplayLink*)link
+{
+    self.progress = MAX(0, MIN((link.timestamp - self.startTime) / duration, 1));
+    self.blend.mix = self.progress;
+    self.sourcePixellateFilter.fractionalWidthOfAPixel = self.progress *0.1;
+    self.targetPixellateFilter.fractionalWidthOfAPixel = (1- self.progress)*0.1;
+    [self triggerRenderOfNextFrame];
+}
+```
 
 And that's pretty much all we need to do. In case of interactive
 transitions, we need to make sure that we set the progress based on our

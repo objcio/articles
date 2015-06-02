@@ -58,46 +58,52 @@ One pretty clear criterium of when not to use blocks has to do with the danger o
 
 Let's assume we wanted to implement a table view, but we want to use block callbacks instead of a delegate pattern for the selection methods, like this:
 
-    self.myTableView.selectionHandler = ^void(NSIndexPath *selectedIndexPath) {
-        // handle selection ...
-    };
-    
+```objc
+self.myTableView.selectionHandler = ^void(NSIndexPath *selectedIndexPath) {
+    // handle selection ...
+};
+```
+
 The issue here is that `self` retains the table view, and the table view has to retain the block in order to be able to use it later. The table view cannot nil out this reference, because it cannot tell when it will not need it anymore. If we cannot guarantee that the retain cycle will be broken and we will retain the sender, then blocks are not a good choice.
 
 `NSOperation` is a good example of where this does not become a problem, because it breaks the retain cycle at some point:
 
-    self.queue = [[NSOperationQueue alloc] init];
-    MyOperation *operation = [[MyOperation alloc] init];
-    operation.completionBlock = ^{
-        [self finishedOperation];
-    };
-    [self.queue addOperation:operation];
-    
+```objc
+self.queue = [[NSOperationQueue alloc] init];
+MyOperation *operation = [[MyOperation alloc] init];
+operation.completionBlock = ^{
+    [self finishedOperation];
+};
+[self.queue addOperation:operation];
+```
+
 At first glance this seems like a retain cycle: `self` retains the queue, the queue retains the operation, the operation retains the completion block, and the completion block retains `self`. However, adding the operation to the queue will result in the operation being executed at some point and then being removed from the queue afterward. (If it doesn't get executed, we have a bigger problem anyway.) Once the queue removes the operation, the retain cycle is broken.
 
 Another example: let's say we're implementing a video encoder class, on which we call an `encodeWithCompletionHandler:` method. To make this non-problematic, we have to guarantee that the encoder object nils out its reference to the block at some point. Internally, this would have to look something like this:
 
-    @interface Encoder ()
-    @property (nonatomic, copy) void (^completionHandler)();
-    @end
-    
-    @implementation Encoder
-    
-    - (void)encodeWithCompletionHandler:(void (^)())handler
-    {
-        self.completionHandler = handler;
-        // do the asynchronous processing...
-    }
-    
-    // This one will be called once the job is done
-    - (void)finishedEncoding
-    {
-        self.completionHandler();
-        self.completionHandler = nil; // <- Don't forget this!
-    }
-    
-    @end
-    
+```objc
+@interface Encoder ()
+@property (nonatomic, copy) void (^completionHandler)();
+@end
+
+@implementation Encoder
+
+- (void)encodeWithCompletionHandler:(void (^)())handler
+{
+    self.completionHandler = handler;
+    // do the asynchronous processing...
+}
+
+// This one will be called once the job is done
+- (void)finishedEncoding
+{
+    self.completionHandler();
+    self.completionHandler = nil; // <- Don't forget this!
+}
+
+@end
+```
+
 Once our job is done and we've called the completion block, we nil it out. 
 
 Blocks are a very good fit if a message we call has to send back a one-off response that is specific to this method call, because then we can break potential retain cycles. Additionally, if it helps readability to have the code processing the message together with the message call, it's hard to argue against the use of blocks. Along these lines, a very common use case of blocks are completion handlers, error handlers, and the like.

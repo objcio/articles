@@ -13,13 +13,15 @@ When an app communicates with a server, more often than not, that communication 
 HTTP is an application protocol running at the application layer. There are several protocols layered on top of each other. The stack of layers is often depicted like this:
 
 
-    Application Layer -- e.g. HTTP
-    ----
-    Transport Layer -- e.g. TCP
-    ----
-    Internet Layer -- e.g. IP
-    ----
-    Link Layer -- e.g. IEEE 802.2
+```
+Application Layer -- e.g. HTTP
+----
+Transport Layer -- e.g. TCP
+----
+Internet Layer -- e.g. IP
+----
+Link Layer -- e.g. IEEE 802.2
+```
 
 The so-called [OSI (Open Systems Interconnection) model](https://en.wikipedia.org/wiki/OSI_model) defines seven layers. We'll take a look at the application, transport, and Internet layers for the typical HTTP usage: HTTP, TCP, and IP. The layers below IP are the data link and physical layers. These are the layers that, e.g. implement Ethernet (Ethernet has a data link part and a physical part).
 
@@ -55,15 +57,17 @@ The payload contains the actual data to be transmitted, while the header is meta
 
 An IPv4 header looks like this:
 
-    IPv4 Header Format
-    Offsets  Octet    0                       1                       2                       3
-    Octet    Bit      0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31|
-     0         0     |Version    |IHL        |DSCP            |ECN  |Total Length                                   |
-     4        32     |Identification                                |Flags   |Fragment Offset                       |
-     8        64     |Time To Live           |Protocol              |Header Checksum                                |
-    12        96     |Source IP Address                                                                             |
-    16       128     |Destination IP Address                                                                        |
-    20       160     |Options (if IHL > 5)                                                                          |
+```
+IPv4 Header Format
+Offsets  Octet    0                       1                       2                       3
+Octet    Bit      0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31|
+ 0         0     |Version    |IHL        |DSCP            |ECN  |Total Length                                   |
+ 4        32     |Identification                                |Flags   |Fragment Offset                       |
+ 8        64     |Time To Live           |Protocol              |Header Checksum                                |
+12        96     |Source IP Address                                                                             |
+16       128     |Destination IP Address                                                                        |
+20       160     |Options (if IHL > 5)                                                                          |
+```
 
 The header is 20 bytes long (without options, which are rarely used).
 
@@ -76,18 +80,20 @@ Check Wikipedia's [article on IPv4](https://en.wikipedia.org/wiki/IPv4_header) f
 
 IPv6 uses addresses that are 128 bits long. The IPv6 header looks like this:
 
-    Offsets  Octet    0                       1                       2                       3
-    Octet    Bit      0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31|
-     0         0     |Version    |Traffic Class         |Flow Label                                                 |
-     4        32     |Payload Length                                |Next Header            |Hop Limit              |
-     8        64     |Source Address                                                                                |
-    12        96     |                                                                                              |
-    16       128     |                                                                                              |
-    20       160     |                                                                                              |
-    24       192     |Destination Address                                                                           |
-    28       224     |                                                                                              |
-    32       256     |                                                                                              |
-    36       288     |                                                                                              |
+```
+Offsets  Octet    0                       1                       2                       3
+Octet    Bit      0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31|
+ 0         0     |Version    |Traffic Class         |Flow Label                                                 |
+ 4        32     |Payload Length                                |Next Header            |Hop Limit              |
+ 8        64     |Source Address                                                                                |
+12        96     |                                                                                              |
+16       128     |                                                                                              |
+20       160     |                                                                                              |
+24       192     |Destination Address                                                                           |
+28       224     |                                                                                              |
+32       256     |                                                                                              |
+36       288     |                                                                                              |
+```
 
 The IPv6 header has a fixed length of 40 bytes. It's a lot simpler than IPv4 -- a few lessons were learned in the years that have passed since IPv4.
 
@@ -151,16 +157,20 @@ Connection setup happens through a three-way handshake. It works like this:
 
 If we run´:
 
-    curl -4 http://www.apple.com/contact/
+```
+curl -4 http://www.apple.com/contact/
+```
 
 this will cause `curl` to create a TCP connection to www.apple.com on port 80.
 
 The server www.apple.com / 23.63.125.15 is listening on port 80. Our own address in the output is `10.0.1.6`, and our *ephemeral port* is `52181` (this is a random, available port). The output from `tcpdump(1)` for the three-way handshake looks like this:
 
-    % sudo tcpdump -c 3 -i en3 -nS host 23.63.125.15
-    18:31:29.140787 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [S], seq 1721092979, win 65535, options [mss 1460,nop,wscale 4,nop,nop,TS val 743929763 ecr 0,sackOK,eol], length 0
-    18:31:29.150866 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [S.], seq 673593777, ack 1721092980, win 14480, options [mss 1460,sackOK,TS val 1433256622 ecr 743929763,nop,wscale 1], length 0
-    18:31:29.150908 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673593778, win 8235, options [nop,nop,TS val 743929773 ecr 1433256622], length 0
+```
+% sudo tcpdump -c 3 -i en3 -nS host 23.63.125.15
+18:31:29.140787 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [S], seq 1721092979, win 65535, options [mss 1460,nop,wscale 4,nop,nop,TS val 743929763 ecr 0,sackOK,eol], length 0
+18:31:29.150866 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [S.], seq 673593777, ack 1721092980, win 14480, options [mss 1460,sackOK,TS val 1433256622 ecr 743929763,nop,wscale 1], length 0
+18:31:29.150908 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673593778, win 8235, options [nop,nop,TS val 743929773 ecr 1433256622], length 0
+```
 
 That's a lot of information right there. Let's step through this bit by bit.
 
@@ -176,11 +186,15 @@ The first line shows the client sending the random sequence number 1721092979 (A
 
 Another thing that happens during connection setup is for both ends to exchange additional options. In the first line, we see the client sending:
 
-    [mss 1460,nop,wscale 4,nop,nop,TS val 743929763 ecr 0,sackOK,eol]
+```
+[mss 1460,nop,wscale 4,nop,nop,TS val 743929763 ecr 0,sackOK,eol]
+```
 
 and on the second line, the server is sending:
 
-    [mss 1460,sackOK,TS val 1433256622 ecr 743929763,nop,wscale 1]
+```
+[mss 1460,sackOK,TS val 1433256622 ecr 743929763,nop,wscale 1]
+```
 
 The `TS val` / `ecr` are used by TCP to estimate the round-trip time (RTT). The `TS val` part is the *time stamp* of the sender, and the (`ecr`) is the timestamp *echo reply*, which is (generally) the last timestamp that the sender has received. TCP uses the round-trip time for its congestion-control algorithms.
 
@@ -194,12 +208,14 @@ When the connection is created, both ends can send data to the other end. Each s
 
 If we were transmitting 10 bytes per segment and 5 bytes in the last segment, this may looks like:
 
-    host A sends segment with seq 10
-    host A sends segment with seq 20
-    host A sends segment with seq 30    host B sends segment with ack 10
-    host A sends segment with seq 35    host B sends segment with ack 20
-                                        host B sends segment with ack 30
-                                        host B sends segment with ack 35
+```
+host A sends segment with seq 10
+host A sends segment with seq 20
+host A sends segment with seq 30    host B sends segment with ack 10
+host A sends segment with seq 35    host B sends segment with ack 20
+                                    host B sends segment with ack 30
+                                    host B sends segment with ack 35
+```
 
 This mechanism happens in both directions. Host A will keep sending packets. As they arrive at host B, host B will send acknowledgements for these packets back to host A. But host A will keep sending packets without waiting for host B to acknowledge them.
 
@@ -217,8 +233,10 @@ Because of this tuning, TCP connections that are short-lived can be very ineffic
 
 Above, we saw the first three segments between the client and the server. If we look at the remainder of the connection, it looks like this:
 
-    18:31:29.150955 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [P.], seq 1721092980:1721093065, ack 673593778, win 8235, options [nop,nop,TS val 743929773 ecr 1433256622], length 85
-    18:31:29.161213 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], ack 1721093065, win 7240, options [nop,nop,TS val 1433256633 ecr 743929773], length 0
+```
+18:31:29.150955 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [P.], seq 1721092980:1721093065, ack 673593778, win 8235, options [nop,nop,TS val 743929773 ecr 1433256622], length 85
+18:31:29.161213 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], ack 1721093065, win 7240, options [nop,nop,TS val 1433256633 ecr 743929773], length 0
+```
 
 The client at `10.0.1.6` sends the first segment with data `length 85` (the HTTP request, 85 bytes). The **ACK** number is left at the same value, because no data has been received from the other end since the last segment.
 
@@ -226,32 +244,36 @@ The server at `23.63.125.15` then acknowledges the receipt of that data (but doe
 
 This pattern continues until all data has been sent:
 
-    18:31:29.189335 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673593778:673595226, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
-    18:31:29.190280 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673595226:673596674, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
-    18:31:29.190350 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673596674, win 8101, options [nop,nop,TS val 743929811 ecr 1433256660], length 0
-    18:31:29.190597 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673596674:673598122, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
-    18:31:29.190601 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673598122:673599570, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
-    18:31:29.190614 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673599570:673601018, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
-    18:31:29.190616 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673601018:673602466, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
-    18:31:29.190617 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673602466:673603914, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
-    18:31:29.190619 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673603914:673605362, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
-    18:31:29.190621 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673605362:673606810, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
-    18:31:29.190679 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673599570, win 8011, options [nop,nop,TS val 743929812 ecr 1433256660], length 0
-    18:31:29.190683 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673602466, win 7830, options [nop,nop,TS val 743929812 ecr 1433256660], length 0
-    18:31:29.190688 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673605362, win 7830, options [nop,nop,TS val 743929812 ecr 1433256660], length 0
-    18:31:29.190703 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673605362, win 8192, options [nop,nop,TS val 743929812 ecr 1433256660], length 0
-    18:31:29.190743 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673606810, win 8192, options [nop,nop,TS val 743929812 ecr 1433256660], length 0
-    18:31:29.190870 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673606810:673608258, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
-    18:31:29.198582 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [P.], seq 673608258:673608401, ack 1721093065, win 7240, options [nop,nop,TS val 1433256670 ecr 743929811], length 143
-    18:31:29.198672 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673608401, win 8183, options [nop,nop,TS val 743929819 ecr 1433256660], length 0
+```
+18:31:29.189335 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673593778:673595226, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
+18:31:29.190280 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673595226:673596674, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
+18:31:29.190350 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673596674, win 8101, options [nop,nop,TS val 743929811 ecr 1433256660], length 0
+18:31:29.190597 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673596674:673598122, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
+18:31:29.190601 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673598122:673599570, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
+18:31:29.190614 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673599570:673601018, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
+18:31:29.190616 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673601018:673602466, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
+18:31:29.190617 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673602466:673603914, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
+18:31:29.190619 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673603914:673605362, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
+18:31:29.190621 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673605362:673606810, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
+18:31:29.190679 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673599570, win 8011, options [nop,nop,TS val 743929812 ecr 1433256660], length 0
+18:31:29.190683 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673602466, win 7830, options [nop,nop,TS val 743929812 ecr 1433256660], length 0
+18:31:29.190688 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673605362, win 7830, options [nop,nop,TS val 743929812 ecr 1433256660], length 0
+18:31:29.190703 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673605362, win 8192, options [nop,nop,TS val 743929812 ecr 1433256660], length 0
+18:31:29.190743 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673606810, win 8192, options [nop,nop,TS val 743929812 ecr 1433256660], length 0
+18:31:29.190870 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [.], seq 673606810:673608258, ack 1721093065, win 7240, options [nop,nop,TS val 1433256660 ecr 743929773], length 1448
+18:31:29.198582 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [P.], seq 673608258:673608401, ack 1721093065, win 7240, options [nop,nop,TS val 1433256670 ecr 743929811], length 143
+18:31:29.198672 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673608401, win 8183, options [nop,nop,TS val 743929819 ecr 1433256660], length 0
+```
 
 #### Connection Termination
 
 Finally the connection is torn down (or terminated). Each end will send a **FIN** flag to the other end to tell it that it's done sending. This **FIN** is then acknowledged. When both ends have sent their **FIN** flags and they have been acknowledged, the connection is fully closed:
 
-    18:31:29.199029 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [F.], seq 1721093065, ack 673608401, win 8192, options [nop,nop,TS val 743929819 ecr 1433256660], length 0
-    18:31:29.208416 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [F.], seq 673608401, ack 1721093066, win 7240, options [nop,nop,TS val 1433256680 ecr 743929819], length 0
-    18:31:29.208493 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673608402, win 8192, options [nop,nop,TS val 743929828 ecr 1433256680], length 0
+```
+18:31:29.199029 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [F.], seq 1721093065, ack 673608401, win 8192, options [nop,nop,TS val 743929819 ecr 1433256660], length 0
+18:31:29.208416 IP 23.63.125.15.80 > 10.0.1.6.52181: Flags [F.], seq 673608401, ack 1721093066, win 7240, options [nop,nop,TS val 1433256680 ecr 743929819], length 0
+18:31:29.208493 IP 10.0.1.6.52181 > 23.63.125.15.80: Flags [.], ack 673608402, win 8192, options [nop,nop,TS val 743929828 ecr 1433256680], length 0
+```
 
 Note how on the second line, `23.63.125.15` sends its **FIN**, and at the same time acknowledges the other end's **FIN** with an **ACK** (dot), all in a single segment.
 
@@ -269,18 +291,19 @@ There's always a single request and a single response. And both requests and res
 
 When [Safari](https://en.wikipedia.org/wiki/Safari_%28web_browser%29) loads the HTML for http://www.objc.io/about.html, it sends an HTTP request to `www.objc.io` with the following content:
 
-    GET /about.html HTTP/1.1
-    Host: www.objc.io
-    Accept-Encoding: gzip, deflate
-    Connection: keep-alive
-    If-None-Match: "a54907f38b306fe3ae4f32c003ddd507"
-    Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-    If-Modified-Since: Mon, 10 Feb 2014 18:08:48 GMT
-    User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.74.9 (KHTML, like Gecko) Version/7.0.2 Safari/537.74.9
-    Referer: http://www.objc.io/
-    DNT: 1
-    Accept-Language: en-us
-
+```
+GET /about.html HTTP/1.1
+Host: www.objc.io
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+If-None-Match: "a54907f38b306fe3ae4f32c003ddd507"
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+If-Modified-Since: Mon, 10 Feb 2014 18:08:48 GMT
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.74.9 (KHTML, like Gecko) Version/7.0.2 Safari/537.74.9
+Referer: http://www.objc.io/
+DNT: 1
+Accept-Language: en-us
+```
 
 The first line is the **request line**. It has three parts: the action, the resource, and the HTTP version. 
 
@@ -292,17 +315,23 @@ The headers have very varying purposes. They convey additional information to th
 
 Let's look at a few common ones:
 
-    Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-    Accept-Language: en-us
+```
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-us
+```
 
 This tells the server what media type Safari would like to receive. A server may be able to send a response in various formats. The `text/html` strings are [Internet media types](https://en.wikipedia.org/wiki/Mime_type), sometimes also known as MIME types or Content-types. The `q=0.9` allows Safari to convey a quality factor which it associates with the given media types. `Accept-Language` tells the server which languages Safari would prefer. Again, this lets the server pick the matching languages, if available.
 
-    Accept-Encoding: gzip, deflate
+```
+Accept-Encoding: gzip, deflate
+```
 
 With this header, Safari tells the server that the response body can be sent compressed. If this header is not set, the server must send the data uncompressed. Particularly for text (such as HTML), compression rates can dramatically reduce the amount of data that has to be sent.
 
-    If-Modified-Since: Mon, 10 Feb 2014 18:08:48 GMT
-    If-None-Match: "a54907f38b306fe3ae4f32c003ddd507"
+```
+If-Modified-Since: Mon, 10 Feb 2014 18:08:48 GMT
+If-None-Match: "a54907f38b306fe3ae4f32c003ddd507"
+```
 
 These two are due to the fact that Safari already has the resulting document in its cache. Safari tells the server only to send it if it has either changed since February 10, or if its so-called ETag doesn't match `a54907f38b306fe3ae4f32c003ddd507`.
 
@@ -312,16 +341,18 @@ The `User-Agent` header tells the server what kind of client is making the reque
 
 In response to the above, the server responds with:
 
-    HTTP/1.1 304 Not Modified
-    Connection: keep-alive
-    Date: Mon, 03 Mar 2014 21:09:45 GMT
-    Cache-Control: max-age=3600
-    ETag: "a54907f38b306fe3ae4f32c003ddd507"
-    Last-Modified: Mon, 10 Feb 2014 18:08:48 GMT
-    Age: 6
-    X-Cache: Hit from cloudfront
-    Via: 1.1 eb67cb25620df959ba21a943fbc49ef6.cloudfront.net (CloudFront)
-    X-Amz-Cf-Id: dDSBgR86EKBemW6el-pBI9kAnuYJEaPQYEqGmBnilD12CbixCuZYVQ==
+```
+HTTP/1.1 304 Not Modified
+Connection: keep-alive
+Date: Mon, 03 Mar 2014 21:09:45 GMT
+Cache-Control: max-age=3600
+ETag: "a54907f38b306fe3ae4f32c003ddd507"
+Last-Modified: Mon, 10 Feb 2014 18:08:48 GMT
+Age: 6
+X-Cache: Hit from cloudfront
+Via: 1.1 eb67cb25620df959ba21a943fbc49ef6.cloudfront.net (CloudFront)
+X-Amz-Cf-Id: dDSBgR86EKBemW6el-pBI9kAnuYJEaPQYEqGmBnilD12CbixCuZYVQ==
+```
 
 The first line is the so-called *status line*. It contains the HTTP version, followed by a [status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) (304) and a status message.
 
@@ -333,14 +364,18 @@ The response doesn't contain any body message. It simply tells the receiver: *Yo
 
 Let's do another request with `curl`:
 
-    % curl http://www.apple.com/hotnews/ > /dev/null
+```
+% curl http://www.apple.com/hotnews/ > /dev/null
+```
 
 `curl` doesn't use a local cache. The entire request will now look like this:
 
-    GET /hotnews/ HTTP/1.1
-    User-Agent: curl/7.30.0
-    Host: www.apple.com
-    Accept: */*
+```
+GET /hotnews/ HTTP/1.1
+User-Agent: curl/7.30.0
+Host: www.apple.com
+Accept: */*
+```
 
 This is quite similar to what Safari was requesting. This time, there's no `If-None-Match` header, and the server will have to send the document.
 
@@ -348,19 +383,21 @@ Note how `curl` announces that it will accept any kind of media format: (`Accept
 
 The response from www.apple.com looks like this:
 
-    HTTP/1.1 200 OK
-    Server: Apache
-    Content-Type: text/html; charset=UTF-8
-    Cache-Control: max-age=424
-    Expires: Mon, 03 Mar 2014 21:57:55 GMT
-    Date: Mon, 03 Mar 2014 21:50:51 GMT
-    Content-Length: 12342
-    Connection: keep-alive
+```
+HTTP/1.1 200 OK
+Server: Apache
+Content-Type: text/html; charset=UTF-8
+Cache-Control: max-age=424
+Expires: Mon, 03 Mar 2014 21:57:55 GMT
+Date: Mon, 03 Mar 2014 21:50:51 GMT
+Content-Length: 12342
+Connection: keep-alive
 
-    <!DOCTYPE html>
-    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
-    <head>
-        <meta charset="utf-8" />
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<head>
+    <meta charset="utf-8" />
+```
 
 and continues on for quite a while. It now has a response body which contains the HTML document.
 
@@ -421,29 +458,33 @@ The problem with this is at the end of the data transmission. When the sender st
 
 HTTP has two strategies to counter these problems. The simplest is called [HTTP persistent connection](https://en.wikipedia.org/wiki/HTTP_persistent_connection), sometimes also known as *keep-alive*. HTTP will simply reuse the same TCP connection once a single request-response pair is done. In the case of HTTPS, the same TLS connection will be reused:
 
-    open connection
-    client sends HTTP request 1 ->
-                                <- server sends HTTP response 1
-    client sends HTTP request 2 ->
-                                <- server sends HTTP response 2
-    client sends HTTP request 3 ->
-                                <- server sends HTTP response 3
-    close connection
+```
+open connection
+client sends HTTP request 1 ->
+                            <- server sends HTTP response 1
+client sends HTTP request 2 ->
+                            <- server sends HTTP response 2
+client sends HTTP request 3 ->
+                            <- server sends HTTP response 3
+close connection
+```
 
 The second step is to use [HTTP pipelining](https://en.wikipedia.org/wiki/Http_pipelining), which allows the client to send multiple requests over the same connection without waiting for the response from previous requests. The requests can be sent in parallel with responses being received, but the responses are still sent back to the client in the order that the requests were sent -- it's still a [first-in-first-out](https://en.wikipedia.org/wiki/FIFO) principle. 
 
 Slightly simplified, this would look like:
 
-    open connection
-    client sends HTTP request 1 ->
-    client sends HTTP request 2 ->
-    client sends HTTP request 3 ->
-    client sends HTTP request 4 ->
-                                <- server sends HTTP response 1
-                                <- server sends HTTP response 2
-                                <- server sends HTTP response 3
-                                <- server sends HTTP response 4
-    close connection
+```
+open connection
+client sends HTTP request 1 ->
+client sends HTTP request 2 ->
+client sends HTTP request 3 ->
+client sends HTTP request 4 ->
+                            <- server sends HTTP response 1
+                            <- server sends HTTP response 2
+                            <- server sends HTTP response 3
+                            <- server sends HTTP response 4
+close connection
+```
 
 Note, however, that the server may start sending the response at any time, and doesn't have to wait until all requests have been received.
 
@@ -471,7 +512,9 @@ As long as both sides have the same IP address, the connection stays 'alive.' On
 
 Note how in our first example, we send a:
 
-    If-None-Match: "a54907f38b306fe3ae4f32c003ddd507"
+```
+If-None-Match: "a54907f38b306fe3ae4f32c003ddd507"
+```
 
 line to the server, letting it know that we already have a resource locally and only want the server to send the resource to us if it has a newer version. If you're building your own communication with your server, try to make use of this mechanism. It can dramatically speed up communication if used correctly. The mechanism is called [HTTP ETag](https://en.wikipedia.org/wiki/HTTP_ETag).
 

@@ -167,7 +167,7 @@ NSIndexPath* indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
 [[[mockTableView expect] andReturn:cell]
         dequeueReusableCellWithIdentifier:@"foo"
                              forIndexPath:indexPath];
-```    
+```
 
 This will look a bit confusing at first. What's going on here, is that the mock is *recording* this particular call. The mock is not a table view; we're just pretending that it is. The special `-expect` method allows us to set up the mock so that it knows what to do when this method gets called on it.
 

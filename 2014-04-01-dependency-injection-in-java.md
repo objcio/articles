@@ -22,21 +22,23 @@ My beef was not original or well thought out, but here are my issues, roughly:
 
 That was essentially my view of Java. It was this kind of Java:
 
-    public class NumberStack {
-        List<Integer> mNumbers = new ArrayList<Integer>();
-    
-        public void pushNumber(int number) {
-            mNumbers.add(number);
-        }
-    
-        public Integer popNumber() {
-            if (mNumber.size() == 0) {
-                return null;
-            } else {
-                return mNumber.remove(mNumber.size() - 1);
-            }
+```java
+public class NumberStack {
+    List<Integer> mNumbers = new ArrayList<Integer>();
+
+    public void pushNumber(int number) {
+        mNumbers.add(number);
+    }
+
+    public Integer popNumber() {
+        if (mNumber.size() == 0) {
+            return null;
+        } else {
+            return mNumber.remove(mNumber.size() - 1);
         }
     }
+}
+```
 
 Add some inner classes and interfaces to the mix, and that is what I learned and worked with. Not the worst thing in the world to be writing, but other languages had features and flexibility that I wished that I had in Java. Never did I find myself writing code in another language and saying, “Man, I wish this were more like Java.”
 
@@ -46,36 +48,42 @@ My opinion has changed.
 
 Oddly enough, the tool that changed my mind is only popular because of problems that are peculiar to Java. Consider the following code:
 
-    public class Payroll {
+```java
+public class Payroll {
+    ...
+
+    public long getWithholding(long payInDollars) {
         ...
+        return withholding;
+   }
 
-        public long getWithholding(long payInDollars) {
-            ...
-            return withholding;
-       }
+    public long getAfterTaxPay(Employee employee) {
+        long basePay = EmployeeDatabase.getInstance()
+           .getBasePay(employee);
+        long withholding = getWithholding(basePay);
 
-        public long getAfterTaxPay(Employee employee) {
-            long basePay = EmployeeDatabase.getInstance()
-               .getBasePay(employee);
-            long withholding = getWithholding(basePay);
-
-            return basePay - withholding;
-        }
+        return basePay - withholding;
     }
+}
+```
 
 This class has a dependency in `getAfterTaxPay()` called `EmployeeDatabase`. There are a variety of ways that we could create this object, but in this example, I’ve used a typical singleton pattern of having a static getInstance method.
 
 Dependencies in Java are surprisingly strict things. Whenever I write a line of code like this:
 
-            long basePay = EmployeeDatabase.getInstance()
-               .getBasePay(employee);
+```java
+        long basePay = EmployeeDatabase.getInstance()
+           .getBasePay(employee);
+```
 
 I create a strict dependency on the `EmployeeDatabase` class. Not only that, but I also create a strict dependency on a particular method in `EmployeeDatabase`: the `getInstance()` method. In other languages, I might be able to swizzle or monkey patch this kind of thing. Not that that’s a great idea, necessarily, but it is at least possible. Not so in Java.
 
 Other ways of creating a dependency are even more strict than that. Let’s say that instead, I wrote that line like this:
 
-            long basePay = new EmployeeDatabase()
-               .getBasePay(employee);
+```java
+        long basePay = new EmployeeDatabase()
+           .getBasePay(employee);
+```
 
 When I use the new keyword, I tie myself down in all the same ways I did with the static method, but I also add one more: calling `new EmployeeDatabase()` must always yield an instance of the `EmployeeDatabase` class. You can’t rewrite that constructor to return a mock subclass, no matter what you do.
 
@@ -85,27 +93,29 @@ The way we usually solve this problem is to use a technique called dependency in
 
 Dependency injection simply means receiving collaborators as constructor parameters instead of fetching them ourselves. So `Payroll` would look like this instead:
 
-    public class Payroll {
-        ...
+```java
+public class Payroll {
+    ...
 
-        EmployeeDatabase mEmployeeDatabase;
+    EmployeeDatabase mEmployeeDatabase;
 
-        public Payroll(EmployeeDatabase employeeDatabase) {
-            mEmployeeDatabase = employeeDatabase;
-        }
-
-        public long getWithholding(long payInDollars) {
-            ...
-            return withholding;
-       }
-
-        public long getAfterTaxPay(Employee employee) {
-            long basePay = mEmployeeDatabase.getBasePay(employee);
-            long withholding = getWithholding(basePay);
-
-            return basePay - withholding;
-        }
+    public Payroll(EmployeeDatabase employeeDatabase) {
+        mEmployeeDatabase = employeeDatabase;
     }
+
+    public long getWithholding(long payInDollars) {
+        ...
+        return withholding;
+   }
+
+    public long getAfterTaxPay(Employee employee) {
+        long basePay = mEmployeeDatabase.getBasePay(employee);
+        long withholding = getWithholding(basePay);
+
+        return basePay - withholding;
+    }
+}
+```
 
 Is `EmployeeDatabase` a singleton? A mocked-out subclass? A context-specific implementation? `Payroll` no longer needs to know.
 
@@ -117,12 +127,16 @@ All of that is just background for what I really want to talk about: dependency 
 
 See, now that we are passing in dependencies through our constructors, our objects are more difficult to use and more difficult to change. Before I used dependency injection, I could use `Payroll` like this:
 
-        new Payroll().getAfterTaxPay(employee);
+```java
+    new Payroll().getAfterTaxPay(employee);
+```
 
 Now, though, I have to write this:
 
-        new Payroll(EmployeeDatabase.getInstance())
-            .getAfterTaxPay(employee);
+```java
+    new Payroll(EmployeeDatabase.getInstance())
+        .getAfterTaxPay(employee);
+```
 
 Plus, anytime I change `Payroll`’s dependencies, I have to change every place I write `new Payroll`, too.
 
@@ -130,17 +144,21 @@ A dependency injector allows me to forget about writing code to explicitly suppl
 
 To do this, we use Java’s tool for describing code: the annotation. We declare our dependencies by simply annotating our constructor:
 
-        @Inject
-        public Payroll(EmployeeDatabase employeeDatabase) {
-            mEmployeeDatabase = employeeDatabase;
-        }
+```java
+    @Inject
+    public Payroll(EmployeeDatabase employeeDatabase) {
+        mEmployeeDatabase = employeeDatabase;
+    }
+```
 
 The `@Inject` annotation says, “To build an instance of `Payroll`, execute this constructor, passing in values for all of its parameters.” Then when I actually need a `Payroll` instance, I ask the dependency injector to build me one, like so:
 
-        Payroll payroll = RoboGuice.getInjector(getContext())
-            .getInstance(Payroll.class);
+```java
+    Payroll payroll = RoboGuice.getInjector(getContext())
+        .getInstance(Payroll.class);
 
-        long afterTaxPay = payroll.getAfterTaxPay(employee);
+    long afterTaxPay = payroll.getAfterTaxPay(employee);
+```
 
 Once I’m constructing instances in this way, I can use the injector itself to configure how dependencies are satisfied. Do I want `EmployeeDatabase` to be a singleton? Do I want to use a customized subclass? All of this can be specified in one place. 
 
@@ -152,35 +170,39 @@ Still, it’s just the first taste of a wider set of possibilities. Most of the 
 
 Take ButterKnife, for example. We spend a lot of time in Android wiring up listeners to view objects, like this:
 
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_content);
+```java
+public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_content);
 
-        View okButton = findViewById(R.id.ok_button);
-        okButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                onOkButtonClicked();
-            }
-        });
-    }
+    View okButton = findViewById(R.id.ok_button);
+    okButton.setOnClickListener(new View.OnClickListener() {
+        public void onClick(View v) {
+            onOkButtonClicked();
+        }
+    });
+}
 
-    public void onOkButtonClicked() {
-        // handle button click
-    }
+public void onOkButtonClicked() {
+    // handle button click
+}
+```
 
 ButterKnife allows us to instead provide a little bit of metadata that says, “Call `onOkButtonClicked` when the view with the id `R.id.ok_button` is clicked.” Like this:
 
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_content);
+```java
+public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_content);
 
-        ButterKnife.inject(this);
-    }
+    ButterKnife.inject(this);
+}
 
-    @OnClick(R.id.ok_button);
-    public void onOkButtonClicked() {
-        // handle button click
-    }
+@OnClick(R.id.ok_button);
+public void onOkButtonClicked() {
+    // handle button click
+}
+```
 
 I could go on and on with more examples. There are libraries that use annotations to serialize and deserialize JSON, to stash fields in `savedInstanceState`, to generate code to interface with RESTful web services, and on and on and on.
 
@@ -196,51 +218,59 @@ It can also improve performance. Generated code can reduce startup time and elim
 
 I’d like to finish up by showing a simple example of how one might define and process a runtime annotation. Let’s say that you were an exceptionally impatient person and were tired of typing out fully qualified static constants in your Android codebase, constants like these:
 
-    public class CrimeActivity {
-        public static final String ACTION_VIEW_CRIME = 
-            “com.bignerdranch.android.criminalintent.CrimeActivity.ACTION_VIEW_CRIME”;
-    }
+```java
+public class CrimeActivity {
+    public static final String ACTION_VIEW_CRIME = 
+        “com.bignerdranch.android.criminalintent.CrimeActivity.ACTION_VIEW_CRIME”;
+}
+```
 
 You could use a runtime annotation to do this work for you. First, you’d create the annotation class:
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target( { ElementType.FIELD })
-    public @interface ServiceConstant { }
-    
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target( { ElementType.FIELD })
+public @interface ServiceConstant { }
+```
+
 This code declares an annotation named `ServiceConstant`. The code is itself annotated with two annotations: `@Retention`, and `@Target`. `@Retention` says how long the annotation will stick around. Here, we say that we want to see it at runtime. If we wanted this annotation to be processed at compile time only, we could have specified `RetentionPolicy.SOURCE`.
 
 The other annotation, `@Target`, says where you can put the annotation in your source code. Any number of values can be provided. Our annotation is only valid for fields, so we have just provided `ElementType.FIELD`.
 
 Once the annotation is defined, we write some code to look for it and populate the annotated field automatically:
 
-    public static void populateConstants(Class<?> klass) {
-        String packageName = klass.getPackage().getName();
-        for (Field field : klass.getDeclaredFields()) {
-            if (Modifier.isStatic(field.getModifiers()) && 
-                    field.isAnnotationPresent(ServiceConstant.class)) {
-                String value = packageName + "." + field.getName();
-                try {
-                    field.set(null, value);
-                    Log.i(TAG, "Setup service constant: " + value + "");
-                } catch (IllegalAccessException iae) {
-                    Log.e(TAG, "Unable to setup constant for field " + 
-                            field.getName() +
-                            " in class " + klass.getName());
-                }
+```java
+public static void populateConstants(Class<?> klass) {
+    String packageName = klass.getPackage().getName();
+    for (Field field : klass.getDeclaredFields()) {
+        if (Modifier.isStatic(field.getModifiers()) && 
+                field.isAnnotationPresent(ServiceConstant.class)) {
+            String value = packageName + "." + field.getName();
+            try {
+                field.set(null, value);
+                Log.i(TAG, "Setup service constant: " + value + "");
+            } catch (IllegalAccessException iae) {
+                Log.e(TAG, "Unable to setup constant for field " + 
+                        field.getName() +
+                        " in class " + klass.getName());
             }
         }
     }
+}
+```
 
 Finally, we add the annotation to our code, and call our magic method:
 
-    public class CrimeActivity {
-        @ServiceConstant
-        public static final String ACTION_VIEW_CRIME;
-    
-        static {
-            ServiceUtils.populateConstants(CrimeActivity.class);
-        }
+```java
+public class CrimeActivity {
+    @ServiceConstant
+    public static final String ACTION_VIEW_CRIME;
+
+    static {
+        ServiceUtils.populateConstants(CrimeActivity.class);
     }
+}
+```
 
 ## Conclusion
 

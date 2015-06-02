@@ -66,23 +66,28 @@ If all we have is a single texture that is the size of the screen and aligned wi
 
 If we have a second texture that's placed on top of the first texture, the GPU will then have to composite this texture onto the first. There are different blend modes, but if we assume that both textures are pixel-aligned and we're using the normal blend mode, the resulting color is calculated with this formula for each pixel:
 
-    R = S + D * (1 - Sa)
+```
+R = S + D * (1 - Sa)
+```
 
 The resulting color is the source color (top texture) plus the destination color (lower texture) times one minus the source color's alpha. All colors in this formula are assumed to be pre-multiplied with their alpha.
 
 Obviously there's quite a bit going on here. Let's for a second assume that all textures are fully opaque, i.e. alpha = 1. If the destination (lower) texture is blue (RGB = 0, 0, 1), and the source (top) texture is red (RGB = 1, 0, 0), and because `Sa` is `1`, the result is
 
-    R = S
+```
+R = S
+```
 
 and the result is the source's red color. That's what you'd expect.
 
 If the source (top) layer was 50% transparent, i.e. alpha = 0.5, the RGB values for S would be (0.5, 0, 0) since the alpha component is pre-multiplied into the RGB-values. The formula would then look like this:
 
     
-                           0.5   0               0.5
-    R = S + D * (1 - Sa) = 0   + 0 * (1 - 0.5) = 0
-                           0     1               0.5
-    
+```
+                       0.5   0               0.5
+R = S + D * (1 - Sa) = 0   + 0 * (1 - 0.5) = 0
+                       0     1               0.5
+```
 
 We'd end up getting an RGB value of (0.5, 0, 0.5) which is a saturated 'plum' or purple color. That's hopefully what you'd intuitively expect when mixing a transparent red onto a blue background.
 
@@ -191,39 +196,43 @@ When your app does bitmap drawing it will -- in one way or another -- be based o
 
 Let's say we want to draw an [Octagon](https://en.wikipedia.org/wiki/Octagon). We could do that using UIKit
 
-    UIBezierPath *path = [UIBezierPath bezierPath];
-    [path moveToPoint:CGPointMake(16.72, 7.22)];
-    [path addLineToPoint:CGPointMake(3.29, 20.83)];
-    [path addLineToPoint:CGPointMake(0.4, 18.05)];
-    [path addLineToPoint:CGPointMake(18.8, -0.47)];
-    [path addLineToPoint:CGPointMake(37.21, 18.05)];
-    [path addLineToPoint:CGPointMake(34.31, 20.83)];
-    [path addLineToPoint:CGPointMake(20.88, 7.22)];
-    [path addLineToPoint:CGPointMake(20.88, 42.18)];
-    [path addLineToPoint:CGPointMake(16.72, 42.18)];
-    [path addLineToPoint:CGPointMake(16.72, 7.22)];
-    [path closePath];
-    path.lineWidth = 1;
-    [[UIColor redColor] setStroke];
-    [path stroke];
+```objc
+UIBezierPath *path = [UIBezierPath bezierPath];
+[path moveToPoint:CGPointMake(16.72, 7.22)];
+[path addLineToPoint:CGPointMake(3.29, 20.83)];
+[path addLineToPoint:CGPointMake(0.4, 18.05)];
+[path addLineToPoint:CGPointMake(18.8, -0.47)];
+[path addLineToPoint:CGPointMake(37.21, 18.05)];
+[path addLineToPoint:CGPointMake(34.31, 20.83)];
+[path addLineToPoint:CGPointMake(20.88, 7.22)];
+[path addLineToPoint:CGPointMake(20.88, 42.18)];
+[path addLineToPoint:CGPointMake(16.72, 42.18)];
+[path addLineToPoint:CGPointMake(16.72, 7.22)];
+[path closePath];
+path.lineWidth = 1;
+[[UIColor redColor] setStroke];
+[path stroke];
+```
 
 This corresponds more or less to this Core Graphics code:
 
-    CGContextBeginPath(ctx);
-    CGContextMoveToPoint(ctx, 16.72, 7.22);
-    CGContextAddLineToPoint(ctx, 3.29, 20.83);
-    CGContextAddLineToPoint(ctx, 0.4, 18.05);
-    CGContextAddLineToPoint(ctx, 18.8, -0.47);
-    CGContextAddLineToPoint(ctx, 37.21, 18.05);
-    CGContextAddLineToPoint(ctx, 34.31, 20.83);
-    CGContextAddLineToPoint(ctx, 20.88, 7.22);
-    CGContextAddLineToPoint(ctx, 20.88, 42.18);
-    CGContextAddLineToPoint(ctx, 16.72, 42.18);
-    CGContextAddLineToPoint(ctx, 16.72, 7.22);
-    CGContextClosePath(ctx);
-    CGContextSetLineWidth(ctx, 1);
-    CGContextSetStrokeColorWithColor(ctx, [UIColor redColor].CGColor);
-    CGContextStrokePath(ctx);
+```objc
+CGContextBeginPath(ctx);
+CGContextMoveToPoint(ctx, 16.72, 7.22);
+CGContextAddLineToPoint(ctx, 3.29, 20.83);
+CGContextAddLineToPoint(ctx, 0.4, 18.05);
+CGContextAddLineToPoint(ctx, 18.8, -0.47);
+CGContextAddLineToPoint(ctx, 37.21, 18.05);
+CGContextAddLineToPoint(ctx, 34.31, 20.83);
+CGContextAddLineToPoint(ctx, 20.88, 7.22);
+CGContextAddLineToPoint(ctx, 20.88, 42.18);
+CGContextAddLineToPoint(ctx, 16.72, 42.18);
+CGContextAddLineToPoint(ctx, 16.72, 7.22);
+CGContextClosePath(ctx);
+CGContextSetLineWidth(ctx, 1);
+CGContextSetStrokeColorWithColor(ctx, [UIColor redColor].CGColor);
+CGContextStrokePath(ctx);
+```
 
 The question to ask is: Where is this drawing to? This is where the so-called `CGContext` comes into play. The `ctx` argument we were passing is in that context. And the context defines where we're drawing to. If we're implementing `CALayer`'s `-drawInContext:` we're being passed a context. Drawing to that context will draw into the layer's backing store (its buffer). But we can also create our own context, namely a bitmap-based context with e.g. `CGBitmapContextCreate()`. This function returns a context that we can then pass to the `CGContext` functions to draw into that context, etc.
 
@@ -231,28 +240,31 @@ Note how the `UIKit` version of the code doesn't pass a context into the methods
 
 Most notably, UIKit has the convenience methods `UIGraphicsBeginImageContextWithOptions()` and `UIGraphicsEndImageContext()` to create a bitmap context analogous to `CGBitmapContextCreate()`. Mixing UIKit and Core Graphics calls is quite simple:
 
-    UIGraphicsBeginImageContextWithOptions(CGSizeMake(45, 45), YES, 2);
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGContextBeginPath(ctx);
-    CGContextMoveToPoint(ctx, 16.72, 7.22);
-    CGContextAddLineToPoint(ctx, 3.29, 20.83);
-    ...
-    CGContextStrokePath(ctx);
-    UIGraphicsEndImageContext();
+```objc
+UIGraphicsBeginImageContextWithOptions(CGSizeMake(45, 45), YES, 2);
+CGContextRef ctx = UIGraphicsGetCurrentContext();
+CGContextBeginPath(ctx);
+CGContextMoveToPoint(ctx, 16.72, 7.22);
+CGContextAddLineToPoint(ctx, 3.29, 20.83);
+...
+CGContextStrokePath(ctx);
+UIGraphicsEndImageContext();
+```
 
 or the other way around:
 
-    CGContextRef ctx = CGBitmapContextCreate(NULL, 90, 90, 8, 90 * 4, space, bitmapInfo);
-    CGContextScaleCTM(ctx, 0.5, 0.5);
-    UIGraphicsPushContext(ctx);
-    UIBezierPath *path = [UIBezierPath bezierPath];
-    [path moveToPoint:CGPointMake(16.72, 7.22)];
-    [path addLineToPoint:CGPointMake(3.29, 20.83)];
-    ...
-    [path stroke];
-    UIGraphicsPopContext(ctx);
-    CGContextRelease(ctx);
-
+```objc
+CGContextRef ctx = CGBitmapContextCreate(NULL, 90, 90, 8, 90 * 4, space, bitmapInfo);
+CGContextScaleCTM(ctx, 0.5, 0.5);
+UIGraphicsPushContext(ctx);
+UIBezierPath *path = [UIBezierPath bezierPath];
+[path moveToPoint:CGPointMake(16.72, 7.22)];
+[path addLineToPoint:CGPointMake(3.29, 20.83)];
+...
+[path stroke];
+UIGraphicsPopContext(ctx);
+CGContextRelease(ctx);
+```
 
 There's a huge amount of really cool stuff you can do with Core Graphics. For a good reason, the Apple documents call out its *unmatched output fidelity*. We can't get into all the details, but: Core Graphics has a graphics model that (for historic reasons) is very close to how [Adobe Illustrator](https://en.wikipedia.org/wiki/Adobe_Illustrator) and [Adobe Photoshop](https://en.wikipedia.org/wiki/Adobe_Photoshop) work. And most of the tools' concepts translate to Core Graphics. After all, its origins are in [NeXTSTEP](https://en.wikipedia.org/wiki/NextStep), which used [Display PostScript](https://en.wikipedia.org/wiki/Display_PostScript).
 
@@ -273,17 +285,21 @@ In a bit we'll talk about compressed data, which is entirely different again. Fo
 
 A very common format on iOS and OS X is what is known amongst friends as *32 bits-per-pixel (bpp), 8 bits-per-component (bpc), alpha premultiplied first*. In memory this looks like
 
-      A   R   G   B   A   R   G   B   A   R   G   B  
-    | pixel 0       | pixel 1       | pixel 2   
-      0   1   2   3   4   5   6   7   8   9   10  11 ...
+```
+  A   R   G   B   A   R   G   B   A   R   G   B  
+| pixel 0       | pixel 1       | pixel 2   
+  0   1   2   3   4   5   6   7   8   9   10  11 ...
+```
 
 This format is often (ambiguously) referred to as ARGB. Each pixel uses four bytes (32 bpp). Each color component is one byte (8 bpc). Each pixel has an alpha value, which comes first (before the RGB values). And finally the red-green-blue values are *pre-multiplied* with the alpha. Pre-multiplied means that the alpha value is baked into the red, green and blue component. If we have an orange color its RGB values at 8 bpc would be something like 240, 99 and 24 respectively. An orange pixel that's fully opaque would have ARGB values of 255, 240, 99, 24 in memory with the above layout. If we had a pixel of the same color, but an alpha value of 33%, the pixel values would be 84, 80, 33, 8.
 
 Another common format is *32 bpp, 8 bpc, alpha-none-skip-first* which looks like this:
 
-      x   R   G   B   x   R   G   B   x   R   G   B  
-    | pixel 0       | pixel 1       | pixel 2   
-      0   1   2   3   4   5   6   7   8   9   10  11 ...
+```
+  x   R   G   B   x   R   G   B   x   R   G   B  
+| pixel 0       | pixel 1       | pixel 2   
+  0   1   2   3   4   5   6   7   8   9   10  11 ...
+```
 
 This is also referred to as xRGB. The pixels don't have any alpha value (they're assumed to be 100% opaque), but the memory layout is the same. You may wonder why this format is popular, as, if we didn't have that unused byte for each pixel, we would save 25% space. It turns out, though, that this format is much easier to *digest* by modern CPUs and imaging algorithms, because the individual pixels are aligned to 32-bit boundaries. Modern CPUs don't like loading (reading) unaligned data. The algorithms would have to do a lot of shifting and masking, particularly when mixing this format with the above format that does have alpha.
 
@@ -389,12 +405,14 @@ Another place that uses custom drawing is the iOS stocks app. The stock graph is
 
 If we look at this example:
 
-    // Don't do this
-    - (void)drawRect:(CGRect)rect
-    {
-        [[UIColor redColor] setFill];
-        UIRectFill([self bounds]);
-    }
+```objc
+// Don't do this
+- (void)drawRect:(CGRect)rect
+{
+    [[UIColor redColor] setFill];
+    UIRectFill([self bounds]);
+}
+```
 
 we now know why this is bad: We're causing Core Animation to create a backing store for us, and we're asking Core Graphics to fill the backing store with a solid color. And then that has to get uploaded to the GPU.
 
@@ -427,16 +445,18 @@ In order to concurrently draw, we'll do the following. We'll create an image on 
 
 Add a new method in which you'll do the drawing:
 
-    - (UIImage *)renderInImageOfSize:(CGSize)size;
-    {
-		UIGraphicsBeginImageContextWithOptions(size, NO, 0);
-		
-		// do drawing here
-		
-		UIImage *result = UIGraphicsGetImageFromCurrentImageContext();
-		UIGraphicsEndImageContext();
-		return result;
-    }
+```objc
+- (UIImage *)renderInImageOfSize:(CGSize)size;
+{
+    UIGraphicsBeginImageContextWithOptions(size, NO, 0);
+    
+    // do drawing here
+    
+    UIImage *result = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return result;
+}
+```
 
 This method creates a new bitmap `CGContextRef` for the given size through the `UIGraphicsBeginImageContextWithOptions()` function. That function also makes that new context the *current* UIKit context. You can now do your drawing just as you would normally do in `-drawRect:`. Then we get the bitmap data of that context as an `UIImage` with `UIGraphicsGetImageFromCurrentImageContext()`, and finally tear down the context.
 
@@ -446,15 +466,17 @@ Note that all the UIKit drawing APIs are safe to use on another queue. Just make
 
 You'd trigger the rendering code with something like this:
 
-	UIImageView *view; // assume we have this
-    NSOperationQueue *renderQueue; // assume we have this
-	CGSize size = view.bounds.size;
-	[renderQueue addOperationWithBlock:^(){
-		UIImage *image = [renderer renderInImageOfSize:size];
-		[[NSOperationQueue mainQueue] addOperationWithBlock:^(){
-			view.image = image;
-		}];
-	}];
+```objc
+UIImageView *view; // assume we have this
+NSOperationQueue *renderQueue; // assume we have this
+CGSize size = view.bounds.size;
+[renderQueue addOperationWithBlock:^(){
+    UIImage *image = [renderer renderInImageOfSize:size];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^(){
+        view.image = image;
+    }];
+}];
+```
 
 Note that we're calling `view.image = image` on the main queue. This is a very important detail. You can *not* call this on any other queue.
 

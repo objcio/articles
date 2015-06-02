@@ -54,7 +54,9 @@ The top-level item is a dictionary — “dictionary” is AppleScript’s word 
 
 (Tip: open AppleScript Editor and choose File > Open Dictionary… You’ll see a list of apps with scripting dictionaries. If you choose one — iTunes, for instance — you’ll see the classes, properties, and commands that iTunes understands.)
 
-    <dictionary title="Noteland Terminology">
+```xml
+<dictionary title="Noteland Terminology">
+```
 
 #### Standard Suite
 
@@ -193,13 +195,15 @@ It could have just skipped the dummy data and provided an array.
 
 In this case, the array is an `NSMutableArray`. It wouldn’t have to be — if it’s an `NSArray`, then Cocoa scripting will just replace the notes array when changes are made. But if we make it an `NSMutableArray` *and* we provide the following two methods, then the array won’t be replaced. Instead, objects will be added and removed from the mutable array:
 
-    - (void)insertObject:(NLNote *)object inNotesAtIndex:(NSUInteger)index {
-        [self.notes insertObject:object atIndex:index];
-    }
+```objc
+- (void)insertObject:(NLNote *)object inNotesAtIndex:(NSUInteger)index {
+    [self.notes insertObject:object atIndex:index];
+}
 
-    - (void)removeObjectFromNotesAtIndex:(NSUInteger)index {
-        [self.notes removeObjectAtIndex:index];
-    }
+- (void)removeObjectFromNotesAtIndex:(NSUInteger)index {
+    [self.notes removeObjectAtIndex:index];
+}
+```
 
 Also note that the notes array property is declared in the .m file in the class extension. There’s no need to put it in the .h file. Since Cocoa scripting uses KVC and doesn’t care about your headers, it will find it.
 
@@ -219,8 +223,10 @@ The object specifier needs to know about the container, and the container is the
 
 The code looks like this:
 
-    NSScriptClassDescription *appDescription = (NSScriptClassDescription *)[NSApp classDescription];
-    return [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:appDescription containerSpecifier:nil key:@"notes" uniqueID:self.uniqueID];
+```objc
+NSScriptClassDescription *appDescription = (NSScriptClassDescription *)[NSApp classDescription];
+return [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:appDescription containerSpecifier:nil key:@"notes" uniqueID:self.uniqueID];
+```
 
 `NSApp` is the global application object; we get its `classDescription`. The key is `@"notes"`, a nil `containerSpecifier` refers to the top-level (app) container, and the `uniqueID` is the note’s `uniqueID`.
 
@@ -232,9 +238,11 @@ Cocoa scripting handles creating tags, but there’s a method we can override th
 
 NSObjectScripting.h defines `-newScriptingObjectOfClass:forValueForKey: withContentsValue:properties:`. That’s what we need. In NLNote.m, it looks like this:
 
-    NLTag *tag = (NLTag *)[super newScriptingObjectOfClass:objectClass forValueForKey:key withContentsValue:contentsValue properties:properties];
-    tag.note = self;
-    return tag;
+```objc
+NLTag *tag = (NLTag *)[super newScriptingObjectOfClass:objectClass forValueForKey:key withContentsValue:contentsValue properties:properties];
+tag.note = self;
+return tag;
+```
 
 We create the tag using super’s implementation, then set the tag’s `note` property to the note. To avoid a possible retain cycle, NLTag.h makes the note a weak property.
 
@@ -248,9 +256,11 @@ We create the tag using super’s implementation, then set the tag’s `note` pr
 
 It looks like this:
 
-    NSScriptClassDescription *noteClassDescription = (NSScriptClassDescription *)[self.note classDescription];
-    NSUniqueIDSpecifier *noteSpecifier = (NSUniqueIDSpecifier *)[self.note objectSpecifier];
-    return [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:noteClassDescription containerSpecifier:noteSpecifier key:@"tags" uniqueID:self.uniqueID];
+```objc
+NSScriptClassDescription *noteClassDescription = (NSScriptClassDescription *)[self.note classDescription];
+NSUniqueIDSpecifier *noteSpecifier = (NSUniqueIDSpecifier *)[self.note objectSpecifier];
+return [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:noteClassDescription containerSpecifier:noteSpecifier key:@"tags" uniqueID:self.uniqueID];
+```
 
 That’s it. Done. That’s not much code — most of the work is in designing the interface and editing the sdef file.
 
@@ -264,29 +274,37 @@ Launch Noteland. Launch /Applications/Utilities/AppleScript Editor.app.
 
 Run the following script:
 
-    tell application "Noteland"
-        every note
-    end tell
+```
+tell application "Noteland"
+    every note
+end tell
+```
 
 In the Result pane at the bottom, you’ll see something like this:
 
-    {note id "0B0A6DAD-A4C8-42A0-9CB9-FC95F9CB2D53" of application "Noteland", note id "F138AE98-14B0-4469-8A8E-D328B23C67A9" of application "Noteland"}
+```
+{note id "0B0A6DAD-A4C8-42A0-9CB9-FC95F9CB2D53" of application "Noteland", note id "F138AE98-14B0-4469-8A8E-D328B23C67A9" of application "Noteland"}
+```
 
 The IDs will be different, of course, but this is an indication that it’s working.
 
 Try this script:
 
-    tell application "Noteland"
-        name of every note
-    end tell
+```
+tell application "Noteland"
+    name of every note
+end tell
+```
 
 You’ll see `{"Note 0", "Note 1"}` in the Result pane.
 
 Try this script:
 
-    tell application "Noteland"
-        name of every tag of note 2
-    end tell
+```
+tell application "Noteland"
+    name of every tag of note 2
+end tell
+```
 
 Result: `{"Tiger Swallowtails", "Steak-frites"}`.
 
@@ -294,22 +312,28 @@ Result: `{"Tiger Swallowtails", "Steak-frites"}`.
 
 You can also create notes:
 
-    tell application "Noteland"
-        set newNote to make new note with properties {body:"New Note" & linefeed & "Some text.", archived:true}
-        properties of newNote
-    end tell
+```
+tell application "Noteland"
+    set newNote to make new note with properties {body:"New Note" & linefeed & "Some text.", archived:true}
+    properties of newNote
+end tell
+```
 
 The result will be something like this (with appropriate details changed):
 
-    {creationDate:date "Thursday, June 26, 2014 at 1:42:08 PM", archived:true, name:"New Note", class:note, id:"49D5EE93-655A-446C-BB52-88774925FC62", body:"New Note\nSome text."}`
+```
+{creationDate:date "Thursday, June 26, 2014 at 1:42:08 PM", archived:true, name:"New Note", class:note, id:"49D5EE93-655A-446C-BB52-88774925FC62", body:"New Note\nSome text."}`
+```
 
 And you can create new tags:
 
-    tell application "Noteland"
-        set newNote to make new note with properties {body:"New Note" & linefeed & "Some text.", archived:true}
-        set newTag to make new tag with properties {name:"New Tag"} at end of tags of newNote
-        name of every tag of newNote
-    end tell
+```
+tell application "Noteland"
+    set newNote to make new note with properties {body:"New Note" & linefeed & "Some text.", archived:true}
+    set newTag to make new tag with properties {name:"New Tag"} at end of tags of newNote
+    name of every tag of newNote
+end tell
+```
 
 The result will be: `{"New Tag"}`.
 

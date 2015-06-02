@@ -10,21 +10,23 @@ tags: article
 
 Let's say you want to write a method that looks something like this:
 
-    - (NSNumber *)nextReminderId
-    {
-        NSNumber *currentReminderId = [[NSUserDefaults standardUserDefaults] objectForKey:@"currentReminderId"];
-        if (currentReminderId) {
-            // Increment the last reminderId
-            currentReminderId = @([currentReminderId intValue] + 1);
-        } else {
-            // Set to 0 if it doesn't already exist
-            currentReminderId = @0;
-        }
-        // Update currentReminderId to model
-        [[NSUserDefaults standardUserDefaults] setObject:currentReminderId forKey:@"currentReminderId"];
-    
-        return currentReminderId;
+```objc
+- (NSNumber *)nextReminderId
+{
+    NSNumber *currentReminderId = [[NSUserDefaults standardUserDefaults] objectForKey:@"currentReminderId"];
+    if (currentReminderId) {
+        // Increment the last reminderId
+        currentReminderId = @([currentReminderId intValue] + 1);
+    } else {
+        // Set to 0 if it doesn't already exist
+        currentReminderId = @0;
     }
+    // Update currentReminderId to model
+    [[NSUserDefaults standardUserDefaults] setObject:currentReminderId forKey:@"currentReminderId"];
+
+    return currentReminderId;
+}
+```
 
 How do you write unit tests for this? The problem is that the method is interacting with another object that we don't control, namely `NSUserDefaults`.
 
@@ -52,20 +54,22 @@ So with that, let's quickly run through a number of forms of DI. With one except
 
 In constructor injection, a dependency is passed into the constructor (in Objective-C, the designated initializer) and captured for later use:
 
-    @interface Example ()
-    @property (nonatomic, strong, readonly) NSUserDefaults *userDefaults;
-    @end
-    
-    @implementation Example
-    - (instancetype)initWithUserDefaults:(NSUserDefaults *userDefaults)
-    {
-        self = [super init];
-        if (self) {
-            _userDefaults = userDefaults;
-        }
-        return self;
+```objc
+@interface Example ()
+@property (nonatomic, strong, readonly) NSUserDefaults *userDefaults;
+@end
+
+@implementation Example
+- (instancetype)initWithUserDefaults:(NSUserDefaults *userDefaults)
+{
+    self = [super init];
+    if (self) {
+        _userDefaults = userDefaults;
     }
-    @end
+    return self;
+}
+@end
+```
 
 The dependency can be captured in an instance variable or in a property. The example above uses a read-only property to make it a little harder to tamper with.
 
@@ -73,36 +77,42 @@ It may look odd to inject `NSUserDefaults`, and that's where this example may fa
 
 Now every place in this class that would refer to the singleton `[NSUserDefaults standardUserDefaults]` should instead refer to `self.userDefaults`:
 
-    - (NSNumber *)nextReminderId
-    {
-        NSNumber *currentReminderId = [self.userDefaults objectForKey:@"currentReminderId"];
-        if (currentReminderId) {
-            currentReminderId = @([currentReminderId intValue] + 1);
-        } else {
-            currentReminderId = @0;
-        }
-        [self.userDefaults setObject:currentReminderId forKey:@"currentReminderId"];
-        return currentReminderId;
+```objc
+- (NSNumber *)nextReminderId
+{
+    NSNumber *currentReminderId = [self.userDefaults objectForKey:@"currentReminderId"];
+    if (currentReminderId) {
+        currentReminderId = @([currentReminderId intValue] + 1);
+    } else {
+        currentReminderId = @0;
     }
+    [self.userDefaults setObject:currentReminderId forKey:@"currentReminderId"];
+    return currentReminderId;
+}
+```
 
 ### Property Injection
 
 In property injection, the code for `nextReminderId` looks the same, referring to `self.userDefaults`. But instead of passing the dependency to the initializer, we make it a settable property:
 
-    @interface Example
-    @property (nonatomic, strong) NSUserDefaults *userDefaults;
-    - (NSNumber *)nextReminderId;
-    @end
+```objc
+@interface Example
+@property (nonatomic, strong) NSUserDefaults *userDefaults;
+- (NSNumber *)nextReminderId;
+@end
+```
 
 Now a test can construct the object, then set the `userDefaults` property with whatever it needs. But what should happen if the property isn't set? In that case, let's use lazy initialization to establish a reasonable default in the getter:
 
-    - (NSUserDefaults *)userDefaults
-    {
-        if (!_userDefaults) {
-            _userDefaults = [NSUserDefaults standardUserDefaults];
-        }
-        return _userDefaults;
+```objc
+- (NSUserDefaults *)userDefaults
+{
+    if (!_userDefaults) {
+        _userDefaults = [NSUserDefaults standardUserDefaults];
     }
+    return _userDefaults;
+}
+```
 
 Now, if any calling code sets the `userDefaults` property before it's used, `self.userDefaults` will use the given value. But if the property isn't set, then `self.userDefaults` will use `[NSUserDefaults standardUserDefaults]`.
 
@@ -110,17 +120,19 @@ Now, if any calling code sets the `userDefaults` property before it's used, `sel
 
 If the dependency is only referenced in a single method, then we can just inject it directly as a method parameter:
 
-    - (NSNumber *)nextReminderIdWithUserDefaults:(NSUserDefaults *)userDefaults
-    {
-        NSNumber *currentReminderId = [userDefaults objectForKey:@"currentReminderId"];
-        if (currentReminderId) {
-            currentReminderId = @([currentReminderId intValue] + 1);
-        } else {
-            currentReminderId = @0;
-        }
-        [userDefaults setObject:currentReminderId forKey:@"currentReminderId"];
-        return currentReminderId;
+```objc
+- (NSNumber *)nextReminderIdWithUserDefaults:(NSUserDefaults *)userDefaults
+{
+    NSNumber *currentReminderId = [userDefaults objectForKey:@"currentReminderId"];
+    if (currentReminderId) {
+        currentReminderId = @([currentReminderId intValue] + 1);
+    } else {
+        currentReminderId = @0;
     }
+    [userDefaults setObject:currentReminderId forKey:@"currentReminderId"];
+    return currentReminderId;
+}
+```
 
 Again, this may look odd — and again, remember that `NSUserDefaults` may not quite fit every example. But an `NSDate` parameter would fit well with method injection. (More on this below when we discuss the benefits of each form.)
 
@@ -145,38 +157,42 @@ Step 2 — Change other places where the call is made, replacing them with calls
   
 The modified code looks like this:
 
-    - (NSNumber *)nextReminderId
-    {
-        NSNumber *currentReminderId = [[self userDefaults] objectForKey:@"currentReminderId"];
-        if (currentReminderId) {
-            currentReminderId = @([currentReminderId intValue] + 1);
-        } else {
-            currentReminderId = @0;
-        }
-        [[self userDefaults] setObject:currentReminderId forKey:@"currentReminderId"];
-        return currentReminderId;
+```objc
+- (NSNumber *)nextReminderId
+{
+    NSNumber *currentReminderId = [[self userDefaults] objectForKey:@"currentReminderId"];
+    if (currentReminderId) {
+        currentReminderId = @([currentReminderId intValue] + 1);
+    } else {
+        currentReminderId = @0;
     }
-    
-    - (NSUserDefaults *)userDefaults
-    {
-        return [NSUserDefaults standardUserDefaults];
-    }
+    [[self userDefaults] setObject:currentReminderId forKey:@"currentReminderId"];
+    return currentReminderId;
+}
+
+- (NSUserDefaults *)userDefaults
+{
+    return [NSUserDefaults standardUserDefaults];
+}
+```
 
 With that in place, here's the final step:
 
 Step 3 — Create a special **testing subclass**, overriding the extracted method, like this:
 
-    @interface TestingExample : Example
-    @end
-    
-    @implementation TestingExample
-    
-    - (NSUserDefaults *)userDefaults
-    {
-        // Do whatever you want!
-    }
-    
-    @end
+```objc
+@interface TestingExample : Example
+@end
+
+@implementation TestingExample
+
+- (NSUserDefaults *)userDefaults
+{
+    // Do whatever you want!
+}
+
+@end
+```
 
 Test code can now instantiate `TestingExample` instead of `Example`, and have complete control over what happens when the production code calls `[self userDefaults]`.
 

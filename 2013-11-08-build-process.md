@@ -25,19 +25,21 @@ In our example, the log is just shy of 10,000 lines long (admittedly, the bigges
 
 The first thing you'll notice is that the log output is split into several big chunks corresponding to the targets in your project:
 
-    Build target Pods-SSZipArchive
-    ...
-    Build target Makefile-openssl
-    ...
-    Build target Pods-AFNetworking
-    ...
-    Build target crypto
-    ...
-    Build target Pods
-    ...
-    Build target ssl
-    ...
-    Build target objcio
+```
+Build target Pods-SSZipArchive
+...
+Build target Makefile-openssl
+...
+Build target Pods-AFNetworking
+...
+Build target crypto
+...
+Build target Pods
+...
+Build target ssl
+...
+Build target objcio
+```
 
 Our project has several dependencies: AFNetworking and SSZipArchive, which are included as Pods, as well as OpenSSL, which is included as subproject.
 
@@ -45,19 +47,21 @@ For each of these targets, Xcode goes through a series of steps to actually tran
 
 Within the log output for this target we see the details for each task performed along the way. For example, the first one is for processing a precompiled header file (in order to make it more readable, I have stripped out a lot of details):
 
-    (1) ProcessPCH /.../Pods-SSZipArchive-prefix.pch.pch Pods-SSZipArchive-prefix.pch normal armv7 objective-c com.apple.compilers.llvm.clang.1_0.compiler
-        (2) cd /.../Dev/objcio/Pods
-            setenv LANG en_US.US-ASCII
-            setenv PATH "..."
-        (3) /.../Xcode.app/.../clang 
-                (4) -x objective-c-header 
-                (5) -arch armv7 
-                ... configuration and warning flags ...
-                (6) -DDEBUG=1 -DCOCOAPODS=1 
-                ... include paths and more ...
-                (7) -c 
-                (8) /.../Pods-SSZipArchive-prefix.pch 
-                (9) -o /.../Pods-SSZipArchive-prefix.pch.pch
+```
+(1) ProcessPCH /.../Pods-SSZipArchive-prefix.pch.pch Pods-SSZipArchive-prefix.pch normal armv7 objective-c com.apple.compilers.llvm.clang.1_0.compiler
+    (2) cd /.../Dev/objcio/Pods
+        setenv LANG en_US.US-ASCII
+        setenv PATH "..."
+    (3) /.../Xcode.app/.../clang 
+            (4) -x objective-c-header 
+            (5) -arch armv7 
+            ... configuration and warning flags ...
+            (6) -DDEBUG=1 -DCOCOAPODS=1 
+            ... include paths and more ...
+            (7) -c 
+            (8) /.../Pods-SSZipArchive-prefix.pch 
+            (9) -o /.../Pods-SSZipArchive-prefix.pch.pch
+```
 
 These blocks appear for each task in the build process, so let's go through this one in some more detail.
 
@@ -75,16 +79,20 @@ There is quite a lot going on, and we will not go through each of the possible t
 
 For this target, there are actually two tasks to process `objective-c-header` files, although only one `.pch` file exists. A closer look at these tasks tells us what's going on:
 
-    ProcessPCH /.../Pods-SSZipArchive-prefix.pch.pch Pods-SSZipArchive-prefix.pch normal armv7 objective-c ...
-    ProcessPCH /.../Pods-SSZipArchive-prefix.pch.pch Pods-SSZipArchive-prefix.pch normal armv7s objective-c ...
+```
+ProcessPCH /.../Pods-SSZipArchive-prefix.pch.pch Pods-SSZipArchive-prefix.pch normal armv7 objective-c ...
+ProcessPCH /.../Pods-SSZipArchive-prefix.pch.pch Pods-SSZipArchive-prefix.pch normal armv7s objective-c ...
+```
 
 The target builds for two architectures — armv7 and armv7s — and therefore clang has to process files twice, once for each architecture.
 
 Following the tasks of processing the precompiled header files, we find a couple of other task types for the SSZipArchive target:
 
-    CompileC ...
-    Libtool ...
-    CreateUniversalBinary ...
+```
+CompileC ...
+Libtool ...
+CreateUniversalBinary ...
+```
 
 These names are almost self-explanatory: `CompileC` compiles `.m` and `.c` files, `Libtool` creates a library from object files, and the `CreateUniversalBinary` task finally combines the two `.a` files from the previous stage (one for each architecture) into a universal binary file that runs on both armv7 and armv7s.
 
@@ -92,18 +100,20 @@ Subsequently, similar steps happen for all the other dependencies in our project
 
 After all these dependencies have been prepared, we finally arrive at the target for our app. The log output for this target includes some other interesting tasks next to the ones we already saw during the compilation of libraries above:
 
-    PhaseScriptExecution ...
-    DataModelVersionCompile ...
-    Ld ...
-    GenerateDSYMFile ...
-    CopyStringsFile ...
-    CpResource ...
-    CopyPNGFile ...
-    CompileAssetCatalog ...
-    ProcessInfoPlistFile ...
-    ProcessProductPackaging /.../some-hash.mobileprovision ...
-    ProcessProductPackaging objcio/objcio.entitlements ...
-    CodeSign ...
+```
+PhaseScriptExecution ...
+DataModelVersionCompile ...
+Ld ...
+GenerateDSYMFile ...
+CopyStringsFile ...
+CpResource ...
+CopyPNGFile ...
+CompileAssetCatalog ...
+ProcessInfoPlistFile ...
+ProcessProductPackaging /.../some-hash.mobileprovision ...
+ProcessProductPackaging objcio/objcio.entitlements ...
+CodeSign ...
+```
 
 The only task that doesn't have a self-explanatory name in this list is probably `Ld`, which is the name of the linker tool. It is very similar to `libtool`. In fact, `libtool` simply calls into `ld` and `lipo`. `ld` is used to create executables, `libtool` for libraries. Check out [Daniel's](/issue-6/mach-o-executables.html) and [Chris's](/issue-6/compiler.html) articles for more details about how compilation and linking works.
 
@@ -142,15 +152,18 @@ You have full control over these build phases if the default settings don't do w
 
 Another nice use of a custom build phase is to watermark your app icon with the version number and commit hash. To do this, you add a "Run Script" build phase where you retrieve the version number and commit hash with the following commands:
 
-    version=`/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "${INFOPLIST_FILE}"`
-    commit=`git rev-parse --short HEAD`
+```
+version=`/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "${INFOPLIST_FILE}"`
+commit=`git rev-parse --short HEAD`
+```
 
 After that, you can modify the app icon using ImageMagick. For a complete example of how to do this, check out [this GitHub project](https://github.com/krzysztofzablocki/IconOverlaying).
 
 If you'd like to encourage yourself or your coworkers to keep your source files concise, you can add a "Run Script" build phase that spits out a warning if a source file exceeds a certain size, in this example 200 lines.
 
-    find "${SRCROOT}" \( -name "*.h" -or -name "*.m" \) -print0 | xargs -0 wc -l | awk '$1 > 200 && $2 != "total" { print $2 ":1: warning: file more than 200 lines" }'
-
+```
+find "${SRCROOT}" \( -name "*.h" -or -name "*.m" \) -print0 | xargs -0 wc -l | awk '$1 > 200 && $2 != "total" { print $2 ":1: warning: file more than 200 lines" }'
+```
 
 ### Build Rules
 
@@ -184,56 +197,67 @@ I would encourage you to open a project file in your favorite text editor and to
 
 First, we look for an entry called `rootObject`. In our project file, this reveals the following line:
 
-    rootObject = 1793817C17A9421F0078255E /* Project object */;
+```
+rootObject = 1793817C17A9421F0078255E /* Project object */;
+```
+
   
 From there, we just follow the ID of this object (`1793817C17A9421F0078255E`) and find our main project definition:
 
-    /* Begin PBXProject section */
-        1793817C17A9421F0078255E /* Project object */ = {
-            isa = PBXProject;
-    ...
+```
+/* Begin PBXProject section */
+    1793817C17A9421F0078255E /* Project object */ = {
+        isa = PBXProject;
+...
+```
 
 This section contains several keys which we can follow further to understand how this file is constructed. For example, `mainGroup` points to the root file group. If you follow this reference you will quickly see how the project structure is represented in the `.pbxproj` file. But let's have a look at something which is related to the build process. The `target` key points to the build target definitions:
 
-    targets = (
-        1793818317A9421F0078255E /* objcio */,
-        170E83CE17ABF256006E716E /* objcio Tests */,
-    );
+```
+targets = (
+    1793818317A9421F0078255E /* objcio */,
+    170E83CE17ABF256006E716E /* objcio Tests */,
+);
+```
 
 Following the first reference we find the target definition:
 
-    1793818317A9421F0078255E /* objcio */ = {
-        isa = PBXNativeTarget;
-        buildConfigurationList = 179381B617A9421F0078255E /* Build configuration list for PBXNativeTarget "objcio" */;
-        buildPhases = (
-            F3EB8576A1C24900A8F9CBB6 /* Check Pods Manifest.lock */,
-            1793818017A9421F0078255E /* Sources */,
-            1793818117A9421F0078255E /* Frameworks */,
-            1793818217A9421F0078255E /* Resources */,
-            FF25BB7F4B7D4F87AC7A4265 /* Copy Pods Resources */,
-        );
-        buildRules = (
-        );
-        dependencies = (
-            1769BED917CA8239008B6F5D /* PBXTargetDependency */,
-            1769BED717CA8236008B6F5D /* PBXTargetDependency */,
-        );
-        name = objcio;
-        productName = objcio;
-        productReference = 1793818417A9421F0078255E /* objcio.app */;
-        productType = "com.apple.product-type.application";
-    };
+```
+1793818317A9421F0078255E /* objcio */ = {
+    isa = PBXNativeTarget;
+    buildConfigurationList = 179381B617A9421F0078255E /* Build configuration list for PBXNativeTarget "objcio" */;
+    buildPhases = (
+        F3EB8576A1C24900A8F9CBB6 /* Check Pods Manifest.lock */,
+        1793818017A9421F0078255E /* Sources */,
+        1793818117A9421F0078255E /* Frameworks */,
+        1793818217A9421F0078255E /* Resources */,
+        FF25BB7F4B7D4F87AC7A4265 /* Copy Pods Resources */,
+    );
+    buildRules = (
+    );
+    dependencies = (
+        1769BED917CA8239008B6F5D /* PBXTargetDependency */,
+        1769BED717CA8236008B6F5D /* PBXTargetDependency */,
+    );
+    name = objcio;
+    productName = objcio;
+    productReference = 1793818417A9421F0078255E /* objcio.app */;
+    productType = "com.apple.product-type.application";
+};
+```
 
 The `buildConfigurationList` points to the available configurations, usually "Debug" and "Release." Following the debug reference, we finally end up where all the options from the build settings tab are stored:
 
-    179381B717A9421F0078255E /* Debug */ = {
-        isa = XCBuildConfiguration;
-        baseConfigurationReference = 05D234D6F5E146E9937E8997 /* Pods.xcconfig */;
-        buildSettings = {
-            ALWAYS_SEARCH_USER_PATHS = YES;
-            ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-            CODE_SIGN_ENTITLEMENTS = objcio/objcio.entitlements;
-    ...
+```
+179381B717A9421F0078255E /* Debug */ = {
+    isa = XCBuildConfiguration;
+    baseConfigurationReference = 05D234D6F5E146E9937E8997 /* Pods.xcconfig */;
+    buildSettings = {
+        ALWAYS_SEARCH_USER_PATHS = YES;
+        ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+        CODE_SIGN_ENTITLEMENTS = objcio/objcio.entitlements;
+...
+```
 
 The `buildPhases` attribute simply lists all the build phases we have defined in Xcode. It's easy to identify them because, luckily, Xcode augments the IDs of the objects with their real names in a C-style comment. The `buildRules` attribute is empty because we have not defined any custom build rules in this project. `dependencies` lists the target dependencies defined in Xcode's build phase tab. 
 

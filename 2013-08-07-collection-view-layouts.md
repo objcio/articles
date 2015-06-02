@@ -57,17 +57,19 @@ Since the collection view does not know anything about its content, the first pi
 
 In our calendar example, we want the view to scroll vertically. For instance, if we want one hour to take up 100 points of vertical space, the content height to display an entire day should be 2,400 points. Notice that we do not enable horizontal scrolling, which means that our collection view displays only one week. To enable paging between multiple weeks in the calendar, we could embed multiple collection views (one per week) in a separate (paged) scroll view (possibly using [`UIPageViewController`](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIPageViewControllerClassReferenceClassRef/UIPageViewControllerClassReference.html) for the implementation), or stick with just one collection view and return a content width that is large enough to let the user scroll freely in both directions. This is beyond the scope of this article, though.
 
-    - (CGSize)collectionViewContentSize
-    {
-        // Don't scroll horizontally
-        CGFloat contentWidth = self.collectionView.bounds.size.width;
-    
-        // Scroll vertically to display a full day
-        CGFloat contentHeight = DayHeaderHeight + (HeightPerHour * HoursPerDay);
-    
-        CGSize contentSize = CGSizeMake(contentWidth, contentHeight);
-        return contentSize;
-    }
+```objc
+- (CGSize)collectionViewContentSize
+{
+    // Don't scroll horizontally
+    CGFloat contentWidth = self.collectionView.bounds.size.width;
+
+    // Scroll vertically to display a full day
+    CGFloat contentHeight = DayHeaderHeight + (HeightPerHour * HoursPerDay);
+
+    CGSize contentSize = CGSizeMake(contentWidth, contentHeight);
+    return contentSize;
+}
+```
 
 Note that for clarity reasons, I have chosen to model the layout on a very simple model that assumes a constant number of days per week and hours per day and represents days just as indices from 0 to 6. In a real calendar application, the layout would make heavy use of `NSCalendar`-based date calculations for its computations.
 
@@ -95,41 +97,43 @@ Your implementation should perform these steps:
 
 Our custom layout uses no decoration views but two kinds of supplementary views (column headers and row headers):
 
-    - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
-    {
-        NSMutableArray *layoutAttributes = [NSMutableArray array];
+```objc
+- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
+{
+    NSMutableArray *layoutAttributes = [NSMutableArray array];
 
-        // Cells
-        // We call a custom helper method -indexPathsOfItemsInRect: here
-        // which computes the index paths of the cells that should be included
-        // in rect.
-        NSArray *visibleIndexPaths = [self indexPathsOfItemsInRect:rect];
-        for (NSIndexPath *indexPath in visibleIndexPaths) {
-            UICollectionViewLayoutAttributes *attributes = 
-                [self layoutAttributesForItemAtIndexPath:indexPath];
-            [layoutAttributes addObject:attributes];
-        }
-
-        // Supplementary views
-        NSArray *dayHeaderViewIndexPaths = 
-            [self indexPathsOfDayHeaderViewsInRect:rect];
-        for (NSIndexPath *indexPath in dayHeaderViewIndexPaths) {
-            UICollectionViewLayoutAttributes *attributes =
-                [self layoutAttributesForSupplementaryViewOfKind:@"DayHeaderView"
-                                                     atIndexPath:indexPath];
-            [layoutAttributes addObject:attributes];
-        }
-        NSArray *hourHeaderViewIndexPaths =
-            [self indexPathsOfHourHeaderViewsInRect:rect];
-        for (NSIndexPath *indexPath in hourHeaderViewIndexPaths) {
-            UICollectionViewLayoutAttributes *attributes =
-                [self layoutAttributesForSupplementaryViewOfKind:@"HourHeaderView"
-                                                     atIndexPath:indexPath];
-            [layoutAttributes addObject:attributes];
-        }
-
-        return layoutAttributes;
+    // Cells
+    // We call a custom helper method -indexPathsOfItemsInRect: here
+    // which computes the index paths of the cells that should be included
+    // in rect.
+    NSArray *visibleIndexPaths = [self indexPathsOfItemsInRect:rect];
+    for (NSIndexPath *indexPath in visibleIndexPaths) {
+        UICollectionViewLayoutAttributes *attributes = 
+            [self layoutAttributesForItemAtIndexPath:indexPath];
+        [layoutAttributes addObject:attributes];
     }
+
+    // Supplementary views
+    NSArray *dayHeaderViewIndexPaths = 
+        [self indexPathsOfDayHeaderViewsInRect:rect];
+    for (NSIndexPath *indexPath in dayHeaderViewIndexPaths) {
+        UICollectionViewLayoutAttributes *attributes =
+            [self layoutAttributesForSupplementaryViewOfKind:@"DayHeaderView"
+                                                 atIndexPath:indexPath];
+        [layoutAttributes addObject:attributes];
+    }
+    NSArray *hourHeaderViewIndexPaths =
+        [self indexPathsOfHourHeaderViewsInRect:rect];
+    for (NSIndexPath *indexPath in hourHeaderViewIndexPaths) {
+        UICollectionViewLayoutAttributes *attributes =
+            [self layoutAttributesForSupplementaryViewOfKind:@"HourHeaderView"
+                                                 atIndexPath:indexPath];
+        [layoutAttributes addObject:attributes];
+    }
+
+    return layoutAttributes;
+}
+```
 
 <a name="layout-attributes-for-...-at-index-path"> </a>
 
@@ -139,16 +143,18 @@ Sometimes, the collection view will ask the layout object for the layout attribu
 
 You do this by calling the [`+[UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:]`](http://developer.apple.com/library/ios/documentation/uikit/reference/UICollectionViewLayoutAttributes_class/Reference/Reference.html#//apple_ref/occ/clm/UICollectionViewLayoutAttributes/layoutAttributesForCellWithIndexPath:) factory method. Then modify the attributes according to the index path. You may need to ask the collection view's data source for information about the data object that is displayed at this index path to get the data you need. Make sure to at least set the `frame` property here unless all your cells should sit on top of each other.
 
-    - (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:
-        (NSIndexPath *)indexPath
-    {
-        CalendarDataSource *dataSource = self.collectionView.dataSource;
-        id<CalendarEvent> event = [dataSource eventAtIndexPath:indexPath];
-        UICollectionViewLayoutAttributes *attributes = 
-            [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
-        attributes.frame = [self frameForEvent:event];
-        return attributes;
-    }
+```objc
+- (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:
+    (NSIndexPath *)indexPath
+{
+    CalendarDataSource *dataSource = self.collectionView.dataSource;
+    id<CalendarEvent> event = [dataSource eventAtIndexPath:indexPath];
+    UICollectionViewLayoutAttributes *attributes = 
+        [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+    attributes.frame = [self frameForEvent:event];
+    return attributes;
+}
+```
 
 If you are using Auto Layout, you may be surprised that we are modifying the `frame` property of the layout attributes directly rather than working with constraints, but that is how `UICollectionViewLayout` works. Although you would use Auto Layout to define the collection view's frame and the internal layout of each cell, the frames of the cells have to be computed the old-fashioned way.
 
@@ -160,14 +166,16 @@ Lastly, the layout must tell the collection view if it needs to recompute the la
 
 Our custom layout must be invalidated when the collection view's width changes but is not affected by scrolling. Fortunately, the collection view passes its new bounds to the `shouldInvalidateLayoutForBoundsChange:` method. This enables us to compare the view's current bounds to the new value and only return `YES` if we have to:
 
-    - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
-    {
-        CGRect oldBounds = self.collectionView.bounds;
-        if (CGRectGetWidth(newBounds) != CGRectGetWidth(oldBounds)) {
-            return YES;
-        }
-        return NO;
+```objc
+- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
+{
+    CGRect oldBounds = self.collectionView.bounds;
+    if (CGRectGetWidth(newBounds) != CGRectGetWidth(oldBounds)) {
+        return YES;
     }
+    return NO;
+}
+```
 
 ## Animation
 

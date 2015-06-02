@@ -147,16 +147,18 @@ Let’s get started with an easy one: configuring the text system. As you may ha
 
 When instantiating a `UITextView` from a storyboard or an interface file, it will come with a text system preconfigured: one text storage, referencing one layout manager, referencing one text container. In the same way, a text system stack can be built directly from code:
 
-    NSTextStorage *textStorage = [NSTextStorage new];
-    
-    NSLayoutManager *layoutManager = [NSLayoutManager new];
-    [textStorage addLayoutManager: layoutManager];
-    
-    NSTextContainer *textContainer = [NSTextContainer new];
-    [layoutManager addTextContainer: textContainer];
-    
-    UITextView *textView = [[UITextView alloc] initWithFrame:someFrame 
-                                               textContainer:textContainer];
+```objc
+NSTextStorage *textStorage = [NSTextStorage new];
+
+NSLayoutManager *layoutManager = [NSLayoutManager new];
+[textStorage addLayoutManager: layoutManager];
+
+NSTextContainer *textContainer = [NSTextContainer new];
+[layoutManager addTextContainer: textContainer];
+
+UITextView *textView = [[UITextView alloc] initWithFrame:someFrame 
+                                           textContainer:textContainer];
+```
 
 This is as straightforward as it can be. The only thing to remember when building a text system by hand is that your view controller must retain the text storage. The text view being at the end of the stack only weakly references the text storage and the layout manager. When the text storage is released, the layout manager is as well, leaving the text view with a disconnected container.
 
@@ -164,28 +166,34 @@ There is one exception to this rule. Only when instantiating a text view from an
 
 With that in mind, creating a more advanced setup is also pretty straightforward. Assume in a view that there is already a text view as instantiated from the nib, called `originalTextView`. Adding a second text view for the same text essentially means just copying the above code and reusing the text storage from the original view:
 
-    NSTextStorage *sharedTextStorage = originalTextView.textStorage;
-    
-    NSLayoutManager *otherLayoutManager = [NSLayoutManager new];
-    [sharedTextStorage addLayoutManager: otherLayoutManager];
-    
-    NSTextContainer *otherTextContainer = [NSTextContainer new];
-    [otherLayoutManager addTextContainer: otherTextContainer];
-    
-    UITextView *otherTextView = [[UITextView alloc] initWithFrame:someFrame 
-                                                    textContainer:otherTextContainer];
+```objc
+NSTextStorage *sharedTextStorage = originalTextView.textStorage;
+
+NSLayoutManager *otherLayoutManager = [NSLayoutManager new];
+[sharedTextStorage addLayoutManager: otherLayoutManager];
+
+NSTextContainer *otherTextContainer = [NSTextContainer new];
+[otherLayoutManager addTextContainer: otherTextContainer];
+
+UITextView *otherTextView = [[UITextView alloc] initWithFrame:someFrame 
+                                                textContainer:otherTextContainer];
+```
 
 Adding a second text container to a layout manager works almost the same. Let’s say we wanted the text in the above example to fill *two* text views instead of just one. Easy:
 
-    NSTextContainer *thirdTextContainer = [NSTextContainer new];
-    [otherLayoutManager addTextContainer: thirdTextContainer];
-    
-    UITextView *thirdTextView = [[UITextView alloc] initWithFrame:someFrame 
-                                                    textContainer:thirdTextContainer];
+```objc
+NSTextContainer *thirdTextContainer = [NSTextContainer new];
+[otherLayoutManager addTextContainer: thirdTextContainer];
+
+UITextView *thirdTextView = [[UITextView alloc] initWithFrame:someFrame 
+                                                textContainer:thirdTextContainer];
+```
 
 But there is one caveat: Since the text container in the other text view resizes infinitely, the third one will never get any text. We must thus indicate that instead of resizing and scrolling, the text should reflow from one view to the other:
 
-    otherTextView.scrollEnabled = NO;
+```objc
+otherTextView.scrollEnabled = NO;
+```
 
 Unfortunately, as it seems, adding multiple text containers to a single layout manager disables editing. If text should remain editable, only a single text container may be used per layout manager.
 
@@ -200,59 +208,69 @@ Looking at the distribution of responsiveness across the TextKit components, it�
 
 `NSTextStorage` inherits from `NSMutableAttributedString` and must implement the following four methods — two getters and two setters:
 
-    - (NSString *)string;
-    - (NSDictionary *)attributesAtIndex:(NSUInteger)location 
-                         effectiveRange:(NSRangePointer)range;
-    - (void)replaceCharactersInRange:(NSRange)range withString:(NSString *)str;
-    - (void)setAttributes:(NSDictionary *)attrs range:(NSRange)range;
+```objc
+- (NSString *)string;
+- (NSDictionary *)attributesAtIndex:(NSUInteger)location 
+                     effectiveRange:(NSRangePointer)range;
+- (void)replaceCharactersInRange:(NSRange)range withString:(NSString *)str;
+- (void)setAttributes:(NSDictionary *)attrs range:(NSRange)range;
+```
 
 The implementation of a composite object of a class cluster subclass is also pretty straightforward. First, find the *simplest* class that fulfills all requirements. In our case this is `NSMutableAttributedString`, which we use as implementation of the custom storage:
 
-    @implementation TKDHighlightingTextStorage 
-    {
-        NSMutableAttributedString *_imp;
+```objc
+@implementation TKDHighlightingTextStorage 
+{
+    NSMutableAttributedString *_imp;
+}
+
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        _imp = [NSMutableAttributedString new];
     }
-    
-    - (id)init
-    {
-        self = [super init];
-        if (self) {
-            _imp = [NSMutableAttributedString new];
-        }
-        return self;
-    }
+    return self;
+}
+```
 
 With the object in place, responding to the getters requires just a one-liner:
 
-    - (NSString *)string 
-    {
-        return _imp.string;
-    }
-    
-    - (NSDictionary *)attributesAtIndex:(NSUInteger)location effectiveRange:(NSRangePointer)range 
-    {
-        return [_imp attributesAtIndex:location effectiveRange:range];
-    }
+```objc
+- (NSString *)string 
+{
+    return _imp.string;
+}
+
+- (NSDictionary *)attributesAtIndex:(NSUInteger)location effectiveRange:(NSRangePointer)range 
+{
+    return [_imp attributesAtIndex:location effectiveRange:range];
+}
+```
 
 Responding to the setters is also almost as simple. There is one catch, though: The text storage needs to notify its layout managers that a change happened. The setters must thus also invoke `-edited:range:changeInLegth:` and pass along a change description. Sounds worse that it turns out to be:
 
-    - (void)replaceCharactersInRange:(NSRange)range withString:(NSString *)str 
-    {
-        [_imp replaceCharactersInRange:range withString:str];
-        [self edited:NSTextStorageEditedCharacters range:range 
-                                          changeInLength:(NSInteger)str.length - (NSInteger)range.length];
-    }
-    
-    - (void)setAttributes:(NSDictionary *)attrs range:(NSRange)range 
-    {
-        [_imp setAttributes:attrs range:range];
-        [self edited:NSTextStorageEditedAttributes range:range changeInLength:0];
-    }
+```objc
+- (void)replaceCharactersInRange:(NSRange)range withString:(NSString *)str 
+{
+    [_imp replaceCharactersInRange:range withString:str];
+    [self edited:NSTextStorageEditedCharacters range:range 
+                                      changeInLength:(NSInteger)str.length - (NSInteger)range.length];
+}
+
+- (void)setAttributes:(NSDictionary *)attrs range:(NSRange)range 
+{
+    [_imp setAttributes:attrs range:range];
+    [self edited:NSTextStorageEditedAttributes range:range changeInLength:0];
+}
+```
 
 With that, we have a fully functional replacement for the text storage in the text system stack. Plugging it into a text view as loaded from a interface file goes like this — but remember to reference the text storage from an instance variable:
 
-    _textStorage = [TKDHighlightingTextStorage new];
-    [_textStorage addLayoutManager: self.textView.layoutManager];
+```objc
+_textStorage = [TKDHighlightingTextStorage new];
+[_textStorage addLayoutManager: self.textView.layoutManager];
+```
 
 So far so good. We managed to plug in a custom text storage, and next we need to actually highlight some parts of the text. For now, a simple highlighting should suffice: We want to color all iWords red — words that start with a lowercase “i” followed by an uppercase letter.
 
@@ -260,30 +278,36 @@ A convenient place to implement highlighting is to overwrite `-processEditing`. 
 
 As with everything else, adding the simple highlighting of iWords is straightforward. We override `-processEditing`, call `super`’s  implementation, and set up a regular expression for finding words:
 
-    - (void)processEditing 
-    {
-        [super processEditing];
-        
-        static NSRegularExpression *iExpression;
-        NSString *pattern = @"i[\\p{Alphabetic}&&\\p{Uppercase}][\\p{Alphabetic}]+";
-        iExpression = iExpression ?: [NSRegularExpression regularExpressionWithPattern:pattern 
-                                                                               options:0 
-                                                                                 error:NULL];
+```objc
+- (void)processEditing 
+{
+    [super processEditing];
+    
+    static NSRegularExpression *iExpression;
+    NSString *pattern = @"i[\\p{Alphabetic}&&\\p{Uppercase}][\\p{Alphabetic}]+";
+    iExpression = iExpression ?: [NSRegularExpression regularExpressionWithPattern:pattern 
+                                                                           options:0 
+                                                                             error:NULL];
+```
 
 Then first, clean all previously assigned highlights:
 
-        NSRange paragaphRange = [self.string paragraphRangeForRange: self.editedRange];
-        [self removeAttribute:NSForegroundColorAttributeName range:paragaphRange];
+```objc
+    NSRange paragaphRange = [self.string paragraphRangeForRange: self.editedRange];
+    [self removeAttribute:NSForegroundColorAttributeName range:paragaphRange];
+```
 
 And second, iterate all pattern matches and assign new highlights:
 
-        [iExpression enumerateMatchesInString:self.string 
-                                      options:0 range:paragaphRange 
-                                   usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) 
-        {
-            [self addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:result.range];
-        }];
-    }
+```objc
+    [iExpression enumerateMatchesInString:self.string 
+                                  options:0 range:paragaphRange 
+                               usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) 
+    {
+        [self addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:result.range];
+    }];
+}
+```
 
 That’s it. We built a dynamic text view with syntax highlighting. The highlighting will be applied *live* as the user types. And it only took a couple lines of code. How cool is that?
 
@@ -304,12 +328,14 @@ As previously mentioned, the layout manager is the central layout workhorse. Wha
 
 Enough philosophy, let’s customize something. For example, how about adjusting line heights? Sounds crazy, but adjusting line heights has been [at least hacky or required using private API][8] on previous releases of iOS. Fortunately, this is — again — now a no-brainer. Set the layout manager’s delegate and implement a single method:
 
-    - (CGFloat)      layoutManager:(NSLayoutManager *)layoutManager 
-      lineSpacingAfterGlyphAtIndex:(NSUInteger)glyphIndex 
-      withProposedLineFragmentRect:(CGRect)rect 
-    {
-        return floorf(glyphIndex / 100);
-    }
+```objc
+- (CGFloat)      layoutManager:(NSLayoutManager *)layoutManager 
+  lineSpacingAfterGlyphAtIndex:(NSUInteger)glyphIndex 
+  withProposedLineFragmentRect:(CGRect)rect 
+{
+    return floorf(glyphIndex / 100);
+}
+```
 
 In the above code, I changed the line spacing to increase with the text length. This results in lines on top being closer together than those at the bottom. Not particularly useful I admit, but it’s *possible* (and there surely are more practical use cases).
 
@@ -317,31 +343,35 @@ OK, let’s have a more realistic scenario. Say you have links in a text and do 
 
 We start by using a custom text storage just like the one previously discussed. But instead of detecting iWords, it finds links and marks them as such:
  
-    static NSDataDetector *linkDetector;
-    linkDetector = linkDetector ?: [[NSDataDetector alloc] initWithTypes:NSTextCheckingTypeLink error:NULL];
-    
-    NSRange paragaphRange = [self.string paragraphRangeForRange: NSMakeRange(range.location, str.length)];
-    [self removeAttribute:NSLinkAttributeName range:paragaphRange];
-    
-    [linkDetector enumerateMatchesInString:self.string 
-                                   options:0 
-                                     range:paragaphRange 
-                                usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) 
-    {
-        [self addAttribute:NSLinkAttributeName value:result.URL range:result.range];
-    }];
+```objc
+static NSDataDetector *linkDetector;
+linkDetector = linkDetector ?: [[NSDataDetector alloc] initWithTypes:NSTextCheckingTypeLink error:NULL];
+
+NSRange paragaphRange = [self.string paragraphRangeForRange: NSMakeRange(range.location, str.length)];
+[self removeAttribute:NSLinkAttributeName range:paragaphRange];
+
+[linkDetector enumerateMatchesInString:self.string 
+                               options:0 
+                                 range:paragaphRange 
+                            usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) 
+{
+    [self addAttribute:NSLinkAttributeName value:result.URL range:result.range];
+}];
+```
 
 With this at hand, changing the line break behavior is as easy as implementing a single layout manager delegate method:
 
-    - (BOOL)layoutManager:(NSLayoutManager *)layoutManager shouldBreakLineByWordBeforeCharacterAtIndex:(NSUInteger)charIndex 
-    {
-        NSRange range;
-        NSURL *linkURL = [layoutManager.textStorage attribute:NSLinkAttributeName 
-                                                      atIndex:charIndex 
-                                               effectiveRange:&range];
-        
-        return !(linkURL && charIndex > range.location && charIndex <= NSMaxRange(range));
-    }
+```objc
+- (BOOL)layoutManager:(NSLayoutManager *)layoutManager shouldBreakLineByWordBeforeCharacterAtIndex:(NSUInteger)charIndex 
+{
+    NSRange range;
+    NSURL *linkURL = [layoutManager.textStorage attribute:NSLinkAttributeName 
+                                                  atIndex:charIndex 
+                                           effectiveRange:&range];
+    
+    return !(linkURL && charIndex > range.location && charIndex <= NSMaxRange(range));
+}
+```
 
 For a working example, see the “Layout” tab in the aforementioned [TextKitDemo][4]. Here’s a screenshot:
 
@@ -360,17 +390,19 @@ Not placing text in some regions of a view is a common requirement, for example,
 
 As you can see, all text is placed outside the blue shape. Getting this behavior into a text view is simple, but it has a small catch: The coordinates of the bezier path must be specified in container coordinates. Here is the conversion:
 
-    - (void)updateExclusionPaths 
-    {
-        CGRect ovalFrame = [self.textView convertRect:self.circleView.bounds 
-                                             fromView:self.circleView];
-        
-        ovalFrame.origin.x -= self.textView.textContainerInset.left;
-        ovalFrame.origin.y -= self.textView.textContainerInset.top;
-        
-        UIBezierPath *ovalPath = [UIBezierPath bezierPathWithOvalInRect:ovalFrame];
-        self.textView.textContainer.exclusionPaths = @[ovalPath];
-    }
+```objc
+- (void)updateExclusionPaths 
+{
+    CGRect ovalFrame = [self.textView convertRect:self.circleView.bounds 
+                                         fromView:self.circleView];
+    
+    ovalFrame.origin.x -= self.textView.textContainerInset.left;
+    ovalFrame.origin.y -= self.textView.textContainerInset.top;
+    
+    UIBezierPath *ovalPath = [UIBezierPath bezierPathWithOvalInRect:ovalFrame];
+    self.textView.textContainer.exclusionPaths = @[ovalPath];
+}
+```
 
 In this example, I am using a user-positionable view that can then be moved around freely while the text reflows live around the shape. We start by converting its bounds (`self.circleView.bounds`) to the coordinate system of the text view.
 
