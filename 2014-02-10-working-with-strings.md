@@ -13,7 +13,7 @@ We use strings in various places in every single app. Here we'll quickly take a 
 
 ## Sorting, Comparing, and Searching Strings
 
-Sorting and comparing strings is more complex than first meets the eye. Not only can strings contain *surrogate pairs* (see [Ole's article on Unicode](/issue-9/unicode.html#peculiar-unicode-features)) but sorting also depends on the locale. The corner cases are quite tricky.
+Sorting and comparing strings is more complex than first meets the eye. Not only can strings contain *surrogate pairs* (see [Ole's article on Unicode](/issues/9-strings/unicode/#peculiar-unicode-features)) but sorting also depends on the locale. The corner cases are quite tricky.
 
 Apple's *String Programming Guide* has a section called [“Characters and Grapheme Clusters”](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/Strings/Articles/stringsClusters.html), which mentions a few of the pitfalls. For example, for sorting purposes, some European languages consider the sequence “ch” a single letter. In some languages, “ä” is considered equal to `a`, while in others it should be sorted after `z`.
 
@@ -97,7 +97,7 @@ Note that these formatting methods are *non-localized*. They should *not* be use
     -initWithFormat:locale:arguments:
     +localizedStringWithFormat:
 
-Florian's article about [string localization](/issue-9/string-localization.html#localized-format-strings) talks about this in more detail.
+Florian's article about [string localization](/issues/9-strings/string-localization/#localized-format-strings) talks about this in more detail.
 
 
 The man page for [printf(3)](https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man3/printf.3.html) has all the gory details on how format strings work. The format string is copied verbatim, except for the so-called conversion specification, which starts with a `%` character:
@@ -246,7 +246,7 @@ or
     s    LATIN SMALL LETTER S
     e    LATIN SMALL LETTER E
 
-Read more about combining marks in [Ole's article on Unicode](/issue-9/unicode.html#peculiar-unicode-features). Other scripts have more complicated surrogate pairs.
+Read more about combining marks in [Ole's article on Unicode](/issues/9-strings/unicode/#peculiar-unicode-features). Other scripts have more complicated surrogate pairs.
 
 If we need to work on the character level of a string, we need to be careful. Apple's *String Programming Guide* has a section called [“Characters and Grapheme Clusters”](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/Strings/Articles/stringsClusters.html) that goes into more detail about this. 
 
@@ -543,5 +543,5 @@ If we want to use this with an `NSString`, we need to make sure to do it like th
         path.fileSystemRepresentation,
         O_RDONLY, 0, queue, cleanupHandler);
 
-What `-fileSystemRepresentation` does is that it first converts the string to the file system's [normalization form](/issue-9/unicode.html#normalization-forms) and then encodes it as UTF-8.
+What `-fileSystemRepresentation` does is that it first converts the string to the file system's [normalization form](/issues/9-strings/unicode/#normalization-forms) and then encodes it as UTF-8.
 

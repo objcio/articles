@@ -99,7 +99,7 @@ The `-s` argument specifies the base name of the localization functions. The pre
 <a name="localized-format-strings"> </a>
 ### Localized Format Strings
 
-Often we have to localize strings that contain some data that can only be inserted at runtime. To achieve this, we can use format strings, and Foundation comes with some gems to make this feature really powerful. (See [Daniel's article](/issue-9/working-with-strings.html) for more details on format strings.)
+Often we have to localize strings that contain some data that can only be inserted at runtime. To achieve this, we can use format strings, and Foundation comes with some gems to make this feature really powerful. (See [Daniel's article](/issues/9-strings/working-with-strings/) for more details on format strings.)
 
 A simple example would be to display a string like "Run 1 out of 3 completed." We would build the string like this:
 
@@ -242,7 +242,7 @@ That's exactly what we'd expect on an English system, but once we switch, for ex
 
 Retrieving a file's localized name like this also respects the user's Finder setting of whether the file extension should be hidden or not. If you need to show which type the file is, you can use ask for the `NSURLLocalizedTypeDescriptionKey` in the same way.
 
-Localized file names are only for user interface purposes, and cannot be used to actually access the file resource. Please see [Daniel's article about common string patterns](/issue-9/working-with-strings.html) to read more about working with file paths.
+Localized file names are only for user interface purposes, and cannot be used to actually access the file resource. Please see [Daniel's article about common string patterns](/issues/9-strings/working-with-strings/) to read more about working with file paths.
 
 
 ## Formatters

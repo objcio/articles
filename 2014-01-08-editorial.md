@@ -19,7 +19,7 @@ We wanted to do something with a [quadcopter](https://en.wikipedia.org/wiki/Quad
 
 We want to thank [Felix Geisendörfer](http://felixge.de) -- the initiator of the [nodecopter](http://nodecopter.com) events -- for his advice and support. Luckily, Felix lives just around the corner from Chris, and he was kind enough to lend one of his drones and a few battery packs to us.
 
-We briefly outline the overall goals of the project in the [overview article](/issue-8/the-quadcopter-project.html). There, we also talk about how the project changed while we were working on it. The [other articles in this issue](/issue-8) will go into more technical detail regarding how we implemented this project.
+We briefly outline the overall goals of the project in the [overview article](/issues/8-quadcopter/the-quadcopter-project/). There, we also talk about how the project changed while we were working on it. The [other articles in this issue](/issue-8) will go into more technical detail regarding how we implemented this project.
 
 We hope you have as much fun reading as we had hacking the quadcopter project.
 

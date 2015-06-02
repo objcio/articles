@@ -163,7 +163,7 @@ To be honest, I have a hard time coming up with convincing use cases of fetch re
 
 ## Managed Objects
 
-Managed objects are at the heart of any Core Data application. Managed objects live in a managed object context and represent our data. Managed objects are supposed to be passed around in the application, crossing at least the model-controller barrier, and potentially even the controller-view barrier. The latter is somewhat more controversial though, and can be [abstracted in a better way](/issue-1/table-views.html) by e.g. defining a protocol to which an object must conform in order to be consumed by a certain view, or by implementing configuration methods in a view category that bridge the gap from the model object to the specifics of the view.
+Managed objects are at the heart of any Core Data application. Managed objects live in a managed object context and represent our data. Managed objects are supposed to be passed around in the application, crossing at least the model-controller barrier, and potentially even the controller-view barrier. The latter is somewhat more controversial though, and can be [abstracted in a better way](/issues/1-view-controllers/table-views/) by e.g. defining a protocol to which an object must conform in order to be consumed by a certain view, or by implementing configuration methods in a view category that bridge the gap from the model object to the specifics of the view.
 
 Anyway, we shouldn't limit managed objects to the model layer and pull out their data into different structures as soon as we want to pass them around. Managed objects are first-class citizens in a Core Data app and we should use them accordingly. For example, managed objects should be passed between view controllers to provide them with the data they need. 
 
@@ -268,26 +268,26 @@ We hope to have demonstrated some simple techniques to make working with managed
 
 
 
-[100]:/issue-4/importing-large-data-sets-into-core-data.html
-[110]:/issue-4/importing-large-data-sets-into-core-data.html#efficient-importing
-[120]:/issue-4/importing-large-data-sets-into-core-data.html#user-generated-data
+[100]:/issues/4-core-data/importing-large-data-sets-into-core-data/
+[110]:/issues/4-core-data/importing-large-data-sets-into-core-data/#efficient-importing
+[120]:/issues/4-core-data/importing-large-data-sets-into-core-data/#user-generated-data
 
-[200]:/issue-4/core-data-models-and-model-objects.html
-[210]:/issue-4/core-data-models-and-model-objects.html#managed-objects
-[220]:/issue-4/core-data-models-and-model-objects.html#validation
-[230]:/issue-4/core-data-models-and-model-objects.html#ivars-in-managed-object-classes
-[240]:/issue-4/core-data-models-and-model-objects.html#entity-vs-class-hierarchy
-[250]:/issue-4/core-data-models-and-model-objects.html#creating-objects
-[260]:/issue-4/core-data-models-and-model-objects.html#indexes
+[200]:/issues/4-core-data/core-data-models-and-model-objects/
+[210]:/issues/4-core-data/core-data-models-and-model-objects/#managed-objects
+[220]:/issues/4-core-data/core-data-models-and-model-objects/#validation
+[230]:/issues/4-core-data/core-data-models-and-model-objects/#ivars-in-managed-object-classes
+[240]:/issues/4-core-data/core-data-models-and-model-objects/#entity-vs-class-hierarchy
+[250]:/issues/4-core-data/core-data-models-and-model-objects/#creating-objects
+[260]:/issues/4-core-data/core-data-models-and-model-objects/#indexes
 
-[300]:/issue-4/core-data-overview.html
-[310]:/issue-4/core-data-overview.html#complicated-stacks
-[320]:/issue-4/core-data-overview.html#getting-to-objects
+[300]:/issues/4-core-data/core-data-overview/
+[310]:/issues/4-core-data/core-data-overview/#complicated-stacks
+[320]:/issues/4-core-data/core-data-overview/#getting-to-objects
 
-[400]:/issue-4/full-core-data-application.html
+[400]:/issues/4-core-data/full-core-data-application/
 
-[500]:/issue-4/SQLite-instead-of-core-data.html
+[500]:/issues/4-core-data/SQLite-instead-of-core-data/
 
-[600]:/issue-4/core-data-fetch-requests.html
+[600]:/issues/4-core-data/core-data-fetch-requests/
 
-[700]:/issue-4/core-data-migration.html
+[700]:/issues/4-core-data/core-data-migration/

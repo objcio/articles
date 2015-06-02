@@ -41,7 +41,7 @@ Before you go down this route though, here is an easy alternative that has the a
 
 Instead of getting rid of the table view controller entirely, you could
 also add it as a child view controller to another view controller (see
-the [article about view controller containment](/issue-1/containment-view-controller.html) in this issue). Then the table view controller continues to manage only the table view and the parent view controller can take care of whatever additional interface elements you might need. 
+the [article about view controller containment](/issues/1-view-controllers/containment-view-controller/) in this issue). Then the table view controller continues to manage only the table view and the parent view controller can take care of whatever additional interface elements you might need. 
 
     
     - (void)addPhotoDetailsTableView
@@ -85,7 +85,7 @@ As you can see, this construction comes with the price of some overhead to commu
 When dealing with table views there are a variety of different tasks involved which cross the borders between models, controllers, and views. In order to prevent view controllers from becoming the place for all these tasks, we will try to isolate as many of these tasks as possible in more appropriate places. This helps readability, maintainability, and testability. 
 
 The techniques described here extend and elaborate upon the concepts
-demonstrated in the article [Lighter view controllers](/issue-1/lighter-view-controllers.html). Please refer to this article for how to factor our data source and model logic. In the context of table views, we will specifically look at how to separate concerns between view controllers and views.
+demonstrated in the article [Lighter view controllers](/issues/1-view-controllers/lighter-view-controllers/). Please refer to this article for how to factor our data source and model logic. In the context of table views, we will specifically look at how to separate concerns between view controllers and views.
 
 ### Bridging the Gap Between Model Objects and Cells
 
@@ -125,7 +125,7 @@ With this in place, our data source method becomes very simple.
     }
 
 In our example code, the data source for this table view is [factored
-out into its own controller object](/issue-1/lighter-view-controllers.html#controllers), which gets initialized with a cell configuration block. In this case, the block becomes as simple as this:
+out into its own controller object](/issues/1-view-controllers/lighter-view-controllers/#controllers), which gets initialized with a cell configuration block. In this case, the block becomes as simple as this:
 
     TableViewCellConfigureBlock block = ^(PhotoCell *cell, Photo *photo) {
         [cell configureForPhoto:photo];

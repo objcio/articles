@@ -9,7 +9,7 @@ author:
 ---
 
 
-The client app is the component in [this project](/issue-8/the-quadcopter-project.html) that sends the target location coordinates to the phone strapped to the drone. It's a pretty simple task, but there are a few interesting bits to it, like the use of the new (as of iOS 7) Multipeer Connectivity APIs and [NSSecureCoding](https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSSecureCoding_Protocol_Ref/content/NSSecureCoding.html).
+The client app is the component in [this project](/issues/8-quadcopter/the-quadcopter-project/) that sends the target location coordinates to the phone strapped to the drone. It's a pretty simple task, but there are a few interesting bits to it, like the use of the new (as of iOS 7) Multipeer Connectivity APIs and [NSSecureCoding](https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSSecureCoding_Protocol_Ref/content/NSSecureCoding.html).
 
 The app exposes a very simple -- and not very pretty -- interface:
 
@@ -166,7 +166,7 @@ Lastly, we need to implement `initWithCoder:` so that the encoded object can get
 
 Now that we have the multipeer connection in place and we can encode and decode the remote control commands, we're ready to actually send location coordinates or control commands over the air. For the sake of example, we will only look at transmitting coordinates, since it's exactly the same for the other commands.
 
-As discussed in the [project overview](/issue-8/the-quadcopter-project.html), this client app can either send its current geolocation, or alternatively, a position picked on a map, in order to make testing the drone navigation easier. For the first case, we just need to implement `CLLocationManager`'s delegate method `locationManager:didUpdateLocations:` and store the current location in a property:
+As discussed in the [project overview](/issues/8-quadcopter/the-quadcopter-project/), this client app can either send its current geolocation, or alternatively, a position picked on a map, in order to make testing the drone navigation easier. For the first case, we just need to implement `CLLocationManager`'s delegate method `locationManager:didUpdateLocations:` and store the current location in a property:
 
     - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
     {
@@ -194,7 +194,7 @@ And last but not least, the `broadcastLocation` method that's now getting called
         }
     }
     
-And that's pretty much it. Follow along the other articles about the [navigation app on the drone](/issue-8/the-quadcopter-navigator-app.html) and the [Core Foundation networking APIs](/issue-8/communicating-with-the-quadcopter.html) used to communicate with the drone to see how the receiving end of these commands interacts with the drone and actually makes it fly!
+And that's pretty much it. Follow along the other articles about the [navigation app on the drone](/issues/8-quadcopter/the-quadcopter-navigator-app/) and the [Core Foundation networking APIs](/issue-8/communicating-with-the-quadcopter.html) used to communicate with the drone to see how the receiving end of these commands interacts with the drone and actually makes it fly!
     
 
 

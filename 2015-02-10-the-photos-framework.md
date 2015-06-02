@@ -121,7 +121,7 @@ Another iCloud-related property is `progressHandler`. You can set it to a [`PHAs
 
 PhotoKit allows apps to make non-destructive adjustments to photos. For edited photos, the system keeps a separate copy of the original image and the app-specific adjustment data. When fetching assets using the image manager, you can specify which version of the image asset should be delivered via the result handler. This is done by setting the `version` property: `.Current` will deliver the image with all adjustments applied to it; `.Unadjusted` delivers the image before any adjustments are applied to it; and `.Original` delivers the image in its original, highest-quality format (e.g. the RAW data, while `.Unadjusted` would deliver a JPEG).
 
-You can read more about this aspect of the framework in Sam Davies' [article on Photo Extensions](/issue-21/photo-extensions.html).
+You can read more about this aspect of the framework in Sam Davies' [article on Photo Extensions](/issues/21-camera-and-photos/photo-extensions/).
 
 #### Result Handler
 

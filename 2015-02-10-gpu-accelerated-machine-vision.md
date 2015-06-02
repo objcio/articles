@@ -19,7 +19,7 @@ GPUs are ideally suited to operate on images and video because they are tuned to
 
 One of the things I learned while working on GPUImage is how even seemingly complex image processing operations can be built from smaller, simpler ones. I'd like to break down the components of some common machine vision processes, and show how these processes can be accelerated to run on modern GPUs.
 
-Every operation analyzed here has a full implementation within GPUImage, and you can try each one yourself by grabbing the project and building the `FilterShowcase` sample application either for OS X or iOS. Additionally, all of these operations have CPU-based (and some GPU-accelerated) implementations within the OpenCV framework, which Engin Kurutepe talks about in [his article within this issue](/issue-21/face-recognition-with-opencv.html).
+Every operation analyzed here has a full implementation within GPUImage, and you can try each one yourself by grabbing the project and building the `FilterShowcase` sample application either for OS X or iOS. Additionally, all of these operations have CPU-based (and some GPU-accelerated) implementations within the OpenCV framework, which Engin Kurutepe talks about in [his article within this issue](/issues/21-camera-and-photos/face-recognition-with-opencv/).
 
 ## Sobel Edge Detection
 
@@ -34,13 +34,13 @@ As I mentioned, this is often used for visual effects. If the colors of the abov
 
 ![Sketch filtered image](/images/issue-21/MV-Sketch.png)
 
-So how are these edges calculated? The first step in this process is a reduction of a color image to a luminance (grayscale) image. Janie Clayton explains how this is calculated in a fragment shader within [her article](/issue-21/gpu-accelerated-image-processing.html), but basically the red, green, and blue components of each pixel are weighted and summed to arrive at a single value for how bright that pixel is.
+So how are these edges calculated? The first step in this process is a reduction of a color image to a luminance (grayscale) image. Janie Clayton explains how this is calculated in a fragment shader within [her article](/issues/21-camera-and-photos/gpu-accelerated-image-processing/), but basically the red, green, and blue components of each pixel are weighted and summed to arrive at a single value for how bright that pixel is.
 
 Some video sources and cameras provide YUV-format images, rather than RGB. The YUV color format splits luminance information (Y) from chrominance (UV), so for these types of inputs, a color conversion step can be avoided. The luminance part of the image can be used directly.
 
 Once an image is reduced to its luminance, the edge strength near a pixel is calculated by looking at a 3×3 array of neighboring pixels. An image processing calculation performed over a block of pixels involves what is called a convolution kernel. Convolution kernels consist of a matrix of weights that are multiplied with the values of the pixels surrounding a central pixel, with the sum of those weighted values determining the final pixel value.
 
-These kernels are applied once per pixel across the entire image. The order in which pixels are processed doesn't matter, so a convolution across an image is an easy operation to parallelize. As a result, this can be greatly accelerated by running on a programmable GPU using fragment shaders. As described in [Janie's article](/issue-21/gpu-accelerated-image-processing.html), fragment shaders are C-like programs that can be used by GPUs to perform incredibly fast image processing.
+These kernels are applied once per pixel across the entire image. The order in which pixels are processed doesn't matter, so a convolution across an image is an easy operation to parallelize. As a result, this can be greatly accelerated by running on a programmable GPU using fragment shaders. As described in [Janie's article](/issues/21-camera-and-photos/gpu-accelerated-image-processing/), fragment shaders are C-like programs that can be used by GPUs to perform incredibly fast image processing.
 
 This is the horizontal kernel of the Sobel operator:
 

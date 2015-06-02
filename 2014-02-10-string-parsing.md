@@ -321,7 +321,7 @@ And get a result like below, which can easily be converted into an `NSLayoutCons
 
 Instead of Objective-C libraries, another common strategy is to use tools like [Bison](http://www.gnu.org/software/bison/), [Yacc](http://dinosaur.compilertools.net/yacc/), [Ragel](http://www.complang.org/ragel/), or [Lemon](http://www.hwaci.com/sw/lemon/lemon.html), which are all C-level libraries.
 
-Another thing you could do is use these parsers to generate part of your code at build time. For example, once you have a parser for a language, you can create a simple command-line wrapper around it. Add an Xcode [build rule](/issue-6/build-process.html), and you have a compiler for your own language that gets executed on each build.
+Another thing you could do is use these parsers to generate part of your code at build time. For example, once you have a parser for a language, you can create a simple command-line wrapper around it. Add an Xcode [build rule](/issues/6-build-tools/build-process/), and you have a compiler for your own language that gets executed on each build.
 
 ## Parsing Ideas
 

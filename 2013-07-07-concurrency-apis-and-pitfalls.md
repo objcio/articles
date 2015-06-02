@@ -383,14 +383,14 @@ A safe pattern we recommend is this: pull out the data you want to work on the m
 
 
 
-[90]: /issue-2/editorial.html
-[100]: /issue-2/concurrency-apis-and-pitfalls.html
-[101]: /issue-2/concurrency-apis-and-pitfalls.html#challenges
-[102]: /issue-2/concurrency-apis-and-pitfalls.html#priority_inversion
-[103]: /issue-2/concurrency-apis-and-pitfalls.html#shared_resources
-[104]: /issue-2/concurrency-apis-and-pitfalls.html#dead_locks
-[200]: /issue-2/common-background-practices.html
-[300]: /issue-2/low-level-concurrency-apis.html
-[301]: /issue-2/low-level-concurrency-apis.html#async
-[302]: /issue-2/low-level-concurrency-apis.html#multiple-readers-single-writer
-[400]: /issue-2/thread-safe-class-design.html
+[90]: /issues/2-concurrency/editorial/
+[100]: /issues/2-concurrency/concurrency-apis-and-pitfalls/
+[101]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#challenges
+[102]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#priority_inversion
+[103]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#shared_resources
+[104]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#dead_locks
+[200]: /issues/2-concurrency/common-background-practices/
+[300]: /issues/2-concurrency/low-level-concurrency-apis/
+[301]: /issues/2-concurrency/low-level-concurrency-apis/#async
+[302]: /issues/2-concurrency/low-level-concurrency-apis/#multiple-readers-single-writer
+[400]: /issues/2-concurrency/thread-safe-class-design/

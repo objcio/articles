@@ -297,26 +297,26 @@ On iOS, when you use an `NSFetchedResultsController` and you have a lot of objec
 
 
 
-[100]:/issue-4/importing-large-data-sets-into-core-data.html
-[110]:/issue-4/importing-large-data-sets-into-core-data.html#efficient-importing
-[120]:/issue-4/importing-large-data-sets-into-core-data.html#user-generated-data
+[100]:/issues/4-core-data/importing-large-data-sets-into-core-data/
+[110]:/issues/4-core-data/importing-large-data-sets-into-core-data/#efficient-importing
+[120]:/issues/4-core-data/importing-large-data-sets-into-core-data/#user-generated-data
 
-[200]:/issue-4/core-data-models-and-model-objects.html
-[210]:/issue-4/core-data-models-and-model-objects.html#managed-objects
-[220]:/issue-4/core-data-models-and-model-objects.html#validation
-[230]:/issue-4/core-data-models-and-model-objects.html#ivars-in-managed-object-classes
-[240]:/issue-4/core-data-models-and-model-objects.html#entity-vs-class-hierarchy
-[250]:/issue-4/core-data-models-and-model-objects.html#creating-objects
-[260]:/issue-4/core-data-models-and-model-objects.html#indexes
+[200]:/issues/4-core-data/core-data-models-and-model-objects/
+[210]:/issues/4-core-data/core-data-models-and-model-objects/#managed-objects
+[220]:/issues/4-core-data/core-data-models-and-model-objects/#validation
+[230]:/issues/4-core-data/core-data-models-and-model-objects/#ivars-in-managed-object-classes
+[240]:/issues/4-core-data/core-data-models-and-model-objects/#entity-vs-class-hierarchy
+[250]:/issues/4-core-data/core-data-models-and-model-objects/#creating-objects
+[260]:/issues/4-core-data/core-data-models-and-model-objects/#indexes
 
-[300]:/issue-4/core-data-overview.html
-[310]:/issue-4/core-data-overview.html#complicated-stacks
-[320]:/issue-4/core-data-overview.html#getting-to-objects
+[300]:/issues/4-core-data/core-data-overview/
+[310]:/issues/4-core-data/core-data-overview/#complicated-stacks
+[320]:/issues/4-core-data/core-data-overview/#getting-to-objects
 
-[400]:/issue-4/full-core-data-application.html
+[400]:/issues/4-core-data/full-core-data-application/
 
-[500]:/issue-4/SQLite-instead-of-core-data.html
+[500]:/issues/4-core-data/SQLite-instead-of-core-data/
 
-[600]:/issue-4/core-data-fetch-requests.html
+[600]:/issues/4-core-data/core-data-fetch-requests/
 
-[700]:/issue-4/core-data-migration.html
+[700]:/issues/4-core-data/core-data-migration/
