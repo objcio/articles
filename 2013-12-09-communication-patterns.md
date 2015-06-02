@@ -26,7 +26,7 @@ First we will have a look at the specific characteristics of each available comm
 
 ### KVO
 
-KVO is a mechanism to notify objects about property changes. It is implemented in Foundation and many frameworks built on top of Foundation rely on it. To read more about best practices and examples of how to use KVO, please read Daniel's [KVO and KVC article](/issue-7/key-value-coding-and-observing.html) in this issue.
+KVO is a mechanism to notify objects about property changes. It is implemented in Foundation and many frameworks built on top of Foundation rely on it. To read more about best practices and examples of how to use KVO, please read Daniel's [KVO and KVC article](/issues/7-foundation/key-value-coding-and-observing/) in this issue.
 
 KVO is a viable communication pattern if you're only interested in changed values of another object. There are a few more requirements though. First, the recipient -- the object that will receive the messages about changes -- has to know about the sender -- the object with values that are changed. Furthermore, the recipient also needs to know about the lifespan of the sender, because it has to unregister the observer before the sender object gets deallocated. If all these requirements are met, the communication can even be one-to-many, since multiple observers can register for updates from the object in question. 
 

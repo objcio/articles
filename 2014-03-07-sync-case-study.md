@@ -8,7 +8,7 @@ author:
     url: https://twitter.com/floriankugler
 ---
 
-A while ago I was working together with [Chris](https://twitter.com/chriseidhof) on an enterprise iPad application that was to be deployed in a large youth sports organization. We chose to use Core Data for our persistency needs and built a custom data synchronization solution around it that fit our needs. In the syncing grid explained in [Drew's article](/issue-10/data-synchronization.html), this solution uses the asynchronous client-server approach.
+A while ago I was working together with [Chris](https://twitter.com/chriseidhof) on an enterprise iPad application that was to be deployed in a large youth sports organization. We chose to use Core Data for our persistency needs and built a custom data synchronization solution around it that fit our needs. In the syncing grid explained in [Drew's article](/issues/10-syncing-data/data-synchronization/), this solution uses the asynchronous client-server approach.
 
 In this article, I will lay out the decision and implementation process as a case study for rolling out your own syncing solution. It's not a perfect or a universally applicable one, but it fit our needs at the time.
 
@@ -17,7 +17,7 @@ Before we dive into it: if you're interested in the topic of data syncing soluti
 
 ## Use Case
 
-Most syncing solutions today focus on the problem of syncing a user's data across multiple personal devices, e.g. [iCloud Core Data sync](/issue-10/icloud-core-data.html) or the [Dropbox Datastore API](https://www.dropbox.com/developers/datastore). Our syncing needs were a bit different, though. The app we were building was to be deployed within an organization with approximately 50 devices in total. We needed to sync the data between all those devices, each device belonging to a different staff member, with everybody working off the same data set.
+Most syncing solutions today focus on the problem of syncing a user's data across multiple personal devices, e.g. [iCloud Core Data sync](/issues/10-syncing-data/icloud-core-data/) or the [Dropbox Datastore API](https://www.dropbox.com/developers/datastore). Our syncing needs were a bit different, though. The app we were building was to be deployed within an organization with approximately 50 devices in total. We needed to sync the data between all those devices, each device belonging to a different staff member, with everybody working off the same data set.
 
 The data itself had a moderately complex structure with approximately a dozen entities and many relationships between them. But we needed to handle quite a bit of data. In production, the number of records would quickly grow into the six figures.
 
@@ -234,7 +234,7 @@ Then we take the SQLite database generated in this process, and run the followin
     
 The first one makes sure that all changes from the write-ahead logging file are transferred to the main `.sqlite` file, while the second command makes sure that the file is not unnecessarily bloated.
 
-Once the app is started the first time, the database is copied from the app bundle to its final location. For more information on this process and other ways to import data into Core Data, see [this article in objc.io #4](/issue-4/importing-large-data-sets-into-core-data.html).
+Once the app is started the first time, the database is copied from the app bundle to its final location. For more information on this process and other ways to import data into Core Data, see [this article in objc.io #4](/issues/4-core-data/importing-large-data-sets-into-core-data/).
 
 Since the Core Data data model includes a special entity that stores the revision number, the database shipped with the app automatically includes the correct revision number of the data set used to seed the client. 
 

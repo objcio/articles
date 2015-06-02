@@ -263,7 +263,7 @@ Image sensors have pixels that are outside the area that receives visible light.
 
 ### File Formats
 
-The final step of a digital camera is to write the image data to a file. In just about all cases, digital photos are saved as JPEGs. [JPEG compression](https://en.wikipedia.org/wiki/JPEG) modifies the image data in order to heavily compress it. The pixel data in an iPhone 6 image takes up almost 23 MB (3.264 x 2.448 x 3 = 23.970.816), while the JPEG files for such an image are typically 1.5 to 2.5 MB. Read more about JPEG compression in [issue #3](/issue-3/moving-pixels-onto-the-screen.html#JPEG).
+The final step of a digital camera is to write the image data to a file. In just about all cases, digital photos are saved as JPEGs. [JPEG compression](https://en.wikipedia.org/wiki/JPEG) modifies the image data in order to heavily compress it. The pixel data in an iPhone 6 image takes up almost 23 MB (3.264 x 2.448 x 3 = 23.970.816), while the JPEG files for such an image are typically 1.5 to 2.5 MB. Read more about JPEG compression in [issue #3](/issues/3-views/moving-pixels-onto-the-screen/#JPEG).
 
 Some digital cameras allow the user to save a so-called RAW file. The camera's image processor will still have done some work on the raw image data coming off the sensor, but the file will contain something very close to the real pixel values. The benefit of this is that we can do the debayering at a later point.
 

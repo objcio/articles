@@ -65,7 +65,7 @@ How did this binary get generated? There are multiple pieces to look at and unde
 
 ### Hello World and the Compiler
 
-The compiler of choice nowadays is `clang` (pronounced /klæŋ/). Chris writes in more detail [about the compiler](/issue-6/compiler.html).
+The compiler of choice nowadays is `clang` (pronounced /klæŋ/). Chris writes in more detail [about the compiler](/issues/6-build-tools/compiler/).
 
 Briefly put, the compiler will process the `helloworld.c` input file and produce the executable `a.out`. This processing consist of multiple steps/stages. What we just did is run all of them in succession:
 

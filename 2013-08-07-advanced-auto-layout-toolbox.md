@@ -496,19 +496,19 @@ Auto Layout is a powerful technique to create flexible user interfaces, and it's
 
 
 
-[100]:/issue-3/advanced-auto-layout-toolbox.html
-[110]:/issue-3/advanced-auto-layout-toolbox.html#layout-process
+[100]:/issues/3-views/advanced-auto-layout-toolbox/
+[110]:/issues/3-views/advanced-auto-layout-toolbox/#layout-process
 
-[200]:/issue-3/moving-pixels-onto-the-screen.html
-[210]:/issue-3/moving-pixels-onto-the-screen.html#compositing
-[220]:/issue-3/moving-pixels-onto-the-screen.html#pixels
-[230]:/issue-3/moving-pixels-onto-the-screen.html#off-screen-rendering
-[240]:/issue-3/moving-pixels-onto-the-screen.html#planar-data
-[250]:/issue-3/moving-pixels-onto-the-screen.html#concurrent-drawing
-[260]:/issue-3/moving-pixels-onto-the-screen.html#resizable-images
-[270]:/issue-3/moving-pixels-onto-the-screen.html#core-graphics
+[200]:/issues/3-views/moving-pixels-onto-the-screen/
+[210]:/issues/3-views/moving-pixels-onto-the-screen/#compositing
+[220]:/issues/3-views/moving-pixels-onto-the-screen/#pixels
+[230]:/issues/3-views/moving-pixels-onto-the-screen/#off-screen-rendering
+[240]:/issues/3-views/moving-pixels-onto-the-screen/#planar-data
+[250]:/issues/3-views/moving-pixels-onto-the-screen/#concurrent-drawing
+[260]:/issues/3-views/moving-pixels-onto-the-screen/#resizable-images
+[270]:/issues/3-views/moving-pixels-onto-the-screen/#core-graphics
 
-[300]:/issue-3/collection-view-layouts.html
-[310]:/issue-3/collection-view-layouts.html#layout-attributes-for-...-at-index-path
+[300]:/issues/3-views/collection-view-layouts/
+[310]:/issues/3-views/collection-view-layouts/#layout-attributes-for-...-at-index-path
 
-[400]:/issue-3/custom-controls.html
+[400]:/issues/3-views/custom-controls/

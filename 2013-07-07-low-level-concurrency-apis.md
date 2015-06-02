@@ -12,7 +12,7 @@ tags: article
 
 In this article we'll talk about some low-level APIs available on both iOS and OS X. Except for `dispatch_once`, we generally discourage using any of this.
 
-But we wanted to show what's available under the covers. These low-level APIs provide a huge amount of flexibility, yet with that flexibility comes a lot of complexity and responsibility. The higher-level APIs and patterns that we mention in our [article about common background practices](/issue-2/common-background-practices.html) let you focus on your task at hand and save you a lot of trouble. And generally, the higher-level APIs will provide better performance unless you can afford the time and effort to tweak and debug code that uses lower-level APIs.
+But we wanted to show what's available under the covers. These low-level APIs provide a huge amount of flexibility, yet with that flexibility comes a lot of complexity and responsibility. The higher-level APIs and patterns that we mention in our [article about common background practices](/issues/2-concurrency/common-background-practices/) let you focus on your task at hand and save you a lot of trouble. And generally, the higher-level APIs will provide better performance unless you can afford the time and effort to tweak and debug code that uses lower-level APIs.
 
 Knowing how things work further down the software stack is good, though. We hope this article will give you a better understanding of the platform, and at the same time, will make you appreciate the higher-level APIs more.
 
@@ -114,7 +114,7 @@ Make sure to make your private queue concurrent if you want multiple blocks to r
 
 You change the priority of your own queue by setting its target queue to be one of the global queues. But you should refrain from the temptation to do so.
 
-In most cases, changing the priority is not going to do what you intend. What may seem straightforward is actually a very complex problem. You'll very easily run into what is known as [Priority Inversion](http://en.wikipedia.org/wiki/Priority_inversion). Our [article about concurrency APIs and pitfalls](/issue-2/concurrency-apis-and-pitfalls.html#challenges) has more info on this problem which almost bricked NASA's Pathfinder rover on Mars.
+In most cases, changing the priority is not going to do what you intend. What may seem straightforward is actually a very complex problem. You'll very easily run into what is known as [Priority Inversion](http://en.wikipedia.org/wiki/Priority_inversion). Our [article about concurrency APIs and pitfalls](/issues/2-concurrency/concurrency-apis-and-pitfalls/#challenges) has more info on this problem which almost bricked NASA's Pathfinder rover on Mars.
 
 Furthermore, you need to be particularly careful with the `DISPATCH_QUEUE_PRIORITY_BACKGROUND` queue. Don't use it unless you understand what *throttled I/O* and *background status as per setpriority(2)* mean. Otherwise the system might end up putting your app to a grinding halt. It is mostly intended for doing I/O in a way such that it doesn't interfere with other parts of the system doing I/O. But combined with priority inversion, it can easily become a dangerous cocktail.
 
@@ -127,7 +127,7 @@ Isolation queues are one of the most common patterns in GCD queue usage. There a
 
 The most common scenario in multi-threaded programming is that you have a resource that only one thread is allowed to access at a time.
 
-Our [article about concurrency techniques](/issue-2/concurrency-apis-and-pitfalls.html) talks a bit more about what *resource* means in concurrent programming. It's often a piece of memory or an object that only one thread must access at a time.
+Our [article about concurrency techniques](/issues/2-concurrency/concurrency-apis-and-pitfalls/) talks a bit more about what *resource* means in concurrent programming. It's often a piece of memory or an object that only one thread must access at a time.
 
 Let's say we need to access a `NSMutableDictionary` from multiple threads (queues). We would do something like this:
 
@@ -214,7 +214,7 @@ In your own code, consider if you're better off by protecting with an isolation 
 
 ### Going Fully Asynchronous
 
-Let's sidetrack a bit here. As you've seen above, you can dispatch a block, a work unit, both synchronously and asynchronously. A very common problem that we talk about in our [article about concurrency APIs and pitfalls](/issue-2/concurrency-apis-and-pitfalls.html) is [dead locks](http://en.wikipedia.org/wiki/Deadlock). It's quite easy to run into the problem with GCD with synchronous dispatching. The trivial case is:
+Let's sidetrack a bit here. As you've seen above, you can dispatch a block, a work unit, both synchronously and asynchronously. A very common problem that we talk about in our [article about concurrency APIs and pitfalls](/issues/2-concurrency/concurrency-apis-and-pitfalls/) is [dead locks](http://en.wikipedia.org/wiki/Deadlock). It's quite easy to run into the problem with GCD with synchronous dispatching. The trivial case is:
 
     dispatch_queue_t queueA; // assume we have this
     dispatch_sync(queueA, ^(){

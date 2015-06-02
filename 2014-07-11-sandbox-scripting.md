@@ -12,7 +12,7 @@ tags: article
 Introduction
 ------------
 
-Scripting between Mac applications has long been a part of the desktop ecosystem. It was originally [introduced](http://en.wikipedia.org/wiki/AppleScript) in October 1993 as part of System 7 as a way to create complex workflows using publishing applications like QuarkXPress. Since then, many applications have supported AppleScript through the use of scripting dictionaries ([Brent's article](/issue-14/scripting-data.html) shows you how to do this.) In this article, I'm going to explain how to communicate with another app using the commands and objects in its scripting dictionary.
+Scripting between Mac applications has long been a part of the desktop ecosystem. It was originally [introduced](http://en.wikipedia.org/wiki/AppleScript) in October 1993 as part of System 7 as a way to create complex workflows using publishing applications like QuarkXPress. Since then, many applications have supported AppleScript through the use of scripting dictionaries ([Brent's article](/issues/14-mac/scripting-data/) shows you how to do this.) In this article, I'm going to explain how to communicate with another app using the commands and objects in its scripting dictionary.
 
 But before we do that, we need to take a look at some recent events on the Mac platform. After opening the Mac App Store in late 2010, Apple announced that all developer submissions would need to run in a sandbox by November 2011. This deadline was pushed back several times, until it eventually went into effect on June 1, 2012.
 
