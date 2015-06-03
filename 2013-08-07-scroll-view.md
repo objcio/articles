@@ -35,14 +35,14 @@ Remember, we're talking about just one composite operation between a view and it
 
 Think about the math behind compositing an image onto another. The top-left corner of a view's image is offset by its frame's origin and then drawn onto its superview's image:
 
-```objc
+```
 CompositedPosition.x = View.frame.origin.x - Superview.bounds.origin.x;
 CompositedPosition.y = View.frame.origin.y - Superview.bounds.origin.y;
 ```
 
 Now, as we have said before, the origin of a view's bounds rectangle is typically just `{0, 0}`. Thus, when doing the math, we just drop out one of the values and we get:
 
-```objc
+```
 CompositedPosition.x = View.frame.origin.x;
 CompositedPosition.y = View.frame.origin.y;
 ```
@@ -59,7 +59,7 @@ Now, what does all of this have to do with UIScrollView? *Everything*. Think abo
 
 The problem with that, of course, is that there are typically many views in a scroll view. To implement this panning feature, you would have to change the frames of every view every time the user moved his or her finger. But we're missing something. Remember that equation that we came up with to determine where a view composited its image onto its superview?
 
-```objc
+```
 CompositedPosition.x = View.frame.origin.x - Superview.bounds.origin.x;
 CompositedPosition.y = View.frame.origin.y - Superview.bounds.origin.y;
 ```
@@ -70,7 +70,7 @@ We dropped the `Superview.bounds.origin` values because they were always 0. But 
 
 Now, the beauty of this is that every single subview of this purple view is shifted by the change to its bounds. This is, in fact, exactly how a scroll view works when you set its [`contentOffset`](http://developer.apple.com/library/ios/documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html#//apple_ref/occ/instp/UIScrollView/contentOffset) property: it changes the origin of the scroll view's bounds. In fact, `contentOffset` isn't even real! Its code probably looks like this:
 
-```objc
+```
 - (void)setContentOffset:(CGPoint)offset
 {
     CGRect bounds = [self bounds];
