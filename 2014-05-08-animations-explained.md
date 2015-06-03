@@ -161,7 +161,7 @@ Thankfully, `CAKeyframeAnimation` offers the more convenient `path` property as 
 
 For instance, this is how we would animate a view in a circle:
 
-![](/images/issue-12/planets@2x.gif)
+![](/images/issue-12/planets.gif)
 
 ```objc
 CGRect boundingRect = CGRectMake(-150, -150, 300, 300);
@@ -185,7 +185,7 @@ Setting it to `kCAAnimationPaced` also disregards any `keyTimes` we would've set
 
 Setting the `rotationMode` property to `kCAAnimationRotateAuto` ensures that the satellite follows the rotation along the path. By contrast, this is what the animation would look like had we left the property `nil`:
 
-![](/images/issue-12/planets-incorrect@2x.gif)
+![](/images/issue-12/planets-incorrect.gif)
 
 You can achieve a couple of interesting effects using animations with paths;
 fellow objc.io author [Ole Begemann](https://twitter.com/olebegemann) wrote [a great post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
@@ -283,7 +283,7 @@ animation.easing = RBBEasingFunctionEaseOutBounce;
 
 For certain complex effects, it may be necessary to animate multiple properties at once. Imagine we were to implement a shuffle animation when advancing to a random track in a media player app, it could look like this:
 
-![](/images/issue-12/covers@2x.gif)
+![](/images/issue-12/covers.gif)
 
 You can see that we have to animate the position, rotation and z-position of the artworks at once. Using `CAAnimationGroup`, the code to animate one of the covers could look a little something like this:
 
