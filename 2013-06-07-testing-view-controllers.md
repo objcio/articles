@@ -83,7 +83,7 @@ Editing your scheme in Xcode gives you a great deal of flexibility. You can run 
 Also remember that you can set breakpoints in your code and in test cases and the debugger will stop there as the tests are executed.
 
 
-## <a id="testing-datasource"> </a>Testing a Data Source
+## Testing a Data Source
 
 Let's get started. We've made testing easier by splitting up the view controller. Now we'll test the `ArrayDataSource`. First, we create a new and empty basic setup. We put both the interface and implementation into the same file; no one needs to include the `@interface` anywhere else, as it's all nice and tidy inside one file:
 

@@ -135,7 +135,7 @@ With this in place, our data source method becomes very simple.
 ```
 
 In our example code, the data source for this table view is [factored
-out into its own controller object](/issues/1-view-controllers/lighter-view-controllers/#controllers), which gets initialized with a cell configuration block. In this case, the block becomes as simple as this:
+out into its own controller object](/issues/1-view-controllers/lighter-view-controllers/#separate-out-data-source-and-other-protocols), which gets initialized with a cell configuration block. In this case, the block becomes as simple as this:
 
 ```objc
 TableViewCellConfigureBlock block = ^(PhotoCell *cell, Photo *photo) {

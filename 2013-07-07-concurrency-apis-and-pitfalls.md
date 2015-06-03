@@ -22,7 +22,7 @@ Apple's mobile and desktop operating systems provide the same APIs for concurren
 
 We'll start with the lower-level APIs and move our way up to the higher-level ones. We chose this route because the higher-level APIs are built on top of the lower-level APIs. However, when choosing an API for your use case, you should consider them in the exact opposite order: choose the highest level abstraction that gets the job done and keep your concurrency model very simple.
 
-If you're wondering why we are so persistent recommending high-level abstractions and very simple concurrency code, you should read the second part of this article, [challenges of concurrent programming](#challenges), as well as [Peter Steinberger's thread safety article][400].
+If you're wondering why we are so persistent recommending high-level abstractions and very simple concurrency code, you should read the second part of this article, [challenges of concurrent programming](#challenges-of-concurrent-programming), as well as [Peter Steinberger's thread safety article][400].
 
 
 ### Threads
@@ -181,7 +181,7 @@ GCD exposes five different queues: the main queue running on the main thread, th
 
 Making use of several queues with different priorities sounds pretty straightforward at first. However, we strongly recommend that you use the default priority queue in almost all cases. Scheduling tasks on queues with different priorities can quickly result in unexpected behavior if these tasks access shared resources. This can lead as far as causing your whole program to come to a grinding halt because some low-priority tasks are blocking a high-priority task from executing. You can read more about this phenomenon, called priority inversion, [below](#priority-inversion).
 
-Although GCD is a low-level C API, it's pretty straightforward to use. This makes it easy to forget that all caveats and pitfalls of concurrent programming still apply while dispatching blocks onto GCD queues. Please make sure to read about the [challenges of concurrent programming](#challenges) below, in order to be aware of the potential problems. Furthermore, we have an excellent [walkthrough of the GCD API][300] in this issue that contains many in-depth explanations and valuable hints.
+Although GCD is a low-level C API, it's pretty straightforward to use. This makes it easy to forget that all caveats and pitfalls of concurrent programming still apply while dispatching blocks onto GCD queues. Please make sure to read about the [challenges of concurrent programming](#challenges-of-concurrent-programming) below, in order to be aware of the potential problems. Furthermore, we have an excellent [walkthrough of the GCD API][300] in this issue that contains many in-depth explanations and valuable hints.
 
 
 ### Operation Queues
@@ -283,16 +283,12 @@ The main thread always has the main run loop set up and running. Other threads t
 If you really need to set up a run loop on another thread, don't forget to add at least one input source to it. If a run loop has no input sources configured, every attempt to run it will exit immediately. 
 
 
-<a name="challenges" id="challenges"> </a>
-
 ## Challenges of Concurrent Programming
 
 Writing concurrent programs comes with many pitfalls. As soon as you're doing more than the most basic things, it becomes difficult to oversee all the different states in the interplay of multiple tasks being executed in parallel. Problems can occur in a non-deterministic way, which makes it even more difficult to debug concurrent code.
 
 There is a prominent example for unforeseen behavior of concurrent programs: In 1995, NASA sent the Pathfinder mission to Mars. Not too long after a successful landing on our red neighboring planet, the mission almost [came to an abrupt end](http://research.microsoft.com/en-us/um/people/mbj/Mars_Pathfinder/Mars_Pathfinder.html). The Mars rover kept rebooting for unknown reasons -- it suffered from a phenomenon called *priority inversion*, where a low-priority thread kept blocking a high-priority one. We are going to explore this particular issue in more detail below. But this example should demonstrate that even with vast resources and lots of engineering talent available, concurrency can come back to bite you in many ways.
 
-
-<a name="shared_resources" id="shared_resources"> </a>
 
 ### Sharing of Resources
 
@@ -330,8 +326,6 @@ There is a trade-off to be made here: acquiring and releasing locks comes at a p
 
 It is quite common to see code which is supposed to run concurrently, but which actually results in only one thread being active at a time, because of the way locks for shared resources are set up. It's often non-trivial to predict how your code will get scheduled on multiple cores. You can use Instrument's [CPU strategy view](http://developer.apple.com/library/mac/#documentation/DeveloperTools/Conceptual/InstrumentsUserGuide/AnalysingCPUUsageinYourOSXApp/AnalysingCPUUsageinYourOSXApp.html) to get a better idea of whether you're efficiently using the available CPU cores or not.
 
-
-<a name="dead-locks" id="dead-locks"> </a>
 
 ### Dead Locks
 
@@ -374,8 +368,6 @@ Just when you thought that there are enough problems to think of, a new one come
 In order to solve this issue, more clever solutions than a simple read/write lock are necessary, e.g. giving [writers preference](http://en.wikipedia.org/wiki/Readers–writer_lock) or using the [read-copy-update](http://en.wikipedia.org/wiki/Read-copy-update) algorithm. Daniel shows in his [low-level concurrency techniques][302] article how to implement a multiple reader/single writer pattern with GCD which doesn't suffer from writer starvation.
 
 
-<a name="priority-inversion" id="priority-inversion"> </a>
-
 ### Priority Inversion
 
 We started this section with the example of NASA's Pathfinder rover on Mars suffering from a concurrency problem. Now we will have a closer look why Pathfinder almost failed, and why your application can suffer from the same problem, called [priority inversion](http://en.wikipedia.org/wiki/Priority_inversion). 
@@ -406,9 +398,9 @@ A safe pattern we recommend is this: pull out the data you want to work on the m
 
 [90]: /issues/2-concurrency/editorial/
 [100]: /issues/2-concurrency/concurrency-apis-and-pitfalls/
-[101]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#challenges
-[102]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#priority_inversion
-[103]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#shared_resources
+[101]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#challenges-of-concurrent-programming
+[102]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#priority-inversion
+[103]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#sharing-of-resources
 [104]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#dead_locks
 [200]: /issues/2-concurrency/common-background-practices/
 [300]: /issues/2-concurrency/low-level-concurrency-apis/
