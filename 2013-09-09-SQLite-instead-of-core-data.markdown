@@ -389,7 +389,9 @@ Gus Mueller asked me to cover custom SQLite functions. This isn’t something I�
 
 [Gus posted a Gist](https://gist.github.com/ccgus/6324222) where a query looks like this:
 
-<pre>select displayName, key from items where UTTypeConformsTo(uti, ?) order by 2;</pre>
+```sql
+select displayName, key from items where UTTypeConformsTo(uti, ?) order by 2;
+```
 
 SQLite doesn’t know anything about UTTypes. But you can add Core functions as a block — see `-[FMDatabase makeFunctionNamed:maximumArguments:withBlock:]`.
 
