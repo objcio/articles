@@ -30,7 +30,7 @@ One of my favorite features of Swift is the use of optionals. Optionals allow us
 
 For example, consider the following snippet in Objective-C:
 
-```objectivec
+```objc
 - (NSAttributedString *)attributedString:(NSString *)input 
 {
     return [[NSAttributedString alloc] initWithString:input];

@@ -53,7 +53,7 @@ The default behavior of Snapshots is to subclass `FBSnapshotTestCase` instead of
 }
 
 @end
-``
+```
 
 <a name="disadvantages"> </a>
 
@@ -81,11 +81,13 @@ Nothing's perfect. Let's start with the downsides.
 
 I don't use vanilla XCTest. I uses [Specta and Expecta][specta], which provide a more concise and readable test environment to work in. This is the default testing setup when you create a [new CocoaPod][newcocoapod]. I'm a contributor to the pod [Expecta+Snapshots][expmatchers], which provides an Expecta-like API to `FBSnapshotTestCase`. It will handle naming screenshots for you, and can optionally run view controllers through their view event lifecycle. This means my Podfile looks like:
 
-    target 'MyApp Tests', :exclusive => true do
-        pod 'Specta','~> 1.0'
-        pod 'Expecta', '~> 1.0'
-        pod 'Expecta+Snapshots', '~> 1.0'
-    end
+```
+target 'MyApp Tests', :exclusive => true do
+    pod 'Specta','~> 1.0'
+    pod 'Expecta', '~> 1.0'
+    pod 'Expecta+Snapshots', '~> 1.0'
+end
+```
 
 In turn, my tests look like:
 

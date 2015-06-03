@@ -53,28 +53,30 @@ Each *scheme* in Xcode defines what the corresponding test bundle should be. Whi
 
 The way the tests are run, your app is actually launched, and the test bundle is *injected*. You probably don't want your app to do much, as it may interfere with the testing. Put something like this into your app delegate:
 
-    static BOOL isRunningTests(void) __attribute__((const));
-    
-    - (BOOL)application:(UIApplication *)application   
-            didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-    {
-        if (isRunningTests()) {
-            return YES;
-        }
-        
-        //
-        // Normal logic goes here
-        //
-        
+```objc
+static BOOL isRunningTests(void) __attribute__((const));
+
+- (BOOL)application:(UIApplication *)application   
+        didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    if (isRunningTests()) {
         return YES;
     }
     
-    static BOOL isRunningTests(void)
-    {
-        NSDictionary* environment = [[NSProcessInfo processInfo] environment];
-        NSString* injectBundle = environment[@"XCInjectBundle"];
-        return [[injectBundle pathExtension] isEqualToString:@"octest"];
-    }
+    //
+    // Normal logic goes here
+    //
+    
+    return YES;
+}
+
+static BOOL isRunningTests(void)
+{
+    NSDictionary* environment = [[NSProcessInfo processInfo] environment];
+    NSString* injectBundle = environment[@"XCInjectBundle"];
+    return [[injectBundle pathExtension] isEqualToString:@"octest"];
+}
+```
 
 Editing your scheme in Xcode gives you a great deal of flexibility. You can run scripts before and after the tests, and you can have multiple test bundles. This can be useful for larger projects. Most importantly, you can turn on and off individual tests. This can be useful for debugging tests -- just remember to turn them all back on.
 
@@ -85,17 +87,19 @@ Also remember that you can set breakpoints in your code and in test cases and th
 
 Let's get started. We've made testing easier by splitting up the view controller. Now we'll test the `ArrayDataSource`. First, we create a new and empty basic setup. We put both the interface and implementation into the same file; no one needs to include the `@interface` anywhere else, as it's all nice and tidy inside one file:
 
-    #import "PhotoDataTestCase.h"
-    
-    @interface ArrayDataSourceTest : PhotoDataTestCase
-    @end
-    
-    @implementation ArrayDataSourceTest
-    - (void)testNothing;
-    {
-        STAssertTrue(YES, @"");
-    }
-    @end
+```objc
+#import "PhotoDataTestCase.h"
+
+@interface ArrayDataSourceTest : PhotoDataTestCase
+@end
+
+@implementation ArrayDataSourceTest
+- (void)testNothing;
+{
+    STAssertTrue(YES, @"");
+}
+@end
+```
 
 This will not do much. It shows the basic test setup. When we run the tests, the `-testNothing` method will run. The special `STAssert` macro will do its trivial check. Note that `ST` originates from SenTestingKit. These macros integrate with Xcode and will make failures show up in the *Issues* navigator.
 
@@ -103,56 +107,67 @@ This will not do much. It shows the basic test setup. When we run the tests, the
 
 We'll now replace the `testNothing` method with a simple, but real test:
 
-    - (void)testInitializing;
-    {
-        STAssertNil([[ArrayDataSource alloc] init], @"Should not be allowed.");
-        TableViewCellConfigureBlock block = ^(UITableViewCell *a, id b){};
-        id obj1 = [[ArrayDataSource alloc] initWithItems:@[]
-                                          cellIdentifier:@"foo"
-                                      configureCellBlock:block];
-        STAssertNotNil(obj1, @"");
-    }
+```objc
+- (void)testInitializing;
+{
+    STAssertNil([[ArrayDataSource alloc] init], @"Should not be allowed.");
+    TableViewCellConfigureBlock block = ^(UITableViewCell *a, id b){};
+    id obj1 = [[ArrayDataSource alloc] initWithItems:@[]
+                                      cellIdentifier:@"foo"
+                                  configureCellBlock:block];
+    STAssertNotNil(obj1, @"");
+}
+```
 
 ## Putting Mocking into Practice
 
 Next, we want to test the
 
-    - (UITableViewCell *)tableView:(UITableView *)tableView
-             cellForRowAtIndexPath:(NSIndexPath *)indexPath;
+```objc
+- (UITableViewCell *)tableView:(UITableView *)tableView
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath;
+```
 
 method that the ArrayDataSource implements. For that we create a
 
-    - (void)testCellConfiguration;
+```objc
+- (void)testCellConfiguration;
+```
 
 test method.
 
 
 First we create a data source:
 
-    __block UITableViewCell *configuredCell = nil;
-    __block id configuredObject = nil;
-    TableViewCellConfigureBlock block = ^(UITableViewCell *a, id b){
-        configuredCell = a;
-        configuredObject = b;
-    };
-    ArrayDataSource *dataSource = [[ArrayDataSource alloc] initWithItems:@[@"a", @"b"] 
-                                                          cellIdentifier:@"foo"
-                                                      configureCellBlock:block];
+```objc
+__block UITableViewCell *configuredCell = nil;
+__block id configuredObject = nil;
+TableViewCellConfigureBlock block = ^(UITableViewCell *a, id b){
+    configuredCell = a;
+    configuredObject = b;
+};
+ArrayDataSource *dataSource = [[ArrayDataSource alloc] initWithItems:@[@"a", @"b"] 
+                                                      cellIdentifier:@"foo"
+                                                  configureCellBlock:block];
+```
 
 Note that the `configureCellBlock` doesn't do anything except store the objects that it was called with. This allows us to easily test it.
 
 Next, we'll create a *mock object* for a table view:
 
-    id mockTableView = [OCMockObject mockForClass:[UITableView class]];
+```objc
+id mockTableView = [OCMockObject mockForClass:[UITableView class]];
+```
 
 The data source is going to call `-dequeueReusableCellWithIdentifier:forIndexPath:` on the passed-in table view. We'll tell the mock object what to do when it gets this message. We first create a `cell` and then set up the *mock*:
 
-    UITableViewCell *cell = [[UITableViewCell alloc] init];
-    NSIndexPath* indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
-    [[[mockTableView expect] andReturn:cell]
-            dequeueReusableCellWithIdentifier:@"foo"
-                                 forIndexPath:indexPath];
-    
+```objc
+UITableViewCell *cell = [[UITableViewCell alloc] init];
+NSIndexPath* indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+[[[mockTableView expect] andReturn:cell]
+        dequeueReusableCellWithIdentifier:@"foo"
+                             forIndexPath:indexPath];
+```
 
 This will look a bit confusing at first. What's going on here, is that the mock is *recording* this particular call. The mock is not a table view; we're just pretending that it is. The special `-expect` method allows us to set up the mock so that it knows what to do when this method gets called on it.
 
@@ -160,22 +175,28 @@ In addition, the `-expect` method tells the mock that this call *must* happen. W
 
 Now we'll trigger the code to get run. We'll call the method we want to test:
 
-    NSIndexPath* indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
-    id result = [dataSource tableView:mockTableView
-                cellForRowAtIndexPath:indexPath];
+```objc
+NSIndexPath* indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+id result = [dataSource tableView:mockTableView
+            cellForRowAtIndexPath:indexPath];
+```
 
 and then we'll test that things went well:
 
-    STAssertEquals(result, cell, @"Should return the dummy cell.");
-    STAssertEquals(configuredCell, cell, @"This should have been passed to the block.");
-    STAssertEqualObjects(configuredObject, @"a", @"This should have been passed to the block.");
-    [mockTableView verify];
+```objc
+STAssertEquals(result, cell, @"Should return the dummy cell.");
+STAssertEquals(configuredCell, cell, @"This should have been passed to the block.");
+STAssertEqualObjects(configuredObject, @"a", @"This should have been passed to the block.");
+[mockTableView verify];
+```
 
 The `STAssert` macros test that the values are identical. Note that we use pointer comparison for the first two tests; we don't want to use `-isEqual:`. We actually want to test that `result` and `cell` and `configuredCell` all are the very same object. The third test uses `-isEqual:`, and finally we call `-verify` on our mock.
 
 Note that in the example, we're setting up the mock with
 
-    id mockTableView = [self autoVerifiedMockForClass:[UITableView class]];
+```objc
+id mockTableView = [self autoVerifiedMockForClass:[UITableView class]];
+```
 
 This is a convenience wrapper in our base test class which automatically calls `-verify` at the end of the test.
 
@@ -188,45 +209,57 @@ We want to test that tapping on a cell takes us to the detail view, i.e. an inst
 
 First we create a `UINavigationController` mock:
 
-    id mockNavController = [OCMockObject mockForClass:[UINavigationController class]];
+```objc
+id mockNavController = [OCMockObject mockForClass:[UINavigationController class]];
+```
 
 Next up, we'll use *partial mocking*. We want our `PhotosViewController` instance to return the `mockNavController` as its `navigationController`. We can't set the navigation controller directly, so we'll simply stub only that method to return our `mockNavController` and forward everything else to the `PhotosViewController` instance:
 
-     PhotosViewController *photosViewController = [[PhotosViewController alloc] init];
-     id photosViewControllerMock = [OCMockObject partialMockForObject:photosViewController];
-     [[[photosViewControllerMock stub] andReturn:mockNavController] navigationController];
+```objc
+PhotosViewController *photosViewController = [[PhotosViewController alloc] init];
+id photosViewControllerMock = [OCMockObject partialMockForObject:photosViewController];
+[[[photosViewControllerMock stub] andReturn:mockNavController] navigationController];
+```
 
 Now, whenever the `-navigationController` method is called on `photosViewController`, it will return the `mockNavController`. This is a very powerful trick that OCMock has up its sleeve.
 
 We now tell the navigation controller mock what we expect to be called, i.e. a detail view controller with `photo` set to a non-nil value:
 
-    UIViewController* viewController = [OCMArg checkWithBlock:^BOOL(id obj) {
-        PhotoViewController *vc = obj;
-        return ([vc isKindOfClass:[PhotoViewController class]] &&
-                (vc.photo != nil));
-    }];
-    [[mockNavController expect] pushViewController:viewController animated:YES];
+```objc
+UIViewController* viewController = [OCMArg checkWithBlock:^BOOL(id obj) {
+    PhotoViewController *vc = obj;
+    return ([vc isKindOfClass:[PhotoViewController class]] &&
+            (vc.photo != nil));
+}];
+[[mockNavController expect] pushViewController:viewController animated:YES];
+```
 
 Now we trigger the view to be loaded and simulate the row to be tapped:
 
 
-    UIView *view = photosViewController.view;
-    STAssertNotNil(view, @"");
-    NSIndexPath* indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
-    [photosViewController tableView:photosViewController.tableView 
-            didSelectRowAtIndexPath:indexPath];
+```objc
+UIView *view = photosViewController.view;
+STAssertNotNil(view, @"");
+NSIndexPath* indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+[photosViewController tableView:photosViewController.tableView 
+        didSelectRowAtIndexPath:indexPath];
+```
 
 Finally we verify that the expected method was called on the mocks:
 
-    [mockNavController verify];
-    [photosViewControllerMock verify];
+```objc
+[mockNavController verify];
+[photosViewControllerMock verify];
+```
 
 We now have a test that tests interaction with the navigation controller and creation of the correct view controller.
 
 Again, in the example project, we're using our own convenience methods
 
-    - (id)autoVerifiedMockForClass:(Class)aClass;
-    - (id)autoVerifiedPartialMockForObject:(id)object;
+```objc
+- (id)autoVerifiedMockForClass:(Class)aClass;
+- (id)autoVerifiedPartialMockForObject:(id)object;
+```
 
 and hence we don't have to remember to call `-verify`.
 
@@ -235,14 +268,18 @@ and hence we don't have to remember to call `-verify`.
 
 As you've seen above, *partial mocking* is extremely powerful. If you take a look at the source code of the `-[PhotosViewController setupTableView]` method, you'll see how it gets the model objects through the app delegate:
 
-     NSArray *photos = [AppDelegate sharedDelegate].store.sortedPhotos;
+```objc
+ NSArray *photos = [AppDelegate sharedDelegate].store.sortedPhotos;
+```
 
 The above test depends on this. One way to break this dependency would be to again use *partial mocking* to make the app delegate return predefined data like so:
 
-    id storeMock; // assume we've set this up
-    id appDelegate = [AppDelegate sharedDelegate]
-    id appDelegateMock = [OCMockObject partialMockForObject:appDelegate];
-    [[[appDelegateMock stub] andReturn:storeMock] store];
+```objc
+id storeMock; // assume we've set this up
+id appDelegate = [AppDelegate sharedDelegate]
+id appDelegateMock = [OCMockObject partialMockForObject:appDelegate];
+[[[appDelegateMock stub] andReturn:storeMock] store];
+```
 
 Now whenever `[AppDelegate sharedDelegate].store` gets called, it will return the `storeMock`. This can be taken to extremes. Make sure to keep your tests as simple as possible and only as complex as needed.
 
@@ -254,35 +291,39 @@ Partial mocks alter the object they're mocking for as long as they're around. Yo
 
 The `PhotoCell` is setup in a NIB. We can write a simple test that checks that the outlets are set up correctly. Let's review the `PhotoCell` class:
 
-     @interface PhotoCell : UITableViewCell
-     
-     + (UINib *)nib;
-     
-     @property (weak, nonatomic) IBOutlet UILabel* photoTitleLabel;
-     @property (weak, nonatomic) IBOutlet UILabel* photoDateLabel;
-     
-     @end
+```objc
+ @interface PhotoCell : UITableViewCell
+ 
+ + (UINib *)nib;
+ 
+ @property (weak, nonatomic) IBOutlet UILabel* photoTitleLabel;
+ @property (weak, nonatomic) IBOutlet UILabel* photoDateLabel;
+ 
+ @end
+```
 
 Our simple test implementation looks like this
 
-    @implementation PhotoCellTests
+```objc
+@implementation PhotoCellTests
+
+- (void)testNibLoading;
+{
+    UINib *nib = [PhotoCell nib];
+    STAssertNotNil(nib, @"");
     
-    - (void)testNibLoading;
-    {
-        UINib *nib = [PhotoCell nib];
-        STAssertNotNil(nib, @"");
-        
-        NSArray *a = [nib instantiateWithOwner:nil options:@{}];
-        STAssertEquals([a count], (NSUInteger) 1, @"");
-        PhotoCell *cell = a[0];
-        STAssertTrue([cell isMemberOfClass:[PhotoCell class]], @"");
-        
-        // Check that outlets are set up correctly:
-        STAssertNotNil(cell.photoTitleLabel, @"");
-        STAssertNotNil(cell.photoDateLabel, @"");
-    }
+    NSArray *a = [nib instantiateWithOwner:nil options:@{}];
+    STAssertEquals([a count], (NSUInteger) 1, @"");
+    PhotoCell *cell = a[0];
+    STAssertTrue([cell isMemberOfClass:[PhotoCell class]], @"");
     
-    @end
+    // Check that outlets are set up correctly:
+    STAssertNotNil(cell.photoTitleLabel, @"");
+    STAssertNotNil(cell.photoDateLabel, @"");
+}
+
+@end
+```
 
 Very basic, but it does its job.
 
@@ -294,7 +335,9 @@ As we noted under *Integration with Xcode* the test bundle gets injected into th
 
 One thing that can be very confusing, though, is if we add a class to both the app and the test bundle. If we, in the above example, would (by accident) have added the `PhotoCell` class to both the test bundle and the app, then the call to `[PhotoCell class]` would return a different pointer when called from inside our test bundle - that from within the app. And hence our test
 
-    STAssertTrue([cell isMemberOfClass:[PhotoCell class]], @"");
+```objc
+STAssertTrue([cell isMemberOfClass:[PhotoCell class]], @"");
+```
 
 would fail. Again: Injection is complex. Your take away should be: Don't add `.m` files from your app to your test target. You'll get unexpected behavior.
 

@@ -28,14 +28,16 @@ LLVM benefits from having a three-tier architecture, which means it supports a l
 
 When compiling a source file, the compiler proceeds through several phases. To see the different phases, we can ask clang what it will do to compile the file *hello.m*:
 
-    % clang -ccc-print-phases hello.m
-    
-    0: input, "hello.m", objective-c
-    1: preprocessor, {0}, objective-c-cpp-output
-    2: compiler, {1}, assembler
-    3: assembler, {2}, object
-    4: linker, {3}, image
-    5: bind-arch, "x86_64", {4}, image
+```
+% clang -ccc-print-phases hello.m
+
+0: input, "hello.m", objective-c
+1: preprocessor, {0}, objective-c-cpp-output
+2: compiler, {1}, assembler
+3: assembler, {2}, object
+4: linker, {3}, image
+5: bind-arch, "x86_64", {4}, image
+```
 
 In this article, we'll focus on phases one and two. In [Mach-O Executables](/issue-6/mach-o-executables.html), Daniel explains phases three and four.
 
@@ -43,36 +45,48 @@ In this article, we'll focus on phases one and two. In [Mach-O Executables](/iss
 
 The first thing that happens when you're compiling a source file is preprocessing. The preprocessor handles a macro processing language, which means it will replace macros in your text by their definitions. For example, if you write the following:
 
-    #import <Foundation/Foundation.h>
+```objc
+#import <Foundation/Foundation.h>
+```
 
 The preprocessor will take that line, and substitute it with the contents of that file. If that header file contains any other macro definitions, they will get substituted too.
 
 This is the reason why people tell you to keep your header files free of imports as much as you can, because anytime you import something, the compiler has to do more work. For example, in your header file, instead of writing:
 
-    #import "MyClass.h"
+```objc
+#import "MyClass.h"
+```
 
 You could write:
 
-    @class MyClass;
+```objc
+@class MyClass;
+```
 
 And by doing that you promise the compiler that there will be a class, `MyClass`. In the implementation file (the `.m` file), you can then import the `MyClass.h` and use it.
 
 Now suppose we have a very simple pure C program, named `hello.c`:
 
-    #include <stdio.h>
-    
-    int main() {
-      printf("hello world\n");
-      return 0;
-    }
+```objc
+#include <stdio.h>
+
+int main() {
+  printf("hello world\n");
+  return 0;
+}
+```
 
 We can run the preprocessor on this to see what the effect is:
 
-    clang -E hello.c | less
+```objc
+clang -E hello.c | less
+```
 
 Now, have a look at that code. It's 401 lines. If we also add the following line to the top:
 
-    #import <Foundation/Foundation.h>
+```objc
+#import <Foundation/Foundation.h>
+```
 
 We can run the command again, and see that our file has expanded to a whopping 89,839 lines. There are entire operating systems written in less lines of code.
 
@@ -82,64 +96,78 @@ Luckily, the situation has recently improved a bit. There's now a feature called
 
 Another example is when you define or use custom macros, like this:
 
-    #define MY_CONSTANT 4
+```objc
+#define MY_CONSTANT 4
+```
 
 Now, anytime you write `MY_CONSTANT` after this line, it'll get replaced by `4` before the rest of compilation starts. You can also define more interesting macros that take arguments:
 
-    #define MY_MACRO(x) x
+```objc
+#define MY_MACRO(x) x
+```
 
 This article is too short to discuss the full scope of what is possible with the preprocessor, but it's a very powerful tool. Often, the preprocessor is used to inline code. We strongly discourage this. For example, suppose you have the following innocent-looking program:
 
 
-    #define MAX(a,b) a > b ? a : b
+```objc
+#define MAX(a,b) a > b ? a : b
 
-    int main() {
-      printf("largest: %d\n", MAX(10,100));
-      return 0;
-    }
+int main() {
+  printf("largest: %d\n", MAX(10,100));
+  return 0;
+}
+```
 
 This will work fine. However, what about the following program:
 
 
-    #define MAX(a,b) a > b ? a : b
+```objc
+#define MAX(a,b) a > b ? a : b
 
-    int main() {
-      int i = 200;
-      printf("largest: %d\n", MAX(i++,100));
-      printf("i: %d\n", i);
-      return 0;
-    }
+int main() {
+  int i = 200;
+  printf("largest: %d\n", MAX(i++,100));
+  printf("i: %d\n", i);
+  return 0;
+}
+```
 
 If we compile this with `clang max.c`, we get the following result:
 
-    largest: 201
-    i: 202
+```objc
+largest: 201
+i: 202
+```
 
 This is quite obvious when we run the preprocessor and expand all the macros by issuing `clang -E max.c`:
 
-    int main() {
-      int i = 200;
-      printf("largest: %d\n", i++ > 100 ? i++ : 100);
-      printf("i: %d\n", i);
-      return 0;
-    }
+```objc
+int main() {
+  int i = 200;
+  printf("largest: %d\n", i++ > 100 ? i++ : 100);
+  printf("i: %d\n", i);
+  return 0;
+}
+```
 
 In this case, it's an obvious example of what could go wrong with macros, but things can go also wrong in more unexpected and hard-to-debug ways. Instead of using a macro, you should use `static inline` functions:
 
-    #include <stdio.h>
+```objc
+#include <stdio.h>
 
-    static const int MyConstant = 200;
-    
-    static inline int max(int l, int r) {
-       return l > r ? l : r;
-    }
-    
-    int main() {
-      int i = MyConstant;
-      printf("largest: %d\n", max(i++,100));
-      printf("i: %d\n", i);
-      return 0;
-    }
+static const int MyConstant = 200;
+
+static inline int max(int l, int r) {
+   return l > r ? l : r;
+}
+
+int main() {
+  int i = MyConstant;
+  printf("largest: %d\n", max(i++,100));
+  printf("i: %d\n", i);
+  return 0;
+}
+```
 
 This will print the correct result (`i: 201`). Because the code is inlined, it will have the same performance as the macro variant, but it's a lot less error-prone. Also, you can set breakpoints, have type checking, and avoid unexpected behavior.
 
@@ -150,32 +178,36 @@ The only time when macros are a reasonable solution is for logging, since you ca
 After preprocessing is done, every source `.m` file now has a bunch of definitions.
 This text is converted from a string to a stream of tokens. For example, in the case of a simple Objective-C hello world program:
 
-    int main() {
-      NSLog(@"hello, %@", @"world");
-      return 0;
-    }
+```objc
+int main() {
+  NSLog(@"hello, %@", @"world");
+  return 0;
+}
+```
 
 We can ask clang to dump the tokens for this program by issuing the following command: `clang -Xclang -dump-tokens hello.m`:
 
-    int 'int'        [StartOfLine]  Loc=<hello.m:4:1>
-    identifier 'main'        [LeadingSpace] Loc=<hello.m:4:5>
-    l_paren '('             Loc=<hello.m:4:9>
-    r_paren ')'             Loc=<hello.m:4:10>
-    l_brace '{'      [LeadingSpace] Loc=<hello.m:4:12>
-    identifier 'NSLog'       [StartOfLine] [LeadingSpace]   Loc=<hello.m:5:3>
-    l_paren '('             Loc=<hello.m:5:8>
-    at '@'          Loc=<hello.m:5:9>
-    string_literal '"hello, %@"'            Loc=<hello.m:5:10>
-    comma ','               Loc=<hello.m:5:21>
-    at '@'   [LeadingSpace] Loc=<hello.m:5:23>
-    string_literal '"world"'                Loc=<hello.m:5:24>
-    r_paren ')'             Loc=<hello.m:5:31>
-    semi ';'                Loc=<hello.m:5:32>
-    return 'return'  [StartOfLine] [LeadingSpace]   Loc=<hello.m:6:3>
-    numeric_constant '0'     [LeadingSpace] Loc=<hello.m:6:10>
-    semi ';'                Loc=<hello.m:6:11>
-    r_brace '}'      [StartOfLine]  Loc=<hello.m:7:1>
-    eof ''          Loc=<hello.m:7:2>
+```
+int 'int'        [StartOfLine]  Loc=<hello.m:4:1>
+identifier 'main'        [LeadingSpace] Loc=<hello.m:4:5>
+l_paren '('             Loc=<hello.m:4:9>
+r_paren ')'             Loc=<hello.m:4:10>
+l_brace '{'      [LeadingSpace] Loc=<hello.m:4:12>
+identifier 'NSLog'       [StartOfLine] [LeadingSpace]   Loc=<hello.m:5:3>
+l_paren '('             Loc=<hello.m:5:8>
+at '@'          Loc=<hello.m:5:9>
+string_literal '"hello, %@"'            Loc=<hello.m:5:10>
+comma ','               Loc=<hello.m:5:21>
+at '@'   [LeadingSpace] Loc=<hello.m:5:23>
+string_literal '"world"'                Loc=<hello.m:5:24>
+r_paren ')'             Loc=<hello.m:5:31>
+semi ';'                Loc=<hello.m:5:32>
+return 'return'  [StartOfLine] [LeadingSpace]   Loc=<hello.m:6:3>
+numeric_constant '0'     [LeadingSpace] Loc=<hello.m:6:10>
+semi ';'                Loc=<hello.m:6:11>
+r_brace '}'      [StartOfLine]  Loc=<hello.m:7:1>
+eof ''          Loc=<hello.m:7:2>
+```
 
 We can see that each token consists of a piece of text and a source location. The source location is from before macro expansion, so that if something goes wrong, clang can point you to the right spot.
 
@@ -183,46 +215,49 @@ We can see that each token consists of a piece of text and a source location. Th
 
 Now the interesting part starts: our stream of tokens is parsed into an abstract syntax tree. Because Objective-C is a rather complicated language, parsing is not always easy. After parsing, a program is now available as an abstract syntax tree: a tree that represents the original program. Suppose we have a program `hello.m`:
 
-    #import <Foundation/Foundation.h>
-    
-    @interface World
-    - (void)hello;
-    @end
-    
-    @implementation World
-    - (void)hello {
-      NSLog(@"hello, world");
-    }
-    @end
-    
-    int main() {
-       World* world = [World new];
-       [world hello];
-    }
+```objc
+#import <Foundation/Foundation.h>
 
+@interface World
+- (void)hello;
+@end
+
+@implementation World
+- (void)hello {
+  NSLog(@"hello, world");
+}
+@end
+
+int main() {
+   World* world = [World new];
+   [world hello];
+}
+```
 
 When we issue `clang -Xclang -ast-dump -fsyntax-only hello.m`, we get the following result printed to our command line:
 
-    @interface World- (void) hello;
-    @end
-    @implementation World
-    - (void) hello (CompoundStmt 0x10372ded0 <hello.m:8:15, line:10:1>
-      (CallExpr 0x10372dea0 <line:9:3, col:24> 'void'
-        (ImplicitCastExpr 0x10372de88 <col:3> 'void (*)(NSString *, ...)' <FunctionToPointerDecay>
-          (DeclRefExpr 0x10372ddd8 <col:3> 'void (NSString *, ...)' Function 0x1023510d0 'NSLog' 'void (NSString *, ...)'))
-        (ObjCStringLiteral 0x10372de38 <col:9, col:10> 'NSString *'
-          (StringLiteral 0x10372de00 <col:10> 'char [13]' lvalue "hello, world"))))
-    
-    
-    @end
-    int main() (CompoundStmt 0x10372e118 <hello.m:13:12, line:16:1>
-      (DeclStmt 0x10372e090 <line:14:4, col:30>
-        0x10372dfe0 "World *world =
-          (ImplicitCastExpr 0x10372e078 <col:19, col:29> 'World *' <BitCast>
-            (ObjCMessageExpr 0x10372e048 <col:19, col:29> 'id':'id' selector=new class='World'))")
-      (ObjCMessageExpr 0x10372e0e8 <line:15:4, col:16> 'void' selector=hello
-        (ImplicitCastExpr 0x10372e0d0 <col:5> 'World *' <LValueToRValue>
-          (DeclRefExpr 0x10372e0a8 <col:5> 'World *' lvalue Var 0x10372dfe0 'world' 'World *'))))
+```
+@interface World- (void) hello;
+@end
+@implementation World
+- (void) hello (CompoundStmt 0x10372ded0 <hello.m:8:15, line:10:1>
+  (CallExpr 0x10372dea0 <line:9:3, col:24> 'void'
+    (ImplicitCastExpr 0x10372de88 <col:3> 'void (*)(NSString *, ...)' <FunctionToPointerDecay>
+      (DeclRefExpr 0x10372ddd8 <col:3> 'void (NSString *, ...)' Function 0x1023510d0 'NSLog' 'void (NSString *, ...)'))
+    (ObjCStringLiteral 0x10372de38 <col:9, col:10> 'NSString *'
+      (StringLiteral 0x10372de00 <col:10> 'char [13]' lvalue "hello, world"))))
+
+
+@end
+int main() (CompoundStmt 0x10372e118 <hello.m:13:12, line:16:1>
+  (DeclStmt 0x10372e090 <line:14:4, col:30>
+    0x10372dfe0 "World *world =
+      (ImplicitCastExpr 0x10372e078 <col:19, col:29> 'World *' <BitCast>
+        (ObjCMessageExpr 0x10372e048 <col:19, col:29> 'id':'id' selector=new class='World'))")
+  (ObjCMessageExpr 0x10372e0e8 <line:15:4, col:16> 'void' selector=hello
+    (ImplicitCastExpr 0x10372e0d0 <col:5> 'World *' <LValueToRValue>
+      (DeclRefExpr 0x10372e0a8 <col:5> 'World *' lvalue Var 0x10372dfe0 'world' 'World *'))))
+```
 
 Every node in the abstract syntax tree is annotated with the original source position, so that if there's any problem later on, clang can warn about your program and give you the correct location.
 
@@ -240,8 +275,10 @@ Also, clang does more advanced analyses where it walks through your program to m
 Any time you write code, clang is there to help you check that you didn't make any mistakes. One of the obvious things to check is if your program sends the correct messages to the correct objects and calls the correct functions on the correct values. If you have a plain `NSObject*`, you can't just send it the `hello` message, as clang will report an error.
 Also, if you create a class `Test` that subclasses `NSObject`, like this:
 
-    @interface Test : NSObject
-    @end
+```objc
+@interface Test : NSObject
+@end
+```
 
 And you then try to assign an object with a different type to that object, the compiler will help you and warn you that what you're doing is probably not correct.
 
@@ -249,7 +286,9 @@ There are two types of typing: dynamic and static typing. Dynamic typing means t
 
 With static typing, this is checked at compile time. When you use ARC, the compiler checks a lot more types at compile time, because it needs to know which objects it works with. For example, you can not write the following code anymore:
 
-    [myObject hello]
+```objc
+[myObject hello]
+```
 
 If there's no `hello` method defined anywhere in your program.
 
@@ -257,7 +296,9 @@ If there's no `hello` method defined anywhere in your program.
 
 There are a lot of other analyses that clang does for you. If you clone the clang repository and go to `lib/StaticAnalyzer/Checkers`, you'll see all the static checkers. For example, there's `ObjCUnusedIVarsChecker.cpp`, which checks if ivars are unused. Or there is `ObjCSelfInitChecker.cpp`, which checks if you called `[self initWith...]` or `[super init]` before you start using `self` inside your initializer. Some of the other checks happen in other parts of the compiler. For example, in line 2,534 of `lib/Sema/SemaExprObjC.cpp`, you can see the line that does the following:
 
-     Diag(SelLoc, diag::warn_arc_perform_selector_leaks);
+```objc
+ Diag(SelLoc, diag::warn_arc_perform_selector_leaks);
+```
 
 Which produces the dreaded "performSelector may cause a leak because its selector is unknown" warning.
 
@@ -265,68 +306,76 @@ Which produces the dreaded "performSelector may cause a leak because its selecto
 
 Now, once your code is fully tokenized, parsed, and analyzed by clang, it can generate the LLVM code for you. To see what happens, we can have a look again at the program `hello.c`:
 
-    #include <stdio.h>
-    
-    int main() {
-      printf("hello world\n");
-      return 0;
-    }
+```objc
+#include <stdio.h>
+
+int main() {
+  printf("hello world\n");
+  return 0;
+}
+```
 
 To compile this into LLVM IR we can issue the following command:
 
-    clang -O3 -S -emit-llvm hello.c -o hello.ll
+```
+clang -O3 -S -emit-llvm hello.c -o hello.ll
+```
 
 This generates a `hello.ll` file which gives us the following output:    
 
-    ; ModuleID = 'hello.c'
-    target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
-    target triple = "x86_64-apple-macosx10.9.0"
+```
+; ModuleID = 'hello.c'
+target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-apple-macosx10.9.0"
 
-    @str = private unnamed_addr constant [12 x i8] c"hello world\00"
+@str = private unnamed_addr constant [12 x i8] c"hello world\00"
 
-    ; Function Attrs: nounwind ssp uwtable
-    define i32 @main() #0 {
-      %puts = tail call i32 @puts(i8* getelementptr inbounds ([12 x i8]* @str, i64 0, i64 0))
-      ret i32 0
-    }
+; Function Attrs: nounwind ssp uwtable
+define i32 @main() #0 {
+  %puts = tail call i32 @puts(i8* getelementptr inbounds ([12 x i8]* @str, i64 0, i64 0))
+  ret i32 0
+}
 
-    ; Function Attrs: nounwind
-    declare i32 @puts(i8* nocapture readonly) #1
+; Function Attrs: nounwind
+declare i32 @puts(i8* nocapture readonly) #1
 
-    attributes #0 = { nounwind ssp uwtable "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "unsafe-fp-math"="false" "use-soft-float"="false" }
-    attributes #1 = { nounwind }
+attributes #0 = { nounwind ssp uwtable "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { nounwind }
 
-    !llvm.ident = !{!0}
+!llvm.ident = !{!0}
 
-    !0 = metadata !{metadata !"Apple LLVM version 6.0 (clang-600.0.41.2) (based on LLVM 3.5svn)"}
-
+!0 = metadata !{metadata !"Apple LLVM version 6.0 (clang-600.0.41.2) (based on LLVM 3.5svn)"}
+```
 
 You can see that the `main` function is only two lines: one to print the string and one to return `0`.
 
 It's also interesting to do the same thing for a very simple Objective-C program `five.m` that we compile and then view using `LLVM-dis < five.bc | less`:
 
-    #include <stdio.h>
-    #import <Foundation/Foundation.h>
-    
-    int main() {
-      NSLog(@"%@", [@5 description]);
-      return 0;
-    }
+```objc
+#include <stdio.h>
+#import <Foundation/Foundation.h>
+
+int main() {
+  NSLog(@"%@", [@5 description]);
+  return 0;
+}
+```
 
 There are a lot more things going on around, but here's the `main` function:
 
-    define i32 @main() #0 {
-      %1 = load %struct._class_t** @"\01L_OBJC_CLASSLIST_REFERENCES_$_", align 8
-      %2 = load i8** @"\01L_OBJC_SELECTOR_REFERENCES_", align 8, !invariant.load !5
-      %3 = bitcast %struct._class_t* %1 to i8*
-      %4 = tail call %0* bitcast (i8* (i8*, i8*, ...)* @objc_msgSend to %0* (i8*, i8*, i32)*)(i8* %3, i8* %2, i32 5)
-      %5 = load i8** @"\01L_OBJC_SELECTOR_REFERENCES_2", align 8, !invariant.load !5
-      %6 = bitcast %0* %4 to i8*
-      %7 = tail call %1* bitcast (i8* (i8*, i8*, ...)* @objc_msgSend to %1* (i8*, i8*)*)(i8* %6, i8* %5)
-      tail call void (i8*, ...)* @NSLog(i8* bitcast (%struct.NSConstantString* @_unnamed_cfstring_ to i8*), %1* %7)
-      ret i32 0
-    }
-
+```
+define i32 @main() #0 {
+  %1 = load %struct._class_t** @"\01L_OBJC_CLASSLIST_REFERENCES_$_", align 8
+  %2 = load i8** @"\01L_OBJC_SELECTOR_REFERENCES_", align 8, !invariant.load !5
+  %3 = bitcast %struct._class_t* %1 to i8*
+  %4 = tail call %0* bitcast (i8* (i8*, i8*, ...)* @objc_msgSend to %0* (i8*, i8*, i32)*)(i8* %3, i8* %2, i32 5)
+  %5 = load i8** @"\01L_OBJC_SELECTOR_REFERENCES_2", align 8, !invariant.load !5
+  %6 = bitcast %0* %4 to i8*
+  %7 = tail call %1* bitcast (i8* (i8*, i8*, ...)* @objc_msgSend to %1* (i8*, i8*)*)(i8* %6, i8* %5)
+  tail call void (i8*, ...)* @NSLog(i8* bitcast (%struct.NSConstantString* @_unnamed_cfstring_ to i8*), %1* %7)
+  ret i32 0
+}
+```
 
 The most important lines are line 4, which creates the `NSNumber` object, line
 `7`, which sends the `description` message to the number object, and line 8,
@@ -336,71 +385,81 @@ which logs the string returned from the `description` message.
 
 To see which kind of optimizations LLVM and clang can do, it's interesting to look at a slightly more complicated C example, the recursively defined `factorial` function:
 
-    #include <stdio.h>
-    
-    int factorial(int x) {
-       if (x > 1) return x * factorial(x-1);
-       else return 1;
-    }
-    
-    int main() {
-      printf("factorial 10: %d\n", factorial(10));
-    }
+```objc
+#include <stdio.h>
+
+int factorial(int x) {
+   if (x > 1) return x * factorial(x-1);
+   else return 1;
+}
+
+int main() {
+  printf("factorial 10: %d\n", factorial(10));
+}
+```
 
 To compile this without optimizations, run the following command:
 
-    clang -O0 -S -emit-llvm factorial.c -o factorial.ll
+```
+clang -O0 -S -emit-llvm factorial.c -o factorial.ll
+```
 
 The interesting part is to look at the code generated for the `factorial` function:
 
-    define i32 @factorial(i32 %x) #0 {
-      %1 = alloca i32, align 4
-      %2 = alloca i32, align 4
-      store i32 %x, i32* %2, align 4
-      %3 = load i32* %2, align 4
-      %4 = icmp sgt i32 %3, 1
-      br i1 %4, label %5, label %11
-    
-    ; <label>:5                                       ; preds = %0
-      %6 = load i32* %2, align 4
-      %7 = load i32* %2, align 4
-      %8 = sub nsw i32 %7, 1
-      %9 = call i32 @factorial(i32 %8)
-      %10 = mul nsw i32 %6, %9
-      store i32 %10, i32* %1
-      br label %12
-    
-    ; <label>:11                                      ; preds = %0
-      store i32 1, i32* %1
-      br label %12
-    
-    ; <label>:12                                      ; preds = %11, %5
-      %13 = load i32* %1
-      ret i32 %13
-    }
+```objc
+define i32 @factorial(i32 %x) #0 {
+  %1 = alloca i32, align 4
+  %2 = alloca i32, align 4
+  store i32 %x, i32* %2, align 4
+  %3 = load i32* %2, align 4
+  %4 = icmp sgt i32 %3, 1
+  br i1 %4, label %5, label %11
+
+; <label>:5                                       ; preds = %0
+  %6 = load i32* %2, align 4
+  %7 = load i32* %2, align 4
+  %8 = sub nsw i32 %7, 1
+  %9 = call i32 @factorial(i32 %8)
+  %10 = mul nsw i32 %6, %9
+  store i32 %10, i32* %1
+  br label %12
+
+; <label>:11                                      ; preds = %0
+  store i32 1, i32* %1
+  br label %12
+
+; <label>:12                                      ; preds = %11, %5
+  %13 = load i32* %1
+  ret i32 %13
+}
+```
 
 You can see that at the line marked with `%9`, it calls itself recursively. This is quite inefficient, because the stack increases with each recursive call. To turn on optimizations, we can pass the flag `-O3` to clang:
 
-    clang -O3 -S -emit-llvm factorial.c -o factorial.ll
+```
+clang -O3 -S -emit-llvm factorial.c -o factorial.ll
+```
 
 Now the code for the `factorial` function looks like this:
 
-    define i32 @factorial(i32 %x) #0 {
-      %1 = icmp sgt i32 %x, 1
-      br i1 %1, label %tailrecurse, label %tailrecurse._crit_edge
-    
-    tailrecurse:                                      ; preds = %tailrecurse, %0
-      %x.tr2 = phi i32 [ %2, %tailrecurse ], [ %x, %0 ]
-      %accumulator.tr1 = phi i32 [ %3, %tailrecurse ], [ 1, %0 ]
-      %2 = add nsw i32 %x.tr2, -1
-      %3 = mul nsw i32 %x.tr2, %accumulator.tr1
-      %4 = icmp sgt i32 %2, 1
-      br i1 %4, label %tailrecurse, label %tailrecurse._crit_edge
-    
-    tailrecurse._crit_edge:                           ; preds = %tailrecurse, %0
-      %accumulator.tr.lcssa = phi i32 [ 1, %0 ], [ %3, %tailrecurse ]
-      ret i32 %accumulator.tr.lcssa
-    }
+```
+define i32 @factorial(i32 %x) #0 {
+  %1 = icmp sgt i32 %x, 1
+  br i1 %1, label %tailrecurse, label %tailrecurse._crit_edge
+
+tailrecurse:                                      ; preds = %tailrecurse, %0
+  %x.tr2 = phi i32 [ %2, %tailrecurse ], [ %x, %0 ]
+  %accumulator.tr1 = phi i32 [ %3, %tailrecurse ], [ 1, %0 ]
+  %2 = add nsw i32 %x.tr2, -1
+  %3 = mul nsw i32 %x.tr2, %accumulator.tr1
+  %4 = icmp sgt i32 %2, 1
+  br i1 %4, label %tailrecurse, label %tailrecurse._crit_edge
+
+tailrecurse._crit_edge:                           ; preds = %tailrecurse, %0
+  %accumulator.tr.lcssa = phi i32 [ 1, %0 ], [ %3, %tailrecurse ]
+  ret i32 %accumulator.tr.lcssa
+}
+```
 
 Even though our function was not written in a [tail-recursive](http://en.wikipedia.org/wiki/Tail_call) way, clang can still optimize it and now it's just one function with a loop. There are a lot more optimizations that clang will do on your code. A good example of what gcc can do is at [ridiculousfish.com](http://ridiculousfish.com/blog/posts/will-it-optimize.html).
 
@@ -430,38 +489,42 @@ Next, go to your LLVM directory and do a `cd ~/llvm/tools/clang/tools/`. In this
 Our use case is as follows: suppose we have an `Observer` class, which
 looks like this:
 
-    @interface Observer
-    + (instancetype)observerWithTarget:(id)target action:(SEL)selector;
-    @end
+```objc
+@interface Observer
++ (instancetype)observerWithTarget:(id)target action:(SEL)selector;
+@end
+```
 
 Now, we want to check whenever this class is used that the `action` is
 a method that exists on the `target` object. We can write a quick C++
 function that does this (be warned, this is the first C++ I ever wrote,
 so it's definitely not idiomatic):
 
-    virtual bool VisitObjCMessageExpr(ObjCMessageExpr *E) {
-      if (E->getReceiverKind() == ObjCMessageExpr::Class) {
-        QualType ReceiverType = E->getClassReceiver();
-        Selector Sel = E->getSelector();
-        string TypeName = ReceiverType.getAsString();
-        string SelName = Sel.getAsString();
-        if (TypeName == "Observer" && SelName == "observerWithTarget:action:") {
-          Expr *Receiver = E->getArg(0)->IgnoreParenCasts();
-          ObjCSelectorExpr* SelExpr = cast<ObjCSelectorExpr>(E->getArg(1)->IgnoreParenCasts());
-          Selector Sel = SelExpr->getSelector();
-          if (const ObjCObjectPointerType *OT = Receiver->getType()->getAs<ObjCObjectPointerType>()) {
-            ObjCInterfaceDecl *decl = OT->getInterfaceDecl();
-            if (! decl->lookupInstanceMethod(Sel)) {
-              errs() << "Warning: class " << TypeName << " does not implement selector " << Sel.getAsString() << "\n";
-              SourceLocation Loc = E->getExprLoc();
-              PresumedLoc PLoc = astContext->getSourceManager().getPresumedLoc(Loc);
-              errs() << "in " << PLoc.getFilename() << " <" << PLoc.getLine() << ":" << PLoc.getColumn() << ">\n";
-            }
-          }
+```
+virtual bool VisitObjCMessageExpr(ObjCMessageExpr *E) {
+  if (E->getReceiverKind() == ObjCMessageExpr::Class) {
+    QualType ReceiverType = E->getClassReceiver();
+    Selector Sel = E->getSelector();
+    string TypeName = ReceiverType.getAsString();
+    string SelName = Sel.getAsString();
+    if (TypeName == "Observer" && SelName == "observerWithTarget:action:") {
+      Expr *Receiver = E->getArg(0)->IgnoreParenCasts();
+      ObjCSelectorExpr* SelExpr = cast<ObjCSelectorExpr>(E->getArg(1)->IgnoreParenCasts());
+      Selector Sel = SelExpr->getSelector();
+      if (const ObjCObjectPointerType *OT = Receiver->getType()->getAs<ObjCObjectPointerType>()) {
+        ObjCInterfaceDecl *decl = OT->getInterfaceDecl();
+        if (! decl->lookupInstanceMethod(Sel)) {
+          errs() << "Warning: class " << TypeName << " does not implement selector " << Sel.getAsString() << "\n";
+          SourceLocation Loc = E->getExprLoc();
+          PresumedLoc PLoc = astContext->getSourceManager().getPresumedLoc(Loc);
+          errs() << "in " << PLoc.getFilename() << " <" << PLoc.getLine() << ":" << PLoc.getColumn() << ">\n";
         }
       }
-      return true;
     }
+  }
+  return true;
+}
+```
 
 This method starts by looking for message expressions that have
 `Observer` as the receiver,  and `observerWithTarget:action:` as the

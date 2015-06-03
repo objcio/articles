@@ -52,40 +52,43 @@ Using two independent Core Data stacks is the more simple and straightforward so
 
 If we want to ship a pre-populated SQLite file in the application bundle, we have to detect the first launch of a newly updated application and copy the database file out of the bundle into its target directory:
 
-    NSFileManager* fileManager = [NSFileManager defaultManager];
-    NSError *error;
+```objc
+NSFileManager* fileManager = [NSFileManager defaultManager];
+NSError *error;
 
-    if([fileManager fileExistsAtPath:self.storeURL.path]) {
-        NSURL *storeDirectory = [self.storeURL URLByDeletingLastPathComponent];
-        NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtURL:storeDirectory
-                                              includingPropertiesForKeys:nil
-                                                                 options:0
-                                                            errorHandler:NULL];
-        NSString *storeName = [self.storeURL.lastPathComponent stringByDeletingPathExtension];
-        for (NSURL *url in enumerator) {
-            if (![url.lastPathComponent hasPrefix:storeName]) continue;
-            [fileManager removeItemAtURL:url error:&error];
-        }
-        // handle error
+if([fileManager fileExistsAtPath:self.storeURL.path]) {
+    NSURL *storeDirectory = [self.storeURL URLByDeletingLastPathComponent];
+    NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtURL:storeDirectory
+                                          includingPropertiesForKeys:nil
+                                                             options:0
+                                                        errorHandler:NULL];
+    NSString *storeName = [self.storeURL.lastPathComponent stringByDeletingPathExtension];
+    for (NSURL *url in enumerator) {
+        if (![url.lastPathComponent hasPrefix:storeName]) continue;
+        [fileManager removeItemAtURL:url error:&error];
     }
+    // handle error
+}
 
-    NSString* bundleDbPath = [[NSBundle mainBundle] pathForResource:@"seed" ofType:@"sqlite"];
-    [fileManager copyItemAtPath:bundleDbPath toPath:self.storeURL.path error:&error];
+NSString* bundleDbPath = [[NSBundle mainBundle] pathForResource:@"seed" ofType:@"sqlite"];
+[fileManager copyItemAtPath:bundleDbPath toPath:self.storeURL.path error:&error];
+```
 
-    
 Notice that we're first deleting the previous database files. This is not as straightforward as one may think though, because there can be different auxiliary files (e.g. journaling or write-ahead logging files) next to the main `.sqlite` file. Therefore we have to enumerate over the items in the directory and delete all files that match the store file name without its extension.
 
 However, we also need a way to make sure that we only do this once. An obvious solution would be to delete the seed database from the bundle. However, while this works on the simulator, it will fail as soon as you try this on a real device because of restricted permissions. There are many options to solve this problem though, like setting a key in the user defaults which contains information about the latest seed data version imported:
 
-    NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
-    NSString* bundleVersion = [infoDictionary objectForKey:(NSString *)kCFBundleVersionKey];
-    NSString *seedVersion = [[NSUserDefaults standardUserDefaults] objectForKey:@"SeedVersion"];
-    if (![seedVersion isEqualToString:bundleVersion]) {
-        // Copy the seed database
-    }
+```objc
+NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
+NSString* bundleVersion = [infoDictionary objectForKey:(NSString *)kCFBundleVersionKey];
+NSString *seedVersion = [[NSUserDefaults standardUserDefaults] objectForKey:@"SeedVersion"];
+if (![seedVersion isEqualToString:bundleVersion]) {
+    // Copy the seed database
+}
 
-    // ... after the import succeeded
-    [[NSUserDefaults standardUserDefaults] setObject:bundleVersion forKey:@"SeedVersion"];
+// ... after the import succeeded
+[[NSUserDefaults standardUserDefaults] setObject:bundleVersion forKey:@"SeedVersion"];
+```
 
 Alternatively for example, we could also copy the existing database file to a path including the seed version and detect its presence to avoid doing the same import twice. There are many practicable solutions which you can choose from, dependent on what makes the most sense for your case.
 
@@ -138,22 +141,26 @@ A similar problem often arises when establishing relationships between the newly
 
 Resolving relationships in batches allows us to greatly reduce the number of fetch requests required by fetching many related objects at once. Don't worry about potentially long predicates like:
 
-    [NSPredicate predicateWithFormat:@"identifier IN %@", identifiersOfRelatedObjects];
-    
+```objc
+[NSPredicate predicateWithFormat:@"identifier IN %@", identifiersOfRelatedObjects];
+```
+
 Resolving a predicate with many identifiers in the `IN (...)` clause is always way more efficient than going to disk for each object independently. 
 
 However, there is also a way to avoid fetch requests altogether (at least if you only need to establish relationships between newly imported objects). If you cache the objectIDs of all imported objects (which is not a lot of data in most cases really), you can use them later to retrieve faults for related objects using `objectWithID:`.
 
-    // after a batch of objects has been imported and saved
-    for (MyManagedObject *object in importedObjects) {
-        objectIDCache[object.identifier] = object.objectID;
-    }
-    
-    // ... later during resolving relationships 
-    NSManagedObjectID objectID = objectIDCache[object.foreignKey];
-    MyManagedObject *relatedObject = [context objectWithID:objectId];
-    object.toOneRelation = relatedObject;
-    
+```objc
+// after a batch of objects has been imported and saved
+for (MyManagedObject *object in importedObjects) {
+    objectIDCache[object.identifier] = object.objectID;
+}
+
+// ... later during resolving relationships 
+NSManagedObjectID objectID = objectIDCache[object.foreignKey];
+MyManagedObject *relatedObject = [context objectWithID:objectId];
+object.toOneRelation = relatedObject;
+```
+
 Note that this example assumes that the `identifier` property is unique across all entity types, otherwise we would have to account for duplicate identifiers for different types in the way we cache the object IDs. 
 
 

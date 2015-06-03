@@ -30,37 +30,39 @@ First Steps
 
 The first thing you need to learn is how to run an AppleScript from your own app. Typically, the hardest part of this is writing AppleScript code. Behold:
 
-	on chockify(inputString)
-		set resultString to ""
-	
-		repeat with inputStringCharacter in inputString
-			set asciiValue to (ASCII number inputStringCharacter)
-			if (asciiValue > 96 and asciiValue < 123) then
-				set resultString to resultString & (ASCII character (asciiValue - 32))
-			else
-				if ((asciiValue > 64 and asciiValue < 91) or (asciiValue = 32)) then
-					set resultString to resultString & inputStringCharacter
-				else
-					if (asciiValue > 47 and asciiValue < 58) then
-						set numberStrings to {"ZERO", "ONE", "TWO", "THREE", "FOR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"}
-						set itemIndex to asciiValue - 47
-						set numberString to item itemIndex of numberStrings
-						set resultString to resultString & numberString & " "
-					else
-						if (asciiValue = 33) then
-							set resultString to resultString & " DUH"
-						else
-							if (asciiValue = 63) then
-								set resultString to resultString & " IF YOU KNOW WHAT I MEAN"
-							end if
-						end if
-					end if
-				end if
-			end if
-		end repeat
-	
-		resultString
-	end chockify
+```
+on chockify(inputString)
+    set resultString to ""
+
+    repeat with inputStringCharacter in inputString
+        set asciiValue to (ASCII number inputStringCharacter)
+        if (asciiValue > 96 and asciiValue < 123) then
+            set resultString to resultString & (ASCII character (asciiValue - 32))
+        else
+            if ((asciiValue > 64 and asciiValue < 91) or (asciiValue = 32)) then
+                set resultString to resultString & inputStringCharacter
+            else
+                if (asciiValue > 47 and asciiValue < 58) then
+                    set numberStrings to {"ZERO", "ONE", "TWO", "THREE", "FOR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"}
+                    set itemIndex to asciiValue - 47
+                    set numberString to item itemIndex of numberStrings
+                    set resultString to resultString & numberString & " "
+                else
+                    if (asciiValue = 33) then
+                        set resultString to resultString & " DUH"
+                    else
+                        if (asciiValue = 63) then
+                            set resultString to resultString & " IF YOU KNOW WHAT I MEAN"
+                        end if
+                    end if
+                end if
+            end if
+        end if
+    end repeat
+
+    resultString
+end chockify
+```
 
 In my opinion, AppleScript's greatest strength is not its syntax. Nor is its ability to process strings, even when it's making them AWESOME DUH
 
@@ -68,72 +70,80 @@ When developing scripts like this, I constantly refer to the [AppleScript Langua
 
 Once you have your script written and tested, you can move back to the comfortable environs of Objective-C. And the first line of code you'll write is a trip back in time to the Carbon era:
 
-	#import <Carbon/Carbon.h> // for AppleScript definitions
+```objc
+#import <Carbon/Carbon.h> // for AppleScript definitions
+```
 
 Don't worry; you're not going to do anything crazy like add a framework to the project. You just need Carbon.h because it has a list of all the AppleEvent definitions. Remember, this code has been around for more than 20 years!
 
 Once you have the definitions, you can create an event descriptor. This is a chunk of data that is passed both to and from your script. At this point, you can think of it as an encapsulation of a target that will execute the event, a function to call, and a list of parameters for that function. Here is one for the "chockify" function above, using an `NSString` as a parameter:
 
-	- (NSAppleEventDescriptor *)chockifyEventDescriptorWithString:(NSString *)inputString
-	{
-		// parameter
-		NSAppleEventDescriptor *parameter = [NSAppleEventDescriptor descriptorWithString:inputString];
-		NSAppleEventDescriptor *parameters = [NSAppleEventDescriptor listDescriptor];
-		[parameters insertDescriptor:parameter atIndex:1]; // you have to love a language with indices that start at 1 instead of 0
-	
-		// target
-		ProcessSerialNumber psn = {0, kCurrentProcess};
-		NSAppleEventDescriptor *target = [NSAppleEventDescriptor descriptorWithDescriptorType:typeProcessSerialNumber bytes:&psn length:sizeof(ProcessSerialNumber)];
-	
-		// function
-		NSAppleEventDescriptor *function = [NSAppleEventDescriptor descriptorWithString:@"chockify"];
-	
-		// event
-		NSAppleEventDescriptor *event = [NSAppleEventDescriptor appleEventWithEventClass:kASAppleScriptSuite eventID:kASSubroutineEvent targetDescriptor:target returnID:kAutoGenerateReturnID transactionID:kAnyTransactionID];
-		[event setParamDescriptor:function forKeyword:keyASSubroutineName];
-		[event setParamDescriptor:parameters forKeyword:keyDirectObject];
-	
-		return event;
-	}
+```objc
+- (NSAppleEventDescriptor *)chockifyEventDescriptorWithString:(NSString *)inputString
+{
+    // parameter
+    NSAppleEventDescriptor *parameter = [NSAppleEventDescriptor descriptorWithString:inputString];
+    NSAppleEventDescriptor *parameters = [NSAppleEventDescriptor listDescriptor];
+    [parameters insertDescriptor:parameter atIndex:1]; // you have to love a language with indices that start at 1 instead of 0
+
+    // target
+    ProcessSerialNumber psn = {0, kCurrentProcess};
+    NSAppleEventDescriptor *target = [NSAppleEventDescriptor descriptorWithDescriptorType:typeProcessSerialNumber bytes:&psn length:sizeof(ProcessSerialNumber)];
+
+    // function
+    NSAppleEventDescriptor *function = [NSAppleEventDescriptor descriptorWithString:@"chockify"];
+
+    // event
+    NSAppleEventDescriptor *event = [NSAppleEventDescriptor appleEventWithEventClass:kASAppleScriptSuite eventID:kASSubroutineEvent targetDescriptor:target returnID:kAutoGenerateReturnID transactionID:kAnyTransactionID];
+    [event setParamDescriptor:function forKeyword:keyASSubroutineName];
+    [event setParamDescriptor:parameters forKeyword:keyDirectObject];
+
+    return event;
+}
+```
 
 _Note:_ This code is available on [GitHub](https://github.com/objcio/issue-14-sandbox-scripting). The `Automation.scpt` file contains the chockify function and all the other scripts used in this tutorial. The Objective-C code is all in `AppDelegate.m`.
 
 Now that you have an event descriptor that tells AppleScript what you want to do, you need to give it somewhere to do it. That means loading an AppleScript from your application bundle: 
 
-	NSURL *URL = [[NSBundle mainBundle] URLForResource:@"Automation" withExtension:@"scpt"];
-	if (URL) {
-		NSAppleScript *appleScript = [[NSAppleScript alloc] initWithContentsOfURL:URL error:NULL];
-	
-		NSAppleEventDescriptor *event = [self chockifyEventDescriptorWithString:[self.chockifyInputTextField stringValue]];
-		NSDictionary *error = nil;
-		NSAppleEventDescriptor *resultEventDescriptor = [appleScript executeAppleEvent:event error:&error];
-		if (! resultEventDescriptor) {
-			NSLog(@"%s AppleScript run error = %@", __PRETTY_FUNCTION__, error);
-		}
-		else {
-			NSString *string = [self stringForResultEventDescriptor:resultEventDescriptor];
-			[self updateChockifyTextFieldWithString:string];
-		}
-	}
+```objc
+NSURL *URL = [[NSBundle mainBundle] URLForResource:@"Automation" withExtension:@"scpt"];
+if (URL) {
+    NSAppleScript *appleScript = [[NSAppleScript alloc] initWithContentsOfURL:URL error:NULL];
+
+    NSAppleEventDescriptor *event = [self chockifyEventDescriptorWithString:[self.chockifyInputTextField stringValue]];
+    NSDictionary *error = nil;
+    NSAppleEventDescriptor *resultEventDescriptor = [appleScript executeAppleEvent:event error:&error];
+    if (! resultEventDescriptor) {
+        NSLog(@"%s AppleScript run error = %@", __PRETTY_FUNCTION__, error);
+    }
+    else {
+        NSString *string = [self stringForResultEventDescriptor:resultEventDescriptor];
+        [self updateChockifyTextFieldWithString:string];
+    }
+}
+```
 
 An instance of `NSAppleScript` is created using a URL from the application bundle. That script, in turn, is used with the chockify event descriptor created above. If everything goes according to plan, you end up with another event descriptor. If not, you get a dictionary back that contains information describing what went wrong. Although the pattern is similar to many other Foundation classes, the error _is not_ an instance of `NSError`.
 
 All that's left to do now is extract the information you want from the descriptor:
 
-	- (NSString *)stringForResultEventDescriptor:(NSAppleEventDescriptor *)resultEventDescriptor
-	{
-		NSString *result = nil;
-	
-		if (resultEventDescriptor) {
-			if ([resultEventDescriptor descriptorType] != kAENullEvent) {
-				if ([resultEventDescriptor descriptorType] == kTXNUnicodeTextData) {
-					result = [resultEventDescriptor stringValue];
-				}
-			}
-		}
-	
-		return result;
-	}
+```objc
+- (NSString *)stringForResultEventDescriptor:(NSAppleEventDescriptor *)resultEventDescriptor
+{
+    NSString *result = nil;
+
+    if (resultEventDescriptor) {
+        if ([resultEventDescriptor descriptorType] != kAENullEvent) {
+            if ([resultEventDescriptor descriptorType] == kTXNUnicodeTextData) {
+                result = [resultEventDescriptor stringValue];
+            }
+        }
+    }
+
+    return result;
+}
+```
 
 Your InputString just got a facelift, and you've seen everything you need to run AppleScripts from your app. Sort of.
 
@@ -145,19 +155,23 @@ There was a time when you could send AppleEvents to any application, not just to
 
 Say you wanted to know what URL was loaded into the foremost window of Safari. All you needed to do was `tell application "Safari"` what to do:
 
-	on safariURL()
-		tell application "Safari" to return URL of front document
-	end safariURL
+```
+on safariURL()
+    tell application "Safari" to return URL of front document
+end safariURL
+```
 
 These days, all doing that is likely to produce is the following in your Debug Console:
 
-	AppleScript run error = {
-		NSAppleScriptErrorAppName = Safari;
-		NSAppleScriptErrorBriefMessage = "Application isn\U2019t running.";
-		NSAppleScriptErrorMessage = "Safari got an error: Application isn\U2019t running.";
-		NSAppleScriptErrorNumber = "-600";
-		NSAppleScriptErrorRange = "NSRange: {0, 0}";
-	}
+```
+AppleScript run error = {
+    NSAppleScriptErrorAppName = Safari;
+    NSAppleScriptErrorBriefMessage = "Application isn\U2019t running.";
+    NSAppleScriptErrorMessage = "Safari got an error: Application isn\U2019t running.";
+    NSAppleScriptErrorNumber = "-600";
+    NSAppleScriptErrorRange = "NSRange: {0, 0}";
+}
+```
 
 Even though Safari is running. What. The.
 
@@ -187,9 +201,11 @@ This presents a challenge: the folder is in User > Library > Application Scripts
 
 One approach to this problem is to implement some code that opens this hidden folder for your customer. For example:
 
-	NSError *error;
-	NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
-	[[NSWorkspace sharedWorkspace] openURL:directoryURL];
+```objc
+NSError *error;
+NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
+[[NSWorkspace sharedWorkspace] openURL:directoryURL];
+```
 
 That's a great solution for scripts written by a user. The user can then open that folder using a control in your app and edit scripts in any way seen fit.
 
@@ -197,44 +213,46 @@ But sometimes you'll want to help the end user install scripts that you've writt
 
 The solution here is to get permission to write into that folder. In Xcode, you need to update your app's Capabilities to "User Selected File to Read/Write," under App Sandbox > File Access. Again, user intent is the guiding factor here, since you're being given permission to add scripts to the folder:
 
-	NSError *error;
-	NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
-	NSOpenPanel *openPanel = [NSOpenPanel openPanel];
-	[openPanel setDirectoryURL:directoryURL];
-	[openPanel setCanChooseDirectories:YES];
-	[openPanel setCanChooseFiles:NO];
-	[openPanel setPrompt:@"Select Script Folder"];
-	[openPanel setMessage:@"Please select the User > Library > Application Scripts > com.iconfactory.Scriptinator folder"];
-	[openPanel beginWithCompletionHandler:^(NSInteger result) {
-		if (result == NSFileHandlingPanelOKButton) {
-			NSURL *selectedURL = [openPanel URL];
-			if ([selectedURL isEqual:directoryURL]) {
-				NSURL *destinationURL = [selectedURL URLByAppendingPathComponent:@"Automation.scpt"];
-				NSFileManager *fileManager = [NSFileManager defaultManager];
-				NSURL *sourceURL = [[NSBundle mainBundle] URLForResource:@"Automation" withExtension:@"scpt"];
-				NSError *error;
-				BOOL success = [fileManager copyItemAtURL:sourceURL toURL:destinationURL error:&error];
-				if (success) {
-					NSAlert *alert = [NSAlert alertWithMessageText:@"Script Installed" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"The Automation script was installed succcessfully."];
-					[alert runModal];
-				}
-				else {
-					NSLog(@"%s error = %@", __PRETTY_FUNCTION__, error);
-					if ([error code] == NSFileWriteFileExistsError) {
-						// this is where you could update the script, by removing the old one and copying in a new one
-					}
-					else {
-						// the item couldn't be copied, try again
-						[self performSelector:@selector(installAutomationScript:) withObject:self afterDelay:0.0];
-					}
-				}
-			}
-			else {
-				// try again because the user changed the folder path
-				[self performSelector:@selector(installAutomationScript:) withObject:self afterDelay:0.0];
-			}
-		}
-	}];
+```objc
+NSError *error;
+NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
+NSOpenPanel *openPanel = [NSOpenPanel openPanel];
+[openPanel setDirectoryURL:directoryURL];
+[openPanel setCanChooseDirectories:YES];
+[openPanel setCanChooseFiles:NO];
+[openPanel setPrompt:@"Select Script Folder"];
+[openPanel setMessage:@"Please select the User > Library > Application Scripts > com.iconfactory.Scriptinator folder"];
+[openPanel beginWithCompletionHandler:^(NSInteger result) {
+    if (result == NSFileHandlingPanelOKButton) {
+        NSURL *selectedURL = [openPanel URL];
+        if ([selectedURL isEqual:directoryURL]) {
+            NSURL *destinationURL = [selectedURL URLByAppendingPathComponent:@"Automation.scpt"];
+            NSFileManager *fileManager = [NSFileManager defaultManager];
+            NSURL *sourceURL = [[NSBundle mainBundle] URLForResource:@"Automation" withExtension:@"scpt"];
+            NSError *error;
+            BOOL success = [fileManager copyItemAtURL:sourceURL toURL:destinationURL error:&error];
+            if (success) {
+                NSAlert *alert = [NSAlert alertWithMessageText:@"Script Installed" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"The Automation script was installed succcessfully."];
+                [alert runModal];
+            }
+            else {
+                NSLog(@"%s error = %@", __PRETTY_FUNCTION__, error);
+                if ([error code] == NSFileWriteFileExistsError) {
+                    // this is where you could update the script, by removing the old one and copying in a new one
+                }
+                else {
+                    // the item couldn't be copied, try again
+                    [self performSelector:@selector(installAutomationScript:) withObject:self afterDelay:0.0];
+                }
+            }
+        }
+        else {
+            // try again because the user changed the folder path
+            [self performSelector:@selector(installAutomationScript:) withObject:self afterDelay:0.0];
+        }
+    }
+}];
+```
 
 That `Automation.scpt` file that we used to run from inside the application bundle is now exposed in the regular file system.
 
@@ -252,46 +270,50 @@ In the code below, the event descriptors that we created above have not changed.
 
 Presumably, you'll be using these script tasks frequently. The documentation warns that `NSUserAppleScriptTask` "should be invoked no more than once for a given instance of the class," so it's a good idea to write a factory method that creates these tasks as needed:
 
-	- (NSUserAppleScriptTask *)automationScriptTask
-	{
-		NSUserAppleScriptTask *result = nil;
-	
-		NSError *error;
-		NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
-		if (directoryURL) {
-			NSURL *scriptURL = [directoryURL URLByAppendingPathComponent:@"Automation.scpt"];
-			result = [[NSUserAppleScriptTask alloc] initWithURL:scriptURL error:&error];
-			if (! result) {
-				NSLog(@"%s no AppleScript task error = %@", __PRETTY_FUNCTION__, error);
-			}
-		}
-		else {
-			// NOTE: if you're not running in a sandbox, the directory URL will always be nil
-			NSLog(@"%s no Application Scripts folder error = %@", __PRETTY_FUNCTION__, error);
-		}
+```objc
+- (NSUserAppleScriptTask *)automationScriptTask
+{
+    NSUserAppleScriptTask *result = nil;
 
-		return result;
-	}
+    NSError *error;
+    NSURL *directoryURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationScriptsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
+    if (directoryURL) {
+        NSURL *scriptURL = [directoryURL URLByAppendingPathComponent:@"Automation.scpt"];
+        result = [[NSUserAppleScriptTask alloc] initWithURL:scriptURL error:&error];
+        if (! result) {
+            NSLog(@"%s no AppleScript task error = %@", __PRETTY_FUNCTION__, error);
+        }
+    }
+    else {
+        // NOTE: if you're not running in a sandbox, the directory URL will always be nil
+        NSLog(@"%s no Application Scripts folder error = %@", __PRETTY_FUNCTION__, error);
+    }
+
+    return result;
+}
+```
 
 If you're writing a Mac app that has both a sandboxed and non-sandboxed version, you'll need to be careful getting the `directoryURL`. The `NSApplicationScriptsDirectory` is only available when sandboxed.
 
 After creating the script task, you execute it with an AppleEvent and provide a completion handler:
 
-	NSUserAppleScriptTask *automationScriptTask = [self automationScriptTask];
-	if (automationScriptTask) {
-		NSAppleEventDescriptor *event = [self safariURLEventDescriptor];
-		[automationScriptTask executeWithAppleEvent:event completionHandler:^(NSAppleEventDescriptor *resultEventDescriptor, NSError *error) {
-			if (! resultEventDescriptor) {
-				NSLog(@"%s AppleScript task error = %@", __PRETTY_FUNCTION__, error);
-			}
-			else {
-				NSURL *URL = [self URLForResultEventDescriptor:resultEventDescriptor];
-				// NOTE: The completion handler for the script is not run on the main thread. Before you update any UI, you'll need to get
-				// on that thread by using libdispatch or performing a selector.
-				[self performSelectorOnMainThread:@selector(updateURLTextFieldWithURL:) withObject:URL waitUntilDone:NO];
-			}
-		}];
-	}
+```objc
+NSUserAppleScriptTask *automationScriptTask = [self automationScriptTask];
+if (automationScriptTask) {
+    NSAppleEventDescriptor *event = [self safariURLEventDescriptor];
+    [automationScriptTask executeWithAppleEvent:event completionHandler:^(NSAppleEventDescriptor *resultEventDescriptor, NSError *error) {
+        if (! resultEventDescriptor) {
+            NSLog(@"%s AppleScript task error = %@", __PRETTY_FUNCTION__, error);
+        }
+        else {
+            NSURL *URL = [self URLForResultEventDescriptor:resultEventDescriptor];
+            // NOTE: The completion handler for the script is not run on the main thread. Before you update any UI, you'll need to get
+            // on that thread by using libdispatch or performing a selector.
+            [self performSelectorOnMainThread:@selector(updateURLTextFieldWithURL:) withObject:URL waitUntilDone:NO];
+        }
+    }];
+}
+```
 
 For scripts that a user has written, the user may expect your app to simply 'run' the script (and not call a function specified in an event descriptor). In this case, you'll pass `nil` for the event and the script will behave as if the user double-clicked on it in the Finder.
 
@@ -321,26 +343,30 @@ However, there are cases where it can get tricky if you're executing tasks with 
 
 A simple way to get behavior that mimics the old way of doing things is to use a semaphore that makes sure only one task is running at a time. In your class or application initialization, create the semaphore using `libdispatch`:
 
-	self.appleScriptTaskSemaphore = dispatch_semaphore_create(1);
+```objc
+self.appleScriptTaskSemaphore = dispatch_semaphore_create(1);
+```
 
 Then simply wait on that semaphore before initiating the script task. When the task completes, signal on that same semaphore:
 
-	// wait for any previous tasks to complete before starting a new one — remember that you're blocking the main thread here!
-	dispatch_semaphore_wait(self.appleScriptTaskSemaphore, DISPATCH_TIME_FOREVER);
-	
-	// run the script task
-	NSAppleEventDescriptor *event = [self openNetworkPreferencesEventDescriptor];
-	[automationScriptTask executeWithAppleEvent:event completionHandler:^(NSAppleEventDescriptor *resultEventDescriptor, NSError *error) {
-		if (! resultEventDescriptor) {
-			NSLog(@"%s AppleScript task error = %@", __PRETTY_FUNCTION__, error);
-		}
-		else {
-			[self performSelectorOnMainThread:@selector(showNetworkAlert) withObject:nil waitUntilDone:NO];
-		}
-		
-		// the task has completed, so let any pending tasks proceed
-		dispatch_semaphore_signal(self.appleScriptTaskSemaphore);
-	}];
+```objc
+// wait for any previous tasks to complete before starting a new one — remember that you're blocking the main thread here!
+dispatch_semaphore_wait(self.appleScriptTaskSemaphore, DISPATCH_TIME_FOREVER);
+
+// run the script task
+NSAppleEventDescriptor *event = [self openNetworkPreferencesEventDescriptor];
+[automationScriptTask executeWithAppleEvent:event completionHandler:^(NSAppleEventDescriptor *resultEventDescriptor, NSError *error) {
+    if (! resultEventDescriptor) {
+        NSLog(@"%s AppleScript task error = %@", __PRETTY_FUNCTION__, error);
+    }
+    else {
+        [self performSelectorOnMainThread:@selector(showNetworkAlert) withObject:nil waitUntilDone:NO];
+    }
+    
+    // the task has completed, so let any pending tasks proceed
+    dispatch_semaphore_signal(self.appleScriptTaskSemaphore);
+}];
+```
 
 Again, don't do this unless you have a really good reason.
 
@@ -350,12 +376,14 @@ What Can You Script?
 
 In the last example, the Network pane of System Preferences was opened with the following AppleScript code:
 
-	tell application "System Preferences"
-		launch
-		activate
-		
-		reveal pane id "com.apple.preference.network"
-	end tell
+```
+tell application "System Preferences"
+    launch
+    activate
+    
+    reveal pane id "com.apple.preference.network"
+end tell
+```
 
 Pretty cool, but how the heck do you know what the IDs of the various panes are? How would you open the Accessibility view of the Security & Privacy pane instead of the Network pane?
 
@@ -372,41 +400,55 @@ When you look at "application," you'll see two things: elements and properties. 
 
 So an application contains panes. That sounds promising. In a new Script Editor window, create a simple script to show all the pane objects:
 
-	tell application "System Preferences"
-		panes
-	end tell
+```
+tell application "System Preferences"
+    panes
+end tell
+```
 
 Our goal is to open the Accessibility view of the security pane, so look through the Result in the output until you find something useful like:
 
-	pane id "com.apple.preference.security" of application "System Preferences"
+```
+pane id "com.apple.preference.security" of application "System Preferences"
+```
 
 Learn more about it by looking at its "localized name" property:
 
-	tell application "System Preferences"
-		localized name of pane id "com.apple.preference.security"
-	end tell
+```
+tell application "System Preferences"
+    localized name of pane id "com.apple.preference.security"
+end tell
+```
 
 Security & Privacy. Bingo! Now try writing another script that uses that "pane id" along with the "reveal" command we saw earlier:
 
-	tell application "System Preferences"
-		reveal pane id "com.apple.preference.security"
-	end tell
+```
+tell application "System Preferences"
+    reveal pane id "com.apple.preference.security"
+end tell
+```
 
 System Preferences just showed you the pane. Now let's figure out how to get to the right view. Start by querying for the only elements contained in a pane, the anchor objects:
 
-	tell application "System Preferences"
-		anchors of pane "com.apple.preference.security"
-	end tell
+```
+tell application "System Preferences"
+    anchors of pane "com.apple.preference.security"
+end tell
+```
 
 Lo and behold, we see:
 
-	anchor "Privacy_Accessibility" of pane id "com.apple.preference.security" of application "System Preferences"
+```
+anchor "Privacy_Accessibility" of pane id "com.apple.preference.security" of application "System Preferences"
+```
 
 That's what we want. It also shows the hierarchy of the objects in System Preferences: an application has panes, which in turn have anchors. So let's tweak our script:
 
-	tell application "System Preferences"
-		reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
-	end tell
+```
+tell application "System Preferences"
+    reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
+end tell
+```
 
 Done! Now imagine how helpful that could be to a user who needs to add accessibility permissions for your app. Rather than tell the user how to navigate to that preference panel, you just open it for him or her. Nice.
 

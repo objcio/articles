@@ -10,16 +10,18 @@ author:
 
 Singletons are one of the core design patterns used throughout Cocoa. In fact, Apple's Developer Library considers the singleton one of the "Cocoa Core Competencies." As iOS developers, we're familiar with interacting with singletons, from `UIApplication` to `NSFileManager`. We've seen countless examples of singleton usage in open-source projects, in Apple's code samples, and on StackOverflow. Xcode even has a default code snippet, the "Dispatch Once" snippet, which makes it incredibly easy to add a singleton to your code:
 
-    + (instancetype)sharedInstance
-    {
-        static dispatch_once_t once;
-        static id sharedInstance;
-        dispatch_once(&once, ^{
-            sharedInstance = [[self alloc] init];
-        });
-        return sharedInstance;
-    }
-    
+```objc
++ (instancetype)sharedInstance
+{
+    static dispatch_once_t once;
+    static id sharedInstance;
+    dispatch_once(&once, ^{
+        sharedInstance = [[self alloc] init];
+    });
+    return sharedInstance;
+}
+```
+
 For these reasons, singletons are commonplace in iOS programming. The problem is that they're easy to abuse.
 
 While others have called singletons an 'anti-pattern,' 'evil,' and ['pathological liars'][pathologicalLiars], I won't completely rule out the merit of singletons. Instead, I want to demonstrate a few problems with singletons so that the next time you're about to auto-complete that `dispatch_once` snippet, you think twice about the implications.
@@ -28,16 +30,18 @@ While others have called singletons an 'anti-pattern,' 'evil,' and ['pathologica
 
 Most developers agree that global mutable state is a bad thing. Statefulness makes programs hard to understand and hard to debug. We object-oriented programmers have much to learn from functional programming, in terms of minimizing the statefulness of code.
 
-    @implementation SPMath {
-        NSUInteger _a;
-        NSUInteger _b;
-    }
+```objc
+@implementation SPMath {
+    NSUInteger _a;
+    NSUInteger _b;
+}
 
-    - (NSUInteger)computeSum
-    {
-        return _a + _b;
-    }
-    
+- (NSUInteger)computeSum
+{
+    return _a + _b;
+}
+```
+
 In the above implementation of a simple math library, the programmer is expected to set instance variables `_a` and `_b` to the proper values before invoking `computeSum`. There are a few problems here:
 
 1. `computeSum` does not make the fact that it depends upon states `_a` and `_b` explicit by taking the values as parameters. Instead of inspecting the interface and understanding which variables control the output of the function, another developer reading this code must inspect the implementation to understand the dependency. Hidden dependencies are bad.
@@ -45,56 +49,62 @@ In the above implementation of a simple math library, the programmer is expected
 
 Contrast the above example with this: 
   
-    + (NSUInteger)computeSumOf:(NSUInteger)a plus:(NSUInteger)b
-    {
-        return a + b;
-    }
+```objc
++ (NSUInteger)computeSumOf:(NSUInteger)a plus:(NSUInteger)b
+{
+    return a + b;
+}
+```
 
 Here, the dependency on `a` and `b` is made explicit. We don't need to mutate instance state in order to call this method. And we don't need to worry about leaving behind persistent side effects as a result of calling this method. As a note to the reader of this code, we can even make this method a class method to indicate that it does not modify instance state.
 
 So how does this example relate to singletons? In the words of Miško Hevery, ["Singletons are global state in sheep’s clothing."][sheepsClothing] A singleton can be used anywhere, without explicitly declaring the dependency. Just like `_a` and `_b` were used in `computeSum` without the dependency being made explicit, any module of the program can call `[SPMySingleton sharedInstance]` and get access to the singleton. This means any side effects of interacting with the singleton can affect arbitrary code elsewhere in the program.
 
 
-    @interface SPSingleton : NSObject
+```objc
+@interface SPSingleton : NSObject
 
-    + (instancetype)sharedInstance;
++ (instancetype)sharedInstance;
 
-    - (NSUInteger)badMutableState;
-    - (void)setBadMutableState:(NSUInteger)badMutableState;
+- (NSUInteger)badMutableState;
+- (void)setBadMutableState:(NSUInteger)badMutableState;
 
-    @end
-    
-    @implementation SPConsumerA
+@end
 
-    - (void)someMethod
-    {
-        if ([[SPSingleton sharedInstance] badMutableState]) {
-            // ...
-        }
+@implementation SPConsumerA
+
+- (void)someMethod
+{
+    if ([[SPSingleton sharedInstance] badMutableState]) {
+        // ...
     }
+}
 
-    @end
-    
-    @implementation SPConsumerB
+@end
 
-    - (void)someOtherMethod
-    {
-        [[SPSingleton sharedInstance] setBadMutableState:0];
-    }
+@implementation SPConsumerB
 
-    @end
-    
+- (void)someOtherMethod
+{
+    [[SPSingleton sharedInstance] setBadMutableState:0];
+}
+
+@end
+```
+
 In the example above, `SPConsumerA` and `SPConsumerB` are two completely independent modules of the program. Yet `SPConsumerB` is able to affect the behavior of `SPConsumerA` through the shared state provided by the singleton. This should only be possible if consumer B is given an explicit reference to A, making clear the relationship between the two. The singleton here, due to its global and stateful nature, causes hidden and implicit coupling between seemingly unrelated modules.
 
 Let's take a look at a more concrete example, and expose one additional problem with global mutable state. Let's say we want to build a web viewer inside our app. To support this web viewer, we build a simple URL cache:
 
-    @interface SPURLCache
+```objc
+@interface SPURLCache
 
-    + (SPCache *)sharedURLCache;
++ (SPCache *)sharedURLCache;
 
-    - (void)storeCachedResponse:(NSCachedURLResponse *)cachedResponse forRequest:(NSURLRequest *)request;
-    
-    @end    
+- (void)storeCachedResponse:(NSCachedURLResponse *)cachedResponse forRequest:(NSURLRequest *)request;
+
+@end    
+```
 
 The developer working on the web viewer starts writing some unit tests to make sure the code works as expected in a few different situations. First, he or she writes a test to make sure the web viewer shows an error when there's no device connectivity. Then he or she writes a test to make sure the web viewer handles server failures properly. Finally, he or she writes a test for the basic success case, to make sure the returned web content is shown properly. The developer runs all of the tests, and they work as expected. Nice!
 
@@ -109,42 +119,48 @@ The other major problem with singletons is their lifecycle. When adding a single
 
 For example, suppose we're building an app where users can see a list of their friends. Each of their friends has a profile picture, and we want the app to be able to download and cache those images on the device. With the `dispatch_once` snippet handy, we might find ourselves writing an `SPThumbnailCache` singleton:
 
-    @interface SPThumbnailCache : NSObject
+```objc
+@interface SPThumbnailCache : NSObject
 
-    + (instancetype)sharedThumbnailCache;
++ (instancetype)sharedThumbnailCache;
 
-    - (void)cacheProfileImage:(NSData *)imageData forUserId:(NSString *)userId;
-    - (NSData *)cachedProfileImageForUserId:(NSString *)userId;
+- (void)cacheProfileImage:(NSData *)imageData forUserId:(NSString *)userId;
+- (NSData *)cachedProfileImageForUserId:(NSString *)userId;
 
-    @end
-    
+@end
+```
+
 We continue building out the app, and all seems well in the world, until one day, when we decide it's time to implement the 'log out' functionality, so users can switch accounts inside the app. Suddenly, we have a nasty problem on our hands: user-specific state is stored in a global singleton. When the user signs out of the app, we want to be able to clean up all persistent states on disk. Otherwise, we'll leave behind orphaned data on the user's device, wasting precious disk space. In case the user signs out and then signs into a new account, we also want to be able to have a new `SPThumbnailCache` for the new user.
 
 The problem here is that singletons, by definition, are assumed to be "create once, live forever" instances. You could imagine a few solutions to the problem outlined above. Perhaps we could tear down the singleton instance when the user signs out:
 
-    static SPThumbnailCache *sharedThumbnailCache;
+```objc
+static SPThumbnailCache *sharedThumbnailCache;
 
-    + (instancetype)sharedThumbnailCache
-    {
-        if (!sharedThumbnailCache) {
-            sharedThumbnailCache = [[self alloc] init];
-        }
-        return sharedThumbnailCache;
++ (instancetype)sharedThumbnailCache
+{
+    if (!sharedThumbnailCache) {
+        sharedThumbnailCache = [[self alloc] init];
     }
-    
-    + (void)tearDown
-    {
-        // The SPThumbnailCache will clean up persistent states when deallocated
-        sharedThumbnailCache = nil;
-    }
-    
+    return sharedThumbnailCache;
+}
+
++ (void)tearDown
+{
+    // The SPThumbnailCache will clean up persistent states when deallocated
+    sharedThumbnailCache = nil;
+}
+```
+
 This is a flagrant abuse of the singleton pattern, but it will work, right?
 
 We could certainly make this solution work, but the cost is far too great. For one, we've lost the simplicity of the `dispatch_once` solution, a solution which guarantees thread safety and that all code calling `[SPThumbnailCache sharedThumbnailCache]` only ever gets the same instance. We now need to be extremely careful about the order of code execution for code that utilizes the thumbnail cache. Suppose while the user is in the process of signing out, there's some background task that is in the process of saving an image into the cache: 
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [[SPThumbnailCache sharedThumbnailCache] cacheProfileImage:newImage forUserId:userId];
-    });
+```objc
+dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [[SPThumbnailCache sharedThumbnailCache] cacheProfileImage:newImage forUserId:userId];
+});
+```
 
 We need to be certain `tearDown` doesn't execute until after that background task completes. This ensures the `newImage` data will get cleaned up properly. Or, we need to make sure the background task is canceled when the thumbnail cache is shut down. Otherwise, a new thumbnail cache will be lazily created, and stale user state (the `newImage`) will be stored inside of it. 
 
@@ -160,45 +176,51 @@ So, if singletons are so bad for scoped state, how do we avoid using them?
 
 Let's revisit the example above. Since we have a thumbnail cache that caches state specific to an individual user, let's define a user object:
 
-    @interface SPUser : NSObject
+```objc
+@interface SPUser : NSObject
 
-    @property (nonatomic, readonly) SPThumbnailCache *thumbnailCache;
+@property (nonatomic, readonly) SPThumbnailCache *thumbnailCache;
 
-    @end
+@end
 
-    @implementation SPUser
+@implementation SPUser
 
-    - (instancetype)init
-    {
-        if ((self = [super init])) {
-            _thumbnailCache = [[SPThumbnailCache alloc] init];
-    
-            // Initialize other user-specific state...
-        }
-        return self;
+- (instancetype)init
+{
+    if ((self = [super init])) {
+        _thumbnailCache = [[SPThumbnailCache alloc] init];
+
+        // Initialize other user-specific state...
     }
+    return self;
+}
 
-    @end
-    
+@end
+```
+
 We now have an object to model an authenticated user session, and we can store all user-specific state under this object. Now suppose we have a view controller that renders the list of friends:
 
-    @interface SPFriendListViewController : UIViewController
+```objc
+@interface SPFriendListViewController : UIViewController
 
-    - (instancetype)initWithUser:(SPUser *)user;
+- (instancetype)initWithUser:(SPUser *)user;
 
-    @end
-    
+@end
+```
+
 We can explicitly pass the authenticated user object into the view controller. This technique of passing a dependency into a dependent object is more formally referred to as [dependency injection,][dependencyInjection] and it has ton of advantages:
 
 1. It makes clear to the reader of this interface that the `SPFriendListViewController` should only ever be shown when there's a signed-in user.
 2. The `SPFriendListViewController` can maintain a strong reference to the user object as long as it's being used. For instance, updating the earlier example, we can save an image into the thumbnail cache within a background task as follows:
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [_user.thumbnailCache cacheProfileImage:newImage forUserId:userId];
-        });
-        
-    With this background task still outstanding, code elsewhere in the application is able to create and utilize an entirely new `SPUser` object, without blocking further interaction while the first instance is being torn down.
-    
+```objc
+dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [_user.thumbnailCache cacheProfileImage:newImage forUserId:userId];
+});
+```
+
+With this background task still outstanding, code elsewhere in the application is able to create and utilize an entirely new `SPUser` object, without blocking further interaction while the first instance is being torn down.
+
 To demonstrate the second point a little further, let's visualize the object graph before and after using dependency injection.
 
 Suppose our `SPFriendListViewController` is currently the root view controller in the window. With the singleton model, we have an object graph that looks like this:

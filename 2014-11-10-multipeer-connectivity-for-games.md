@@ -38,9 +38,11 @@ There are several ways to integrate the device discovery aspect of MPC into your
 
 Apple provides a built-in view controller to facilitate discovering peers and initiating a common session. Simply present an [`MCBrowserViewController`][MCBrowserViewController] with a `serviceType` and `session`, and MPC will do the rest. Note that `serviceType` is limited to 15 ASCII letters, numbers, and dashes. A common approach is to use a style similar to reverse-DNS notation (e.g. `io-objc-mpc`):
 
-    let session = MCSession(peer: MCPeerID(displayName: "Mary"))
-    let serviceType = "io-objc-mpc" // Limited to 15 ASCII characters
-    window!.rootViewController = MCBrowserViewController(serviceType: serviceType, session: session)
+```objc
+let session = MCSession(peer: MCPeerID(displayName: "Mary"))
+let serviceType = "io-objc-mpc" // Limited to 15 ASCII characters
+window!.rootViewController = MCBrowserViewController(serviceType: serviceType, session: session)
+```
 
 ![](/images/issue-18/browser.png)
 
@@ -52,15 +54,17 @@ If your game already requires a mechanism to elect a primary node to coordinate 
 
 ![](/images/issue-18/dedicated.gif)
 
-    // Advertise from the primary node
-    advertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: discoveryInfo, serviceType: serviceType)
-    advertiser.delegate = self
-    advertiser.startAdvertisingPeer()
+```objc
+// Advertise from the primary node
+advertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: discoveryInfo, serviceType: serviceType)
+advertiser.delegate = self
+advertiser.startAdvertisingPeer()
 
-    // Browse from secondary nodes
-    mcBrowser = MCNearbyServiceBrowser(peer: myPeerID, serviceType: serviceType)
-    mcBrowser.delegate = self
-    mcBrowser.startBrowsingForPeers()
+// Browse from secondary nodes
+mcBrowser = MCNearbyServiceBrowser(peer: myPeerID, serviceType: serviceType)
+mcBrowser.delegate = self
+mcBrowser.startBrowsingForPeers()
+```
 
 However, there are often cases in which it is preferable to establish a connection earlier in the app's lifecycle, without any user input. The next approach demonstrates how to accomplish this.
 
@@ -76,24 +80,26 @@ One challenge that arises when all peers transceive is contention. There can be 
 
 A simple but effective way to elect an MPC leader is to include the running time of each node as metadata when inviting peers to join sessions, with advertisers always joining the oldest session:
 
-    // Browser Delegate Code
-    func browser(browser: MCNearbyServiceBrowser!, foundPeer peerID: MCPeerID!, withDiscoveryInfo info: [NSObject : AnyObject]!) {
-        var runningTime = -timeStarted.timeIntervalSinceNow
-        let context = NSData(bytes: &runningTime, length: sizeof(NSTimeInterval))
-        browser.invitePeer(peerID, toSession: mcSession, withContext: context, timeout: 30)
-    }
+```objc
+// Browser Delegate Code
+func browser(browser: MCNearbyServiceBrowser!, foundPeer peerID: MCPeerID!, withDiscoveryInfo info: [NSObject : AnyObject]!) {
+    var runningTime = -timeStarted.timeIntervalSinceNow
+    let context = NSData(bytes: &runningTime, length: sizeof(NSTimeInterval))
+    browser.invitePeer(peerID, toSession: mcSession, withContext: context, timeout: 30)
+}
 
-    // Advertiser Delegate Code
-    func advertiser(advertiser: MCNearbyServiceAdvertiser!, didReceiveInvitationFromPeer peerID: MCPeerID!, withContext context: NSData!, invitationHandler: ((Bool, MCSession!) -> Void)!) {
-        var runningTime = -timeStarted.timeIntervalSinceNow
-        var peerRunningTime = NSTimeInterval()
-        context.getBytes(&peerRunningTime)
-        let isPeerOlder = (peerRunningTime > runningTime)
-        invitationHandler(isPeerOlder, mcSession)
-        if isPeerOlder {
-            advertiser.stopAdvertisingPeer()
-        }
+// Advertiser Delegate Code
+func advertiser(advertiser: MCNearbyServiceAdvertiser!, didReceiveInvitationFromPeer peerID: MCPeerID!, withContext context: NSData!, invitationHandler: ((Bool, MCSession!) -> Void)!) {
+    var runningTime = -timeStarted.timeIntervalSinceNow
+    var peerRunningTime = NSTimeInterval()
+    context.getBytes(&peerRunningTime)
+    let isPeerOlder = (peerRunningTime > runningTime)
+    invitationHandler(isPeerOlder, mcSession)
+    if isPeerOlder {
+        advertiser.stopAdvertisingPeer()
     }
+}
+```
 
 ## Sending and Receiving
 
@@ -105,31 +111,33 @@ When sending small amounts (up to a few kB) of event-driven data, such as game e
 
 To help encapsulate transmitted data, the CardsAgainst app defines an enum of possible game events, which can then be used to serialize and de-serialize accompanying data:
 
-    // Possible Game Events
-    enum Event: String {
-        case StartGame = "StartGame",
-        Answer = "Answer",
-        CancelAnswer = "CancelAnswer",
-        Vote = "Vote",
-        NextCard = "NextCard",
-        EndGame = "EndGame"
-    }
+```objc
+// Possible Game Events
+enum Event: String {
+    case StartGame = "StartGame",
+    Answer = "Answer",
+    CancelAnswer = "CancelAnswer",
+    Vote = "Vote",
+    NextCard = "NextCard",
+    EndGame = "EndGame"
+}
 
-    // Reliably send an event to given peers, optionally with accompanying data
-    func sendEvent(event: Event, object: AnyObject? = nil, toPeers peers: [MCPeerID] = session.connectedPeers as [MCPeerID]) {
-        if peers.count == 0 {
-            return
-        }
-        var rootObject: [String: AnyObject] = ["event": event.rawValue]
-        if let object = object {
-            rootObject["object"] = object
-        }
-        let data = NSKeyedArchiver.archivedDataWithRootObject(rootObject)
-        session.sendData(data, toPeers: peers, withMode: .Reliable, error: nil)
+// Reliably send an event to given peers, optionally with accompanying data
+func sendEvent(event: Event, object: AnyObject? = nil, toPeers peers: [MCPeerID] = session.connectedPeers as [MCPeerID]) {
+    if peers.count == 0 {
+        return
     }
+    var rootObject: [String: AnyObject] = ["event": event.rawValue]
+    if let object = object {
+        rootObject["object"] = object
+    }
+    let data = NSKeyedArchiver.archivedDataWithRootObject(rootObject)
+    session.sendData(data, toPeers: peers, withMode: .Reliable, error: nil)
+}
 
-    // Usage
-    sendEvent(.StartGame, ["initialData": "hello objc.io!"])
+// Usage
+sendEvent(.StartGame, ["initialData": "hello objc.io!"])
+```
 
 See CardsAgainst's [`ConnectionManager.swift source`](https://github.com/jpsim/CardsAgainst/blob/master/CardsAgainst/Controllers/ConnectionManager.swift) for more information.
 
@@ -139,12 +147,14 @@ Much like the [TCP/UDP dichotomy][tcp-udp], MPC allows sending data in both reli
 
 To send data with the `.Reliable` mode:
 
-    let message = "Hello objc.io!"
-    let data = message.dataUsingEncoding(NSUTF8StringEncoding)!
-    var error: NSError? = nil
-    if !session.sendData(data, toPeers: peers, withMode: .Reliable, error: &error) {
-        println("error: \(error!)")
-    }
+```objc
+let message = "Hello objc.io!"
+let data = message.dataUsingEncoding(NSUTF8StringEncoding)!
+var error: NSError? = nil
+if !session.sendData(data, toPeers: peers, withMode: .Reliable, error: &error) {
+    println("error: \(error!)")
+}
+```
 
 If you're sending data where each byte is essential to the proper functionality of your game, such as starting or pausing your game, use the `.Reliable` mode.
 
@@ -156,35 +166,39 @@ When sending large amounts of data (hundreds of kB to several MB), such as files
 
 Here's a sample taken from [DeckRocket](https://github.com/jpsim/DeckRocket/blob/96e875f784/OSX/DeckRocket/MultipeerClient.swift#L46-L56):
 
-    pdfProgress = session!.sendResourceAtURL(url, withName: filePath.lastPathComponent, toPeer: peer) { error in
-        dispatch_async(dispatch_get_main_queue()) {
-            self.pdfProgress!.removeObserver(self, forKeyPath: "fractionCompleted", context: &ProgressContext)
-            if error != nil {
-                HUDView.show("Error!\n\(error.localizedDescription)")
-            } else {
-                HUDView.show("Success!")
-            }
+```objc
+pdfProgress = session!.sendResourceAtURL(url, withName: filePath.lastPathComponent, toPeer: peer) { error in
+    dispatch_async(dispatch_get_main_queue()) {
+        self.pdfProgress!.removeObserver(self, forKeyPath: "fractionCompleted", context: &ProgressContext)
+        if error != nil {
+            HUDView.show("Error!\n\(error.localizedDescription)")
+        } else {
+            HUDView.show("Success!")
         }
     }
-    pdfProgress!.addObserver(self, forKeyPath: "fractionCompleted", options: .New, context: &ProgressContext)
+}
+pdfProgress!.addObserver(self, forKeyPath: "fractionCompleted", options: .New, context: &ProgressContext)
+```
 
 ### Streaming
 
 For streaming data, such as sensor readings or continuously updating player position information, use the `startStreamWithName(_:toPeer:error:)` function to write to an `NSOutputStream`. The receiver will be able to read from an `NSInputStream`:
 
-    // Receiver
-    public func session(session: MCSession!, didReceiveStream stream: NSInputStream!, withName streamName: String!, fromPeer peerID: MCPeerID!) {
-        // Assuming a stream of UInt8's
-        var buffer = [UInt8](count: 8, repeatedValue: 0)
+```objc
+// Receiver
+public func session(session: MCSession!, didReceiveStream stream: NSInputStream!, withName streamName: String!, fromPeer peerID: MCPeerID!) {
+    // Assuming a stream of UInt8's
+    var buffer = [UInt8](count: 8, repeatedValue: 0)
 
-        stream.open()
+    stream.open()
 
-        // Read a single byte
-        if stream.hasBytesAvailable {
-            let result: Int = stream.read(&buffer, maxLength: buffer.count)
-            println("result: \(result)")
-        }
+    // Read a single byte
+    if stream.hasBytesAvailable {
+        let result: Int = stream.read(&buffer, maxLength: buffer.count)
+        println("result: \(result)")
     }
+}
+```
 
 ## Challenges
 

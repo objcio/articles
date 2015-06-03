@@ -169,7 +169,7 @@ Some basics in assembly are quite useful when reading through the code. However,
 
 Reading the pseudo-code is quite eye-opening. There are two code paths — one if the delegate implements `popoverPresentationControllerShouldDismissPopover:`, and one if it doesn't — and the code paths are actually quite different. While the one reacting to the delegate basically has an `if (controller.presented && !controller.dismissing)`, the other code path (that we currently fall into) doesn't, and always dismisses. With that inside knowledge, we can attempt to work around this bug by implementing our own `UIPopoverPresentationControllerDelegate`:
 
-```
+```objc
 - (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popoverPresentationController {
     return YES;
 }
@@ -181,7 +181,7 @@ My first attempt was to set this to the main view controller that creates the po
 
 Now please don't stop here. You should always properly document such workarounds, and most importantly, file a radar with Apple. As an additional benefit, this allows you to verify that you actually understood the bug, and that no other side effects from your application play a role — and if you drop an iOS version, it's easy to go back and test if the radar is still valid:
 
-```
+```objc
 // The UIPopoverController is the default delegate for the UIPopoverPresentationController
 // of it's contentViewController.
 //

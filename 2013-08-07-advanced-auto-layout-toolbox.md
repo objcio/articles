@@ -61,10 +61,12 @@ Each view has content compression resistance priorities and content hugging prio
 
 Behind the scenes, the intrinsic content size and these priority values get translated into constraints. For a label with an intrinsic content size of `{ 100, 30 }`, horizontal/vertical compression resistance priority of `750`, and  horizontal/vertical content hugging priority of `250`, four constraints will be generated:
 
-    H:[label(<=100@250)]
-    H:[label(>=100@750)]
-    V:[label(<=30@250)]
-    V:[label(>=30@750)]
+```
+H:[label(<=100@250)]
+H:[label(>=100@750)]
+V:[label(<=30@250)]
+V:[label(>=30@750)]
+```
 
 If you're not familiar with the visual format language for the constraints used above, you can read up about it in [Apple's documentation](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/AutolayoutPG/VisualFormatLanguage/VisualFormatLanguage.html). Keeping in mind that these additional constraints are generated implicitly helps to understand Auto Layout's behavior and to make better sense of its error messages.
 
@@ -115,22 +117,23 @@ Another interesting use case for this is to create a layout-dependent view tree.
 
 You could also decide to change the constraints after the first layout pass. For example, switch from lining up subviews in one row to two rows, if the views are becoming too narrow. 
 
-    - layoutSubviews
-    {
+```objc
+- layoutSubviews
+{
+    [super layoutSubviews];
+    if (self.subviews[0].frame.size.width <= MINIMUM_WIDTH) {
+        [self removeSubviewConstraints];
+        self.layoutRows += 1;
         [super layoutSubviews];
-        if (self.subviews[0].frame.size.width <= MINIMUM_WIDTH) {
-            [self removeSubviewConstraints];
-            self.layoutRows += 1;
-            [super layoutSubviews];
-        }
     }
-    
-    - updateConstraints
-    {
-        // add constraints depended on self.layoutRows...
-        [super updateConstraints];
-    }
+}
 
+- updateConstraints
+{
+    // add constraints depended on self.layoutRows...
+    [super updateConstraints];
+}
+```
 
 ## Intrinsic Content Size of Multi-Line Text
 
@@ -138,35 +141,41 @@ The intrinsic content size of `UILabel` and `NSTextField` is ambiguous for multi
 
 Since we usually don't know this value in advance, we need to take a two-step approach to get this right. First we let Auto Layout do its work, and then we use the resulting frame in the layout pass to update the preferred maximum width and trigger layout again.
 
-    - (void)layoutSubviews
-    {
-        [super layoutSubviews];
-        myLabel.preferredMaxLayoutWidth = myLabel.frame.size.width;
-        [super layoutSubviews];
-    }
+```objc
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    myLabel.preferredMaxLayoutWidth = myLabel.frame.size.width;
+    [super layoutSubviews];
+}
+```
 
 The first call to `[super layoutSubviews]` is necessary for the label to get its frame set, while the second call is necessary to update the layout after the change. If we omit the second call we get a `NSInternalInconsistencyException` error, because we've made changes in the layout pass which require updating the constraints, but we didn't trigger layout again.
 
 We can also do this in a label subclass itself:
 
-    @implementation MyLabel
-    - (void)layoutSubviews
-    {
-        self.preferredMaxLayoutWidth = self.frame.size.width;
-        [super layoutSubviews];
-    }
-    @end
+```objc
+@implementation MyLabel
+- (void)layoutSubviews
+{
+    self.preferredMaxLayoutWidth = self.frame.size.width;
+    [super layoutSubviews];
+}
+@end
+```
 
 In this case, we don't need to call `[super layoutSubviews]` first, because when `layoutSubviews` gets called, we already have a frame on the label itself.
 
 To make this adjustment from the view controller level, we hook into `viewDidLayoutSubviews`. At this point the frames of the first Auto Layout pass are already set and we can use them to set the preferred maximum width. 
 
-    - (void)viewDidLayoutSubviews
-    {
-        [super viewDidLayoutSubviews];
-        myLabel.preferredMaxLayoutWidth = myLabel.frame.size.width;
-        [self.view layoutIfNeeded];
-    }
+```objc
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+    myLabel.preferredMaxLayoutWidth = myLabel.frame.size.width;
+    [self.view layoutIfNeeded];
+}
+```
 
 Lastly, make sure that you don't have an explicit height constraint on the label that has a higher priority than the label's content compression resistance priority. Otherwise it will trump the calculated height of the content.
 
@@ -181,16 +190,20 @@ Directly animating constraints is really only a feasible strategy on OS X, and i
 
 When using the Core Animation approach, animation conceptually works the same way as without Auto Layout. The difference is that you don't set the views' target frames manually, but instead you modify the constraints and trigger a layout pass to set the frames for you. On iOS, instead of:
 
-    [UIView animateWithDuration:1 animations:^{
-        myView.frame = newFrame;
-    }];
+```objc
+[UIView animateWithDuration:1 animations:^{
+    myView.frame = newFrame;
+}];
+```
 
 you now write:
 
-    // update constraints
-    [UIView animateWithDuration:1 animations:^{
-        [myView layoutIfNeeded];
-    }];
+```objc
+// update constraints
+[UIView animateWithDuration:1 animations:^{
+    [myView layoutIfNeeded];
+}];
+```
 
 Note that with this approach, the changes you can make to the constraints are not limited to the constraints' constants. You can remove constraints, add constraints, and even use temporary animation constraints. Since the new constraints only get solved once to determine the new frames, even more complex layout changes are possible.
 
@@ -198,9 +211,11 @@ The most important thing to remember when animating views using Core Animation i
 
 This means also that view transforms don't always play nice with Auto Layout if they change the view's frame. Consider the following example:
 
-    [UIView animateWithDuration:1 animations:^{
-        myView.transform = CGAffineTransformMakeScale(.5, .5);
-    }];
+```objc
+[UIView animateWithDuration:1 animations:^{
+    myView.transform = CGAffineTransformMakeScale(.5, .5);
+}];
+```
 
 Normally we would expect this to scale the view to half its size while maintaining its center point. But the behavior with Auto Layout depends on the kind of constraints we have set up to position the view. If we have it centered within its super view, the result is as expected, because applying the transform triggers a layout pass which centers the new frame within the super view. However, if we have aligned the left edge of the view to another view, then this alignment will stick and the center point will move. 
 
@@ -208,18 +223,20 @@ Anyway, applying transforms like this to views laid out with constraints is not 
 
 If you want to use transforms to animate a view or otherwise animate its frame directly, the cleanest technique to do this is to [embed the view into a container view](http://stackoverflow.com/a/14119154). Then you can override `layoutSubviews` on the container, either opting out of Auto Layout completely or only adjusting its result. For example, if we setup a subview in our container which is laid out within the container at its top and left edges using Auto Layout, we can correct its center after the layout happens to enable the scale transform from above:
 
-    - (void)layoutSubviews
-    {
-        [super layoutSubviews];
-        static CGPoint center = {0,0};
-        if (CGPointEqualToPoint(center, CGPointZero)) {
-            // grab the view's center point after initial layout
-            center = self.animatedView.center;
-        } else {
-            // apply the previous center to the animated view
-            self.animatedView.center = center;
-        }
+```objc
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    static CGPoint center = {0,0};
+    if (CGPointEqualToPoint(center, CGPointZero)) {
+        // grab the view's center point after initial layout
+        center = self.animatedView.center;
+    } else {
+        // apply the previous center to the animated view
+        self.animatedView.center = center;
     }
+}
+```
 
 If we expose the `animatedView` property as an IBOutlet, we can even use this container within Interface Builder and position its subview with constraints, while still being able to apply the scale transform with the center staying fixed.
 
@@ -237,123 +254,137 @@ First, whenever you see `NSLayoutResizingMaskConstraint`s in the unsatisfiable c
 
 If it's not obvious which views are causing the trouble, you have to identify the view by its memory address. The most straightforward option is to use the debugger console. You can print out the description of the view itself or its super view, or even the recursive description of the view tree. This mostly gives you lots of cues to identify which view you're dealing with.
 
-    (lldb) po 0x7731880
-    $0 = 124983424 <UIView: 0x7731880; frame = (90 -50; 80 100); 
-    layer = <CALayer: 0x7731450>>
-    
-    (lldb) po [0x7731880 superview]
-    $2 = 0x07730fe0 <UIView: 0x7730fe0; frame = (32 128; 259 604); 
-    layer = <CALayer: 0x7731150>>
-    
-    (lldb) po [[0x7731880 superview] recursiveDescription]
-    $3 = 0x07117ac0 <UIView: 0x7730fe0; frame = (32 128; 259 604); layer = <CALayer: 0x7731150>>
-       | <UIView: 0x7731880; frame = (90 -50; 80 100); layer = <CALayer: 0x7731450>>
-       | <UIView: 0x7731aa0; frame = (90 101; 80 100); layer = <CALayer: 0x7731c60>>
-       
+```
+(lldb) po 0x7731880
+$0 = 124983424 <UIView: 0x7731880; frame = (90 -50; 80 100); 
+layer = <CALayer: 0x7731450>>
+
+(lldb) po [0x7731880 superview]
+$2 = 0x07730fe0 <UIView: 0x7730fe0; frame = (32 128; 259 604); 
+layer = <CALayer: 0x7731150>>
+
+(lldb) po [[0x7731880 superview] recursiveDescription]
+$3 = 0x07117ac0 <UIView: 0x7730fe0; frame = (32 128; 259 604); layer = <CALayer: 0x7731150>>
+   | <UIView: 0x7731880; frame = (90 -50; 80 100); layer = <CALayer: 0x7731450>>
+   | <UIView: 0x7731aa0; frame = (90 101; 80 100); layer = <CALayer: 0x7731c60>>
+```
+
 A more visual approach is to modify the view in question from the console so that you can spot it on screen. For example, you can do this by changing its background color:
 
-    (lldb) expr ((UIView *)0x7731880).backgroundColor = [UIColor purpleColor]
-    
+```
+(lldb) expr ((UIView *)0x7731880).backgroundColor = [UIColor purpleColor]
+```
+
 Make sure to resume the execution of your app afterward or the changes will not show up on screen. Also note the cast of the memory address to `(UIView *)` and the extra set of round brackets so that we can use dot notation. Alternatively, you can of course also use message sending notation:
 
-    (lldb) expr [(UIView *)0x7731880 setBackgroundColor:[UIColor purpleColor]]
+```
+(lldb) expr [(UIView *)0x7731880 setBackgroundColor:[UIColor purpleColor]]
+```
 
 Another approach is to profile the application with Instrument's allocations template. Once you've got the memory address from the error message (which you have to get out of the Console app when running Instruments), you can switch Instrument's detail view to the Objects List and search for the address with Cmd-F. This will show you the method which allocated the view object, which is often a pretty good hint of what you're dealing with (at least for views created in code).
 
 You can also make deciphering unsatisfiable constraints errors on iOS easier by improving the error message itself. We can overwrite `NSLayoutConstraint`'s description method in a category to include the views' tags:
 
-    @implementation NSLayoutConstraint (AutoLayoutDebugging)
-    #ifdef DEBUG
-    - (NSString *)description
-    {
-        NSString *description = super.description;
-        NSString *asciiArtDescription = self.asciiArtDescription;
-        return [description stringByAppendingFormat:@" %@ (%@, %@)", 
-            asciiArtDescription, [self.firstItem tag], [self.secondItem tag]];
-    }
-    #endif
-    @end
-    
+```objc
+@implementation NSLayoutConstraint (AutoLayoutDebugging)
+#ifdef DEBUG
+- (NSString *)description
+{
+    NSString *description = super.description;
+    NSString *asciiArtDescription = self.asciiArtDescription;
+    return [description stringByAppendingFormat:@" %@ (%@, %@)", 
+        asciiArtDescription, [self.firstItem tag], [self.secondItem tag]];
+}
+#endif
+@end
+```
+
 If the integer property `tag` is not enough information, we can also get a bit more adventurous and add our own nametag property to the view class, which we then print out in the error message. We can even assign values to this custom property in Interface Builder using the "User Defined Runtime Attributes" section in the identity inspector.
 
-    @interface UIView (AutoLayoutDebugging)
-    - (void)setAbc_NameTag:(NSString *)nameTag;
-    - (NSString *)abc_nameTag;
-    @end
-    
-    @implementation UIView (AutoLayoutDebugging)
-    - (void)setAbc_NameTag:(NSString *)nameTag
-    {
-        objc_setAssociatedObject(self, "abc_nameTag", nameTag, 
-            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
+```objc
+@interface UIView (AutoLayoutDebugging)
+- (void)setAbc_NameTag:(NSString *)nameTag;
+- (NSString *)abc_nameTag;
+@end
 
-    - (NSString *)abc_nameTag
-    {
-        return objc_getAssociatedObject(self, "abc_nameTag");
-    }
-    @end
-    
-    @implementation NSLayoutConstraint (AutoLayoutDebugging)
-    #ifdef DEBUG
-    - (NSString *)description
-    {
-        NSString *description = super.description;
-        NSString *asciiArtDescription = self.asciiArtDescription;
-        return [description stringByAppendingFormat:@" %@ (%@, %@)", 
-            asciiArtDescription, [self.firstItem abc_nameTag], 
-            [self.secondItem abc_nameTag]];
-    }
-    #endif
-    @end
+@implementation UIView (AutoLayoutDebugging)
+- (void)setAbc_NameTag:(NSString *)nameTag
+{
+    objc_setAssociatedObject(self, "abc_nameTag", nameTag, 
+        OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSString *)abc_nameTag
+{
+    return objc_getAssociatedObject(self, "abc_nameTag");
+}
+@end
+
+@implementation NSLayoutConstraint (AutoLayoutDebugging)
+#ifdef DEBUG
+- (NSString *)description
+{
+    NSString *description = super.description;
+    NSString *asciiArtDescription = self.asciiArtDescription;
+    return [description stringByAppendingFormat:@" %@ (%@, %@)", 
+        asciiArtDescription, [self.firstItem abc_nameTag], 
+        [self.secondItem abc_nameTag]];
+}
+#endif
+@end
+```
 
 This way the error message becomes much more readable and you don't have to find out which view belongs to which memory address. However, it requires some extra work on your part to consistently assign meaningful names to the views.
 
 Another neat trick (via [Daniel](https://twitter.com/danielboedewadt)) that gives you better error messages without requiring extra work is to integrate call stack symbols into the error message for each layout constraint. This makes it easy to see where the constraints involved in the problem were created. To do this, you have to swizzle the `addConstraint:` and `addConstraints:` methods of `UIView` or `NSView`, as well as the layout constraint's `description` method. In the methods for adding constraints, you should then add an associated object to each constraint, which describes the first frame of the current call stack backtrace (or whatever information you would like to have from it):
 
-    static void AddTracebackToConstraints(NSArray *constraints)
-    {
-        NSArray *a = [NSThread callStackSymbols];
-        NSString *symbol = nil;
-        if (2 < [a count]) {
-            NSString *line = a[2];
-            // Format is
-            //               1         2         3         4         5
-            //     012345678901234567890123456789012345678901234567890123456789
-            //     8   MyCoolApp                           0x0000000100029809 -[MyViewController loadView] + 99
-            //
-            // Don't add if this wasn't called from "MyCoolApp":
-            if (59 <= [line length]) {
-                line = [line substringFromIndex:4];
-                if ([line hasPrefix:@"My"]) {
-                    symbol = [line substringFromIndex:59 - 4];
-                }
+```objc
+static void AddTracebackToConstraints(NSArray *constraints)
+{
+    NSArray *a = [NSThread callStackSymbols];
+    NSString *symbol = nil;
+    if (2 < [a count]) {
+        NSString *line = a[2];
+        // Format is
+        //               1         2         3         4         5
+        //     012345678901234567890123456789012345678901234567890123456789
+        //     8   MyCoolApp                           0x0000000100029809 -[MyViewController loadView] + 99
+        //
+        // Don't add if this wasn't called from "MyCoolApp":
+        if (59 <= [line length]) {
+            line = [line substringFromIndex:4];
+            if ([line hasPrefix:@"My"]) {
+                symbol = [line substringFromIndex:59 - 4];
             }
-        }
-        for (NSLayoutConstraint *c in constraints) {
-            if (symbol != nil) {
-                objc_setAssociatedObject(c, &ObjcioLayoutConstraintDebuggingShort, 
-                    symbol, OBJC_ASSOCIATION_COPY_NONATOMIC);
-            }
-            objc_setAssociatedObject(c, &ObjcioLayoutConstraintDebuggingCallStackSymbols, 
-                a, OBJC_ASSOCIATION_COPY_NONATOMIC);
         }
     }
+    for (NSLayoutConstraint *c in constraints) {
+        if (symbol != nil) {
+            objc_setAssociatedObject(c, &ObjcioLayoutConstraintDebuggingShort, 
+                symbol, OBJC_ASSOCIATION_COPY_NONATOMIC);
+        }
+        objc_setAssociatedObject(c, &ObjcioLayoutConstraintDebuggingCallStackSymbols, 
+            a, OBJC_ASSOCIATION_COPY_NONATOMIC);
+    }
+}
 
-    @end
+@end
+```
 
 Once you have this information available on each constraint object, you can simply modify `UILayoutConstraint`'s description method to include it in the output.
 
-    - (NSString *)objcioOverride_description
-    {
-        // call through to the original, really
-        NSString *description = [self objcioOverride_description];
-        NSString *objcioTag = objc_getAssociatedObject(self, &ObjcioLayoutConstraintDebuggingShort);
-        if (objcioTag == nil) {
-            return description;
-        }
-        return [description stringByAppendingFormat:@" %@", objcioTag];
+```objc
+- (NSString *)objcioOverride_description
+{
+    // call through to the original, really
+    NSString *description = [self objcioOverride_description];
+    NSString *objcioTag = objc_getAssociatedObject(self, &ObjcioLayoutConstraintDebuggingShort);
+    if (objcioTag == nil) {
+        return description;
     }
+    return [description stringByAppendingFormat:@" %@", objcioTag];
+}
+```
 
 Check [this GitHub repository](https://github.com/objcio/issue-3-auto-layout-debugging) for a full code example of this technique.
 
@@ -366,54 +397,59 @@ As the name indicates, `hasAmbiguousLayout` simply returns YES if the view has a
 
 Since this method is private, make sure to not ship any code which contains this call. One possible way to safeguard yourself against this is to create a method in a view category like this:
 
-    @implementation UIView (AutoLayoutDebugging)
-    - (void)printAutoLayoutTrace
-    {
-        #ifdef DEBUG
-        NSLog(@"%@", [self performSelector:@selector(_autolayoutTrace)]);
-        #endif
-    }
-    @end
+```objc
+@implementation UIView (AutoLayoutDebugging)
+- (void)printAutoLayoutTrace
+{
+    #ifdef DEBUG
+    NSLog(@"%@", [self performSelector:@selector(_autolayoutTrace)]);
+    #endif
+}
+@end
+```
 
 `_autolayoutTrace` creates a printout like this:
 
-    2013-07-23 17:36:08.920 FlexibleLayout[4237:907] 
-    *<UIWindow:0x7269010>
-    |   *<UILayoutContainerView:0x7381250>
-    |   |   *<UITransitionView:0x737c4d0>
-    |   |   |   *<UIViewControllerWrapperView:0x7271e20>
-    |   |   |   |   *<UIView:0x7267c70>
-    |   |   |   |   |   *<UIView:0x7270420> - AMBIGUOUS LAYOUT
-    |   |   <UITabBar:0x726d440>
-    |   |   |   <_UITabBarBackgroundView:0x7272530>
-    |   |   |   <UITabBarButton:0x726e880>
-    |   |   |   |   <UITabBarSwappableImageView:0x7270da0>
-    |   |   |   |   <UITabBarButtonLabel:0x726dcb0>
+```
+2013-07-23 17:36:08.920 FlexibleLayout[4237:907] 
+*<UIWindow:0x7269010>
+|   *<UILayoutContainerView:0x7381250>
+|   |   *<UITransitionView:0x737c4d0>
+|   |   |   *<UIViewControllerWrapperView:0x7271e20>
+|   |   |   |   *<UIView:0x7267c70>
+|   |   |   |   |   *<UIView:0x7270420> - AMBIGUOUS LAYOUT
+|   |   <UITabBar:0x726d440>
+|   |   |   <_UITabBarBackgroundView:0x7272530>
+|   |   |   <UITabBarButton:0x726e880>
+|   |   |   |   <UITabBarSwappableImageView:0x7270da0>
+|   |   |   |   <UITabBarButtonLabel:0x726dcb0>
+```
 
 As with the unsatisfiable constraints error message, we still have to figure out which view belongs to the memory address of the printout.
 
 Another more visual way to spot ambiguous layouts is to use `exerciseAmbiguityInLayout`. This will randomly change the view's frame between valid values. However, calling this method once will also just change the frame once. So chances are that you will not see this change at all when you start your app. It's a good idea to create a helper method which traverses through the whole view hierarchy and makes all views that have an ambiguous layout "jiggle."
 
-    @implementation UIView (AutoLayoutDebugging)
-    - (void)exerciseAmbiguityInLayoutRepeatedly:(BOOL)recursive
-    {
-        #ifdef DEBUG
-        if (self.hasAmbiguousLayout) {
-            [NSTimer scheduledTimerWithTimeInterval:.5 
-                                             target:self 
-                                           selector:@selector(exerciseAmbiguityInLayout) 
-                                           userInfo:nil 
-                                            repeats:YES];
-        }
-        if (recursive) {
-            for (UIView *subview in self.subviews) {
-                [subview exerciseAmbiguityInLayoutRepeatedly:YES];
-            }
-        }
-        #endif
+```objc
+@implementation UIView (AutoLayoutDebugging)
+- (void)exerciseAmbiguityInLayoutRepeatedly:(BOOL)recursive
+{
+    #ifdef DEBUG
+    if (self.hasAmbiguousLayout) {
+        [NSTimer scheduledTimerWithTimeInterval:.5 
+                                         target:self 
+                                       selector:@selector(exerciseAmbiguityInLayout) 
+                                       userInfo:nil 
+                                        repeats:YES];
     }
-    @end
-
+    if (recursive) {
+        for (UIView *subview in self.subviews) {
+            [subview exerciseAmbiguityInLayoutRepeatedly:YES];
+        }
+    }
+    #endif
+}
+@end
+```
 
 ### NSUserDefault Options
 
@@ -430,14 +466,16 @@ When you use the [visual format language](http://developer.apple.com/library/ios
 
 There is also a [neat little trick](https://github.com/evgenyneu/center-vfl) to achieve centering of a view within its superview using the visual format language, which takes advantage of inequality constraints and the options argument. The following code aligns a view horizontally in its super view:
 
-    UIView *superview = theSuperView;
-    NSDictionary *views = NSDictionaryOfVariableBindings(superview, subview);
-    NSArray *c = [NSLayoutConstraint 
-                    constraintsWithVisualFormat:@"V:[superview]-(<=1)-[subview]"]
-                                        options:NSLayoutFormatAlignAllCenterX
-                                        metrics:nil
-                                          views:views];
-    [superview addConstraints:c];
+```objc
+UIView *superview = theSuperView;
+NSDictionary *views = NSDictionaryOfVariableBindings(superview, subview);
+NSArray *c = [NSLayoutConstraint 
+                constraintsWithVisualFormat:@"V:[superview]-(<=1)-[subview]"]
+                                    options:NSLayoutFormatAlignAllCenterX
+                                    metrics:nil
+                                      views:views];
+[superview addConstraints:c];
+```
 
 This uses the option `NSLayoutFormatAlignAllCenterX` to create the actual centering constraint between the super view and the subview. The format string itself is merely a dummy that results in a constraint specifying that there should be less than one point of space between the super view's bottom and the subview's top edge, which is always the case as long as the subview is visible. You can reverse the dimensions in the example to achieve centering in the vertical direction.
 
@@ -445,36 +483,38 @@ Another convenient helper when using the visual format language is the `NSDictio
 
 For layout tasks that you have to do over and over, it's very convenient to create your own helper methods. For example, if you often have to space out a couple of sibling views vertically with a fixed distance between them while aligning all of them horizontally at the leading edge, having a method like this makes your code less verbose:
 
-    @implementation UIView (AutoLayoutHelpers)
-    + leftAlignAndVerticallySpaceOutViews:(NSArray *)views 
-                                 distance:(CGFloat)distance 
-    {
-        for (NSUInteger i = 1; i < views.count; i++) {
-            UIView *firstView = views[i - 1];
-            UIView *secondView = views[i];
-            firstView.translatesAutoResizingMaskIntoConstraints = NO;
-            secondView.translatesAutoResizingMaskIntoConstraints = NO;
+```objc
+@implementation UIView (AutoLayoutHelpers)
++ leftAlignAndVerticallySpaceOutViews:(NSArray *)views 
+                             distance:(CGFloat)distance 
+{
+    for (NSUInteger i = 1; i < views.count; i++) {
+        UIView *firstView = views[i - 1];
+        UIView *secondView = views[i];
+        firstView.translatesAutoResizingMaskIntoConstraints = NO;
+        secondView.translatesAutoResizingMaskIntoConstraints = NO;
 
-            NSLayoutConstraint *c1 = constraintWithItem:firstView
-                                              attribute:NSLayoutAttributeBottom
-                                              relatedBy:NSLayoutRelationEqual
-                                                 toItem:secondView
-                                              attribute:NSLayoutAttributeTop
-                                             multiplier:1
-                                               constant:distance];
+        NSLayoutConstraint *c1 = constraintWithItem:firstView
+                                          attribute:NSLayoutAttributeBottom
+                                          relatedBy:NSLayoutRelationEqual
+                                             toItem:secondView
+                                          attribute:NSLayoutAttributeTop
+                                         multiplier:1
+                                           constant:distance];
+                                           
+        NSLayoutConstraint *c2 = constraintWithItem:firstView
+                                          attribute:NSLayoutAttributeLeading
+                                          relatedBy:NSLayoutRelationEqual
+                                             toItem:secondView
+                                          attribute:NSLayoutAttributeLeading
+                                         multiplier:1
+                                           constant:0];
                                                
-            NSLayoutConstraint *c2 = constraintWithItem:firstView
-                                              attribute:NSLayoutAttributeLeading
-                                              relatedBy:NSLayoutRelationEqual
-                                                 toItem:secondView
-                                              attribute:NSLayoutAttributeLeading
-                                             multiplier:1
-                                               constant:0];
-                                                   
-            [firstView.superview addConstraints:@[c1, c2]];
-        }
+        [firstView.superview addConstraints:@[c1, c2]];
     }
-    @end
+}
+@end
+```
 
 In the meantime there are also many different Auto Layout helper libraries out there taking different approaches to simplifying constraint code.
 

@@ -40,7 +40,7 @@ In order to do work, Core Image requires an object called a _context_. The conte
 
 Core Image filters are created by name. To get a list of system filters, we ask Core Image for the names of filters in the `kCICategoryBuiltIn` category:
 
-```
+```swift
 let filterNames = CIFilter.filterNamesInCategory(kCICategoryBuiltIn) as [String]
 ```
 
@@ -50,7 +50,7 @@ The list of filters available on iOS is very nearly a subset of the filters avai
 
 Now that we have a list of available filters, we can create and use a filter. For example, to create a Gaussian blur filter, we pass the filter name to the appropriate `CIFilter` initializer:
 
-```
+```swift
 let blurFilter = CIFilter(named:"CIGaussianBlur")
 ```
 
@@ -58,7 +58,7 @@ let blurFilter = CIFilter(named:"CIGaussianBlur")
 
 Because of Core Image's plug-in structure, most filter properties are not set directly, but with key-value coding (KVC). For example, to set the blur radius of the blur filter, we use KVC to set its `inputRadius` property:
 
-```
+```swift
 blurFilter.setValue(10.0 forKey:"inputRadius")
 ```
 
@@ -70,7 +70,7 @@ To know what input and output parameters are offered by a filter, we can ask for
 
 To get more information about each parameter, we can look in the `attributes` dictionary provided by the filter. Each input and output parameter name maps to a dictionary of its own, describing what kind of parameter it is, and its minimum and maximum values, if applicable. For example, here is the dictionary corresponding to the `inputBrightness` parameter of the `CIColorControls` filter:
 
-```
+```swift
 inputBrightness = {
     CIAttributeClass = NSNumber;
     CIAttributeDefault = 0;
@@ -100,7 +100,7 @@ Quartz Composer, available for [download from the Apple Developer website](https
 
 Once we're satisfied with the effect, we can recreate the filter graph in code:
 
-```
+```swift
 let sepiaColor = CIColor(red: 0.76, green: 0.65, blue: 0.54)
 let monochromeFilter = CIFilter(name: "CIColorMonochrome",
     withInputParameters: ["inputColor" : sepiaColor, "inputIntensity" : 1.0])
@@ -121,7 +121,7 @@ Core Image filters require that their input image be of type `CIImage`. For iOS 
 
 All of the images we will be using in this article are finite, and it's easy enough to create a `CIImage` from a `UIImage`. In fact, it's just one line of code:
 
-```
+```swift
 let inputImage = CIImage(image: uiImage)
 ```
 
@@ -129,7 +129,7 @@ There are also convenience initializers for creating `CIImage`s directly from im
 
 Once we have a `CIImage`, we can set it as the input image of the filter graph by setting the `inputImage` parameter of the filter:
 
-```
+```swift
 filter.setValue(inputImage, forKey:"inputImage")
 ```
 
@@ -139,13 +139,13 @@ Filters have a property named `outputImage`. As you might guess, it has type `CI
 
 The simplest way to create a context is to pass a nil options dictionary to its constructor:
 
-```
+```swift
 let ciContext = CIContext(options: nil)
 ```
 
 To get an image out of the filter graph, we ask our `CIContext` to create a `CGImage` from a rect in the output image, passing the extent (bounds) of the input image:
 
-```
+```swift
 let cgImage = ciContext.createCGImage(filter.outputImage, fromRect: inputImage.extent())
 ```
 
@@ -153,7 +153,7 @@ The reason we use the input image's extent is that the output image often has di
 
 We can now create a `UIImage` from this newly created `CGImage`:
 
-```
+```swift
 let uiImage = UIImage(CGImage: cgImage)
 ```
 
@@ -165,7 +165,7 @@ It's time-consuming and wasteful to use the CPU to draw a `CGImage`, only to han
 
 To share resources between an OpenGL context and a Core Image context, we need to create our `CIContext` in a slightly different way:
 
-```
+```swift
 let eaglContext = EAGLContext(API: .OpenGLES2)
 let ciContext = CIContext(EAGLContext: context)
 ```
@@ -174,7 +174,7 @@ Here, we create an `EAGLContext` with the OpenGL ES 2.0 feature set. This GL con
 
 When a `CIContext` has an associated GL context, a filtered image can be drawn with OpenGL using the following call:
 
-```
+```swift
 ciContext.drawImage(filter.outputImage, inRect: outputBounds, fromRect: inputBounds)
 ```
 

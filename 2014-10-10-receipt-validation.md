@@ -148,7 +148,7 @@ If the receipt does not exist, this is considered a validation failure.
 
 On OS X 10.7 and later or iOS 7 and later, the code is straightforward:
 
-```
+```objc
 // OS X 10.7 and later / iOS 7 and later
 NSBundle *mainBundle = [NSBundle mainBundle];
 NSURL *receiptURL = [mainBundle appStoreReceiptURL];
@@ -161,7 +161,7 @@ if (!isPresent) {
 
 But if you target OS X 10.6, the `appStoreReceiptURL` selector is not available, and you have to manually build the URL to the receipt:
 
-```
+```objc
 // OS X 10.6 and later
 NSBundle *mainBundle = [NSBundle mainBundle];
 NSURL *bundleURL = [mainBundle bundleURL];
@@ -178,7 +178,7 @@ if (!isPresent) {
 
 Loading the receipt is pretty straightforward. Here is the code to load and parse the PKCS #7 envelope with [OpenSSL][openssl]:
 
-```
+```objc
 // Load the receipt file
 NSData *receiptData = [NSData dataWithContentsOfURL:receiptURL];
 
@@ -205,7 +205,7 @@ if (!PKCS7_type_is_data(receiptPKCS7->d.sign->contents)) {
 
 Once the receipt is loaded, the first thing to do is make sure that it is authentic and unaltered. Here is the code to check the PKCS #7 signature with [OpenSSL][openssl]:
 
-```
+```objc
 // Load the Apple Root CA (downloaded from https://www.apple.com/certificateauthority/)
 NSURL *appleRootURL = [[NSBundle mainBundle] URLForResource:@"AppleIncRootCertificate" withExtension:@"cer"];
 NSData *appleRootData = [NSData dataWithContentsOfURL:appleRootURL];
@@ -231,7 +231,7 @@ if (result != 1) {
 
 Once the receipt envelope has been verified, it is time to parse the receipt's payload. Here's an example of how to decode the DER-encoded ASN.1 payload with [OpenSSL][openssl]:
 
-```
+```objc
 // Get a pointer to the ASN.1 payload
 ASN1_OCTET_STRING *octets = receiptPKCS7->d.sign->contents->d.data;
 const unsigned char *ptr = octets->data;
@@ -365,7 +365,7 @@ if (bundleIdString == nil ||
 
 The receipt contains the bundle identifier and the bundle version for which the receipt was issued. You need to make sure that both match the data of your application:
 
-```
+```objc
 // Check the bundle identifier
 if (![bundleIdString isEqualTo:@"io.objc.myapplication"]) {
     // Validation fails
@@ -399,7 +399,7 @@ In order to compute this hash, you need to retrieve the device GUID.
 
 On OS X, the device GUID is the [MAC][wikipedia-mac-address] address of the primary network card. A way to retrieve it is to use the [IOKit framework][apple-iokit]:
 
-```
+```objc
 #import <IOKit/IOKitLib.h>
 
 // Open a MACH port
@@ -447,7 +447,7 @@ NSData *guidData = [NSData dataWithData:(__bridge NSData *) guid_cf_data];
 
 On iOS, the device GUID is an alphanumeric string that uniquely identifies the device, relative to the application's vendor:
 
-```
+```objc
 UIDevice *device = [UIDevice currentDevice];
 NSUUID *uuid = [device identifierForVendor];
 uuid_t uuid;
@@ -459,7 +459,7 @@ NSData *guidData = [NSData dataWithBytes:(const void *)uuid length:16];
 
 Now that we have retrieved the device GUID, we can calculate the hash. The hash computation must be done using the ASN.1 attribute's raw values (i.e. the binary data of the OCTET-STRING), and not on the interpreted values. Here's an example to perform the SHA-1 hashing, and the comparison with [OpenSSL][openssl]:
 
-```
+```objc
 unsigned char hash[20];
 
 // Create a hashing context for computation
@@ -482,7 +482,7 @@ if (![computedHashData isEqualToData:hashData]) {
 
 If your app supports the Volume Purchase Program, another check is needed: the receipt’s expiration date. This date can be found in the type 21 attribute:
 
-```
+```objc
 // If an expiration date is present, check it
 if (expirationDate) {
     NSDate *currentDate = [NSDate date];

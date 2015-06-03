@@ -48,118 +48,126 @@ In order to achieve this, we needed a custom format of exchanging data between t
 
 The client and the server exchange data via a custom JSON format. The same format is used in both directions -- the client talks to the server in the same way the server talks back to the client. A simple example of this format looks like this:
 
-    {
-        "maxRevision": 17382,
-        "changeSets: [
-            ...
-        ]
-    }
-    
+```json
+{
+    "maxRevision": 17382,
+    "changeSets: [
+        ...
+    ]
+}
+```
+
 On the top level, the JSON data has two keys: `maxRevision` and `changeSets`. `maxRevision` is a simple revision number that unambiguously identifies the revision of the data set currently available on the client that sends this request. The `changeSets` key holds an array of change set objects that look something like this:
 
-    {
-        "types": [ "users" ],
-        "users": {
-            "create": [],
-            "update": [ 1013 ],
-            "delete": [],
-            "attributes": {
-                "1013": {
-                    "first_name": "Florian",
-                    "last_name": "Kugler",
-                    "date_of_birth": "1979-09-12 00:00:00.000+00"
-                    "revision": 355
-                }
+```json
+{
+    "types": [ "users" ],
+    "users": {
+        "create": [],
+        "update": [ 1013 ],
+        "delete": [],
+        "attributes": {
+            "1013": {
+                "first_name": "Florian",
+                "last_name": "Kugler",
+                "date_of_birth": "1979-09-12 00:00:00.000+00"
+                "revision": 355
             }
         }
     }
-    
+}
+```
+
 The top level, `types`, key lists all the entity types that are contained in this change set. Each entity type then is described by its own change object, which contains the keys `create`, `update`, and `delete`, which are arrays of record IDs -- as well as `attributes`, which actually holds the new or updated data for each changed record.
 
 This data format carries a little bit of legacy cruft from a previously existing web application where this particular structure was beneficial for processing in the client-side framework used at the time. But it serves the purpose of the syncing solution described here equally well.
 
 Let's have a look at a slightly more complex example. We have entered some new screening data for one of the players on a device, which now should be synced up to the server. The request would look something like this:
 
-    {
-        "maxRevision": 1000,
-        "changeSets": [
-            {
-                "types": [ "screen_instances", "screen_instance_items" ],
-                "screen_instances": {
-                    "create": [ -10 ],
-                    "update": [],
-                    "delete": [],
-                    "attributes": {
-                        "-10": {
-                            "screen_id": 749,
-                            "date": "2014-02-01 13:15:23.487+01",
-                            "comment": ""
-                        }
+```json
+{
+    "maxRevision": 1000,
+    "changeSets": [
+        {
+            "types": [ "screen_instances", "screen_instance_items" ],
+            "screen_instances": {
+                "create": [ -10 ],
+                "update": [],
+                "delete": [],
+                "attributes": {
+                    "-10": {
+                        "screen_id": 749,
+                        "date": "2014-02-01 13:15:23.487+01",
+                        "comment": ""
                     }
-                },
-                "screen_instance_items: {
-                    "create": [ -11, -12 ],
-                    "update": [],
-                    "delete": [],
-                    "attributes": {
-                        "-11": {
-                            "screen_instance_id": -10,
-                            "numeric_value": 2
-                        },
-                        "-12": {
-                            ...
-                        }
+                }
+            },
+            "screen_instance_items: {
+                "create": [ -11, -12 ],
+                "update": [],
+                "delete": [],
+                "attributes": {
+                    "-11": {
+                        "screen_instance_id": -10,
+                        "numeric_value": 2
+                    },
+                    "-12": {
+                        ...
                     }
                 }
             }
-        ]
-    }
+        }
+    ]
+}
+```
 
 Notice how the records being sent have negative IDs. That's because they are newly created records. The new `screen_instance` record has the ID `-10`, and the `screen_instance_items` records reference this record by their foreign keys. 
 
 Once the server has processed this request (let's assume there was no conflict or permission problem), it would respond with JSON data like this:
 
-    {
-        "maxRevision": 1001,
-        "changeSets": [
-            {
-                "conflict": false,
-                "types": [ "screen_instances", "screen_instance_items" ],
-                "screen_instances": {
-                    "create": [ 321 ],
-                    "update": [],
-                    "delete": [],
-                    "attributes": {
-                        "321": {
-                            "__oldId__": -10
-                            "revision": 1001
-                            "screen_id": 749,
-                            "date": "2014-02-01 13:15:23.487+01",
-                            "comment": "",
-                        }
+```objc
+{
+    "maxRevision": 1001,
+    "changeSets": [
+        {
+            "conflict": false,
+            "types": [ "screen_instances", "screen_instance_items" ],
+            "screen_instances": {
+                "create": [ 321 ],
+                "update": [],
+                "delete": [],
+                "attributes": {
+                    "321": {
+                        "__oldId__": -10
+                        "revision": 1001
+                        "screen_id": 749,
+                        "date": "2014-02-01 13:15:23.487+01",
+                        "comment": "",
                     }
-                },
-                "screen_instance_items: {
-                    "create": [ 412, 413 ],
-                    "update": [],
-                    "delete": [],
-                    "attributes": {
-                        "412": {
-                            "__oldId__": -11,
-                            "revision": 1001,
-                            "screen_instance_id": 321,
-                            "numeric_value": 2
-                        },
-                        "413": {
-                            "__oldId__": -12,
-                            "revision": 1001,
-                            ...
-                        }
+                }
+            },
+            "screen_instance_items: {
+                "create": [ 412, 413 ],
+                "update": [],
+                "delete": [],
+                "attributes": {
+                    "412": {
+                        "__oldId__": -11,
+                        "revision": 1001,
+                        "screen_instance_id": 321,
+                        "numeric_value": 2
+                    },
+                    "413": {
+                        "__oldId__": -12,
+                        "revision": 1001,
+                        ...
                     }
                 }
             }
-        ]
-    }
+        }
+    ]
+}
+```
 
 The client sent the request with the revision number `1000`, and the server now responds with a revision number, `1001`, which is also assigned to all of the newly created records. (The fact that it is only incremented by one tells us that the client's data set was up to date before this request was issued.)
 
@@ -229,9 +237,11 @@ Since we're dealing with substantial amounts of data for mobile devices (in the 
 
 Then we take the SQLite database generated in this process, and run the following two commands on it:
 
-    sqlite> PRAGMA wal_checkpoint;
-    sqlite> VACUUM;
-    
+```objc
+sqlite> PRAGMA wal_checkpoint;
+sqlite> VACUUM;
+```
+
 The first one makes sure that all changes from the write-ahead logging file are transferred to the main `.sqlite` file, while the second command makes sure that the file is not unnecessarily bloated.
 
 Once the app is started the first time, the database is copied from the app bundle to its final location. For more information on this process and other ways to import data into Core Data, see [this article in objc.io #4](/issues/4-core-data/importing-large-data-sets-into-core-data/).

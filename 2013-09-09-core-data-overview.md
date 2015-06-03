@@ -58,25 +58,31 @@ On first launch, we don't have any items. The first thing we need to do is to cr
 
 It may seem cumbersome. The way to insert objects is with the
 
-    + (id)insertNewObjectForEntityForName:(NSString *)entityName 
-                   inManagedObjectContext:(NSManagedObjectContext *)context
+```objc
++ (id)insertNewObjectForEntityForName:(NSString *)entityName 
+               inManagedObjectContext:(NSManagedObjectContext *)context
+```
 
 method on `NSEntityDescription`. We suggest that you add two convenience methods to your model class:
 
-    + (NSString *)entityName
-    {
-       return @“Item”;
-    }
-    
-    + (instancetype)insertNewObjectInManagedObjectContext:(NSManagedObjectContext *)moc;
-    {
-       return [NSEntityDescription insertNewObjectForEntityForName:[self entityName] 
-                                            inManagedObjectContext:moc];
-    }
+```objc
++ (NSString *)entityName
+{
+   return @“Item”;
+}
+
++ (instancetype)insertNewObjectInManagedObjectContext:(NSManagedObjectContext *)moc;
+{
+   return [NSEntityDescription insertNewObjectForEntityForName:[self entityName] 
+                                        inManagedObjectContext:moc];
+}
+```
 
 Now, we can insert our root object like so:
 
-    Item *rootItem = [Item insertNewObjectInManagedObjectContext:managedObjectContext];
+```objc
+Item *rootItem = [Item insertNewObjectInManagedObjectContext:managedObjectContext];
+```
 
 Now there's a single item in our managed object context (MOC). The context knows about this newly inserted *managed object* and the managed object `rootItem` knows about the context (it has a `-managedObjectContext` method).
 
@@ -84,10 +90,12 @@ Now there's a single item in our managed object context (MOC). The context knows
 
 At this point, though, we have not touched the persistent store coordinator or the persistent store, yet. The new model object, `rootItem`, is just in memory. If we want to save the state of our model objects (in this case just that one object), we need to *save* the context:
 
-    NSError *error = nil;
-	if (! [managedObjectContext save:&error]) {
-		// Uh, oh. An error happened. :(
-	}
+```objc
+NSError *error = nil;
+if (! [managedObjectContext save:&error]) {
+    // Uh, oh. An error happened. :(
+}
+```
 
 At this point, a lot is going to happen. First, the managed object context figures out what has changed. It is the context's responsibility to track any and all changes you make to any managed objects inside that context. In our case, the only change we've made thus far is inserting one object, our `rootItem`.
 
@@ -97,9 +105,11 @@ The managed object context then passes these changes on to the persistent store 
 
 The power of Core Data is managing relationships. Let's look at the simple case of adding our second item and making it a child item of the `rootItem`:
 
-    Item *item = [Item insertNewObjectInManagedObjectContext:managedObjectContext];
-	item.parent = rootItem;
-	item.title = @"foo";
+```objc
+Item *item = [Item insertNewObjectInManagedObjectContext:managedObjectContext];
+item.parent = rootItem;
+item.title = @"foo";
+```
 
 That's it. Again, these changes are only inside the managed object context. Once we save the context, however, the managed object context will tell the persistent store coordinator to add that newly created object to the database file just like for our first object. But it will also update the relationship from our second item to the first and the other way around, from the first object to the second. Remember how the *Item* entity has a *parent* and a *children* relationship. These are reverse relationships of one another. Because we set the first item to be the parent of the second, the second will be a child of the first. The managed object context tracks these relationships and the persistent store coordinator and the store persist (i.e. save) these relationships to disk.
 
@@ -111,16 +121,20 @@ Let's say we've been using our app for a while and have added a few sub-items to
 
 When we created our `rootItem` object, and once we've saved it, we can ask it for its `NSManagedObjectID`. This is an opaque object that uniquely represents that object. We can store this into e.g. `NSUSerDefaults`, like this:
 
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	[defaults setURL:rootItem.managedObjectID.URIRepresentation forKey:@"rootItem"];
+```objc
+NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+[defaults setURL:rootItem.managedObjectID.URIRepresentation forKey:@"rootItem"];
+```
 
 Now when the app is relaunched, we can get back to the object like so:
 
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	NSURL *uri = [defaults URLForKey:@"rootItem"];
-	NSManagedObjectID *moid = [managedObjectContext.persistentStoreCoordinator managedObjectIDForURIRepresentation:uri];
-	NSError *error = nil;
-    Item *rootItem = (id) [managedObjectContext existingObjectWithID:moid error:&error];
+```objc
+NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+NSURL *uri = [defaults URLForKey:@"rootItem"];
+NSManagedObjectID *moid = [managedObjectContext.persistentStoreCoordinator managedObjectIDForURIRepresentation:uri];
+NSError *error = nil;
+Item *rootItem = (id) [managedObjectContext existingObjectWithID:moid error:&error];
+```
 
 Obviously, in a real app, we'd have to check if `NSUserDefaults` actually returns a valid value.
 
@@ -128,7 +142,9 @@ What just happened is that the managed object context asked the persistent store
 
 The `rootItem` has a relationship called `children`. But there's nothing there, yet. We want to display the sub-items of our `rootItem`, and hence we'll call:
 
-    NSOrderedSet *children = rootItem.children;
+```objc
+NSOrderedSet *children = rootItem.children;
+```
 
 What happens now, is that the context notes that the relationship `children` from that `rootItem` is a so-called *fault*. Core Data has marked the relationship as something it still has to resolve. And since we're accessing it at this point, the context will now automatically coordinate with the persistent store coordinator to bring those child items into the context.
 
@@ -149,7 +165,9 @@ If you know you have to fetch objects from the store (because you don't have the
 
 Now, let's say we are changing the `title` of one of our `Item` objects:
 
-    item.title = @"New title";
+```objc
+item.title = @"New title";
+```
 
 When we do this, the items title changes. But additionally, the managed object context marks the specific managed object (`item`) as changed, such that it will be saved through the persistent store coordinator and attached store when we call `-save:` on the context. One of the key responsibilities of the context is *change tracking*.
 

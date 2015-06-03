@@ -62,62 +62,70 @@ be more than one token. With this option chosen, they will be combined so you ca
 
 Our program will index a number of texts held in separate files (which we assume are encoded in UTF-8). We will have a `FileProcessor` class which handles a single file, chopping it up into words and passing those on to another class that does something with them. That latter class will implement the `WordReceiver` protocol, which contains a single method: 
 
-    -(void)receiveWord:(NSDictionary*)word
+```objc
+-(void)receiveWord:(NSDictionary*)word
+```
 
 We represent the word not as an `NSString`, but as a dictionary, as it will have several attributes attached to it: the actual token, its part of speech or name type, its lemma, the number of the sentence it is in, and the position within that sentence. We also want to store the filename itself for indexing purposes. The `FileProcessor` is called
 with:
 
-    - (BOOL)processFile:(NSString*)filename
+```objc
+- (BOOL)processFile:(NSString*)filename
+```
 
 which triggers the analysis and returns `YES` if all went well, and `NO` in case of an error. It first creates an `NSString` from the file, and then passes it to an instance of `NSLinguisticTagger` for processing.
 
 The main `NSLinguisticTagger` method iterates over a range within an `NSString` and calls a block for every element that has been found. In order to simplify this a little, we will first split the text into sentences, and then iterate over each sentence separately. This makes it easier to keep track of sentence IDs. For the tagging, we will work a lot with
 `NSRange` items, which are used to demarcate a region in the source text that an annotation applies to. We start off by creating a range that has to be within the first sentence and use it to get the full extent of the initial sentence for tagging:
 
-    NSRange currentSentence = [tagger sentenceRangeForRange:NSMakeRange(0, 1)];
+```objc
+NSRange currentSentence = [tagger sentenceRangeForRange:NSMakeRange(0, 1)];
+```
 
 Once we have finished dealing with this sentence, we check whether we have successfully completed our text, or whether there are more sentences available:
 
-    if (currentSentence.location + currentSentence.length == [fileContent length]) {
-        currentSentence.location = NSNotFound;
-    } else {
-        NSRange nextSentence = NSMakeRange(currentSentence.location + currentSentence.length + 1, 1);
-        currentSentence = [tagger sentenceRangeForRange:nextSentence];
-    }
-
+```objc
+if (currentSentence.location + currentSentence.length == [fileContent length]) {
+    currentSentence.location = NSNotFound;
+} else {
+    NSRange nextSentence = NSMakeRange(currentSentence.location + currentSentence.length + 1, 1);
+    currentSentence = [tagger sentenceRangeForRange:nextSentence];
+}
+```
 
 If we have reached the end of the text, `NSNotFound` is used to signal to the `while` loop that it should terminate.
 If we use a range that is outside of the text, `NSLinguisticTagger` simply crashes ungraciously with an exception.
 
 The main work then happens within a single method call in our sentence-processing loop:
 
-    while (currentSentence.location != NSNotFound) {
-        __block NSUInteger tokenPosition = 0;
-        [tagger enumerateTagsInRange:currentSentence
-                              scheme:NSLinguisticTagSchemeNameTypeOrLexicalClass
-                             options:options
-                          usingBlock:^(NSString *tag, NSRange tokenRange, NSRange sentenceRange, BOOL *stop) 
-        {
-            NSString *token = [fileContent substringWithRange:tokenRange];
-            NSString *lemma = [tagger tagAtIndex:tokenRange.location 
-                                          scheme:NSLinguisticTagSchemeLemma 
-                                      tokenRange: NULL 
-                                   sentenceRange:NULL];
-            if (lemma == nil) {
-                lemma = token;
-            }
-            [self.delegate receiveWord:@{
-                @"token": token, 
-                @"postag": tag, 
-                @"lemma": lemma, 
-                @"position": @(tokenPosition), 
-                @"sentence": @(sentenceCounter), 
-                @"filename": filename
-            }];
-            tokenPosition++;
+```objc
+while (currentSentence.location != NSNotFound) {
+    __block NSUInteger tokenPosition = 0;
+    [tagger enumerateTagsInRange:currentSentence
+                          scheme:NSLinguisticTagSchemeNameTypeOrLexicalClass
+                         options:options
+                      usingBlock:^(NSString *tag, NSRange tokenRange, NSRange sentenceRange, BOOL *stop) 
+    {
+        NSString *token = [fileContent substringWithRange:tokenRange];
+        NSString *lemma = [tagger tagAtIndex:tokenRange.location 
+                                      scheme:NSLinguisticTagSchemeLemma 
+                                  tokenRange: NULL 
+                               sentenceRange:NULL];
+        if (lemma == nil) {
+            lemma = token;
+        }
+        [self.delegate receiveWord:@{
+            @"token": token, 
+            @"postag": tag, 
+            @"lemma": lemma, 
+            @"position": @(tokenPosition), 
+            @"sentence": @(sentenceCounter), 
+            @"filename": filename
         }];
-    }
-
+        tokenPosition++;
+    }];
+}
+```
 
 We ask the tagger for name types or lexical classes, given a set of options (joining names, omitting punctuation, and white space).  We then get the tag and extent of each item found, and retrieve further information about it. The token is the actual part of the string, simply described by the character range. Lemma is the base form, which will be `nil` if unavailable, so we need to check for that and use the token string as a fallback. Once we have collected that information, we package it up in a dictionary and send it to our delegate for processing.
 
@@ -127,31 +135,32 @@ In our sample app, we simply log all the words we are receiving, but we can basi
 To make it more realistic, I have added some basic HTML tags around the header information of the sample text, identifying the title, byline, and date, for example. Running this through the tagger comes up with the problem that `NSLinguisticTagger` is not aware of HTML, and tries to process the mark-up as text. Here are the first three received words:
 
 
-    {
-        filename = "/Users/oliver/tmp/guardian-article.txt";
-        lemma = "<";
-        position = 0;
-        postag = Particle;
-        sentence = 0;
-        token = "<";
-    }
-    {
-        filename = "/Users/oliver/tmp/guardian-article.txt";
-        lemma = h1;
-        position = 1;
-        postag = Verb;
-        sentence = 0;
-        token = h1;
-    }
-    {
-        filename = "/Users/oliver/tmp/guardian-article.txt";
-        lemma = ">";
-        position = 2;
-        postag = Adjective;
-        sentence = 0;
-        token = ">";
-    }
-
+```
+{
+    filename = "/Users/oliver/tmp/guardian-article.txt";
+    lemma = "<";
+    position = 0;
+    postag = Particle;
+    sentence = 0;
+    token = "<";
+}
+{
+    filename = "/Users/oliver/tmp/guardian-article.txt";
+    lemma = h1;
+    position = 1;
+    postag = Verb;
+    sentence = 0;
+    token = h1;
+}
+{
+    filename = "/Users/oliver/tmp/guardian-article.txt";
+    lemma = ">";
+    position = 2;
+    postag = Adjective;
+    sentence = 0;
+    token = ">";
+}
+```
 
 Not only are tags split into parts and treated as words, but they also get weird and completely wrong tags. So, if you are processing files that contain mark-up, it is best to filter that out first. Maybe, instead of splitting the whole text into sentences as we have done in the sample app, you would want to identify tags and return an `NSRange` that covers the area between tags. Or, strip them out completely, which is a better option if
 there are in-line tags (such as bold/italics or hyperlinks).
@@ -173,11 +182,13 @@ There are several ways to implement a part-of-speech tagger: the two main approa
 specific context. You can also have both a probabilistic base model which uses a few rules to correct recurring typical errors and a so-called hybrid tagger. As developing rule sets for different languages is much more effort than automatically training a stochastic language model, my guess is that `NSLinguisticTagger` is purely probabilistic. This
 implementation detail is also exposed by the:
 
-    - (NSArray *)possibleTagsAtIndex:(NSUInteger)charIndex 
-                              scheme:(NSString *)tagScheme 
-                          tokenRange:(NSRangePointer)tokenRange 
-                       sentenceRange:(NSRangePointer)sentenceRange 
-                              scores:(NSArray **)scores
+```objc
+- (NSArray *)possibleTagsAtIndex:(NSUInteger)charIndex 
+                          scheme:(NSString *)tagScheme 
+                      tokenRange:(NSRangePointer)tokenRange 
+                   sentenceRange:(NSRangePointer)sentenceRange 
+                          scores:(NSArray **)scores
+```
 
 method. This accounts for the fact that sometimes (or most times, actually) there is more than one possible tag value, and the tagger has to make a choice which could potentially be wrong. With this method, you can get a list of the possible options, together with their probability scores. The highest-scoring word will have been chosen by the tagger,
 but here you can also have access to the second and subsequent alternatives, in case you do want to perhaps build a rule-based post-processor to improve the tagger's performance.

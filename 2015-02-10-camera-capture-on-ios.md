@@ -37,7 +37,7 @@ An image capture implemented with the AVFoundation framework is based on a few c
 
 Let's start building the capture. First we need an `AVCaptureSession` object:
 
-```
+```swift
 let session = AVCaptureSession()
 ```
 

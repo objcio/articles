@@ -21,7 +21,9 @@ We will be using the Foundation framework's API defined in the `NSXPCConnection.
 
 Apple uses XPC extensively for various parts of the operating system — and a lot of the system frameworks use XPC to implement their functionality. A quick run of
 
-    % find /System/Library/Frameworks -name \*.xpc
+```
+% find /System/Library/Frameworks -name \*.xpc
+```
 
 shows 55 XPC services inside Frameworks, ranging from AddressBook to WebKit.
 
@@ -41,21 +43,25 @@ The app will look something like this:
 
 The `NSTableViewDataSource` will retrieve the images from a class called `ImageSet`, like this:
 
-    func tableView(tableView: NSTableView!, viewForTableColumn tableColumn: NSTableColumn!, row: Int) -> NSView! {
-        let cellView = tableView.makeViewWithIdentifier("Image", owner: self) as NSTableCellView
-        var image: NSImage? = nil
-        if let c = self.imageSet?.images.count {
-            if row < c {
-                image = self.imageSet?.images[row]
-            }
+```objc
+func tableView(tableView: NSTableView!, viewForTableColumn tableColumn: NSTableColumn!, row: Int) -> NSView! {
+    let cellView = tableView.makeViewWithIdentifier("Image", owner: self) as NSTableCellView
+    var image: NSImage? = nil
+    if let c = self.imageSet?.images.count {
+        if row < c {
+            image = self.imageSet?.images[row]
         }
-        cellView.imageView.image = image
-        return cellView
     }
+    cellView.imageView.image = image
+    return cellView
+}
+```
 
 The `ImageSet` class has a simple
 
-    var images: NSImage![]
+```objc
+var images: NSImage![]
+```
 
 property, which is filled asynchronously using the `ImageLoader` class.
 
@@ -64,32 +70,34 @@ property, which is filled asynchronously using the `ImageLoader` class.
 Without XPC, we would implement the `ImageLoader` class to download and decompress an image, like so:
 
 
-    class ImageLoader: NSObject {
-        let session: NSURLSession
-    
-        init()  {
-            let config = NSURLSessionConfiguration.defaultSessionConfiguration()
-            session = NSURLSession(configuration: config)
-        }
-    
-        func retrieveImage(atURL url: NSURL, completionHandler: (NSImage?)->Void) {
-            let task = session.dataTaskWithURL(url) {
-                maybeData, response, error in
-                if let data: NSData = maybeData {
-                    dispatch_async(dispatch_get_global_queue(0, 0)) {
-                        let source = CGImageSourceCreateWithData(data, nil).takeRetainedValue()
-                        let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil).takeRetainedValue()
-                        var size = CGSize(
-                            width: CGFloat(CGImageGetWidth(cgImage)),
-                            height: CGFloat(CGImageGetHeight(cgImage)))
-                        let image = NSImage(CGImage: cgImage, size: size)
-                        completionHandler(image)
-                    }
+```objc
+class ImageLoader: NSObject {
+    let session: NSURLSession
+
+    init()  {
+        let config = NSURLSessionConfiguration.defaultSessionConfiguration()
+        session = NSURLSession(configuration: config)
+    }
+
+    func retrieveImage(atURL url: NSURL, completionHandler: (NSImage?)->Void) {
+        let task = session.dataTaskWithURL(url) {
+            maybeData, response, error in
+            if let data: NSData = maybeData {
+                dispatch_async(dispatch_get_global_queue(0, 0)) {
+                    let source = CGImageSourceCreateWithData(data, nil).takeRetainedValue()
+                    let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil).takeRetainedValue()
+                    var size = CGSize(
+                        width: CGFloat(CGImageGetWidth(cgImage)),
+                        height: CGFloat(CGImageGetHeight(cgImage)))
+                    let image = NSImage(CGImage: cgImage, size: size)
+                    completionHandler(image)
                 }
             }
-            task.resume()
         }
+        task.resume()
     }
+}
+```
 
 This is pretty straightforward and works well.
 
@@ -119,9 +127,11 @@ When the app sends data to the `io.objc.Superfamous-Images.ImageDownloader` serv
 
 Communication over XPC is always asynchronous. It is defined by a protocol that both the app and the services use. In our case:
 
-    @objc(ImageDownloaderProtocol) protocol ImageDownloaderProtocol {
-        func downloadImage(atURL: NSURL!, withReply: (NSData?)->Void)
-    }
+```objc
+@objc(ImageDownloaderProtocol) protocol ImageDownloaderProtocol {
+    func downloadImage(atURL: NSURL!, withReply: (NSData?)->Void)
+}
+```
 
 Note the `withReply:` part. This is how the reply will get sent back to the caller asynchronously. Messages that return data need to use methods where the last part is a `withReply:` that takes a closure.
 
@@ -129,27 +139,33 @@ In our case, we only have one method call in the service, but we could have mult
 
 The connection from the app to the services is then created through an `NSXPCConnection` object, like so:
 
-    let connection = NSXPCConnection(serviceName: "io.objc.Superfamous-Images.ImageDownloader")
-    connection.remoteObjectInterface = NSXPCInterface(`protocol`: ImageDownloaderProtocol.self)
-    connection.resume()
+```objc
+let connection = NSXPCConnection(serviceName: "io.objc.Superfamous-Images.ImageDownloader")
+connection.remoteObjectInterface = NSXPCInterface(`protocol`: ImageDownloaderProtocol.self)
+connection.resume()
+```
 
 If we store this connection object in `self.imageDownloadConnection`, we can communicate with the service, like so:
 
-    let downloader = self.imageDownloadConnection.remoteObject as ImageDownloaderProtocol
-    downloader.downloadImageAtURL(url) {
-        (data) in
-        println("Got \(data.length) bytes.")
-    }
+```objc
+let downloader = self.imageDownloadConnection.remoteObject as ImageDownloaderProtocol
+downloader.downloadImageAtURL(url) {
+    (data) in
+    println("Got \(data.length) bytes.")
+}
+```
 
 We should use an error handler, though. That would look like this:
 
-    let downloader = self.imageDownloadConnection.remoteObjectProxyWithErrorHandler {
-        	(error) in NSLog("remote proxy error: %@", error)
-    } as ImageDownloaderProtocol
-    downloader.downloadImageAtURL(url) {
-        (data) in
-        println("Got \(data.length) bytes.")
-    }
+```objc
+let downloader = self.imageDownloadConnection.remoteObjectProxyWithErrorHandler {
+        (error) in NSLog("remote proxy error: %@", error)
+} as ImageDownloaderProtocol
+downloader.downloadImageAtURL(url) {
+    (data) in
+    println("Got \(data.length) bytes.")
+}
+```
 
 That's all there is to it on the app's side.
 
@@ -159,48 +175,51 @@ The service has a listener, `NSXPCListener` that listens to incoming requests (f
 
 In `main.swift`, we can put:
 
-    class ServiceDelegate : NSObject, NSXPCListenerDelegate {
-        func listener(listener: NSXPCListener!, shouldAcceptNewConnection newConnection: NSXPCConnection!) -> Bool {
-            newConnection.exportedInterface = NSXPCInterface(`protocol`: ImageDownloaderProtocol.self)
-            var exportedObject = ImageDownloader()
-            newConnection.exportedObject = exportedObject
-            newConnection.resume()
-            return true
-        }
+```objc
+class ServiceDelegate : NSObject, NSXPCListenerDelegate {
+    func listener(listener: NSXPCListener!, shouldAcceptNewConnection newConnection: NSXPCConnection!) -> Bool {
+        newConnection.exportedInterface = NSXPCInterface(`protocol`: ImageDownloaderProtocol.self)
+        var exportedObject = ImageDownloader()
+        newConnection.exportedObject = exportedObject
+        newConnection.resume()
+        return true
     }
-    
-    // Create the listener and run it by resuming:
-    let delegate = ServiceDelegate()
-    let listener = NSXPCListener.serviceListener()
-    listener.delegate = delegate;
-    listener.resume()
+}
 
+// Create the listener and run it by resuming:
+let delegate = ServiceDelegate()
+let listener = NSXPCListener.serviceListener()
+listener.delegate = delegate;
+listener.resume()
+```
 
 We create an `NSXPCListener` at the global scope (this corresponds to the `main` function in C / Objective-C). We'll pass it a service delegate that can configure incoming connections. We need to set the same protocol on the connection that we use inside the app. Then we set an instance of `ImageDownloader`, which actually implements that protocol:
 
-    class ImageDownloader : NSObject, ImageDownloaderProtocol {
-        let session: NSURLSession
-    
-        init()  {
-            let config = NSURLSessionConfiguration.defaultSessionConfiguration()
-            session = NSURLSession(configuration: config)
-        }
-    
-        func downloadImageAtURL(url: NSURL!, withReply: ((NSData!)->Void)!) {
-            let task = session.dataTaskWithURL(url) {
-                data, response, error in
-                if let httpResponse = response as? NSHTTPURLResponse {
-                    switch (data, httpResponse) {
-                    case let (d, r) where (200 <= r.statusCode) && (r.statusCode <= 399):
-                        withReply(d)
-                    default:
-                        withReply(nil)
-                    }
+```objc
+class ImageDownloader : NSObject, ImageDownloaderProtocol {
+    let session: NSURLSession
+
+    init()  {
+        let config = NSURLSessionConfiguration.defaultSessionConfiguration()
+        session = NSURLSession(configuration: config)
+    }
+
+    func downloadImageAtURL(url: NSURL!, withReply: ((NSData!)->Void)!) {
+        let task = session.dataTaskWithURL(url) {
+            data, response, error in
+            if let httpResponse = response as? NSHTTPURLResponse {
+                switch (data, httpResponse) {
+                case let (d, r) where (200 <= r.statusCode) && (r.statusCode <= 399):
+                    withReply(d)
+                default:
+                    withReply(nil)
                 }
             }
-            task.resume()
         }
+        task.resume()
     }
+}
+```
 
 One important thing to note is that both `NSXPCListener` and `NSXPCConnection` start out being suspended. We need to resume them once they have been configured.
 
@@ -230,8 +249,10 @@ XPC manages the lifecycle of the service by keeping track of requests that are s
 
 In some situations, we might want to tell XPC that we have to do more work. To do this, we can use the `NSProcessInfo` API:
 
-    func disableAutomaticTermination(reason: String!)
-    func enableAutomaticTermination(reason: String!)
+```objc
+func disableAutomaticTermination(reason: String!)
+func enableAutomaticTermination(reason: String!)
+```
 
 This is relevant if we need to perform some asynchronous background operation inside the XPC service as a result of an incoming request. We may also need to adjust our [quality of service](#quality-of-service) in that situation.
 
@@ -244,10 +265,10 @@ We can set a connection invalidation handler that will get run when the XPC runt
 
 We can also set a connection interruption handler that will get called when the connection is interrupted, even if the connection will remain valid. The two properties on `NSXPCConnection` are:
 
-    var interruptionHandler: (() -> Void)!
-    var invalidationHandler: (() -> Void)!
-
-
+```objc
+var interruptionHandler: (() -> Void)!
+var invalidationHandler: (() -> Void)!
+```
 
 ## Bidirectional Connections
 
@@ -270,7 +291,9 @@ When we connect to an XPC service, the we need to *find* that other end that we'
 
 When an app uses
 
-    NSXPCConnection(serviceName: "io.objc.myapp.myservice")
+```objc
+NSXPCConnection(serviceName: "io.objc.myapp.myservice")
+```
 
 XPC will look up the `io.objc.myapp.myservice` service inside the app's own name space. This service is local to the app — other apps can't connect to this service. The XPC service bundle will either be located inside the app’s bundle or inside the bundle of a framework that the app is using.
 
@@ -278,7 +301,9 @@ XPC will look up the `io.objc.myapp.myservice` service inside the app's own name
 
 Another option is to use:
 
-    NSXPCConnection(machServiceName: "io.objc.mymachservice", options: NSXPCConnectionOptions(0))
+```objc
+NSXPCConnection(machServiceName: "io.objc.mymachservice", options: NSXPCConnectionOptions(0))
+```
 
 This will look for the service `io.objc.mymachservice` in the user's login session. We can install so-called launch agents in either `/Library/LaunchAgents` or `~/Library/LaunchAgents` and these can provide XPC services in much the same way as an app's XPC service. But since these are per-login sessions, multiple apps running in a login session can talk to the same launch agent.
 
@@ -298,22 +323,29 @@ Both apps can connect to the launch agent. App A creates a so-called *anonymous 
 
 App A would create the listener with
 
-    let listener = NSXPCListener.anonymousListener()
+```objc
+let listener = NSXPCListener.anonymousListener()
+```
 
 in a similar way to how an XPC service would normally create its listener. It then creates an endpoint from this listener with:
 
-    let endpoint = listener.endpoint
+```objc
+let endpoint = listener.endpoint
+```
 
 This endpoint can then be sent over XPC (it implements `NSSecureCoding`). Once App B retrieves that endpoint, it can create a connection to the original listener inside App A with:
 
-    let connection = NSXPCConnection(listenerEndpoint: endpoint)
-
+```objc
+let connection = NSXPCConnection(listenerEndpoint: endpoint)
+```
 
 ### Privileged Mach Service
 
 The final option is to use:
 
-    NSXPCConnection(machServiceName: "io.objc.mymachservice", options: .Privileged)
+```objc
+NSXPCConnection(machServiceName: "io.objc.mymachservice", options: .Privileged)
+```
 
 This is very similar to launch agents, but will create a connection to a daemon instead. Launch agent processes are per user. They run as the user and inside the user's login session. Daemons are per machine. An XPC daemon will only have one instance running, even when multiple users are logged in.
 
@@ -326,19 +358,23 @@ Let's say we want to create a service that downloads a file over HTTP. We need t
 
 The way this works, is that we first create the file that we want to download to inside the app. We then create a file handle for that file:
 
-    let fileURL = NSURL.fileURLWithPath("/some/path/we/want/to/download/to")
-    if NSData().writeToURL(fileURL, options:0, error:&error) {
-        let maybeHandle = NSFileHandle.fileHandleForWritingToURL(url:fileURL, error:&error)
-        if let handle = maybeHandle {
-            self.startDownload(fromURL:someURL, toFileHandle: handle) {
-                self.downloadComplete(url: someURL)
-            }
+```objc
+let fileURL = NSURL.fileURLWithPath("/some/path/we/want/to/download/to")
+if NSData().writeToURL(fileURL, options:0, error:&error) {
+    let maybeHandle = NSFileHandle.fileHandleForWritingToURL(url:fileURL, error:&error)
+    if let handle = maybeHandle {
+        self.startDownload(fromURL:someURL, toFileHandle: handle) {
+            self.downloadComplete(url: someURL)
         }
     }
+}
+```
 
 and
 
-    func startDownload(fromURL: NSURL, toFileHandle: NSFileHandlehandle, completionHandler: (NSURL)->Void) -> Void
+```objc
+func startDownload(fromURL: NSURL, toFileHandle: NSFileHandlehandle, completionHandler: (NSURL)->Void) -> Void
+```
 
 would then send the file handle over the XPC connection by passing it to the remote object proxy.
 
@@ -352,11 +388,12 @@ Normal `NSData` needs to get copied to get sent to the other side. For large bin
 
 XPC has a fast path which makes sure data is never copied on its way from one process to another. The trick is that `dispatch_data_t` is toll-free bridged with `NSData`. If we create a `dispatch_data_t` instance that's backed by a memory-mapped region, we can send this over XPC more efficiently. This would look something like this:
 
-    let size: UInt = 8000
-    let buffer = mmap(nil, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, -1, 0)
-    let ddata = dispatch_data_create(buffer, size, DISPATCH_TARGET_QUEUE_DEFAULT, _dispatch_data_destructor_munmap)
-    let data = ddata as NSData
-
+```objc
+let size: UInt = 8000
+let buffer = mmap(nil, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, -1, 0)
+let ddata = dispatch_data_create(buffer, size, DISPATCH_TARGET_QUEUE_DEFAULT, _dispatch_data_destructor_munmap)
+let data = ddata as NSData
+```
 
 ## Debugging
 
@@ -380,10 +417,12 @@ Now when we 'run' the daemon in Xcode, the daemon will not get launched, but the
 
 Each `NSXPCConnection` has these properties
 
-    var auditSessionIdentifier: au_asid_t { get }
-    var processIdentifier: pid_t { get }
-    var effectiveUserIdentifier: uid_t { get }
-    var effectiveGroupIdentifier: gid_t { get }
+```objc
+var auditSessionIdentifier: au_asid_t { get }
+var processIdentifier: pid_t { get }
+var effectiveUserIdentifier: uid_t { get }
+var effectiveGroupIdentifier: gid_t { get }
+```
 
 that describe the connection. On the listener side, i.e. inside the agent or daemon, we can use these to see who's trying to connect and deny or allow the connection based on that. For XPC Services inside an app bundle, this doesn’t matter all that much, since only the app itself can look up the service.
 

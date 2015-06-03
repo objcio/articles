@@ -22,30 +22,35 @@ The edge antialiasing property can be useful if you want to replicate the animat
 
 A small but very useful addition is `[UIView performWithoutAnimation:]`. It's a simple wrapper that checks if animations are currently enabled, disables them, executes the block, and re-enables animations. One caveat is that this will *not* block CoreAnimation-based animations. So don't be too eager in replacing all your calls from:
 
-	    [CATransaction begin];
-        [CATransaction setDisableActions:YES];
-        view.frame = CGRectMake(...);
-        [CATransaction commit];
+```objc
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    view.frame = CGRectMake(...);
+    [CATransaction commit];
+```
 
 to:
 
-        [UIView performWithoutAnimation:^{
-	        view.frame = CGRectMake(...);
-        }];
+```objc
+    [UIView performWithoutAnimation:^{
+        view.frame = CGRectMake(...);
+    }];
+```
 
 However, most of the time this will do the job just fine, as long as you don't deal with CALayers directly.
 
 In iOS 7, I had quite a few code paths (mostly `UITableViewCells`) that needed additional protection against accidental animations, for example, if a popover is resized and at the same time the displayed table view loads up new cells because of the height change. My usual workaround is wrapping the entire `layoutSubviews` into the animation-block-method:
 
-    - (void)layoutSubviews 
-    {
-        // Otherwise the popover animation could leak into our cells on iOS 7 legacy mode.
-        [UIView performWithoutAnimation:^{
-            [super layoutSubviews];
-            _renderView.frame = self.bounds;
-        }];
-    }
-
+```objc
+- (void)layoutSubviews 
+{
+    // Otherwise the popover animation could leak into our cells on iOS 7 legacy mode.
+    [UIView performWithoutAnimation:^{
+        [super layoutSubviews];
+        _renderView.frame = self.bounds;
+    }];
+}
+```
 
 ## Dealing with Long Table Views
 
@@ -59,34 +64,36 @@ Apple's search controller learned a new trick to simplify moving the search bar 
 
 Your results may vary, but I've required some severe hacks to get `displaysSearchBarInNavigationBar` working:
 
-	- (void)restoreOriginalTableView 
-    {
-	    if (PSPDFIsUIKitFlatMode() && self.originalTableView) {
-	        self.view = self.originalTableView;
-	    }
-	}
+```objc
+- (void)restoreOriginalTableView 
+{
+    if (PSPDFIsUIKitFlatMode() && self.originalTableView) {
+        self.view = self.originalTableView;
+    }
+}
 
-	- (UITableView *)tableView 
-    {
-	    return self.originalTableView ?: [super tableView];
-	}
+- (UITableView *)tableView 
+{
+    return self.originalTableView ?: [super tableView];
+}
 
-	- (void)searchDisplayController:(UISearchDisplayController *)controller 
-      didShowSearchResultsTableView:(UITableView *)tableView 
-    {
-	    // HACK: iOS 7 requires a cruel workaround to show the search table view.
-	    if (PSPDFIsUIKitFlatMode()) {
-	        if (!self.originalTableView) self.originalTableView = self.tableView;
-	        self.view = controller.searchResultsTableView;
-	        controller.searchResultsTableView.contentInset = UIEdgeInsetsZero; // Remove 64 pixel gap
-	    }
-	}
+- (void)searchDisplayController:(UISearchDisplayController *)controller 
+  didShowSearchResultsTableView:(UITableView *)tableView 
+{
+    // HACK: iOS 7 requires a cruel workaround to show the search table view.
+    if (PSPDFIsUIKitFlatMode()) {
+        if (!self.originalTableView) self.originalTableView = self.tableView;
+        self.view = controller.searchResultsTableView;
+        controller.searchResultsTableView.contentInset = UIEdgeInsetsZero; // Remove 64 pixel gap
+    }
+}
 
-	- (void)searchDisplayController:(UISearchDisplayController *)controller 
-      didHideSearchResultsTableView:(UITableView *)tableView 
-    {
-	    [self restoreOriginalTableView];
-	}
+- (void)searchDisplayController:(UISearchDisplayController *)controller 
+  didHideSearchResultsTableView:(UITableView *)tableView 
+{
+    [self restoreOriginalTableView];
+}
+```
 
 Also, don't forget calling `restoreOriginalTableView` in `viewWillDisappear`, or things will crash badly. Remember that this is only one solution; there might be less radical ways that don't replace the view itself, but this really should be fixed by Apple. (TODO: RADAR!)
 
@@ -94,11 +101,13 @@ Also, don't forget calling `restoreOriginalTableView` in `viewWillDisappear`, or
 
 `UIWebView` learned a new trick to automatically paginate websites with `paginationMode`. There are a whole bunch of new properties related to this feature:
 
-	@property (nonatomic) UIWebPaginationMode paginationMode NS_AVAILABLE_IOS(7_0);
-	@property (nonatomic) UIWebPaginationBreakingMode paginationBreakingMode NS_AVAILABLE_IOS(7_0);
-	@property (nonatomic) CGFloat pageLength NS_AVAILABLE_IOS(7_0);
-	@property (nonatomic) CGFloat gapBetweenPages NS_AVAILABLE_IOS(7_0);
-	@property (nonatomic, readonly) NSUInteger pageCount NS_AVAILABLE_IOS(7_0);
+```objc
+@property (nonatomic) UIWebPaginationMode paginationMode NS_AVAILABLE_IOS(7_0);
+@property (nonatomic) UIWebPaginationBreakingMode paginationBreakingMode NS_AVAILABLE_IOS(7_0);
+@property (nonatomic) CGFloat pageLength NS_AVAILABLE_IOS(7_0);
+@property (nonatomic) CGFloat gapBetweenPages NS_AVAILABLE_IOS(7_0);
+@property (nonatomic, readonly) NSUInteger pageCount NS_AVAILABLE_IOS(7_0);
+```
 
 Now while this might not be useful for most websites, it certainly is to build simple ebook readers or display text in a nicer way. For added fun, try setting it to `UIWebPaginationModeBottomToTop`.
 
@@ -106,9 +115,11 @@ Now while this might not be useful for most websites, it certainly is to build s
 
 Wonder why your popovers are flying around like crazy? There's a new delegate in the `UIPopoverControllerDelegate` protocol which allows you to control the madness:
 
-    -     (void)popoverController:(UIPopoverController *)popoverController
-      willRepositionPopoverToRect:(inout CGRect *)rect 
-                           inView:(inout UIView **)view
+```objc
+-     (void)popoverController:(UIPopoverController *)popoverController
+  willRepositionPopoverToRect:(inout CGRect *)rect 
+                       inView:(inout UIView **)view
+```
 
 `UIPopoverController` will behave if anchored to a `UIBarButtonItem`, but if you're showing it with a view and rect, you might have to implement this method and return something sane. This took me quite a long time to figure out - it's especially required if you dynamically resize your popovers via changing `preferredContentSize`. Apple now takes those sizing requests more serious and will move the popover around if there's not enough space left.
 
@@ -118,26 +129,30 @@ Apple didn't only give us [a whole new framework for game controllers](https://d
 
 Before starting, you need some basic understanding for the responder chain. Your `UIApplication` inherits from `UIResponder`, and so does `UIView` and `UIViewController`. If you've ever had to deal with `UIMenuItem` and weren't using [my block-based wrapper](https://github.com/steipete/PSMenuItem), you know this already. So events will be sent to the topmost responder and then trickle down level by level until they end at UIApplication. To capture key commands, you need to tell the system what key commands you're interested in (there's no catch-all). To do so, override the new `keyCommands` property:
 
-    - (NSArray *)keyCommands 
-    {
-        return @[[UIKeyCommand keyCommandWithInput:@"f"
-                                     modifierFlags:UIKeyModifierCommand  
-                                            action:@selector(searchKeyPressed:)]];
-    }
+```objc
+- (NSArray *)keyCommands 
+{
+    return @[[UIKeyCommand keyCommandWithInput:@"f"
+                                 modifierFlags:UIKeyModifierCommand  
+                                        action:@selector(searchKeyPressed:)]];
+}
 
-    - (void)searchKeyPressed:(UIKeyCommand *)keyCommand 
-    {
-        // Respond to the event
-    }
-	
+- (void)searchKeyPressed:(UIKeyCommand *)keyCommand 
+{
+    // Respond to the event
+}
+```
+
 ![The Responder Chain at work](/images/issue-5/responder-chain.png)
 
 Now don't get too excited; there are some caveats. This only works when the keyboard is visible (if there's some first responder like `UITextView`.) For truly global hotkeys, you still need to revert to the above-linked hackery. But apart from that, the routing is very elegant. Don't try overriding system shortcuts like cmd-V, as those will be mapped to `paste:` automatically.
 
 There are also some new predefined responder actions like:
 
-	- (void)increaseSize:(id)sender NS_AVAILABLE_IOS(7_0);
-	- (void)decreaseSize:(id)sender NS_AVAILABLE_IOS(7_0);
+```objc
+- (void)increaseSize:(id)sender NS_AVAILABLE_IOS(7_0);
+- (void)decreaseSize:(id)sender NS_AVAILABLE_IOS(7_0);
+```
 
 which are called for cmd+ and cmd- respectively, to increase/decrease content size.
 
@@ -155,21 +170,25 @@ Now there's absolutely no documentation around `currentRadioAccessTechnology`, s
 
 In this simple example, I am abusing the fact that capturing `telephonyInfo` in a block will retain it:
 
-    CTTelephonyNetworkInfo *telephonyInfo = [CTTelephonyNetworkInfo new];
-    NSLog(@"Current Radio Access Technology: %@", telephonyInfo.currentRadioAccessTechnology);
-    [NSNotificationCenter.defaultCenter addObserverForName:CTRadioAccessTechnologyDidChangeNotification 
-                                                    object:nil 
-                                                     queue:nil 
-                                                usingBlock:^(NSNotification *note) 
-    {
-        NSLog(@"New Radio Access Technology: %@", telephonyInfo.currentRadioAccessTechnology);
-    }];
+```objc
+CTTelephonyNetworkInfo *telephonyInfo = [CTTelephonyNetworkInfo new];
+NSLog(@"Current Radio Access Technology: %@", telephonyInfo.currentRadioAccessTechnology);
+[NSNotificationCenter.defaultCenter addObserverForName:CTRadioAccessTechnologyDidChangeNotification 
+                                                object:nil 
+                                                 queue:nil 
+                                            usingBlock:^(NSNotification *note) 
+{
+    NSLog(@"New Radio Access Technology: %@", telephonyInfo.currentRadioAccessTechnology);
+}];
+```
 
 The log output can look something like this, when the phone's moving from Edge to 3G:
 
-	iOS7Tests[612:60b] Current Radio Access Technology: CTRadioAccessTechnologyEdge
-	iOS7Tests[612:1803] New Radio Access Technology: (null)
-	iOS7Tests[612:1803] New Radio Access Technology: CTRadioAccessTechnologyHSDPA
+```objc
+iOS7Tests[612:60b] Current Radio Access Technology: CTRadioAccessTechnologyEdge
+iOS7Tests[612:1803] New Radio Access Technology: (null)
+iOS7Tests[612:1803] New Radio Access Technology: CTRadioAccessTechnologyHSDPA
+```
 
 Apple exported all string symbols so it's easy to compare and detect the current technology.
 
@@ -178,7 +197,9 @@ Apple exported all string symbols so it's easy to compare and detect the current
 
 There's a new helper in Core Foundation that people have been missing and hacking around for years:
 
-	CFTypeRef CFAutorelease(CFTypeRef CF_RELEASES_ARGUMENT arg)
+```objc
+CFTypeRef CFAutorelease(CFTypeRef CF_RELEASES_ARGUMENT arg)
+```
 
 It does exactly what you expect it to do, and it's quite puzzling how long it took Apple to make it public. With ARC, most people solved returning Core Foundation objects via casting them to their NS-equivalent - like returning an `NSDictionary`, even though it's a `CFDictionaryRef` and simply using `CFBridgingRelease()`. This works well, until you need to return methods where no NS-equivalent is available, like `CFBagRef`. Then you either use id and lose any type safety, or you rename your method to `createMethod` and have to think about all the memory semantics and using CFRelease afterward. There were also hacks like [this one](http://favstar.fm/users/AndrePang/status/18099774996), using a non-ARC-file so you can compile it, but using CFAutorelease() is really the way to go. Also: Don't write code using Apple's namespace. All those custom CF-Macros are programmed to break sooner or later.
 
@@ -188,23 +209,25 @@ When showing an image via `UIImage`, it might need to be decompressed before it 
 
 Starting with iOS 7, you can now force decompression directly at image creation time with the new `kCGImageSourceShouldCacheImmediately`:
 
-	+ (UIImage *)decompressedImageWithData:(NSData *)data 
-    {
-	    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
-	    CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, (__bridge CFDictionaryRef)@{(id)kCGImageSourceShouldCacheImmediately: @YES});
-	    
-	    UIImage *image = [UIImage imageWithCGImage:cgImage];
-	    CGImageRelease(cgImage);
-	    CFRelease(source);
-	    return image;
-	}
-	
+```objc
++ (UIImage *)decompressedImageWithData:(NSData *)data 
+{
+    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
+    CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, (__bridge CFDictionaryRef)@{(id)kCGImageSourceShouldCacheImmediately: @YES});
+    
+    UIImage *image = [UIImage imageWithCGImage:cgImage];
+    CGImageRelease(cgImage);
+    CFRelease(source);
+    return image;
+}
+```
+
 I was very excited when I first found out about this, but you really shouldn't be. In my tests, performance actually *decreased* when I enabled immediate caching. Either this method calls up to the main thread (unlikely) or perceived performance is simply worse because it locks in `copyImageBlockSetJPEG`, which is also used when showing a non-decrypted image on the main thread. In my app, I load small preview thumbnails from the main thread, and load the large page images from a background thread. Using `kCGImageSourceShouldCacheImmediately` now blocks the main thread where only a tiny decompression would take place, with a much more expensive operation on the background thread.
 
 ![Image Decompression Stack Trace](/images/issue-5/image-decompression.png)
 
 There's a lot more to image decompression which isn't new to iOS 7, like `kCGImageSourceShouldCache`, which controls the ability where the system can automatically unload decompressed image data. Make sure you're setting this to YES, otherwise all the extra work could be pointless. Interesting detail: Apple changed the *default* of `kCGImageSourceShouldCache` from NO to YES with the 64-bit runtime.
-	
+    
 ## Piracy Check
 
 Apple added a way to evaluate the App Store receipt in Lion with the new [`appStoreReceiptURL`](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Classes/NSBundle_Class/Reference/Reference.html#//apple_ref/occ/instm/NSBundle/appStoreReceiptURL) method on `NSBundle`, and finally also ported this to iOS. This allows you to check if your app was legitimately purchased or cracked. There's another important reason for checking the receipt. It contains the *initial purchase date*, which can be very useful when moving your app from a paid model to free and in-app purchases. You can use this initial purchase date to determine if your users get the extra content free (because they already paid for it), or if they have to purchase it.
@@ -213,10 +236,12 @@ The receipt also lets you check if the app was purchased via the volume purchase
 
 You need to take special care when calling `appStoreReceiptURL`, since it exists as private API on iOS 6, but will call `doesNotRecognizeSelector:` when called from user code. Check the running (foundation) version before calling. During development, there won't be a file at the URL returned from this method. You will need to use StoreKit's [`SKReceiptRefreshRequest`](https://developer.apple.com/library/ios/documentation/StoreKit/Reference/SKReceiptRefreshRequest_ClassRef/SKReceiptRefreshRequest.html), also new in iOS 7, to download the certificate. Use a test user who made at least one purchase, or else it won't work:
 
-    // Refresh the Receipt
-    SKReceiptRefreshRequest *request = [[SKReceiptRefreshRequest alloc] init];
-    [request setDelegate:self];
-    [request start];
+```objc
+// Refresh the Receipt
+SKReceiptRefreshRequest *request = [[SKReceiptRefreshRequest alloc] init];
+[request setDelegate:self];
+[request start];
+```
 
 Verifying the receipt requires a lot of code. You need to use OpenSSL and embed the [Apple Root Certificate](http://www.apple.com/certificateauthority/), and you should understand some basics about certificates, [PCKS containers](http://en.wikipedia.org/wiki/PKCS), and [ASN.1](http://de.wikipedia.org/wiki/Abstract_Syntax_Notation_One). There's some [sample code](https://github.com/rmaddy/VerifyStoreReceiptiOS) out there, but you shouldn't make it too easy for someone with less honorable intents - don't just copy the existing validation methods, at least modify them or write your own. You don't want a generic patcher app to undo your hard work in seconds.
 
@@ -232,19 +257,23 @@ The list of fonts is [dynamic](http://mesu.apple.com/assets/com_apple_MobileAsse
 
 Here's how you get an array of fonts that can be downloaded with `CTFontDescriptorRef`:
 
-	CFDictionary *descriptorOptions = @{(id)kCTFontDownloadableAttribute : @YES};
-	CTFontDescriptorRef descriptor = CTFontDescriptorCreateWithAttributes((CFDictionaryRef)descriptorOptions);
-	CFArrayRef fontDescriptors = CTFontDescriptorCreateMatchingFontDescriptors(descriptor, NULL);
-	
+```objc
+CFDictionary *descriptorOptions = @{(id)kCTFontDownloadableAttribute : @YES};
+CTFontDescriptorRef descriptor = CTFontDescriptorCreateWithAttributes((CFDictionaryRef)descriptorOptions);
+CFArrayRef fontDescriptors = CTFontDescriptorCreateMatchingFontDescriptors(descriptor, NULL);
+```
+
 The system won't check if the font is already on disk and will return the same list. Additionally, this method might do a network call and thus block. You don't want to call this from the main thread.
 
 To download the font, use this block-based API:
 
-	bool CTFontDescriptorMatchFontDescriptorsWithProgressHandler(
-	         CFArrayRef                          descriptors,
-	         CFSetRef                            mandatoryAttributes,
-	         CTFontDescriptorProgressHandler     progressBlock)
-    
+```objc
+bool CTFontDescriptorMatchFontDescriptorsWithProgressHandler(
+         CFArrayRef                          descriptors,
+         CFSetRef                            mandatoryAttributes,
+         CTFontDescriptorProgressHandler     progressBlock)
+```
+
 This method handles the network call and calls your `progressBlock` with progress information until the download either succeeds or fails. Refer to Apple's [DownloadFont Example](https://developer.apple.com/library/ios/samplecode/DownloadFont/Listings/DownloadFont_ViewController_m.html) to see how this can be used.
 
 There are a few gotchas here. This font will only be available during the current app run, and has to be loaded again into memory on the next run. Since fonts are saved in a shared place, you can't rely on them being available. They most likely will be, but it's not guaranteed and the system might clean this folder, or your app is being copied to a new device where the font doesn't yet exist, and you might run without a working network. On the Mac or in the Simulator you can obtain the `kCTFontURLAttribute` to get the absolute path of the font and speed up loading time, but this won't work on iOS, since the folder is outside of your app - you need to call `CTFontDescriptorMatchFontDescriptorsWithProgressHandler` again.

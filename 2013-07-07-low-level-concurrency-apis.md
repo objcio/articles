@@ -27,15 +27,17 @@ Probably the best book ever written about concurrent programming is *M. Ben-Ari*
 
 Probably the most widely used and misused feature in GCD is `dispatch_once`. Correctly used, it will look like this:
 
-    + (UIColor *)boringColor;
-    {
-        static UIColor *color;
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            color = [UIColor colorWithRed:0.380f green:0.376f blue:0.376f alpha:1.000f];
-        });
-        return color;
-    }
+```objc
++ (UIColor *)boringColor;
+{
+    static UIColor *color;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        color = [UIColor colorWithRed:0.380f green:0.376f blue:0.376f alpha:1.000f];
+    });
+    return color;
+}
+```
 
 The block will only get run once. And during successive calls, the check is very performant. You can use this to initialize global data such as singletons. Beware that using `dispatch_once_t` makes testing very difficult -- singletons and testing don't go well together.
 
@@ -47,14 +49,16 @@ Back in ancient times (i.e. a few years ago), people would use `pthread_once`, w
 
 Another common companion is `dispatch_after`. It lets you do work *a little bit later*. It's powerful, but beware: You can easily get into a lot of trouble. Common usage looks like this:
 
-    - (void)foo
-    {
-        double delayInSeconds = 2.0;
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t) (delayInSeconds * NSEC_PER_SEC));
-        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            [self bar];
-        });
-    }
+```objc
+- (void)foo
+{
+    double delayInSeconds = 2.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t) (delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [self bar];
+    });
+}
+```
 
 This looks awesome at first sight. There are a few drawbacks, though. We can't (directly) cancel the block we're submitting to `dispatch_after`. It will run.
 
@@ -69,18 +73,20 @@ If you need something to run at a specific point in time, `dispatch_after` may b
 
 One of the basic building blocks of GCD is queues. Below, we'll give a few examples on how you can put them to use. When using queues, you'll do yourself a favor when giving them a good label. While debugging, this label is displayed within Xcode (and lldb), and will help you understand what your app is up to:
 
-    - (id)init;
-    {
-        self = [super init];
-        if (self != nil) {
-            NSString *label = [NSString stringWithFormat:@"%@.isolation.%p", [self class], self];
-            self.isolationQueue = dispatch_queue_create([label UTF8String], NULL);
-            
-            label = [NSString stringWithFormat:@"%@.work.%p", [self class], self];
-            self.workQueue = dispatch_queue_create([label UTF8String], NULL);
-        }
-        return self;
+```objc
+- (id)init;
+{
+    self = [super init];
+    if (self != nil) {
+        NSString *label = [NSString stringWithFormat:@"%@.isolation.%p", [self class], self];
+        self.isolationQueue = dispatch_queue_create([label UTF8String], NULL);
+        
+        label = [NSString stringWithFormat:@"%@.work.%p", [self class], self];
+        self.workQueue = dispatch_queue_create([label UTF8String], NULL);
     }
+    return self;
+}
+```
 
 Queues can be either *concurrent* or *serial*. By default, they're serial, which means that only a single block runs at any given time. That's how isolation queues work, which we'll get to in a bit. Queues can also be concurrent, which allows multiple blocks to run at the same time.
 
@@ -131,27 +137,29 @@ Our [article about concurrency techniques](/issues/2-concurrency/concurrency-api
 
 Let's say we need to access a `NSMutableDictionary` from multiple threads (queues). We would do something like this:
 
-    - (void)setCount:(NSUInteger)count forKey:(NSString *)key
-    {
-        key = [key copy];
-        dispatch_async(self.isolationQueue, ^(){
-            if (count == 0) {
-                [self.counts removeObjectForKey:key];
-            } else {
-                self.counts[key] = @(count);
-            }
-        });
-    }
-    
-    - (NSUInteger)countForKey:(NSString *)key;
-    {
-        __block NSUInteger count;
-        dispatch_sync(self.isolationQueue, ^(){
-            NSNumber *n = self.counts[key];
-            count = [n unsignedIntegerValue];
-        });
-        return count;
-    }
+```objc
+- (void)setCount:(NSUInteger)count forKey:(NSString *)key
+{
+    key = [key copy];
+    dispatch_async(self.isolationQueue, ^(){
+        if (count == 0) {
+            [self.counts removeObjectForKey:key];
+        } else {
+            self.counts[key] = @(count);
+        }
+    });
+}
+
+- (NSUInteger)countForKey:(NSString *)key;
+{
+    __block NSUInteger count;
+    dispatch_sync(self.isolationQueue, ^(){
+        NSNumber *n = self.counts[key];
+        count = [n unsignedIntegerValue];
+    });
+    return count;
+}
+```
 
 With this, only one thread will access the `NSMutableDictionary` instance.
 
@@ -173,21 +181,25 @@ We can improve upon the above example. GCD has concurrent queues on which multip
 
 We'll create the queue with:
 
-    self.isolationQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_CONCURRENT);
+```objc
+self.isolationQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_CONCURRENT);
+```
 
 and then change the setter like this:
 
-    - (void)setCount:(NSUInteger)count forKey:(NSString *)key
-    {
-        key = [key copy];
-        dispatch_barrier_async(self.isolationQueue, ^(){
-            if (count == 0) {
-                [self.counts removeObjectForKey:key];
-            } else {
-                self.counts[key] = @(count);
-            }
-        });
-    }
+```objc
+- (void)setCount:(NSUInteger)count forKey:(NSString *)key
+{
+    key = [key copy];
+    dispatch_barrier_async(self.isolationQueue, ^(){
+        if (count == 0) {
+            [self.counts removeObjectForKey:key];
+        } else {
+            self.counts[key] = @(count);
+        }
+    });
+}
+```
 
 When you use concurrent queues, make sure that all *barrier* calls are *async*. If you're using `dispatch_barrier_sync` you'll quite likely get yourself (or rather: your code) into a deadlock. Writes *need* a barrier, and *can* be async.
 
@@ -216,46 +228,52 @@ In your own code, consider if you're better off by protecting with an isolation 
 
 Let's sidetrack a bit here. As you've seen above, you can dispatch a block, a work unit, both synchronously and asynchronously. A very common problem that we talk about in our [article about concurrency APIs and pitfalls](/issues/2-concurrency/concurrency-apis-and-pitfalls/) is [dead locks](http://en.wikipedia.org/wiki/Deadlock). It's quite easy to run into the problem with GCD with synchronous dispatching. The trivial case is:
 
-    dispatch_queue_t queueA; // assume we have this
-    dispatch_sync(queueA, ^(){
-        dispatch_sync(queueA, ^(){
-            foo();
-        });
-    });
-
-Once we hit the second `dispatch_sync` we'll deadlock: We can't dispatch onto queueA, because someone (the current thread) is already on that queue and is never going to leave it. But there are more subtle ways:
-
-    dispatch_queue_t queueA; // assume we have this
-    dispatch_queue_t queueB; // assume we have this
-    
+```objc
+dispatch_queue_t queueA; // assume we have this
+dispatch_sync(queueA, ^(){
     dispatch_sync(queueA, ^(){
         foo();
     });
-    
-    void foo(void)
-    {
-        dispatch_sync(queueB, ^(){
-            bar();
-        });
-    }
-    
-    void bar(void)
-    {
-        dispatch_sync(queueA, ^(){
-            baz();
-        });
-    }
+});
+```
+
+Once we hit the second `dispatch_sync` we'll deadlock: We can't dispatch onto queueA, because someone (the current thread) is already on that queue and is never going to leave it. But there are more subtle ways:
+
+```objc
+dispatch_queue_t queueA; // assume we have this
+dispatch_queue_t queueB; // assume we have this
+
+dispatch_sync(queueA, ^(){
+    foo();
+});
+
+void foo(void)
+{
+    dispatch_sync(queueB, ^(){
+        bar();
+    });
+}
+
+void bar(void)
+{
+    dispatch_sync(queueA, ^(){
+        baz();
+    });
+}
+```
 
 Each call to `dispatch_sync()` on its own looks good, but in combination, they'll deadlock.
 
 This is all inherent to being synchronous. If we use asynchronous dispatching such as
 
-    dispatch_queue_t queueA; // assume we have this
+```objc
+dispatch_queue_t queueA; // assume we have this
+dispatch_async(queueA, ^(){
     dispatch_async(queueA, ^(){
-        dispatch_async(queueA, ^(){
-            foo();
-        });
+        foo();
     });
+});
+```
 
 things will work just fine. *Asynchronous calls will not deadlock*. It is therefore very desirable to use asynchronous calls whenever possible. Instead of writing a function or method that returns a value (and hence has to be synchronous), we use a method that calls a result block asynchronously. That way we're less likely to run into problems with deadlocks.
 
@@ -276,15 +294,17 @@ If your function or method has a result, deliver it asynchronously through a cal
 
 If you're writing a class, it is probably a good option to let the user of the class set a queue that all callbacks will be delivered on. Your code would look like this:
 
-    - (void)processImage:(UIImage *)image completionHandler:(void(^)(BOOL success))handler;
-    {
-        dispatch_async(self.isolationQueue, ^(void){
-            // do actual processing here
-            dispatch_async(self.resultQueue, ^(void){
-                handler(YES);
-            });
+```objc
+- (void)processImage:(UIImage *)image completionHandler:(void(^)(BOOL success))handler;
+{
+    dispatch_async(self.isolationQueue, ^(void){
+        // do actual processing here
+        dispatch_async(self.resultQueue, ^(void){
+            handler(YES);
         });
-    }
+    });
+}
+```
 
 If you write your classes this way, it's easy to make classes work together. If class A uses class B, it will set the callback queue of B to be its own isolation queue.
 
@@ -295,19 +315,23 @@ If you're doing some number crunching and the problem at hand can be dissected i
 
 If you have some code like this
 
-    for (size_t y = 0; y < height; ++y) {
-        for (size_t x = 0; x < width; ++x) {
-            // Do something with x and y here
-        }
+```objc
+for (size_t y = 0; y < height; ++y) {
+    for (size_t x = 0; x < width; ++x) {
+        // Do something with x and y here
     }
+}
+```
 
 you may be able to speed it up by simply changing it to
 
-    dispatch_apply(height, dispatch_get_global_queue(0, 0), ^(size_t y) {
-        for (size_t x = 0; x < width; x += 2) {
-            // Do something with x and y here
-        }
-    });
+```objc
+dispatch_apply(height, dispatch_get_global_queue(0, 0), ^(size_t y) {
+    for (size_t x = 0; x < width; x += 2) {
+        // Do something with x and y here
+    }
+});
+```
 
 How well this works depends a lot on exactly what you're doing inside that loop.
 
@@ -318,29 +342,31 @@ The work done by the block must be non trivial, otherwise the overhead is too bi
 
 Quite often, you'll find yourself chaining asynchronous blocks together to perform a given task. Some of these may even run in parallel. Now, if you want to run some code once this task is complete, i.e. all blocks have completed, "groups" are the right tool. Here's a sample:
 
-    dispatch_group_t group = dispatch_group_create();
-    
-    dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
-    dispatch_group_async(group, queue, ^(){
-        // Do something that takes a while
-        [self doSomeFoo];
-        dispatch_group_async(group, dispatch_get_main_queue(), ^(){
-            self.foo = 42;
-        });
+```objc
+dispatch_group_t group = dispatch_group_create();
+
+dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+dispatch_group_async(group, queue, ^(){
+    // Do something that takes a while
+    [self doSomeFoo];
+    dispatch_group_async(group, dispatch_get_main_queue(), ^(){
+        self.foo = 42;
     });
-    dispatch_group_async(group, queue, ^(){
-        // Do something else that takes a while
-        [self doSomeBar];
-        dispatch_group_async(group, dispatch_get_main_queue(), ^(){
-            self.bar = 1;
-        });
+});
+dispatch_group_async(group, queue, ^(){
+    // Do something else that takes a while
+    [self doSomeBar];
+    dispatch_group_async(group, dispatch_get_main_queue(), ^(){
+        self.bar = 1;
     });
-    
-    // This block will run once everything above is done:
-    dispatch_group_notify(group, dispatch_get_main_queue(), ^(){
-        NSLog(@"foo: %d", self.foo);
-        NSLog(@"bar: %d", self.bar);
-    });
+});
+
+// This block will run once everything above is done:
+dispatch_group_notify(group, dispatch_get_main_queue(), ^(){
+    NSLog(@"foo: %d", self.foo);
+    NSLog(@"bar: %d", self.bar);
+});
+```
 
 The important thing to note is that all of this is entirely non-blocking. At no point are we telling the current thread to wait until something else is done. Quite contrary, we're simply enqueuing multiple blocks. Since this code pattern doesn't block, it's not going to cause a deadlock.
 
@@ -354,42 +380,46 @@ Once you've added groups to your tool belt, you'll be wondering why most async A
 
 We can, for example, add it to Core Data's `-performBlock:` API like this:
 
-    - (void)withGroup:(dispatch_group_t)group performBlock:(dispatch_block_t)block
-    {
-        if (group == NULL) {
-            [self performBlock:block];
-        } else {
-            dispatch_group_enter(group);
-            [self performBlock:^(){
-                block();
-                dispatch_group_leave(group);
-            }];
-        }
+```objc
+- (void)withGroup:(dispatch_group_t)group performBlock:(dispatch_block_t)block
+{
+    if (group == NULL) {
+        [self performBlock:block];
+    } else {
+        dispatch_group_enter(group);
+        [self performBlock:^(){
+            block();
+            dispatch_group_leave(group);
+        }];
     }
+}
+```
 
 This allows us to use `dispatch_group_notify` to run a block when a set of operations on Core Data (possibly combined with other blocks) completes.
 
 We can obviously do the same for `NSURLConnection`:
 
-    + (void)withGroup:(dispatch_group_t)group 
-            sendAsynchronousRequest:(NSURLRequest *)request 
-            queue:(NSOperationQueue *)queue 
-            completionHandler:(void (^)(NSURLResponse*, NSData*, NSError*))handler
-    {
-        if (group == NULL) {
-            [self sendAsynchronousRequest:request 
-                                    queue:queue 
-                        completionHandler:handler];
-        } else {
-            dispatch_group_enter(group);
-            [self sendAsynchronousRequest:request 
-                                    queue:queue 
-                        completionHandler:^(NSURLResponse *response, NSData *data, NSError *error){
-                handler(response, data, error);
-                dispatch_group_leave(group);
-            }];
-        }
+```objc
++ (void)withGroup:(dispatch_group_t)group 
+        sendAsynchronousRequest:(NSURLRequest *)request 
+        queue:(NSOperationQueue *)queue 
+        completionHandler:(void (^)(NSURLResponse*, NSData*, NSError*))handler
+{
+    if (group == NULL) {
+        [self sendAsynchronousRequest:request 
+                                queue:queue 
+                    completionHandler:handler];
+    } else {
+        dispatch_group_enter(group);
+        [self sendAsynchronousRequest:request 
+                                queue:queue 
+                    completionHandler:^(NSURLResponse *response, NSData *data, NSError *error){
+            handler(response, data, error);
+            dispatch_group_leave(group);
+        }];
     }
+}
+```
 
 In order for this to work, you need to make sure that
 
@@ -409,23 +439,25 @@ GCD sources are implemented in an extremely resource-efficient way.
 
 If some process is running and you want to know when it exits, GCD has you covered. You can also use it to check when that process forks, i.e. spawns child processes or a signal was delivered to the process (e.g. `SIGTERM`).
 
-    @import AppKit;
-    // ...
-    NSArray *array = [NSRunningApplication 
-      runningApplicationsWithBundleIdentifier:@"com.apple.mail"];
-    if (array == nil || [array count] == 0) {
-        return;
-    }
-    pid_t const pid = [[array firstObject] processIdentifier];
-    self.source = dispatch_source_create(DISPATCH_SOURCE_TYPE_PROC, pid, 
-      DISPATCH_PROC_EXIT, DISPATCH_TARGET_QUEUE_DEFAULT);
-    dispatch_source_set_event_handler(self.source, ^(){
-        NSLog(@"Mail quit.");
-        // If you would like continue watching for the app to quit,
-        // you should cancel this source with dispatch_source_cancel and create new one
-        // as with next run app will have another process identifier.
-    });
-    dispatch_resume(self.source);
+```objc
+@import AppKit;
+// ...
+NSArray *array = [NSRunningApplication 
+  runningApplicationsWithBundleIdentifier:@"com.apple.mail"];
+if (array == nil || [array count] == 0) {
+    return;
+}
+pid_t const pid = [[array firstObject] processIdentifier];
+self.source = dispatch_source_create(DISPATCH_SOURCE_TYPE_PROC, pid, 
+  DISPATCH_PROC_EXIT, DISPATCH_TARGET_QUEUE_DEFAULT);
+dispatch_source_set_event_handler(self.source, ^(){
+    NSLog(@"Mail quit.");
+    // If you would like continue watching for the app to quit,
+    // you should cancel this source with dispatch_source_cancel and create new one
+    // as with next run app will have another process identifier.
+});
+dispatch_resume(self.source);
+```
 
 This will print **Mail quit.** when the Mail.app exits.
 
@@ -441,30 +473,32 @@ The possibilities seem near endless. You can watch a file directly for changes, 
 You can also use this to watch a directory, i.e. create a *watch folder*:
 
 
-    NSURL *directoryURL; // assume this is set to a directory
-    int const fd = open([[directoryURL path] fileSystemRepresentation], O_EVTONLY);
-    if (fd < 0) {
-        char buffer[80];
-        strerror_r(errno, buffer, sizeof(buffer));
-        NSLog(@"Unable to open \"%@\": %s (%d)", [directoryURL path], buffer, errno);
-        return;
+```objc
+NSURL *directoryURL; // assume this is set to a directory
+int const fd = open([[directoryURL path] fileSystemRepresentation], O_EVTONLY);
+if (fd < 0) {
+    char buffer[80];
+    strerror_r(errno, buffer, sizeof(buffer));
+    NSLog(@"Unable to open \"%@\": %s (%d)", [directoryURL path], buffer, errno);
+    return;
+}
+dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE, fd, 
+  DISPATCH_VNODE_WRITE | DISPATCH_VNODE_DELETE, DISPATCH_TARGET_QUEUE_DEFAULT);
+dispatch_source_set_event_handler(source, ^(){
+    unsigned long const data = dispatch_source_get_data(source);
+    if (data & DISPATCH_VNODE_WRITE) {
+        NSLog(@"The directory changed.");
     }
-    dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE, fd, 
-      DISPATCH_VNODE_WRITE | DISPATCH_VNODE_DELETE, DISPATCH_TARGET_QUEUE_DEFAULT);
-    dispatch_source_set_event_handler(source, ^(){
-        unsigned long const data = dispatch_source_get_data(source);
-        if (data & DISPATCH_VNODE_WRITE) {
-            NSLog(@"The directory changed.");
-        }
-        if (data & DISPATCH_VNODE_DELETE) {
-            NSLog(@"The directory has been deleted.");
-        }
-    });
-    dispatch_source_set_cancel_handler(source, ^(){
-        close(fd);
-    });
-    self.source = source;
-    dispatch_resume(self.source);
+    if (data & DISPATCH_VNODE_DELETE) {
+        NSLog(@"The directory has been deleted.");
+    }
+});
+dispatch_source_set_cancel_handler(source, ^(){
+    close(fd);
+});
+self.source = source;
+dispatch_resume(self.source);
+```
 
 You should probably always add `DISPATCH_VNODE_DELETE` to check if the file or directory has been deleted -- and then stop monitoring it.
 
@@ -477,16 +511,17 @@ It is extremely important to point out that specifying a low *leeway* value for 
 
 Here we're setting up a timer to fire every 5 seconds and allow for a leeway of 1/10 of a second:
 
-    dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 
-      0, 0, DISPATCH_TARGET_QUEUE_DEFAULT);
-    dispatch_source_set_event_handler(source, ^(){
-        NSLog(@"Time flies.");
-    });
-    dispatch_source_set_timer(source, DISPATCH_TIME_NOW, 5ull * NSEC_PER_SEC, 
-      100ull * NSEC_PER_MSEC);
-    self.source = source;
-    dispatch_resume(self.source);
-
+```objc
+dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 
+  0, 0, DISPATCH_TARGET_QUEUE_DEFAULT);
+dispatch_source_set_event_handler(source, ^(){
+    NSLog(@"Time flies.");
+});
+dispatch_source_set_timer(source, DISPATCH_TIME_NOW, 5ull * NSEC_PER_SEC, 
+  100ull * NSEC_PER_MSEC);
+self.source = source;
+dispatch_resume(self.source);
+```
 
 ### Canceling
 
@@ -505,14 +540,16 @@ Traditionally when you were reading data from a network socket, you'd either hav
 
 The second problem when performing I/O is that data arrives in small chunks; when reading from a network, the chunk size is typically around 1.5k bytes due to the MTU -- [maximum transmission unit](https://en.wikipedia.org/wiki/Maximum_transmission_unit). This can be anything, though. Once this data arrives, you're often interested in data that spans multiple chunks, and traditionally you would concatenate the data into one larger buffer and then process that. Let's say (contrived example), you receive these eight chunks
 
-    0: HTTP/1.1 200 OK\r\nDate: Mon, 23 May 2005 22:38
-    1: :34 GMT\r\nServer: Apache/1.3.3.7 (Unix) (Red-H
-    2: at/Linux)\r\nLast-Modified: Wed, 08 Jan 2003 23
-    3: :11:55 GMT\r\nEtag: "3f80f-1b6-3e1cb03b"\r\nCon
-    4: tent-Type: text/html; charset=UTF-8\r\nContent-
-    5: Length: 131\r\nConnection: close\r\n\r\n<html>\r
-    6: \n<head>\r\n  <title>An Example Page</title>\r\n
-    7: </head>\r\n<body>\r\n  Hello World, this is a ve
+```
+0: HTTP/1.1 200 OK\r\nDate: Mon, 23 May 2005 22:38
+1: :34 GMT\r\nServer: Apache/1.3.3.7 (Unix) (Red-H
+2: at/Linux)\r\nLast-Modified: Wed, 08 Jan 2003 23
+3: :11:55 GMT\r\nEtag: "3f80f-1b6-3e1cb03b"\r\nCon
+4: tent-Type: text/html; charset=UTF-8\r\nContent-
+5: Length: 131\r\nConnection: close\r\n\r\n<html>\r
+6: \n<head>\r\n  <title>An Example Page</title>\r\n
+7: </head>\r\n<body>\r\n  Hello World, this is a ve
+```
 
 If you were looking for an HTTP header, it'd be much simpler to concatenate all data chunks into a larger buffer and then scan for `\r\n\r\n`. But in doing so, you'd be copying around data a lot. The other problem with a lot of the *old* C APIs is that there's no ownership of buffers so that functions had to copy data into their own buffers -- another copy. Copying data may seem trivial, but when you're doing a lot of I/O you'll see those copies show up in your profiling tool (Instruments). Even if you only copy each memory region once, you're incurring twice the memory bandwidth and you're burning through twice the amount of memory cache.
 
@@ -526,16 +563,20 @@ This may seem trivial, but we have to remember that GCD is a plain C API, and ca
 
 One relatively unique property of `dispatch_data_t` is that it can be backed by disjoint memory regions. That solves the concatenation problem we just mentioned. When you concatenate two data objects with
 
-    dispatch_data_t a; // Assume this hold some valid data
-    dispatch_data_t b; // Assume this hold some valid data
-    dispatch_data_t c = dispatch_data_create_concat(a, b);
+```objc
+dispatch_data_t a; // Assume this hold some valid data
+dispatch_data_t b; // Assume this hold some valid data
+dispatch_data_t c = dispatch_data_create_concat(a, b);
+```
 
 the data object `c` will *not* copy `a` and `b` into a single, larger memory region. Instead it will simply retain both `a` and `b`. You can then traverse the memory regions represented by `c` with `dispatch_data_apply`:
     
-    dispatch_data_apply(c, ^bool(dispatch_data_t region, size_t offset, const void *buffer, size_t size) {
-        fprintf(stderr, "region with offset %zu, size %zu\n", offset, size);
-        return true;
-    });
+```objc
+dispatch_data_apply(c, ^bool(dispatch_data_t region, size_t offset, const void *buffer, size_t size) {
+    fprintf(stderr, "region with offset %zu, size %zu\n", offset, size);
+    return true;
+});
+```
 
 Similarly you can create a subrange with `dispatch_data_create_subrange` that won't do any copying.
 
@@ -544,8 +585,10 @@ Similarly you can create a subrange with `dispatch_data_create_subrange` that wo
 
 At its core, *Dispatch I/O* is about so-called *channels*. A dispatch I/O channel provides a different way to read and write from a file descriptor. The most basic way to create such a channel is by calling
 
-    dispatch_io_t dispatch_io_create(dispatch_io_type_t type, dispatch_fd_t fd, 
-      dispatch_queue_t queue, void (^cleanup_handler)(int error));
+```objc
+dispatch_io_t dispatch_io_create(dispatch_io_type_t type, dispatch_fd_t fd, 
+  dispatch_queue_t queue, void (^cleanup_handler)(int error));
+```
 
 This returns the created channel which then *owns* the file descriptor. You must not modify the file descriptor in any way after you've created a channel from it.
 
@@ -559,69 +602,73 @@ We can't go into all details here, but here's an example for setting up a TCP se
 
 First we create a listening socket and set up an event source for incoming connections:
 
-    _isolation = dispatch_queue_create([[self description] UTF8String], NULL);
-    _nativeSocket = socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
-    struct sockaddr_in sin = {};
-    sin.sin_len = sizeof(sin);
-    sin.sin_family = AF_INET6;
-    sin.sin_port = htons(port);
-    sin.sin_addr.s_addr= INADDR_ANY;
-    int err = bind(result.nativeSocket, (struct sockaddr *) &sin, sizeof(sin));
-    NSCAssert(0 <= err, @"");
-    
-    _eventSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, _nativeSocket, 0, _isolation);
-    dispatch_source_set_event_handler(result.eventSource, ^{
-        acceptConnection(_nativeSocket);
-    });
+```objc
+_isolation = dispatch_queue_create([[self description] UTF8String], NULL);
+_nativeSocket = socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
+struct sockaddr_in sin = {};
+sin.sin_len = sizeof(sin);
+sin.sin_family = AF_INET6;
+sin.sin_port = htons(port);
+sin.sin_addr.s_addr= INADDR_ANY;
+int err = bind(result.nativeSocket, (struct sockaddr *) &sin, sizeof(sin));
+NSCAssert(0 <= err, @"");
 
+_eventSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, _nativeSocket, 0, _isolation);
+dispatch_source_set_event_handler(result.eventSource, ^{
+    acceptConnection(_nativeSocket);
+});
+```
 
 When accepting a connection, we create an I/O channel:
 
 
-    typedef union socketAddress {
-        struct sockaddr sa;
-        struct sockaddr_in sin;
-        struct sockaddr_in6 sin6;
-    } socketAddressUnion;
-    
-    socketAddressUnion rsa; // remote socket address
-    socklen_t len = sizeof(rsa);
-    int native = accept(nativeSocket, &rsa.sa, &len);
-    if (native == -1) {
-        // Error. Ignore.
-        return nil;
-    }
-    
-    _remoteAddress = rsa;
-    _isolation = dispatch_queue_create([[self description] UTF8String], NULL);
-    _channel = dispatch_io_create(DISPATCH_IO_STREAM, native, _isolation, ^(int error) {
-        NSLog(@"An error occured while listening on socket: %d", error);
-    });
-    
-    //dispatch_io_set_high_water(_channel, 8 * 1024);
-    dispatch_io_set_low_water(_channel, 1);
-    dispatch_io_set_interval(_channel, NSEC_PER_MSEC * 10, DISPATCH_IO_STRICT_INTERVAL);
-    
-    socketAddressUnion lsa; // remote socket address
-    socklen_t len = sizeof(rsa);
-    getsockname(native, &lsa.sa, &len);
-    _localAddress = lsa;
+```objc
+typedef union socketAddress {
+    struct sockaddr sa;
+    struct sockaddr_in sin;
+    struct sockaddr_in6 sin6;
+} socketAddressUnion;
+
+socketAddressUnion rsa; // remote socket address
+socklen_t len = sizeof(rsa);
+int native = accept(nativeSocket, &rsa.sa, &len);
+if (native == -1) {
+    // Error. Ignore.
+    return nil;
+}
+
+_remoteAddress = rsa;
+_isolation = dispatch_queue_create([[self description] UTF8String], NULL);
+_channel = dispatch_io_create(DISPATCH_IO_STREAM, native, _isolation, ^(int error) {
+    NSLog(@"An error occured while listening on socket: %d", error);
+});
+
+//dispatch_io_set_high_water(_channel, 8 * 1024);
+dispatch_io_set_low_water(_channel, 1);
+dispatch_io_set_interval(_channel, NSEC_PER_MSEC * 10, DISPATCH_IO_STRICT_INTERVAL);
+
+socketAddressUnion lsa; // remote socket address
+socklen_t len = sizeof(rsa);
+getsockname(native, &lsa.sa, &len);
+_localAddress = lsa;
+```
 
 If we want to set `SO_KEEPALIVE` (if we're using HTTP-level keep-alive), we need to do so before calling `dispatch_io_create`.
 
 Having created a `dispatch_io` channel, we can set up the read handler:
 
-    dispatch_io_read(_channel, 0, SIZE_MAX, _isolation, ^(bool done, dispatch_data_t data, int error){
-        if (data != NULL) {
-            if (_data == NULL) {
-                _data = data;
-            } else {
-                _data = dispatch_data_create_concat(_data, data);
-            }
-            [self processData];
+```objc
+dispatch_io_read(_channel, 0, SIZE_MAX, _isolation, ^(bool done, dispatch_data_t data, int error){
+    if (data != NULL) {
+        if (_data == NULL) {
+            _data = data;
+        } else {
+            _data = dispatch_data_create_concat(_data, data);
         }
-    });
-
+        [self processData];
+    }
+});
+```
 
 If all you want to do is to read from or write to a file, GCD provides two convenience wrappers: `dispatch_read` and `dispatch_write`. You pass `dispatch_read` a file path and a block to be called for each data block that's read. Similarly, `dispatch_write` takes a file path and a `dispatch_data_t` object to be written.
 
@@ -630,25 +677,31 @@ If all you want to do is to read from or write to a file, GCD provides two conve
 
 In the obscure corners of GCD, you'll find a neat little tool for optimizing your code:
 
-    uint64_t dispatch_benchmark(size_t count, void (^block)(void));
+```objc
+uint64_t dispatch_benchmark(size_t count, void (^block)(void));
+```
 
 Put this declaration into your code, and you can measure the average number of nanoseconds the given block takes to execute. E.g.
 
-    size_t const objectCount = 1000;
-    uint64_t n = dispatch_benchmark(10000, ^{
-        @autoreleasepool {
-            id obj = @42;
-            NSMutableArray *array = [NSMutableArray array];
-            for (size_t i = 0; i < objectCount; ++i) {
-                [array addObject:obj];
-            }
+```objc
+size_t const objectCount = 1000;
+uint64_t n = dispatch_benchmark(10000, ^{
+    @autoreleasepool {
+        id obj = @42;
+        NSMutableArray *array = [NSMutableArray array];
+        for (size_t i = 0; i < objectCount; ++i) {
+            [array addObject:obj];
         }
-    });
-    NSLog(@"-[NSMutableArray addObject:] : %llu ns", n);
+    }
+});
+NSLog(@"-[NSMutableArray addObject:] : %llu ns", n);
+```
 
 On my machine this outputs
 
-    -[NSMutableArray addObject:] : 31803 ns
+```objc
+-[NSMutableArray addObject:] : 31803 ns
+```
 
 i.e. that adding 1000 objects to an NSMutableArray takes 31803 ns, or about 32 ns per object.
 
@@ -658,9 +711,10 @@ Don't put this into shipping code. Aside from the fact that it'd be pretty point
 
 View the man page with
 
-    curl "http://opensource.apple.com/source/libdispatch/libdispatch-84.5/man/dispatch_benchmark.3?txt" 
-      | /usr/bin/groffer --tty -T utf8
-
+```objc
+curl "http://opensource.apple.com/source/libdispatch/libdispatch-84.5/man/dispatch_benchmark.3?txt" 
+  | /usr/bin/groffer --tty -T utf8
+```
 
 <a name="atomic_operations" id="atomic_operations"> </a>
 
@@ -683,17 +737,19 @@ Similarly, the `OSAtomicOr`, `OSAtomicAnd`, and `OSAtomicXor` functions can be u
 
 The `OSAtomicCompareAndSwap` can be useful to do lock-free lazy initializations like this:
 
-    void * sharedBuffer(void)
-    {
-        static void * buffer;
-        if (buffer == NULL) {
-            void * newBuffer = calloc(1, 1024);
-            if (!OSAtomicCompareAndSwapPtrBarrier(NULL, newBuffer, &buffer)) {
-                free(newBuffer);
-            }
+```objc
+void * sharedBuffer(void)
+{
+    static void * buffer;
+    if (buffer == NULL) {
+        void * newBuffer = calloc(1, 1024);
+        if (!OSAtomicCompareAndSwapPtrBarrier(NULL, newBuffer, &buffer)) {
+            free(newBuffer);
         }
-        return buffer;
     }
+    return buffer;
+}
+```
 
 If there's no buffer, we create one and then atomically write it to `buffer` if `buffer` is NULL. In the rare case that someone else set `buffer` at the same time as the current thread, we simply free it. Since the compare-and-swap method is atomic, this is a thread-safe way to lazily initialize values. The check that `NULL` and setting `buffer` are done atomically.
 
@@ -714,37 +770,39 @@ Spin locks can be useful in certain situations as a performance optimization. As
 Here's an example for OSSpinLock:
 
 
-    @interface MyTableViewCell : UITableViewCell
-    
-    @property (readonly, nonatomic, copy) NSDictionary *amountAttributes;
-    
-    @end
-    
-    
-    
-    @implementation MyTableViewCell
-    {
-        NSDictionary *_amountAttributes;
-    }
-    
-    - (NSDictionary *)amountAttributes;
-    {
+```objc
+@interface MyTableViewCell : UITableViewCell
+
+@property (readonly, nonatomic, copy) NSDictionary *amountAttributes;
+
+@end
+
+
+
+@implementation MyTableViewCell
+{
+    NSDictionary *_amountAttributes;
+}
+
+- (NSDictionary *)amountAttributes;
+{
+    if (_amountAttributes == nil) {
+        static __weak NSDictionary *cachedAttributes = nil;
+        static OSSpinLock lock = OS_SPINLOCK_INIT;
+        OSSpinLockLock(&lock);
+        _amountAttributes = cachedAttributes;
         if (_amountAttributes == nil) {
-            static __weak NSDictionary *cachedAttributes = nil;
-            static OSSpinLock lock = OS_SPINLOCK_INIT;
-            OSSpinLockLock(&lock);
-            _amountAttributes = cachedAttributes;
-            if (_amountAttributes == nil) {
-                NSMutableDictionary *attributes = [[self subtitleAttributes] mutableCopy];
-                attributes[NSFontAttributeName] = [UIFont fontWithName:@"ComicSans" size:36];
-                attributes[NSParagraphStyleAttributeName] = [NSParagraphStyle defaultParagraphStyle];
-                _amountAttributes = [attributes copy];
-                cachedAttributes = _amountAttributes;
-            }
-            OSSpinLockUnlock(&lock);
+            NSMutableDictionary *attributes = [[self subtitleAttributes] mutableCopy];
+            attributes[NSFontAttributeName] = [UIFont fontWithName:@"ComicSans" size:36];
+            attributes[NSParagraphStyleAttributeName] = [NSParagraphStyle defaultParagraphStyle];
+            _amountAttributes = [attributes copy];
+            cachedAttributes = _amountAttributes;
         }
-        return _amountAttributes;
+        OSSpinLockUnlock(&lock);
     }
+    return _amountAttributes;
+}
+```
 
 In the above example, it's probably not worth the trouble, but it shows the concept. We're using ARC's `__weak` to make sure that the `amountAttributes` will get `dealloc`'ed once all instances of `MyTableViewCell` go away. Yet we're able to share a single instance of this dictionary among all instances.
 

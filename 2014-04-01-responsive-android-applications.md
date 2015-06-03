@@ -178,16 +178,16 @@ In `res/layout-sw600dp/activity_home.xml`:
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-		<FrameLayout 
-	    android:id="@+id/container"
-	    android:layout_width="250dp"
-	    android:layout_height="match_parent" />
-		<FrameLayout 
-	    android:id="@+id/detail_container"
-	    android:layout_weight="1"
-	    android:layout_width="0dp"
-	    android:layout_height="match_parent" />
-	</LinearLayout>
+        <FrameLayout 
+        android:id="@+id/container"
+        android:layout_width="250dp"
+        android:layout_height="match_parent" />
+        <FrameLayout 
+        android:id="@+id/detail_container"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent" />
+    </LinearLayout>
 ```
 
 Now, when we use the activity_home layout file on a tablet, we will have two panes in our layout instead of one, which means we can host two fragment views. We can now display the master and the detail view in the same screen with very little code modification. At runtime, the system will decide which version of the layout file to use based on the configuration of the device. 

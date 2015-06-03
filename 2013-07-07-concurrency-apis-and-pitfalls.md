@@ -37,123 +37,128 @@ The important thing to keep in mind is that you have no control over where and w
 
 Leaving this complexity aside for a moment, you can either use the [POSIX thread](http://en.wikipedia.org/wiki/POSIX_Threads) API, or the Objective-C wrapper around this API, `NSThread`, to create your own threads. Here's a small sample that finds the minimum and maximum in a set of 1 million numbers using `pthread`. It spawns off 4 threads that run in parallel. It should be obvious from this example why you wouldn't want to use pthreads directly.
 
-    #import <pthread.h>
-    
-    struct threadInfo {
-        uint32_t * inputValues;
-        size_t count;
-    };
-    
-    struct threadResult {
-        uint32_t min;
-        uint32_t max;
-    };
-    
-    void * findMinAndMax(void *arg)
-    {
-        struct threadInfo const * const info = (struct threadInfo *) arg;
-        uint32_t min = UINT32_MAX;
-        uint32_t max = 0;
-        for (size_t i = 0; i < info->count; ++i) {
-            uint32_t v = info->inputValues[i];
-            min = MIN(min, v);
-            max = MAX(max, v);
-        }
-        free(arg);
-        struct threadResult * const result = (struct threadResult *) malloc(sizeof(*result));
-        result->min = min;
-        result->max = max;
-        return result;
-    }
-    
-    int main(int argc, const char * argv[])
-    {
-        size_t const count = 1000000;
-        uint32_t inputValues[count];
-        
-        // Fill input values with random numbers:
-        for (size_t i = 0; i < count; ++i) {
-            inputValues[i] = arc4random();
-        }
-        
-        // Spawn 4 threads to find the minimum and maximum:
-        size_t const threadCount = 4;
-        pthread_t tid[threadCount];
-        for (size_t i = 0; i < threadCount; ++i) {
-            struct threadInfo * const info = (struct threadInfo *) malloc(sizeof(*info));
-            size_t offset = (count / threadCount) * i;
-            info->inputValues = inputValues + offset;
-            info->count = MIN(count - offset, count / threadCount);
-            int err = pthread_create(tid + i, NULL, &findMinAndMax, info);
-            NSCAssert(err == 0, @"pthread_create() failed: %d", err);
-        }
-        // Wait for the threads to exit:
-        struct threadResult * results[threadCount];
-        for (size_t i = 0; i < threadCount; ++i) {
-            int err = pthread_join(tid[i], (void **) &(results[i]));
-            NSCAssert(err == 0, @"pthread_join() failed: %d", err);
-        }
-        // Find the min and max:
-        uint32_t min = UINT32_MAX;
-        uint32_t max = 0;
-        for (size_t i = 0; i < threadCount; ++i) {
-            min = MIN(min, results[i]->min);
-            max = MAX(max, results[i]->max);
-            free(results[i]);
-            results[i] = NULL;
-        }
-        
-        NSLog(@"min = %u", min);
-        NSLog(@"max = %u", max);
-        return 0;
-    }
+```objc
+#import <pthread.h>
 
+struct threadInfo {
+    uint32_t * inputValues;
+    size_t count;
+};
+
+struct threadResult {
+    uint32_t min;
+    uint32_t max;
+};
+
+void * findMinAndMax(void *arg)
+{
+    struct threadInfo const * const info = (struct threadInfo *) arg;
+    uint32_t min = UINT32_MAX;
+    uint32_t max = 0;
+    for (size_t i = 0; i < info->count; ++i) {
+        uint32_t v = info->inputValues[i];
+        min = MIN(min, v);
+        max = MAX(max, v);
+    }
+    free(arg);
+    struct threadResult * const result = (struct threadResult *) malloc(sizeof(*result));
+    result->min = min;
+    result->max = max;
+    return result;
+}
+
+int main(int argc, const char * argv[])
+{
+    size_t const count = 1000000;
+    uint32_t inputValues[count];
+    
+    // Fill input values with random numbers:
+    for (size_t i = 0; i < count; ++i) {
+        inputValues[i] = arc4random();
+    }
+    
+    // Spawn 4 threads to find the minimum and maximum:
+    size_t const threadCount = 4;
+    pthread_t tid[threadCount];
+    for (size_t i = 0; i < threadCount; ++i) {
+        struct threadInfo * const info = (struct threadInfo *) malloc(sizeof(*info));
+        size_t offset = (count / threadCount) * i;
+        info->inputValues = inputValues + offset;
+        info->count = MIN(count - offset, count / threadCount);
+        int err = pthread_create(tid + i, NULL, &findMinAndMax, info);
+        NSCAssert(err == 0, @"pthread_create() failed: %d", err);
+    }
+    // Wait for the threads to exit:
+    struct threadResult * results[threadCount];
+    for (size_t i = 0; i < threadCount; ++i) {
+        int err = pthread_join(tid[i], (void **) &(results[i]));
+        NSCAssert(err == 0, @"pthread_join() failed: %d", err);
+    }
+    // Find the min and max:
+    uint32_t min = UINT32_MAX;
+    uint32_t max = 0;
+    for (size_t i = 0; i < threadCount; ++i) {
+        min = MIN(min, results[i]->min);
+        max = MAX(max, results[i]->max);
+        free(results[i]);
+        results[i] = NULL;
+    }
+    
+    NSLog(@"min = %u", min);
+    NSLog(@"max = %u", max);
+    return 0;
+}
+```
 
 `NSThread` is a simple Objective-C wrapper around pthreads. This makes the code look more familiar in a Cocoa environment. For example, you can define a thread as a subclass of NSThread, which encapsulates the code you want to run in the background. For the previous example, we could define an `NSThread` subclass like this:
 
-    @interface FindMinMaxThread : NSThread
-    @property (nonatomic) NSUInteger min;
-    @property (nonatomic) NSUInteger max;
-    - (instancetype)initWithNumbers:(NSArray *)numbers;
-    @end
+```objc
+@interface FindMinMaxThread : NSThread
+@property (nonatomic) NSUInteger min;
+@property (nonatomic) NSUInteger max;
+- (instancetype)initWithNumbers:(NSArray *)numbers;
+@end
 
-    @implementation FindMinMaxThread {
-        NSArray *_numbers;
-    }
+@implementation FindMinMaxThread {
+    NSArray *_numbers;
+}
 
-    - (instancetype)initWithNumbers:(NSArray *)numbers 
-    {
-        self = [super init];
-        if (self) {
-            _numbers = numbers;
-        }
-        return self;
+- (instancetype)initWithNumbers:(NSArray *)numbers 
+{
+    self = [super init];
+    if (self) {
+        _numbers = numbers;
     }
+    return self;
+}
 
-    - (void)main
-    {
-        NSUInteger min;
-        NSUInteger max;
-        // process the data
-        self.min = min;
-        self.max = max;
-    }
-    @end
+- (void)main
+{
+    NSUInteger min;
+    NSUInteger max;
+    // process the data
+    self.min = min;
+    self.max = max;
+}
+@end
+```
 
 To start new threads, we need to create new thread objects and call their `start` methods:
 
-    NSMutableSet *threads = [NSMutableSet set];
-    NSUInteger numberCount = self.numbers.count;
-    NSUInteger threadCount = 4;
-    for (NSUInteger i = 0; i < threadCount; i++) {
-        NSUInteger offset = (numberCount / threadCount) * i;
-        NSUInteger count = MIN(numberCount - offset, numberCount / threadCount);
-        NSRange range = NSMakeRange(offset, count);
-        NSArray *subset = [self.numbers subarrayWithRange:range];
-        FindMinMaxThread *thread = [[FindMinMaxThread alloc] initWithNumbers:subset];
-        [threads addObject:thread];
-        [thread start];
-    }
+```objc
+NSMutableSet *threads = [NSMutableSet set];
+NSUInteger numberCount = self.numbers.count;
+NSUInteger threadCount = 4;
+for (NSUInteger i = 0; i < threadCount; i++) {
+    NSUInteger offset = (numberCount / threadCount) * i;
+    NSUInteger count = MIN(numberCount - offset, numberCount / threadCount);
+    NSRange range = NSMakeRange(offset, count);
+    NSArray *subset = [self.numbers subarrayWithRange:range];
+    FindMinMaxThread *thread = [[FindMinMaxThread alloc] initWithNumbers:subset];
+    [threads addObject:thread];
+    [thread start];
+}
+```
 
 Now we could observe the threads' `isFinished` property to detect when all our newly spawned threads have finished before evaluating the result. We will leave this exercise to the interested reader though. The main point is that working directly with threads, using either the `pthread` or the `NSThread` APIs, is a relatively clunky experience and doesn't fit our mental model of coding very well. 
 
@@ -187,52 +192,62 @@ The `NSOperationQueue` class has two different types of queues: the main queue a
 
 You can define your own operations in two ways: either by overriding `main`, or by overriding `start`. The former is very simple to do, but gives you less flexibility. In return, the state properties like `isExecuting` and `isFinished` are managed for you, simply by assuming that the operation is finished when `main` returns.
 
-    @implementation YourOperation
-        - (void)main
-        {
-            // do your work here ...
-        } 
-    @end
+```objc
+@implementation YourOperation
+    - (void)main
+    {
+        // do your work here ...
+    } 
+@end
+```
 
 If you want more control and to maybe execute an asynchronous task within the operation, you can override `start`:
 
-    @implementation YourOperation
-        - (void)start
-        {
-            self.isExecuting = YES;
-            self.isFinished = NO;
-            // start your work, which calls finished once it's done ...
-        }
-        
-        - (void)finished
-        {
-            self.isExecuting = NO;
-            self.isFinished = YES;
-        }
-    @end
+```objc
+@implementation YourOperation
+    - (void)start
+    {
+        self.isExecuting = YES;
+        self.isFinished = NO;
+        // start your work, which calls finished once it's done ...
+    }
+    
+    - (void)finished
+    {
+        self.isExecuting = NO;
+        self.isFinished = YES;
+    }
+@end
+```
 
 Notice that in this case, you have to manage the operation's state manually. In order for an operation queue to be able to pick up a such a change, the state properties have to be implemented in a KVO-compliant way. So make sure to send proper KVO messages in case you don't set them via default accessor methods.
 
 In order to benefit from the cancelation feature exposed by operation queues, you should regularly check the `isCancelled` property for longer-running operations:
 
-    - (void)main
-    {
-        while (notDone && !self.isCancelled) {
-            // do your processing
-        }
+```objc
+- (void)main
+{
+    while (notDone && !self.isCancelled) {
+        // do your processing
     }
-    
+}
+```
+
 Once you have defined your operation class, it's very easy to add an operation to a queue:
 
-    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-    YourOperation *operation = [[YourOperation alloc] init];
-    [queue  addOperation:operation];
+```objc
+NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+YourOperation *operation = [[YourOperation alloc] init];
+[queue  addOperation:operation];
+```
 
 Alternatively, you can also add blocks to operation queues. This comes in handy, e.g. if you want to schedule one-off tasks on the main queue:
 
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        // do something...
-    }];
+```objc
+[[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    // do something...
+}];
+```
 
 While this is a very convenient way of scheduling work onto a queue, defining your own NSOperation subclasses can be very helpful during debugging. If you override the operation's `description` method, you can easily identify all the operations currently scheduled in a certain queue.
 
@@ -240,9 +255,11 @@ Beyond the basics of scheduling operations or blocks, operation queues offer som
 
 Another convenient feature is the sorting of operations within a queue according to their priorities. This is not the same as GCD's queue priorities. It solely influences the execution order of all operations scheduled in one queue. If you need more control over the sequence of execution beyond the five standard priorities, you can specify dependencies between operations like this:
 
-    [intermediateOperation addDependency:operation1];
-    [intermediateOperation addDependency:operation2];
-    [finishedOperation addDependency:intermediateOperation];
+```objc
+[intermediateOperation addDependency:operation1];
+[intermediateOperation addDependency:operation2];
+[finishedOperation addDependency:intermediateOperation];
+```
 
 This simple code guarantees that `operation1` and `operation2` will be executed before `intermediateOperation`, which, in turn, will be executed before `finishedOperation`. Operation dependencies are a very powerful mechanism to specify a well-defined execution order. This lets you create things like operation groups, which are guaranteed to be executed before the dependent operation, or serial operations within an otherwise concurrent queue. 
 
@@ -324,22 +341,26 @@ Mutex locks solve the problem of race conditions, but unfortunately they also in
 
 Consider the following example code, which swaps the values of two variables:
 
-    void swap(A, B)
-    {
-        lock(lockA);
-        lock(lockB);
-        int a = A;
-        int b = B;
-        A = b;
-        B = a;
-        unlock(lockB);
-        unlock(lockA);
-    }
+```objc
+void swap(A, B)
+{
+    lock(lockA);
+    lock(lockB);
+    int a = A;
+    int b = B;
+    A = b;
+    B = a;
+    unlock(lockB);
+    unlock(lockA);
+}
+```
 
 This works quite well most of the time. But when by chance two threads call it at the same time with opposite variables
 
-    swap(X, Y); // thread 1
-    swap(Y, X); // thread 2
+```objc
+swap(X, Y); // thread 1
+swap(Y, X); // thread 2
+```
 
 we can end up in a dead lock. Thread 1 acquires a lock on X, thread 2 acquires a lock on Y. Now they're both waiting for the other lock, but will never be able to acquire it.
 
