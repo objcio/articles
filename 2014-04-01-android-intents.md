@@ -332,7 +332,7 @@ I tapped on a YouTube link in the Facebook App. How did Android know that it was
 
 If we had access to YouTube's `AndroidManifest.xml`, we would likely see something like this: 
 
-```
+```xml
 1 <activity android:name=".YouTubeActivity">
 2     <intent-filter>
 3        <action android:name="android.intent.action.VIEW" />
@@ -370,7 +370,7 @@ The Android `PackageManager`[^6] will be queried using the `Intent` information 
 
 This works well for many apps, but sometimes you need to use the same iOS link (where your only choice is to use a custom URI). In Android, you could support both, since you can add more filters to the same activity. To continue with the YouTubeActivity, let's add now an imaginary YouTube URI scheme:
 
-```
+```xml
 <activity android:name=".YouTubeActivity">
   <intent-filter>
     <action android:name="android.intent.action.VIEW" />
@@ -439,7 +439,7 @@ Before wrapping up, let's see another example. This time, we'll see how to share
 
 We need to do something like this in our `AndroidManifest`:
 
-```
+```xml
 1 <activity android:name="ImageActivity">
 2   <intent-filter>
 3     <action android:name="android.intent.action.SEND"/>
