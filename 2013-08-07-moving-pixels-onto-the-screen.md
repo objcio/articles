@@ -433,7 +433,7 @@ Note also, that before this button can be rendered for the first time, instead o
 
 ### Concurrent Drawing
 
-The [last objc.io issue](/issues/2-concurrency/index/) was about concurrency. And as you'll know, UIKit's threading model is very simple: You can only use UIKit classes (views etc.) from the main queue (i.e. main thread). So what's this thing about concurrent drawing?
+The [last objc.io issue](/issues/2-concurrency/) was about concurrency. And as you'll know, UIKit's threading model is very simple: You can only use UIKit classes (views etc.) from the main queue (i.e. main thread). So what's this thing about concurrent drawing?
 
 If you have to implement `-drawRect:` and you have to draw something non-trivial, this is going to take time. And since you want animations to be smooth, you'll be tempted to do things on a queue other than the main queue. Concurrency is complex, but with a few caveats, drawing concurrently is easily achievable.
 

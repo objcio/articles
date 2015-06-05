@@ -7,7 +7,7 @@ tags: editorial
 
 Welcome to issue 24 of objc.io. This month is all about audio.
 
-We already featured two issues about [photos](/issues/2-concurrency1) and [video](/issues/2-concurrency3) this year, so it follows that this month's issue completes our media series with the missing piece: audio.
+We already featured two issues about [photos](/issues/21-camera-and-photos/) and [video](/issues/23-video/) this year, so it follows that this month's issue completes our media series with the missing piece: audio.
 
 Jack Schaedler recently wrote a fantastic [introduction to signal processing](https://jackschaedler.github.io/circles-sines-signals/index.html), and he opens this issue with an article explaining the concepts behind the "Hello World!" of audio processing apps: [tracking the pitch of a monophonic musical performance](/issues/24-audio/audio-dog-house/). (The beautiful illustrations are his work too!)
 

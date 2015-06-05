@@ -203,7 +203,7 @@ in your `UICollectionViewLayout` subclass and returning the appropriate attribut
 
 ## View Controller Transitions with Collection Views
 
-One of the big improvements in iOS 7 was with the custom view controller transitions, as [Chris](https://twitter.com/chriseidhof) [wrote about](/issues/5-ios7/view-controller-transitions/) in objc.io [issue #5](/issues/5-ios7/index/). In parallel to the custom transitions, Apple also added the `useLayoutToLayoutNavigationTransitions` flag to `UICollectionViewController` to enable navigation transitions which reuse a single collection view. Apple's own Photos and Calendar apps on iOS represent a great example of what is possible using such transitions.
+One of the big improvements in iOS 7 was with the custom view controller transitions, as [Chris](https://twitter.com/chriseidhof) [wrote about](/issues/5-ios7/view-controller-transitions/) in objc.io [issue #5](/issues/5-ios7/). In parallel to the custom transitions, Apple also added the `useLayoutToLayoutNavigationTransitions` flag to `UICollectionViewController` to enable navigation transitions which reuse a single collection view. Apple's own Photos and Calendar apps on iOS represent a great example of what is possible using such transitions.
 
 ### Transitions Between UICollectionViewController Instances
 

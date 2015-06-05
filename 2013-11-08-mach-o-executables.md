@@ -379,7 +379,7 @@ Contents of (__TEXT,__eh_frame) section
 
 #### Side Note on Performance
 
-On a side note: The `__DATA` and `__TEXT` segments have performance implications. If you have a very large binary, you might want to check out Apple's documentation on [Code Size Performance Guidelines](https://developer.apple.com/library/mac/documentation/Performance/Conceptual/CodeFootprint/Articles/MachOOverview.html). Moving data into the `__TEXT` segment is beneficial, because those pages are never dirty. 
+On a side note: The `__DATA` and `__TEXT` segments have performance implications. If you have a very large binary, you might want to check out Apple's documentation on [Code Size Performance Guidelines](https://developer.apple.com/legacy/library/documentation/Performance/Conceptual/CodeFootprint/CodeFootprint.pdf). Moving data into the `__TEXT` segment is beneficial, because those pages are never dirty. 
 
 #### Arbitrary Sections
 

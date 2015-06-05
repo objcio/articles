@@ -131,7 +131,7 @@ The first thing we need to do is translate the color strings. Messing with genst
 
 [Translating article 1]: https://developer.apple.com/internationalization/
 [Translating article 2]: http://nshipster.com/nslocalizedstring/
-[Translating article 3]: https://developer.apple.com/library/ios/documentation/MacOSX/Conceptual/BPInternational/BPInternational.html#//apple_ref/doc/uid/10000171i
+[Translating article 3]: https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPInternational/Introduction/Introduction.html
 [Translating article 4]: http://www.tethras.com/apple
 [Translating article 5]: http://www.ibabbleon.com/iphone_app_localization.html
 [Translating article 6]: http://www.getlocalization.com/library/get-localization-mac/
