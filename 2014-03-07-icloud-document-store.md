@@ -209,19 +209,19 @@ For the past few months, Apple has also offered a safe server-side reset of iClo
 [1]: https://developer.apple.com/library/ios/documentation/General/Conceptual/iCloudDesignGuide/Chapters/DesigningForDocumentsIniCloud.html "Designing For Documents in the Cloud"
 [2]:http://www.ulyssesapp.com
 [3]:https://developer.apple.com/library/ios/documentation/General/Conceptual/iCloudDesignGuide/Chapters/iCloudFundametals.html#//apple_ref/doc/uid/TP40012094-CH6-SW13
-[4]:https://developer.apple.com/library/mac/documentation/cocoa/reference/foundation/classes/nsfilemanager_class/reference/reference.html#//apple_ref/occ/instm/NSFileManager/URLForUbiquityContainerIdentifier:
+[4]:https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSFileManager_Class/index.html#//apple_ref/occ/instm/NSFileManager/URLForUbiquityContainerIdentifier:
 [5]:https://developer.apple.com/library/ios/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileCoordinators/FileCoordinators.html#//apple_ref/doc/uid/TP40010672-CH11-SW1
 [6]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFileCoordinator_class/Reference/Reference.html
 [7]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFilePresenter_protocol/Reference/Reference.html
 [8]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFilePresenter_protocol/Reference/Reference.html#//apple_ref/occ/intfp/NSFilePresenter/presentedItemOperationQueue
 [9]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFilePresenter_protocol/Reference/Reference.html#//apple_ref/occ/intfm/NSFilePresenter/savePresentedItemChangesWithCompletionHandler:
 [10]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFilePresenter_protocol/Reference/Reference.html#//apple_ref/occ/intfm/NSFilePresenter/presentedItemDidGainVersion:
-[11]:https://developer.apple.com/library/mac/documentation/cocoa/reference/foundation/classes/nsfilemanager_class/reference/reference.html#//apple_ref/occ/instm/NSFileManager/startDownloadingUbiquitousItemAtURL:error:
+[11]:https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSFileManager_Class/index.html#//apple_ref/occ/instm/NSFileManager/URLForUbiquityContainerIdentifier:#//apple_ref/occ/instm/NSFileManager/startDownloadingUbiquitousItemAtURL:error:
 [12]:https://developer.apple.com/library/ios/documentation/General/Conceptual/iCloudDesignGuide/Chapters/DesigningForDocumentsIniCloud.html "Designing For Documents in the Cloud"
 [13]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFilePresenter_protocol/Reference/Reference.html#//apple_ref/occ/intfm/NSFilePresenter/savePresentedItemChangesWithCompletionHandler:
 [14]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFilePresenter_protocol/Reference/Reference.html#//apple_ref/occ/intfm/NSFilePresenter/relinquishPresentedItemToReader:
 [15]:https://github.com/hydrixos/DeadlockExample
-[16]:https://developer.apple.com/library/mac/documentation/cocoa/reference/foundation/classes/nsfilemanager_class/reference/reference.html#//apple_ref/occ/instm/NSFileManager/startDownloadingUbiquitousItemAtURL:error:
+[16]:https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSFileManager_Class/index.html#//apple_ref/occ/instm/NSFileManager/URLForUbiquityContainerIdentifier:#//apple_ref/occ/instm/NSFileManager/startDownloadingUbiquitousItemAtURL:error:
 [17]:https://developer.apple.com/downloads
 [18]:https://developer.icloud.com/
 [19]:http://support.apple.com/kb/HT5824

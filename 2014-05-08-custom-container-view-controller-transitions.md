@@ -8,7 +8,7 @@ author:
     url: https://twitter.com/osteslag
 ---
 
-In [issue #5](/issues/5-ios7/index/), [Chris Eidhof](http://twitter.com/chriseidhof) took us through the new custom [View Controller Transitions](/issues/5-ios7/view-controller-transitions/) in iOS 7. He [concluded](/issues/5-ios7/view-controller-transitions/#conclusion) (emphasis mine):
+In [issue #5](/issues/5-ios7/), [Chris Eidhof](http://twitter.com/chriseidhof) took us through the new custom [View Controller Transitions](/issues/5-ios7/view-controller-transitions/) in iOS 7. He [concluded](/issues/5-ios7/view-controller-transitions/#conclusion) (emphasis mine):
 
 > We only looked at animating between two view controllers in a navigation controller, but **you can do the same for** tab bar controllers or **your own custom container view controllers**…
 

@@ -60,7 +60,7 @@ Since we wanted to have a way to test the whole setup without running around too
 
 We ended up using only the first mode in our short test flights due to time constraints and the very uncomfortable weather conditions outside. Therefore, our idea of the drone chasing somebody around the running track unfortunately didn't work out. 
 
-Still, it was a fun project and we got to experiment with some interesting APIs. Check out the subsequent articles about [Core Foundation networking](/issues/8-quadcopter/communicating-with-the-quadcopter/), the [navigator app](/issues/8-quadcopter/the-quadcopter-navigator-app/), and the [client app](/issues/8-quadcopter/the-quadcopter-client-app.html) for more details.
+Still, it was a fun project and we got to experiment with some interesting APIs. Check out the subsequent articles about [Core Foundation networking](/issues/8-quadcopter/communicating-with-the-quadcopter/), the [navigator app](/issues/8-quadcopter/the-quadcopter-navigator-app/), and the [client app](/issues/8-quadcopter/the-quadcopter-client-app) for more details.
 
 
 

@@ -18,7 +18,7 @@ We'll explore the use of Swift playgrounds for documentation, testing, and rapid
 
 ## Playgrounds for Documentation and Testing
 
-Swift is a brand new language, and many people are using playgrounds to understand its syntax and conventions. In addition to the language, we were provided with a new standard library. The functions in this standard library at present aren't documented particularly well, so resources like [the practicalswift.org list of standard library functions](http://practicalswift.com/2014/06/14/the-swift-standard-library-list-of-built-in-functions/) have sprung up.
+Swift is a brand new language, and many people are using playgrounds to understand its syntax and conventions. In addition to the language, we were provided with a new standard library. The functions in this standard library at present aren't documented particularly well, so resources like [the practicalswift.org list of standard library functions](http://webcache.googleusercontent.com/search?q=cache:vZ9kK9_J68oJ:practicalswift.com/2014/06/14/the-swift-standard-library-list-of-built-in-functions/+&cd=1&hl=de&ct=clnk&lr=lang_de%7Clang_en&client=safari) have sprung up.
 
 However, it's one thing to read about what a function should do and another to see it in action. In particular, many of these functions perform interesting actions on the new Swift collection classes, and it would be informative to examine how they act on these collections. 
 
