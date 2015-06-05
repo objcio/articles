@@ -2,7 +2,9 @@
 title:  "Thread-Safe Class Design"
 category: "2"
 date: "2013-07-07 07:00:00"
-author: "<a href=\"https://twitter.com/steipete\">Peter Steinberger</a>"
+author:
+  - name: Peter Steinberger
+    url: https://twitter.com/steipete
 tags: article
 ---
 
@@ -57,69 +59,77 @@ Ever wondered how Apple is handling atomic setting/getting of properties? By now
 
 A nonatomic property setter might look like this:
 
-    - (void)setUserName:(NSString *)userName {
-          if (userName != _userName) {
-              [userName retain];
-              [_userName release];
-              _userName = userName;
-          }
-    }
-    
+```objc
+- (void)setUserName:(NSString *)userName {
+      if (userName != _userName) {
+          [userName retain];
+          [_userName release];
+          _userName = userName;
+      }
+}
+```
+
 This is the variant with manual retain/release; however, the ARC-generated code looks similar. When we look at this code it's obvious why this means trouble when `setUserName:` is called concurrently. We could end up releasing `_userName` twice, which can corrupt memory and lead to hard-to-find bugs.
 
 What's happening internally for any property that's not manually implemented is that the compiler generates a call to [`objc_setProperty_non_gc(id self, SEL _cmd, ptrdiff_t offset, id newValue, BOOL atomic, signed char shouldCopy)`](https://github.com/opensource-apple/objc4/blob/master/runtime/Accessors.subproj/objc-accessors.mm#L127). In our example, the call parameters would look like this: 
 
-    objc_setProperty_non_gc(self, _cmd, 
-      (ptrdiff_t)(&_userName) - (ptrdiff_t)(self), userName, NO, NO);`
-      
+```objc
+objc_setProperty_non_gc(self, _cmd, 
+  (ptrdiff_t)(&_userName) - (ptrdiff_t)(self), userName, NO, NO);`
+```
+
 The ptrdiff_t might look weird to you, but in the end it's simple pointer arithmetic, since an Objective-C class is just another C struct.
 
 `objc_setProperty` calls down to following method:
 
-    static inline void reallySetProperty(id self, SEL _cmd, id newValue, 
-      ptrdiff_t offset, bool atomic, bool copy, bool mutableCopy) 
-    {
-        id oldValue;
-        id *slot = (id*) ((char*)self + offset);
-    
-        if (copy) {
-            newValue = [newValue copyWithZone:NULL];
-        } else if (mutableCopy) {
-            newValue = [newValue mutableCopyWithZone:NULL];
-        } else {
-            if (*slot == newValue) return;
-            newValue = objc_retain(newValue);
-        }
-    
-        if (!atomic) {
-            oldValue = *slot;
-            *slot = newValue;
-        } else {
-            spin_lock_t *slotlock = &PropertyLocks[GOODHASH(slot)];
-            _spin_lock(slotlock);
-            oldValue = *slot;
-            *slot = newValue;        
-            _spin_unlock(slotlock);
-        }
-    
-        objc_release(oldValue);
+```objc
+static inline void reallySetProperty(id self, SEL _cmd, id newValue, 
+  ptrdiff_t offset, bool atomic, bool copy, bool mutableCopy) 
+{
+    id oldValue;
+    id *slot = (id*) ((char*)self + offset);
+
+    if (copy) {
+        newValue = [newValue copyWithZone:NULL];
+    } else if (mutableCopy) {
+        newValue = [newValue mutableCopyWithZone:NULL];
+    } else {
+        if (*slot == newValue) return;
+        newValue = objc_retain(newValue);
     }
-    
+
+    if (!atomic) {
+        oldValue = *slot;
+        *slot = newValue;
+    } else {
+        spin_lock_t *slotlock = &PropertyLocks[GOODHASH(slot)];
+        _spin_lock(slotlock);
+        oldValue = *slot;
+        *slot = newValue;        
+        _spin_unlock(slotlock);
+    }
+
+    objc_release(oldValue);
+}
+```
+
 Aside from the rather funny name, this method is actually fairly straightforward and uses one of the 128 available spinlocks in `PropertyLocks`. This is a pragmatic and fast approach -- the worst case scenario is that a setter might have to wait for an unrelated setter to finish because of a hash collision. 
 
 While those methods aren't declared in any public header, it is possible to call them manually. I'm not saying this is a good idea, but it's interesting to know and could be quite useful if you want atomic properties *and* to implement the setter at the same time.
 
-    // Manually declare runtime methods.
-    extern void objc_setProperty(id self, SEL _cmd, ptrdiff_t offset, 
-      id newValue, BOOL atomic, BOOL shouldCopy);
-    extern id objc_getProperty(id self, SEL _cmd, ptrdiff_t offset, 
-      BOOL atomic);
+```objc
+// Manually declare runtime methods.
+extern void objc_setProperty(id self, SEL _cmd, ptrdiff_t offset, 
+  id newValue, BOOL atomic, BOOL shouldCopy);
+extern id objc_getProperty(id self, SEL _cmd, ptrdiff_t offset, 
+  BOOL atomic);
 
-    #define PSTAtomicRetainedSet(dest, src) objc_setProperty(self, _cmd, 
-      (ptrdiff_t)(&dest) - (ptrdiff_t)(self), src, YES, NO) 
-    #define PSTAtomicAutoreleasedGet(src) objc_getProperty(self, _cmd, 
-      (ptrdiff_t)(&src) - (ptrdiff_t)(self), YES)
-    
+#define PSTAtomicRetainedSet(dest, src) objc_setProperty(self, _cmd, 
+  (ptrdiff_t)(&dest) - (ptrdiff_t)(self), src, YES, NO) 
+#define PSTAtomicAutoreleasedGet(src) objc_getProperty(self, _cmd, 
+  (ptrdiff_t)(&src) - (ptrdiff_t)(self), YES)
+```
+
 [Refer to this gist](https://gist.github.com/steipete/5928690) for the full snippet including code to handle structs. But keep in mind that we don't recommend using this.
 
 #### What about @synchronized?
@@ -131,20 +141,24 @@ You might be curious why Apple isn't using `@synchronized(self)` for property lo
 
 Using atomic properties alone won't make your classes thread-safe. It will only protect you against [race conditions][103] in the setter, but won't protect your application logic. Consider the following snippet:
 
-    if (self.contents) {
-        CFAttributedStringRef stringRef = CFAttributedStringCreate(NULL, 
-          (__bridge CFStringRef)self.contents, NULL);
-        // draw string
-    }
-    
+```objc
+if (self.contents) {
+    CFAttributedStringRef stringRef = CFAttributedStringCreate(NULL, 
+      (__bridge CFStringRef)self.contents, NULL);
+    // draw string
+}
+```
+
 I've made this mistake early on in [PSPDFKit](http://pspdfkit.com). From time to time, the application crashed with a EXC_BAD_ACCESS, when the `contents` property was set to nil after the check. A simple fix for this issue would be to capture the variable:
 
-    NSString *contents = self.contents;
-    if (contents) {
-        CFAttributedStringRef stringRef = CFAttributedStringCreate(NULL, 
-          (__bridge CFStringRef)contents, NULL);
-        // draw string
-    }
+```objc
+NSString *contents = self.contents;
+if (contents) {
+    CFAttributedStringRef stringRef = CFAttributedStringCreate(NULL, 
+      (__bridge CFStringRef)contents, NULL);
+    // draw string
+}
+```
 
 This would solve the issue here, but in most cases it's not that simple. Imagine that we also have a `textColor` property and we change both properties on one thread. Then our render thread could end up using the new content along with the old color value and we get a weird combination. This is one reason why Core Data binds model objects to one thread or queue. 
 
@@ -156,66 +170,72 @@ The simple solution is to use @synchronize. Anything else is very, very likely t
 
 Before trying to make something thread-safe, think hard if it's necessary. Make sure it's not premature optimization. If it's anything like a configuration class, there's no point in thinking about thread safety. A much better approach is to throw some asserts in to ensure it's used correctly:
 
-    void PSPDFAssertIfNotMainThread(void) {
-        NSAssert(NSThread.isMainThread, 
-          @"Error: Method needs to be called on the main thread. %@", 
-          [NSThread callStackSymbols]);
-    }
+```objc
+void PSPDFAssertIfNotMainThread(void) {
+    NSAssert(NSThread.isMainThread, 
+      @"Error: Method needs to be called on the main thread. %@", 
+      [NSThread callStackSymbols]);
+}
+```
 
 Now there's code that definitely should be thread-safe; a good example is a caching class. A good approach is to use a concurrent dispatch_queue as read/write lock to maximize performance and try to only lock the areas that are really necessary. Once you start using multiple queues for locking different parts, things get tricky really fast.
 
 Sometimes you can also rewrite your code so that special locks are not required. Consider this snippet that is a form of a multicast delegate. (In many cases, using NSNotifications would be better, but there are [valid use cases for multicast delegates.](https://code.google.com/r/riky-adsfasfasf/source/browse/Utilities/GCDMulticastDelegate.h))
 
-    // header
-    @property (nonatomic, strong) NSMutableSet *delegates;
+```objc
+// header
+@property (nonatomic, strong) NSMutableSet *delegates;
 
-    // in init
-    _delegateQueue = dispatch_queue_create("com.PSPDFKit.cacheDelegateQueue", 
-      DISPATCH_QUEUE_CONCURRENT);
-    
-    - (void)addDelegate:(id<PSPDFCacheDelegate>)delegate {
-        dispatch_barrier_async(_delegateQueue, ^{
-            [self.delegates addObject:delegate];
-        });
-    }
-    
-    - (void)removeAllDelegates {
-        dispatch_barrier_async(_delegateQueue, ^{
-            self.delegates removeAllObjects];
-        });
-    }
-    
-    - (void)callDelegateForX {
-        dispatch_sync(_delegateQueue, ^{
-            [self.delegates enumerateObjectsUsingBlock:^(id<PSPDFCacheDelegate> delegate, NSUInteger idx, BOOL *stop) {
-                // Call delegate
-            }];
-        });
-    }
+// in init
+_delegateQueue = dispatch_queue_create("com.PSPDFKit.cacheDelegateQueue", 
+  DISPATCH_QUEUE_CONCURRENT);
 
-Unless `addDelegate:` or `removeDelegate:` is called thousand times per second, a simpler and cleaner approach is the following:
+- (void)addDelegate:(id<PSPDFCacheDelegate>)delegate {
+    dispatch_barrier_async(_delegateQueue, ^{
+        [self.delegates addObject:delegate];
+    });
+}
 
-    // header
-    @property (atomic, copy) NSSet *delegates;
-    
-    - (void)addDelegate:(id<PSPDFCacheDelegate>)delegate {
-        @synchronized(self) {
-            self.delegates = [self.delegates setByAddingObject:delegate];
-        }
-    }
-    
-    - (void)removeAllDelegates {
-        @synchronized(self) {
-            self.delegates = nil;
-        }
-    }
-    
-    - (void)callDelegateForX {
+- (void)removeAllDelegates {
+    dispatch_barrier_async(_delegateQueue, ^{
+        self.delegates removeAllObjects];
+    });
+}
+
+- (void)callDelegateForX {
+    dispatch_sync(_delegateQueue, ^{
         [self.delegates enumerateObjectsUsingBlock:^(id<PSPDFCacheDelegate> delegate, NSUInteger idx, BOOL *stop) {
             // Call delegate
         }];
+    });
+}
+```
+
+Unless `addDelegate:` or `removeDelegate:` is called thousand times per second, a simpler and cleaner approach is the following:
+
+```objc
+// header
+@property (atomic, copy) NSSet *delegates;
+
+- (void)addDelegate:(id<PSPDFCacheDelegate>)delegate {
+    @synchronized(self) {
+        self.delegates = [self.delegates setByAddingObject:delegate];
     }
-    
+}
+
+- (void)removeAllDelegates {
+    @synchronized(self) {
+        self.delegates = nil;
+    }
+}
+
+- (void)callDelegateForX {
+    [self.delegates enumerateObjectsUsingBlock:^(id<PSPDFCacheDelegate> delegate, NSUInteger idx, BOOL *stop) {
+        // Call delegate
+    }];
+}
+```
+
 Granted, this example is a bit constructed and one could simply confine changes to the main thread. But for many data structures, it might be worth it to create immutable copies in the modifier methods, so that the general application logic doesn't have to deal with excessive locking.
 
 
@@ -227,13 +247,15 @@ For most of your locking needs, GCD is perfect. It's simple, it's fast, and its 
 
 GCD is a queue to serialize access to shared resources. This can be used for locking, but it's quite different than `@synchronized`. GCD queues are not reentrant - this would break the queue characteristics. Many people tried working around this with using `dispatch_get_current_queue()`, which is [a bad idea](https://gist.github.com/steipete/3713233), and Apple had its reasons for deprecating this method in iOS6.
 
-    // This is a bad idea.
-    inline void pst_dispatch_sync_reentrant(dispatch_queue_t queue, 
-      dispatch_block_t block) 
-    {
-        dispatch_get_current_queue() == queue ? block() 
-                                              : dispatch_sync(queue, block);
-    }
+```objc
+// This is a bad idea.
+inline void pst_dispatch_sync_reentrant(dispatch_queue_t queue, 
+  dispatch_block_t block) 
+{
+    dispatch_get_current_queue() == queue ? block() 
+                                          : dispatch_sync(queue, block);
+}
+```
 
 Testing for the current queue might work for simple solutions, but it fails as soon as your code gets more complex, and you might have multiple queues locked at the same time. Once you are there, you almost certainly will get a [deadlock][104]. Sure, one could use `dispatch_get_specific()`, which will traverse the whole queue hierarchy to test for specific queues. For that you would have to write custom queue constructors that apply this metadata. Don't go that way. There are use cases where a `NSRecursiveLock` is the better solution.
 
@@ -241,12 +263,14 @@ Testing for the current queue might work for simple solutions, but it fails as s
 
 Having some timing-issues in UIKit? Most of the time, this will be the perfect "fix:"
 
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // Some UIKit call that had timing issues but works fine 
-        // in the next runloop.
-        [self updatePopoverSize];
-    });
-    
+```objc
+dispatch_async(dispatch_get_main_queue(), ^{
+    // Some UIKit call that had timing issues but works fine 
+    // in the next runloop.
+    [self updatePopoverSize];
+});
+```
+
 Don't do this, trust me. This will haunt you later as your app gets larger. It's super hard to debug and soon things will fall apart when you need to dispatch more and more because of "timing issues." Look through your code and find the proper place for the call (e.g. viewWillAppear instead of viewDidLoad). I still have some of those hacks in my codebase, but most of them are properly documented and an issue is filed.
 
 Remember that this isn't really GCD-specific, but it's a common anti-pattern and just very easy to do with GCD. You can apply the same wisdom for `performSelector:afterDelay:`, where the delay is 0.f for the next runloop.
@@ -268,14 +292,14 @@ There's no way to see how many operations are queued (unless you manually add co
 Of course there are some caveats; for example you can't set a target queue on your `NSOperationQueue` (like  `DISPATCH_QUEUE_PRIORITY_BACKGROUND` for throttled I/O). But that's a small price for debuggability, and it also prevents you from running into problem like [priority inversion][102]. I even recommend against the nice `NSBlockOperation` API and suggest real subclasses of NSOperation, including an implementation of description. It's more work, but later on, having a way to print all running/pending operations is insanely useful.
 
 
-[90]: /issue-2/editorial.html
-[100]: /issue-2/concurrency-apis-and-pitfalls.html
-[101]: /issue-2/concurrency-apis-and-pitfalls.html#challenges
-[102]: /issue-2/concurrency-apis-and-pitfalls.html#priority_inversion
-[103]: /issue-2/concurrency-apis-and-pitfalls.html#shared_resources
-[104]: /issue-2/concurrency-apis-and-pitfalls.html#dead_locks
-[200]: /issue-2/common-background-practices.html
-[300]: /issue-2/low-level-concurrency-apis.html
-[301]: /issue-2/low-level-concurrency-apis.html#async
-[302]: /issue-2/low-level-concurrency-apis.html#multiple-readers-single-writer
-[400]: /issue-2/thread-safe-class-design.html
+[90]: /issues/2-concurrency/editorial/
+[100]: /issues/2-concurrency/concurrency-apis-and-pitfalls/
+[101]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#challenges
+[102]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#priority_inversion
+[103]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#shared_resources
+[104]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#dead_locks
+[200]: /issues/2-concurrency/common-background-practices/
+[300]: /issues/2-concurrency/low-level-concurrency-apis/
+[301]: /issues/2-concurrency/low-level-concurrency-apis/#async
+[302]: /issues/2-concurrency/low-level-concurrency-apis/#multiple-readers-single-writer
+[400]: /issues/2-concurrency/thread-safe-class-design/

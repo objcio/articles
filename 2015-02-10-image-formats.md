@@ -3,7 +3,9 @@ title:  "Image Formats"
 category: "21"
 date: "2015-02-10 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/ojmason\">Oliver Mason</a>"
+author:
+  - name: Oliver Mason
+    url: https://twitter.com/ojmason
 ---
 
 
@@ -122,7 +124,7 @@ CGImageRelease(composedImage);
 return retval;
 ```
 
-With this method, we have full access to the actual pixels, and can do with them whatever we like. However, it is worth checking whether there are already filters available via [Core Image](/issue-21/core-image-intro.html), as they will be much easier to use and generally more optimized than any processing of individual pixel values.
+With this method, we have full access to the actual pixels, and can do with them whatever we like. However, it is worth checking whether there are already filters available via [Core Image](/issues/21-camera-and-photos/core-image-intro/), as they will be much easier to use and generally more optimized than any processing of individual pixel values.
 
 
 ## Metadata

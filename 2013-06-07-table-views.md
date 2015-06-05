@@ -1,8 +1,10 @@
 ---
-title: "Clean table view code"
+title: "Clean Table View Code"
 category: "1"
 date: "2013-06-07 10:00:00"
-author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: http://twitter.com/floriankugler
 tags: article
 ---
 
@@ -39,41 +41,45 @@ Before you go down this route though, here is an easy alternative that has the a
 
 Instead of getting rid of the table view controller entirely, you could
 also add it as a child view controller to another view controller (see
-the [article about view controller containment](/issue-1/containment-view-controller.html) in this issue). Then the table view controller continues to manage only the table view and the parent view controller can take care of whatever additional interface elements you might need. 
+the [article about view controller containment](/issues/1-view-controllers/containment-view-controller/) in this issue). Then the table view controller continues to manage only the table view and the parent view controller can take care of whatever additional interface elements you might need. 
 
     
-    - (void)addPhotoDetailsTableView
-    {
-        DetailsViewController *details = [[DetailsViewController alloc] init];
-        details.photo = self.photo;
-        details.delegate = self;
-        [self addChildViewController:details];
-        CGRect frame = self.view.bounds;
-        frame.origin.y = 110;
-        details.view.frame = frame;
-        [self.view addSubview:details.view];    
-        [details didMoveToParentViewController:self];
-    }
+```objc
+- (void)addPhotoDetailsTableView
+{
+    DetailsViewController *details = [[DetailsViewController alloc] init];
+    details.photo = self.photo;
+    details.delegate = self;
+    [self addChildViewController:details];
+    CGRect frame = self.view.bounds;
+    frame.origin.y = 110;
+    details.view.frame = frame;
+    [self.view addSubview:details.view];    
+    [details didMoveToParentViewController:self];
+}
+```
 
 If you use this solution you have to create a communication channel from
 the child to the parent view controller. For example, if the user selects a cell in the table view, the parent view controller needs to know about this in order to push another view controller. Depending on the use case, often the cleanest way to do this is to define a delegate protocol for the table view controller, which you then implement on the parent view controller. 
 
-    @protocol DetailsViewControllerDelegate
-    - (void)didSelectPhotoAttributeWithKey:(NSString *)key;
-    @end
+```objc
+@protocol DetailsViewControllerDelegate
+- (void)didSelectPhotoAttributeWithKey:(NSString *)key;
+@end
 
-    @interface PhotoViewController () <DetailsViewControllerDelegate>
-    @end
-    
-    @implementation PhotoViewController
-    // ...
-    - (void)didSelectPhotoAttributeWithKey:(NSString *)key
-    {
-        DetailViewController *controller = [[DetailViewController alloc] init];
-        controller.key = key;
-        [self.navigationController pushViewController:controller animated:YES];
-    }
-    @end
+@interface PhotoViewController () <DetailsViewControllerDelegate>
+@end
+
+@implementation PhotoViewController
+// ...
+- (void)didSelectPhotoAttributeWithKey:(NSString *)key
+{
+    DetailViewController *controller = [[DetailViewController alloc] init];
+    controller.key = key;
+    [self.navigationController pushViewController:controller animated:YES];
+}
+@end
+```
 
 As you can see, this construction comes with the price of some overhead to communicate between the view controllers in return for a clean separation of concerns and better reusability. Depending on the specific use case, this can either end up making things more simple or more complex than necessary. That's for you to consider and decide.
 
@@ -83,51 +89,59 @@ As you can see, this construction comes with the price of some overhead to commu
 When dealing with table views there are a variety of different tasks involved which cross the borders between models, controllers, and views. In order to prevent view controllers from becoming the place for all these tasks, we will try to isolate as many of these tasks as possible in more appropriate places. This helps readability, maintainability, and testability. 
 
 The techniques described here extend and elaborate upon the concepts
-demonstrated in the article [Lighter view controllers](/issue-1/lighter-view-controllers.html). Please refer to this article for how to factor our data source and model logic. In the context of table views, we will specifically look at how to separate concerns between view controllers and views.
+demonstrated in the article [Lighter view controllers](/issues/1-view-controllers/lighter-view-controllers/). Please refer to this article for how to factor our data source and model logic. In the context of table views, we will specifically look at how to separate concerns between view controllers and views.
 
 ### Bridging the Gap Between Model Objects and Cells
 
 At some point we have to hand over the data we want to display into the view layer. Since we still want to maintain a clear separation between the model and the view, we often offload this task to the table view's data source:
 
-    - (UITableViewCell *)tableView:(UITableView *)tableView 
-             cellForRowAtIndexPath:(NSIndexPath *)indexPath
-    {
-        PhotoCell *cell = [tableView dequeueReusableCellWithIdentifier:@"PhotoCell"];
-        Photo *photo = [self itemAtIndexPath:indexPath];
-        cell.photoTitleLabel.text = photo.name;
-        NSString* date = [self.dateFormatter stringFromDate:photo.creationDate];
-        cell.photoDateLabel.text = date;
-    }
+```objc
+- (UITableViewCell *)tableView:(UITableView *)tableView 
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    PhotoCell *cell = [tableView dequeueReusableCellWithIdentifier:@"PhotoCell"];
+    Photo *photo = [self itemAtIndexPath:indexPath];
+    cell.photoTitleLabel.text = photo.name;
+    NSString* date = [self.dateFormatter stringFromDate:photo.creationDate];
+    cell.photoDateLabel.text = date;
+}
+```
 
 This kind of code clutters the data source with specific knowledge about the design of the cell. We are better off factoring this out into a category of the cell class:
 
-    @implementation PhotoCell (ConfigureForPhoto)
+```objc
+@implementation PhotoCell (ConfigureForPhoto)
 
-    - (void)configureForPhoto:(Photo *)photo
-    {
-        self.photoTitleLabel.text = photo.name;
-        NSString* date = [self.dateFormatter stringFromDate:photo.creationDate];
-        self.photoDateLabel.text = date;
-    }
+- (void)configureForPhoto:(Photo *)photo
+{
+    self.photoTitleLabel.text = photo.name;
+    NSString* date = [self.dateFormatter stringFromDate:photo.creationDate];
+    self.photoDateLabel.text = date;
+}
 
-    @end
+@end
+```
 
 With this in place, our data source method becomes very simple.
 
-    - (UITableViewCell *)tableView:(UITableView *)tableView
-             cellForRowAtIndexPath:(NSIndexPath *)indexPath
-    {
-        PhotoCell *cell = [tableView dequeueReusableCellWithIdentifier:PhotoCellIdentifier];
-        [cell configureForPhoto:[self itemAtIndexPath:indexPath]];
-        return cell;
-    }
+```objc
+- (UITableViewCell *)tableView:(UITableView *)tableView
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    PhotoCell *cell = [tableView dequeueReusableCellWithIdentifier:PhotoCellIdentifier];
+    [cell configureForPhoto:[self itemAtIndexPath:indexPath]];
+    return cell;
+}
+```
 
 In our example code, the data source for this table view is [factored
-out into its own controller object](/issue-1/lighter-view-controllers.html#controllers), which gets initialized with a cell configuration block. In this case, the block becomes as simple as this:
+out into its own controller object](/issues/1-view-controllers/lighter-view-controllers/#separate-out-data-source-and-other-protocols), which gets initialized with a cell configuration block. In this case, the block becomes as simple as this:
 
-    TableViewCellConfigureBlock block = ^(PhotoCell *cell, Photo *photo) {
-        [cell configureForPhoto:photo];
-    };
+```objc
+TableViewCellConfigureBlock block = ^(PhotoCell *cell, Photo *photo) {
+    [cell configureForPhoto:photo];
+};
+```
 
 ### Making Cells Reusable
 
@@ -137,36 +151,40 @@ In cases where we have multiple model objects that can be presented using the sa
 
 If we want to do something beyond the standard highlighting or selection behavior of table views, we could implement two delegate methods, which modify the tapped cell in the way we want. For example:
 
-    - (void)tableView:(UITableView *)tableView
-            didHighlightRowAtIndexPath:(NSIndexPath *)indexPath
-    {
-        PhotoCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-        cell.photoTitleLabel.shadowColor = [UIColor darkGrayColor];
-        cell.photoTitleLabel.shadowOffset = CGSizeMake(3, 3);
-    }
-    
-    - (void)tableView:(UITableView *)tableView
-            didUnhighlightRowAtIndexPath:(NSIndexPath *)indexPath
-    {
-        PhotoCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-        cell.photoTitleLabel.shadowColor = nil;
-    }
+```objc
+- (void)tableView:(UITableView *)tableView
+        didHighlightRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    PhotoCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    cell.photoTitleLabel.shadowColor = [UIColor darkGrayColor];
+    cell.photoTitleLabel.shadowOffset = CGSizeMake(3, 3);
+}
+
+- (void)tableView:(UITableView *)tableView
+        didUnhighlightRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    PhotoCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    cell.photoTitleLabel.shadowColor = nil;
+}
+```
 
 However, the implementation of these two delegate methods relies again on specific knowledge about how the cell is implemented. If we want to swap out the cell or redesign it in a different way, we also have to adapt the delegate code. The implementation details of the view are complected with the implementation of the delegate. Instead, we should move this logic into the cell itself.
 
-    @implementation PhotoCell
-    // ...
-    - (void)setHighlighted:(BOOL)highlighted animated:(BOOL)animated
-    {
-        [super setHighlighted:highlighted animated:animated];
-        if (highlighted) {
-            self.photoTitleLabel.shadowColor = [UIColor darkGrayColor];
-            self.photoTitleLabel.shadowOffset = CGSizeMake(3, 3);
-        } else {
-            self.photoTitleLabel.shadowColor = nil;
-        }
+```objc
+@implementation PhotoCell
+// ...
+- (void)setHighlighted:(BOOL)highlighted animated:(BOOL)animated
+{
+    [super setHighlighted:highlighted animated:animated];
+    if (highlighted) {
+        self.photoTitleLabel.shadowColor = [UIColor darkGrayColor];
+        self.photoTitleLabel.shadowOffset = CGSizeMake(3, 3);
+    } else {
+        self.photoTitleLabel.shadowColor = nil;
     }
-    @end
+}
+@end
+```
 
 Generally speaking, we strive to separate the implementation details of the view layer from the implementation details of the controller layer. A delegate has to know about the different states a view can be in, but it shouldn't have to know how to modify the view tree or which attributes to set on some subviews in order to get it into the right state. All this logic should be encapsulated within the view, which then provides a simple API to the outside.
         
@@ -174,31 +192,33 @@ Generally speaking, we strive to separate the implementation details of the view
 
 If you have multiple different cell types within one table view, the data source methods can quickly get out of hand. In our example app we have two different cell types for the photo details table: one cell to display a star rating, and a generic cell to display a key-value pair. In order to separate the code dealing with these different cell types, the data source method simply dispatches the request to specialized methods for each cell type.
 
-    - (UITableViewCell *)tableView:(UITableView *)tableView  
-             cellForRowAtIndexPath:(NSIndexPath *)indexPath
-    {
-        NSString *key = self.keys[(NSUInteger) indexPath.row];
-        id value = [self.photo valueForKey:key];
-        UITableViewCell *cell;
-        if ([key isEqual:PhotoRatingKey]) {
-            cell = [self cellForRating:value indexPath:indexPath];
-        } else {
-            cell = [self detailCellForKey:key value:value];
-        }
-        return cell;
+```objc
+- (UITableViewCell *)tableView:(UITableView *)tableView  
+         cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *key = self.keys[(NSUInteger) indexPath.row];
+    id value = [self.photo valueForKey:key];
+    UITableViewCell *cell;
+    if ([key isEqual:PhotoRatingKey]) {
+        cell = [self cellForRating:value indexPath:indexPath];
+    } else {
+        cell = [self detailCellForKey:key value:value];
     }
+    return cell;
+}
 
-    - (RatingCell *)cellForRating:(NSNumber *)rating
-                        indexPath:(NSIndexPath *)indexPath
-    {
-        // ...
-    }
+- (RatingCell *)cellForRating:(NSNumber *)rating
+                    indexPath:(NSIndexPath *)indexPath
+{
+    // ...
+}
 
-    - (UITableViewCell *)detailCellForKey:(NSString *)key
-                                    value:(id)value
-    {
-        // ...
-    }
+- (UITableViewCell *)detailCellForKey:(NSString *)key
+                                value:(id)value
+{
+    // ...
+}
+```
 
 ### Table View Editing
 

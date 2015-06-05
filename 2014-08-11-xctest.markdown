@@ -3,7 +3,11 @@ title:  "Real-World Testing with XCTest"
 category: "15"
 date: "2014-08-11 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/arneschroppe\">Arne Schroppe</a> and <a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Arne Schroppe
+    url: https://twitter.com/arneschroppe
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
 ---
 
 Almost four months ago, our team (Marco, Arne, and Daniel) set out to write the model layer of a new app. We wanted to use testing as part of our development process. After some discussion, we chose [XCTest](https://developer.apple.com/library/prerelease/ios/documentation/DeveloperTools/Conceptual/testing_with_xcode/) as our testing framework.
@@ -47,10 +51,12 @@ We also put shared helper methods into the `TestCase` class. And we even have pr
 
 Since a test is simply a method that begins with the word `test`, a typical test method would look like this:
 
-    - (void)testThatItDoesURLEncoding
-    {
-      // test code
-    }
+```objc
+- (void)testThatItDoesURLEncoding
+{
+  // test code
+}
+```
 
 All our tests start with the words "testThatIt." Another frequently used way of naming tests is to use the method or class being tested, as in `testHTTPRequest`. But which class and method being tested should be obvious by simply looking at the test.
 
@@ -61,7 +67,9 @@ There is a test case class for each production code class, and one is named afte
 If we ever need to disable a test, we simply prefix the name with `DISABLED`:
 
 
-    - (void)DISABLED_testThatItDoesURLEncoding
+```objc
+- (void)DISABLED_testThatItDoesURLEncoding
+```
 
 It's easy to search for this string, and since the method name no longer starts with `test`, XCTest will skip this method.
 
@@ -76,19 +84,20 @@ The **given** section sets up the environment for the test by creating model obj
 
 In a fairly simple test, it looks like this:
 
-    - (void)testThatItDoesURLEncoding
-    {
-        // given
-        NSString *searchQuery = @"$&?@";
-        HTTPRequest *request = [HTTPRequest requestWithURL:@"/search?q=%@", searchQuery];
+```objc
+- (void)testThatItDoesURLEncoding
+{
+    // given
+    NSString *searchQuery = @"$&?@";
+    HTTPRequest *request = [HTTPRequest requestWithURL:@"/search?q=%@", searchQuery];
 
-        // when
-        NSString *encodedURL = request.URL;
+    // when
+    NSString *encodedURL = request.URL;
 
-        // then
-        XCTAssertEqualObjects(encodedURL, @"/search?q=%24%26%3F%40");
-    }
-
+    // then
+    XCTAssertEqualObjects(encodedURL, @"/search?q=%24%26%3F%40");
+}
+```
 
 This simple pattern makes it easier to write and understand tests, as they all follow the same basic pattern. For faster visual scanning, we even put the words "given," "when," and "then" as comments on top of their respective sections. This way, the method being tested immediately sticks out.
 
@@ -115,26 +124,29 @@ It is important not to 'over-mock,' which is the habit of mocking every object e
 
 As part of our common superclass for all test classes, we also added a
 
-    - (void)verifyMockLater:(id)mock;
+```objc
+- (void)verifyMockLater:(id)mock;
+```
 
 method. It makes sure that the mocks get verified at the end of that method / test. This makes using mocks even more convenient. We can specify that a mock should be verified right at the point where we create that mock:
 
-    - (void)testThatItRollsBackWhenSaveFails;
-    {
-        // given
-        id contextMock = [OCMockObject partialMockForObject:self.uiMOC];
-        [self verifyMockLater:contextMock];
-        NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:NSManagedObjectValidationError userInfo:nil];
-        [(NSManagedObjectContext *)[[contextMock stub] andReturnValue:@NO] save:[OCMArg setTo:error]];
+```objc
+- (void)testThatItRollsBackWhenSaveFails;
+{
+    // given
+    id contextMock = [OCMockObject partialMockForObject:self.uiMOC];
+    [self verifyMockLater:contextMock];
+    NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:NSManagedObjectValidationError userInfo:nil];
+    [(NSManagedObjectContext *)[[contextMock stub] andReturnValue:@NO] save:[OCMArg setTo:error]];
 
-        // expect
-        [[contextMock expect] rollback];
+    // expect
+    [[contextMock expect] rollback];
 
-        // when
-        [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-        [self.uiMOC saveOrRollback];
-    }
-
+    // when
+    [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    [self.uiMOC saveOrRollback];
+}
+```
 
 <a name="statelessness"> </a>
 
@@ -165,25 +177,26 @@ We didn't want to repeat creating managed object contexts inside every test that
 
 A test that needs a managed object context can simply call `self.managedObjectContext` or `self.syncManagedObjectContext`, like so:
 
-    - (void)testThatItDoesNotCrashWithInvalidFields
-    {
-        // given
-        NSDictionary *payload =     // expected JSON response
-        @{
-          @"status": @"foo",
-          @"from": @"eeeee",
-          @"to": @44,
-          @"last_update": @[],
-        };
+```objc
+- (void)testThatItDoesNotCrashWithInvalidFields
+{
+    // given
+    NSDictionary *payload =     // expected JSON response
+    @{
+      @"status": @"foo",
+      @"from": @"eeeee",
+      @"to": @44,
+      @"last_update": @[],
+    };
 
-        // when
-        ZMConnection *connection = [ZMConnection connectionFromTransportData:payload
-                                                        managedObjectContext:self.managedObjectContext];
+    // when
+    ZMConnection *connection = [ZMConnection connectionFromTransportData:payload
+                                                    managedObjectContext:self.managedObjectContext];
 
-        // then
-        XCTAssertNil(connection);
-    }
-
+    // then
+    XCTAssertNil(connection);
+}
+```
 
 We are using `NSMainQueueConcurrencyType` and `NSPrivateQueueConcurrencyType` to make the code consistent. But we implemented our own `-performGroupedBlock:` on top of `-performBlock:`, in order to solve the isolation problem. More about this under our [section about testing asynchronous code](#async-testing).
 
@@ -211,20 +224,24 @@ Asynchronous code can be tricky. Most testing frameworks offer some basic helper
 
 Let's say we have an asynchronous message on `NSString`:
 
-    - (void)appendString:(NSString *)other resultHandler:(void(^)(NSString *result))handler;
+```objc
+- (void)appendString:(NSString *)other resultHandler:(void(^)(NSString *result))handler;
+```
 
 With XCTest, we could test it like this:
 
-    - (void)testThatItAppendsAString;
-    {
-        NSString *s1 = @"Foo";
-        XCTestExpectation *expectation = [self expectationWithDescription:@"Handler called"];
-        [s1 appendString:@"Bar" resultHandler:^(NSString *result){
-            [expectation fulfill];
-            XCTAssertEqualObjects(result, @"FooBar");
-        }]
-        [self waitForExpectationsWithTimeout:0.1 handler:nil];
-    }
+```objc
+- (void)testThatItAppendsAString;
+{
+    NSString *s1 = @"Foo";
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Handler called"];
+    [s1 appendString:@"Bar" resultHandler:^(NSString *result){
+        [expectation fulfill];
+        XCTAssertEqualObjects(result, @"FooBar");
+    }]
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
+}
+```
 
 Most testing frameworks have something like this.
 
@@ -244,7 +261,9 @@ Inside our `-tearDown` method, we need to wait for all such asynchronous work to
 
 Our test classes have a property:
 
-    @property (nonatomic) dispatch_group_t;
+```objc
+@property (nonatomic) dispatch_group_t;
+```
 
 We define this once in our common superclass and set it there.
 
@@ -252,39 +271,43 @@ Next, we can inject this group into any class that we're using that uses a `disp
 
 Since we're relying heavily on Core Data, we added a method to `NSManagedObjectContext` called
 
-    - (void)performGroupedBlock:(dispatch_block_t)block ZM_NON_NULL(1);
-    {
-        dispatch_group_enter(self.dispatchGroup);
-        [self performBlock:^{
-            block();
-            dispatch_group_leave(self.dispatchGroup);
-        }];
-    }
+```objc
+- (void)performGroupedBlock:(dispatch_block_t)block ZM_NON_NULL(1);
+{
+    dispatch_group_enter(self.dispatchGroup);
+    [self performBlock:^{
+        block();
+        dispatch_group_leave(self.dispatchGroup);
+    }];
+}
+```
 
 and added a new `dispatchGroup` property to all managed object contexts. We then exclusively used `-performGroupedBlock:` in all our code.
 
 With this, we could wait for all asynchronous work to be done inside our `tearDown` method:
 
-    - (void)tearDown
-    {
-        [self waitForGroup];
-        [super tearDown];
-    }
+```objc
+- (void)tearDown
+{
+    [self waitForGroup];
+    [super tearDown];
+}
 
-    - (void)waitForGroup;
-    {
-        __block BOOL didComplete = NO;
-        dispatch_group_notify(self.requestGroup, dispatch_get_main_queue(), ^{
-            didComplete = YES;
-        });
-        NSDate *end = [NSDate dateWithTimeIntervalSinceNow:timeout];
-        while (! didComplete) {
-            NSTimeInterval const interval = 0.002;
-            if (! [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:interval]]) {
-                [NSThread sleepForTimeInterval:interval];
-            }
+- (void)waitForGroup;
+{
+    __block BOOL didComplete = NO;
+    dispatch_group_notify(self.requestGroup, dispatch_get_main_queue(), ^{
+        didComplete = YES;
+    });
+    NSDate *end = [NSDate dateWithTimeIntervalSinceNow:timeout];
+    while (! didComplete) {
+        NSTimeInterval const interval = 0.002;
+        if (! [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:interval]]) {
+            [NSThread sleepForTimeInterval:interval];
         }
     }
+}
+```
 
 This works, because `-tearDown` gets called on the main loop. We spun the main loop to make sure that any code that might get enqueued onto the main queue got to run. The above code will hang indefinitely if the group never empties. In our case, we adapted it slightly, so that we had a timeout.
 
@@ -293,48 +316,53 @@ This works, because `-tearDown` gets called on the main loop. We spun the main l
 With this in place, a lot of our other tests became a lot easier, too. We created a `WaitForAllGroupsToBeEmpty()` helper, which we use like this:
 
 
-    - (void)testThatItDoesNotAskForNextRequestIfThereAreNoChangesWithinASave
-    {
-        // expect
-        [[self.transportSession reject] attemptToEnqueueSyncRequestWithGenerator:OCMOCK_ANY];
-        [[self.syncStrategy reject] processSaveWithInsertedObjects:OCMOCK_ANY updateObjects:OCMOCK_ANY];
-        [self verifyMockLater:self.transportSession];
+```objc
+- (void)testThatItDoesNotAskForNextRequestIfThereAreNoChangesWithinASave
+{
+    // expect
+    [[self.transportSession reject] attemptToEnqueueSyncRequestWithGenerator:OCMOCK_ANY];
+    [[self.syncStrategy reject] processSaveWithInsertedObjects:OCMOCK_ANY updateObjects:OCMOCK_ANY];
+    [self verifyMockLater:self.transportSession];
 
-        // when
-        NSError *error;
-        XCTAssertTrue([self.testMOC save:&error]);
-        WaitForAllGroupsToBeEmpty(0.1);
-    }
+    // when
+    NSError *error;
+    XCTAssertTrue([self.testMOC save:&error]);
+    WaitForAllGroupsToBeEmpty(0.1);
+}
+```
 
 The last line waits for all asynchronous work to be done, i.e. the test makes sure that even asynchronous blocks enqueuing additional asynchronous work are all done, and that none of them trigger any of the rejected methods.
 
 We implemented this with a simple macro
 
-    #define WaitForAllGroupsToBeEmpty(timeout) \
-    	do { \
-    		if (! [self waitForGroupToBeEmptyWithTimeout:timeout]) { \
-    			XCTFail(@"Timed out waiting for groups to empty."); \
-    		} \
-    	} while (0)
+```objc
+#define WaitForAllGroupsToBeEmpty(timeout) \
+    do { \
+        if (! [self waitForGroupToBeEmptyWithTimeout:timeout]) { \
+            XCTFail(@"Timed out waiting for groups to empty."); \
+        } \
+    } while (0)
+```
 
 which, in turn, uses a method on our shared test case superclass:
 
-    - (BOOL)waitForGroupToBeEmptyWithTimeout:(NSTimeInterval)timeout;
-    {
-        NSDate * const end = [[NSDate date] dateByAddingTimeInterval:timeout];
+```objc
+- (BOOL)waitForGroupToBeEmptyWithTimeout:(NSTimeInterval)timeout;
+{
+    NSDate * const end = [[NSDate date] dateByAddingTimeInterval:timeout];
 
-        __block BOOL didComplete = NO;
-        dispatch_group_notify(self.requestGroup, dispatch_get_main_queue(), ^{
-            didComplete = YES;
-        });
-        while ((! didComplete) && (0. < [end timeIntervalSinceNow])) {
-            if (! [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.002]]) {
-                [NSThread sleepForTimeInterval:0.002];
-            }
+    __block BOOL didComplete = NO;
+    dispatch_group_notify(self.requestGroup, dispatch_get_main_queue(), ^{
+        didComplete = YES;
+    });
+    while ((! didComplete) && (0. < [end timeIntervalSinceNow])) {
+        if (! [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.002]]) {
+            [NSThread sleepForTimeInterval:0.002];
         }
-        return didComplete;
     }
-
+    return didComplete;
+}
+```
 
 <a name="custom-expectations"> </a>
 
@@ -342,11 +370,15 @@ which, in turn, uses a method on our shared test case superclass:
 
 At the [beginning of this section](#async-testing), we mentioned how
 
-        XCTestExpectation *expectation = [self expectationWithDescription:@"Handler called"];
+```objc
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Handler called"];
+```
 
 and
 
-        [self waitForExpectationsWithTimeout:0.1 handler:nil];
+```objc
+    [self waitForExpectationsWithTimeout:0.1 handler:nil];
+```
 
 are some basic building blocks for asynchronous tests.
 
@@ -354,24 +386,30 @@ XCTest has some convenience stuff for `NSNotification` and key-value observing, 
 
 Sometimes, though, we found ourselves using the same patters in multiple places, e.g. if we are asynchronously expecting a managed object context to be saved, we may have code like this:
 
-    // expect
-    [self expectationForNotification:NSManagedObjectContextDidSaveNotification
-                              object:self.syncManagedObjectContext
-                             handler:nil];
+```objc
+// expect
+[self expectationForNotification:NSManagedObjectContextDidSaveNotification
+                          object:self.syncManagedObjectContext
+                         handler:nil];
+```
 
 We simplify this code by having a single, shared method
 
-    - (XCTestExpectation *)expectationForSaveOfContext:(NSManagedObjectContext *)moc;
-    {
-        return [self expectationForNotification:NSManagedObjectContextDidSaveNotification
-                              object:moc
-                             handler:nil];
-    }
+```objc
+- (XCTestExpectation *)expectationForSaveOfContext:(NSManagedObjectContext *)moc;
+{
+    return [self expectationForNotification:NSManagedObjectContextDidSaveNotification
+                          object:moc
+                         handler:nil];
+}
+```
 
 and then use
 
-    // expect
-    [self expectationForSaveOfContext:self.syncManagedObjectContext];
+```objc
+// expect
+[self expectationForSaveOfContext:self.syncManagedObjectContext];
+```
 
 inside our tests. This is easier to read. Along this pattern, it is possible to add custom methods for other situations, too.
 
@@ -403,30 +441,38 @@ One thing worked in our favor, though: the server API was already quite stable a
 
 With the Xcode Test framework, one uses XCTAssert macros to do the actual checks:
 
-    XCTAssertNil(request1);
-    XCTAssertNotNil(request2);
-    XCTAssertEqualObjects(request2.path, @"/assets");
+```objc
+XCTAssertNil(request1);
+XCTAssertNotNil(request2);
+XCTAssertEqualObjects(request2.path, @"/assets");
+```
 
 There's a full list of "Assertions Listed by Category" in Apple’s ["Writing Test Classes and Methods"](https://developer.apple.com/library/prerelease/ios/documentation/DeveloperTools/Conceptual/testing_with_xcode/testing_3_writing_test_classes/testing_3_writing_test_classes.html) article.
 
 But we found ourselves often using very domain-specific checks, such as:
 
-    XCTAssertTrue([string isKindOfClass:[NSString class]] && ([[NSUUID alloc] initWithUUIDString:string] != nil),
-                  @"'%@' is not a valid UUID string", string);
+```objc
+XCTAssertTrue([string isKindOfClass:[NSString class]] && ([[NSUUID alloc] initWithUUIDString:string] != nil),
+              @"'%@' is not a valid UUID string", string);
+```
 
 That's very verbose and hard to read. And we didn't like the code duplication. We fixed that by writing our own simple assert macro:
 
-    #define AssertIsValidUUIDString(a1) \
-    	do { \
-    		NSUUID *_u = ([a1 isKindOfClass:[NSString class]] ? [[NSUUID alloc] initWithUUIDString:(a1)] : nil); \
-    		if (_u == nil) { \
-    			XCTFail(@"'%@' is not a valid UUID string", a1); \
-    		} \
-    	} while (0)
+```objc
+#define AssertIsValidUUIDString(a1) \
+    do { \
+        NSUUID *_u = ([a1 isKindOfClass:[NSString class]] ? [[NSUUID alloc] initWithUUIDString:(a1)] : nil); \
+        if (_u == nil) { \
+            XCTFail(@"'%@' is not a valid UUID string", a1); \
+        } \
+    } while (0)
+```
 
 Inside our tests, we then simply use:
 
-    AssertIsValidUUIDString(string);
+```objc
+AssertIsValidUUIDString(string);
+```
 
 This approach can make a huge difference in making the tests readable.
 
@@ -438,82 +484,92 @@ For some things, they're unavoidable, and it's all about limiting the pain. We n
 
 For more complex asserts and checks, we implemented a simple helper class called `FailureRecorder`:
 
-    @interface FailureRecorder : NSObject
+```objc
+@interface FailureRecorder : NSObject
 
-    - (instancetype)initWithTestCase:(XCTestCase *)testCase filePath:(char const *)filePath lineNumber:(NSUInteger)lineNumber;
+- (instancetype)initWithTestCase:(XCTestCase *)testCase filePath:(char const *)filePath lineNumber:(NSUInteger)lineNumber;
 
-    @property (nonatomic, readonly) XCTestCase *testCase;
-    @property (nonatomic, readonly, copy) NSString *filePath;
-    @property (nonatomic, readonly) NSUInteger lineNumber;
+@property (nonatomic, readonly) XCTestCase *testCase;
+@property (nonatomic, readonly, copy) NSString *filePath;
+@property (nonatomic, readonly) NSUInteger lineNumber;
 
-    - (void)recordFailure:(NSString *)format, ... NS_FORMAT_FUNCTION(1,2);
+- (void)recordFailure:(NSString *)format, ... NS_FORMAT_FUNCTION(1,2);
 
-    @end
+@end
 
 
-    #define NewFailureRecorder() \
-    	[[FailureRecorder alloc] initWithTestCase:self filePath:__FILE__ lineNumber:__LINE__]
-
+#define NewFailureRecorder() \
+    [[FailureRecorder alloc] initWithTestCase:self filePath:__FILE__ lineNumber:__LINE__]
+```
 
 In our code, we had quite a few places where we wanted to check that two dictionaries are equal to one another. `XCTAssertEqualObjects()` can do that, but when it fails, the output is not very useful.
 
 We wanted something like this
 
-    NSDictionary *payload = @{@"a": @2, @"b": @2};
-    NSDictionary *expected = @{@"a": @2, @"b": @5};
-    AssertEqualDictionaries(payload, expected);
+```objc
+NSDictionary *payload = @{@"a": @2, @"b": @2};
+NSDictionary *expected = @{@"a": @2, @"b": @5};
+AssertEqualDictionaries(payload, expected);
+```
 
 to output
 
-    Value for 'b' in 'payload' does not match 'expected'. 2 == 5
+```objc
+Value for 'b' in 'payload' does not match 'expected'. 2 == 5
+```
 
 So we created
 
-    #define AssertEqualDictionaries(d1, d2) \
-    	do { \
-    		[self assertDictionary:d1 isEqualToDictionary:d2 name1:#d1 name2:#d2 failureRecorder:NewFailureRecorder()]; \
-    	} while (0)
+```objc
+#define AssertEqualDictionaries(d1, d2) \
+    do { \
+        [self assertDictionary:d1 isEqualToDictionary:d2 name1:#d1 name2:#d2 failureRecorder:NewFailureRecorder()]; \
+    } while (0)
+```
 
 which forwards into our method
 
-    - (void)assertDictionary:(NSDictionary *)d1 isEqualToDictionary:(NSDictionary *)d2 name1:(char const *)name1 name2:(char const *)name2 failureRecorder:(FailureRecorder *)failureRecorder;
-    {
-        NSSet *keys1 = [NSSet setWithArray:d1.allKeys];
-        NSSet *keys2 = [NSSet setWithArray:d2.allKeys];
-        if (! [keys1 isEqualToSet:keys2]) {
-            XCTFail(@"Keys don't match for %s and %s", name1, name2);
-            NSMutableSet *missingKeys = [keys1 mutableCopy];
-            [missingKeys minusSet:keys2];
-            if (0 < missingKeys.count) {
-                [failureRecorder recordFailure:@"%s is missing keys: '%@'",
-                 name1, [[missingKeys allObjects] componentsJoinedByString:@"', '"]];
-            }
-            NSMutableSet *additionalKeys = [keys2 mutableCopy];
-            [additionalKeys minusSet:keys1];
-            if (0 < additionalKeys.count) {
-                [failureRecorder recordFailure:@"%s has additional keys: '%@'",
-                 name1, [[additionalKeys allObjects] componentsJoinedByString:@"', '"]];
-            }
+```objc
+- (void)assertDictionary:(NSDictionary *)d1 isEqualToDictionary:(NSDictionary *)d2 name1:(char const *)name1 name2:(char const *)name2 failureRecorder:(FailureRecorder *)failureRecorder;
+{
+    NSSet *keys1 = [NSSet setWithArray:d1.allKeys];
+    NSSet *keys2 = [NSSet setWithArray:d2.allKeys];
+    if (! [keys1 isEqualToSet:keys2]) {
+        XCTFail(@"Keys don't match for %s and %s", name1, name2);
+        NSMutableSet *missingKeys = [keys1 mutableCopy];
+        [missingKeys minusSet:keys2];
+        if (0 < missingKeys.count) {
+            [failureRecorder recordFailure:@"%s is missing keys: '%@'",
+             name1, [[missingKeys allObjects] componentsJoinedByString:@"', '"]];
         }
-        for (id key in keys1) {
-            if (! [d1[key] isEqual:d2[key]]) {
-                [failureRecorder recordFailure:@"Value for '%@' in '%s' does not match '%s'. %@ == %@",
-                 key, name1, name2, d1[key], d2[key]];
-            }
+        NSMutableSet *additionalKeys = [keys2 mutableCopy];
+        [additionalKeys minusSet:keys1];
+        if (0 < additionalKeys.count) {
+            [failureRecorder recordFailure:@"%s has additional keys: '%@'",
+             name1, [[additionalKeys allObjects] componentsJoinedByString:@"', '"]];
         }
     }
+    for (id key in keys1) {
+        if (! [d1[key] isEqual:d2[key]]) {
+            [failureRecorder recordFailure:@"Value for '%@' in '%s' does not match '%s'. %@ == %@",
+             key, name1, name2, d1[key], d2[key]];
+        }
+    }
+}
+```
 
 The trick is that the `FailureRecorder` captures `__FILE__`, `__LINE__`, and the test case. Inside its `-recordFailure:` method, it simply forwards the string to the test case:
 
-    - (void)recordFailure:(NSString *)format, ...;
-    {
-        va_list ap;
-        va_start(ap, format);
-        NSString *d = [[NSString alloc] initWithFormat:format arguments:ap];
-        va_end(ap);
-        [self.testCase recordFailureWithDescription:d inFile:self.filePath atLine:self.lineNumber expected:YES];
-    }
-
+```objc
+- (void)recordFailure:(NSString *)format, ...;
+{
+    va_list ap;
+    va_start(ap, format);
+    NSString *d = [[NSString alloc] initWithFormat:format arguments:ap];
+    va_end(ap);
+    [self.testCase recordFailureWithDescription:d inFile:self.filePath atLine:self.lineNumber expected:YES];
+}
+```
 
 <a name="integration-with-xcode"> </a>
 

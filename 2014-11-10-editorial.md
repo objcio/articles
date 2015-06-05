@@ -12,7 +12,7 @@ In the previous 17 issues of objc.io, we never touched on any game-specific deve
 
 We've found great contributors who chimed in with their knowledge about game-related topics. This issue contains articles covering many varied aspects of game development, providing even non-game developers insight into this related, but nonetheless very different, field.
 
-Mike starts off with an article about what makes [mobile games great](/issue-18/designing-elegant-mobile-games.html). Max and Warren give an introduction to [Apple's new low-level graphics framework, "Metal."](/issue-18/metal.html) JP and David write about topics that are relevant to not only game developers: [Multipeer Connectivity](/issue-18/multipeer-connectivity-for-games.html) and [Scene Kit](/issue-18/scenekit.html). Last but not least, Janie gives us a taste of the wonderful world of [sound design](/issue-18/sound-design.html).
+Mike starts off with an article about what makes [mobile games great](/issues/18-games/designing-elegant-mobile-games/). Max and Warren give an introduction to [Apple's new low-level graphics framework, "Metal."](/issues/18-games/metal/) JP and David write about topics that are relevant to not only game developers: [Multipeer Connectivity](/issues/18-games/multipeer-connectivity-for-games/) and [Scene Kit](/issues/18-games/scenekit/). Last but not least, Janie gives us a taste of the wonderful world of [sound design](/issues/18-games/sound-design/).
 
 All the best from Berlin,
 

@@ -3,7 +3,9 @@ title:  "CocoaPods Under The Hood"
 category: "6"
 date: "2013-11-08 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/micheletitolo\">Michele Titolo</a>"
+author:
+  - name: Michele Titolo
+    url: https://twitter.com/micheletitolo
 ---
 
 
@@ -26,7 +28,7 @@ This is the user-facing component and is activated whenever you call a `pod` com
 
 The Core gem provides support for working with the files that are involved with CocoaPods, mainly the Podfile and podspecs.
 
-##### Podfile
+#### Podfile
 
 The Podfile is the file that defines the pods you want to use. It is highly customizable, and you can be as specific as you'd like. For more information, check out [the Podfile guide](http://guides.cocoapods.org/syntax/podfile.html).
 
@@ -42,73 +44,75 @@ This gem handles all of the project file interactions. It has the ability to bot
 
 There is a lot that happens when `pod install` runs. The easiest insight into this is running the command with `--verbose`. Run that command, `pod install --verbose` now, and then come back. It will look something like this:
 
-	$ pod install --verbose
+```
+$ pod install --verbose
 
-	Analyzing dependencies
+Analyzing dependencies
 
-	Updating spec repositories
-	Updating spec repo `master`
-	  $ /usr/bin/git pull
-	  Already up-to-date.
+Updating spec repositories
+Updating spec repo `master`
+  $ /usr/bin/git pull
+  Already up-to-date.
 
 
-	Finding Podfile changes
-	  - AFNetworking
-	  - HockeySDK
+Finding Podfile changes
+  - AFNetworking
+  - HockeySDK
 
-	Resolving dependencies of `Podfile`
-	Resolving dependencies for target `Pods' (iOS 6.0)
-	  - AFNetworking (= 1.2.1)
-	  - SDWebImage (= 3.2)
-	    - SDWebImage/Core
+Resolving dependencies of `Podfile`
+Resolving dependencies for target `Pods' (iOS 6.0)
+  - AFNetworking (= 1.2.1)
+  - SDWebImage (= 3.2)
+    - SDWebImage/Core
 
-	Comparing resolved specification to the sandbox manifest
-	  - AFNetworking
-	  - HockeySDK
+Comparing resolved specification to the sandbox manifest
+  - AFNetworking
+  - HockeySDK
 
-	Downloading dependencies
+Downloading dependencies
 
-	-> Using AFNetworking (1.2.1)
+-> Using AFNetworking (1.2.1)
 
-	-> Using HockeySDK (3.0.0)
-	  - Running pre install hooks
-	    - HockeySDK
+-> Using HockeySDK (3.0.0)
+  - Running pre install hooks
+    - HockeySDK
 
-	Generating Pods project
-	  - Creating Pods project
-	  - Adding source files to Pods project
-	  - Adding frameworks to Pods project
-	  - Adding libraries to Pods project
-	  - Adding resources to Pods project
-	  - Linking headers
-	  - Installing libraries
-	    - Installing target `Pods-AFNetworking` iOS 6.0
-	      - Adding Build files
-	      - Adding resource bundles to Pods project
-	      - Generating public xcconfig file at `Pods/Pods-AFNetworking.xcconfig`
-	      - Generating private xcconfig file at `Pods/Pods-AFNetworking-Private.xcconfig`
-	      - Generating prefix header at `Pods/Pods-AFNetworking-prefix.pch`
-	      - Generating dummy source file at `Pods/Pods-AFNetworking-dummy.m`
-	    - Installing target `Pods-HockeySDK` iOS 6.0
-	      - Adding Build files
-	      - Adding resource bundles to Pods project
-	      - Generating public xcconfig file at `Pods/Pods-HockeySDK.xcconfig`
-	      - Generating private xcconfig file at `Pods/Pods-HockeySDK-Private.xcconfig`
-	      - Generating prefix header at `Pods/Pods-HockeySDK-prefix.pch`
-	      - Generating dummy source file at `Pods/Pods-HockeySDK-dummy.m`
-	    - Installing target `Pods` iOS 6.0
-	      - Generating xcconfig file at `Pods/Pods.xcconfig`
-	      - Generating target environment header at `Pods/Pods-environment.h`
-	      - Generating copy resources script at `Pods/Pods-resources.sh`
-	      - Generating acknowledgements at `Pods/Pods-acknowledgements.plist`
-	      - Generating acknowledgements at `Pods/Pods-acknowledgements.markdown`
-	      - Generating dummy source file at `Pods/Pods-dummy.m`
-	  - Running post install hooks
-	  - Writing Xcode project file to `Pods/Pods.xcodeproj`
-	  - Writing Lockfile in `Podfile.lock`
-	  - Writing Manifest in `Pods/Manifest.lock`
+Generating Pods project
+  - Creating Pods project
+  - Adding source files to Pods project
+  - Adding frameworks to Pods project
+  - Adding libraries to Pods project
+  - Adding resources to Pods project
+  - Linking headers
+  - Installing libraries
+    - Installing target `Pods-AFNetworking` iOS 6.0
+      - Adding Build files
+      - Adding resource bundles to Pods project
+      - Generating public xcconfig file at `Pods/Pods-AFNetworking.xcconfig`
+      - Generating private xcconfig file at `Pods/Pods-AFNetworking-Private.xcconfig`
+      - Generating prefix header at `Pods/Pods-AFNetworking-prefix.pch`
+      - Generating dummy source file at `Pods/Pods-AFNetworking-dummy.m`
+    - Installing target `Pods-HockeySDK` iOS 6.0
+      - Adding Build files
+      - Adding resource bundles to Pods project
+      - Generating public xcconfig file at `Pods/Pods-HockeySDK.xcconfig`
+      - Generating private xcconfig file at `Pods/Pods-HockeySDK-Private.xcconfig`
+      - Generating prefix header at `Pods/Pods-HockeySDK-prefix.pch`
+      - Generating dummy source file at `Pods/Pods-HockeySDK-dummy.m`
+    - Installing target `Pods` iOS 6.0
+      - Generating xcconfig file at `Pods/Pods.xcconfig`
+      - Generating target environment header at `Pods/Pods-environment.h`
+      - Generating copy resources script at `Pods/Pods-resources.sh`
+      - Generating acknowledgements at `Pods/Pods-acknowledgements.plist`
+      - Generating acknowledgements at `Pods/Pods-acknowledgements.markdown`
+      - Generating dummy source file at `Pods/Pods-dummy.m`
+  - Running post install hooks
+  - Writing Xcode project file to `Pods/Pods.xcodeproj`
+  - Writing Lockfile in `Podfile.lock`
+  - Writing Manifest in `Pods/Manifest.lock`
 
-	Integrating client project
+Integrating client project
+```
 
 There's a lot going on here, but when broken down, it's all very simple. Let's walk through it.
 

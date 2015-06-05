@@ -2,7 +2,9 @@
 title: User Interface Testing
 category: "15"
 date: "2014-08-11 06:00:00"
-author: "<a href=\"http://annema.me\">Klaas Pieter Annema</a>"
+author:
+  - name: Klaas Pieter Annema
+    url: http://annema.me
 tags: article
 ---
 
@@ -21,7 +23,7 @@ tend to change very often. You don't want to have to change your tests every
 time you're tweaking the UI. That's not to say that you can't test the
 aesthetics at all. I have no experience with it, but verifying aesthetics could
 be done with snapshots. Read Orta’s article to learn more [about this
-method](http://www.objc.io/issue-15/snapshot-testing.html).
+method](/issues/15-testing/snapshot-testing/).
 
 The remainder of this article will be about testing user behavior. I've provided a project on [GitHub](https://github.com/objcio/issue-15-ui-testing) that includes some practical examples. It’s written for iOS using Objective-C, but the underlying principles can be applied to the Mac and other UI frameworks.
 
@@ -46,12 +48,16 @@ For example, consider a test in which an action method is called directly. This 
 
 UIKit provides the very useful `sendActionsForControlEvents:` method on `UIControl`, which we can use to fake user events. For example, use it to tap a button:
 
-    [_button sendActionsForControlEvent: UIControlEventTouchUpInside];
+```objc
+[_button sendActionsForControlEvent: UIControlEventTouchUpInside];
+```
 
 Similarly, use it to change the selection of a `UISegmentedControl`:
 
-    segments.selectedSegmentIndex = 1;
-    [segments sendActionsForControlEvent: UIControlEventValueChanged];
+```objc
+segments.selectedSegmentIndex = 1;
+[segments sendActionsForControlEvent: UIControlEventValueChanged];
+```
 
 Notice that it's not just sending `UIControlValueChanged`. When a user interacts with the control, it will first change its selected index, then send the `UIControlEventValueChanged`. This is a good example of doing some extra work to make it appear to your code as if the user is interacting with the control. 
 
@@ -61,12 +67,16 @@ For example, there is no method on `UITableView` to select a cell _and_ have it 
 
 The first method is specific to storyboards: it works by manually triggering the segue you want the table view cell to perform. Unfortunately, this does not verify that the table view cell is associated with that segue:
 
-    [_tableViewController performSegueWithIdentifier:@"TableViewPushSegue" sender:nil];
+```objc
+[_tableViewController performSegueWithIdentifier:@"TableViewPushSegue" sender:nil];
+```
 
 Another option that does not require storyboards is to call the `tableView:didSelectRowAtIndexPath:` delegate method manually from your test code. If you're using storyboards, you can still use segues, but you have to trigger them from the delegate method manually:
 
-    [_viewController.tableView.delegate tableView:_viewController.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    expect(_viewController.navigationController.topViewController).to.beKindOf([PresentedViewController class]);
+```objc
+[_viewController.tableView.delegate tableView:_viewController.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+expect(_viewController.navigationController.topViewController).to.beKindOf([PresentedViewController class]);
+```
 
 I prefer the second option. It completely decouples the test from how the view controller is presented. It could be a custom segue, like a `presentViewController:animated:completion`, or some way that Apple hasn't invented yet. Yet all the test cares about is that at the end, the `topViewController` property is what it expects. The best option would be to ask the table view to select a row and perform the associated action, but that's not currently possible.
 
@@ -74,16 +84,20 @@ As a final example of testing controls, I want to present the special case of `U
 
 A `UIBarButtonItem`, unlike `UIControl`, can only have one target and one action associated with it. Performing the action can be as simple as:
 
-    [_viewController.barButton.target  performSelector:_viewController.barButton.action
-                                             withObject:_viewController.barButton];
+```objc
+[_viewController.barButton.target  performSelector:_viewController.barButton.action
+                                         withObject:_viewController.barButton];
+```
 
 If you're using ARC, the compiler will complain because it can't infer the memory management semantics from an unknown selector. This solution is unacceptable to me because I treat warnings as errors.
 
 One option is to use [#pragma directive](http://nshipster.com/pragma/#inhibiting-warnings) to hide the warning. Another alternative is to use the runtime directly:
 
-    #import <objc/message.h>
+```objc
+#import <objc/message.h>
 
-    objc_msgSend(_viewController.barButton.target, _viewController.barButton.action, _viewController.barButton);
+objc_msgSend(_viewController.barButton.target, _viewController.barButton.action, _viewController.barButton);
+```
 
 I prefer the runtime method because I dislike cluttering my test code with pragma directives, and also because it gives me an excuse to use the runtime.
 
@@ -104,10 +118,14 @@ There are more issues with view controllers. For example, pushing to a navigatio
 
 When testing behavior, often you need to ensure that, through some interaction, a new view controller was presented. In other words, you need to verify the current state of the view controller hierarchy. UIKit does a great job providing the methods needed to verify this. For example, this is how you would make sure that a view controller was modally presented:
 
-    expect(_viewController.presentedViewController).to.beKindOf([PresentedViewController class]);
+```objc
+expect(_viewController.presentedViewController).to.beKindOf([PresentedViewController class]);
+```
 
 Or pushed to a navigation controller:
 
-    expect(_viewController.navigationController.topViewController).to.beKindOf([PresentedViewController class]);
+```objc
+expect(_viewController.navigationController.topViewController).to.beKindOf([PresentedViewController class]);
+```
 
 Testing the UI isn't hard. Just be aware of what you're testing. You want to test user behavior, not application aesthetics. With creativity and persistence, most of the framework shortcomings can be worked around without sacrificing the stability and maintainability of your test suite. Just always remember to write tests to exercise the code as if the user is performing the action.

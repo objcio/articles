@@ -3,7 +3,13 @@ title:  "String Rendering"
 category: "9"
 date: "2014-02-07 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/chriseidhof\">Chris</a>, <a href=\"http://twitter.com/danielboedewadt\">Daniel</a>, and <a href=\"https://twitter.com/floriankugler\">Florian</a>"
+author:
+  - name: Chris Eidhof
+    url: https://twitter.com/chriseidhof
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
+  - name: Florian Kugler
+    url: https://twitter.com/floriankugler
 ---
 
 
@@ -45,7 +51,7 @@ But whenever you need to input more than a single line of text, you have to swit
 
 [Text views](https://developer.apple.com/library/ios/documentation/userexperience/conceptual/UIKitUICatalog/UITextView.html) are the perfect choice for displaying or editing long texts. `UITextView` is a subclass of `UIScrollView`, so it can handle overflowing text by allowing the user to scroll back and forth. As text fields, text views can also handle plain and attributed strings. Text views also implement the [`UITextInputTraits`](https://developer.apple.com/library/ios/documentation/uikit/reference/UITextInputTraits_Protocol/Reference/UITextInputTraits.html) protocol to control keyboard behavior and appearance.
 
-But apart from text view's ability to edit multiline text, its biggest selling point is that you can access and customize the entire [Text Kit](https://developer.apple.com/Library/ios/documentation/StringsTextFonts/Conceptual/TextAndWebiPhoneOS/CustomTextProcessing/CustomTextProcessing.html) stack. You can customize the behavior or swap in your own custom subclasses for the [layout manager](https://developer.apple.com/library/ios/documentation/uikit/reference/NSLayoutManager_Class_TextKit/Reference/Reference.html), the [text container](https://developer.apple.com/library/ios/documentation/uikit/reference/NSTextContainer_Class_TextKit/Reference/Reference.html), and the [text storage](https://developer.apple.com/library/ios/documentation/uikit/reference/NSTextStorage_Class_TextKit/Reference/Reference.html). Have a look at Max's [Text Kit article](http://www.objc.io/issue-5/getting-to-know-textkit.html) in objc.io issue #5.
+But apart from text view's ability to edit multiline text, its biggest selling point is that you can access and customize the entire [Text Kit](https://developer.apple.com/Library/ios/documentation/StringsTextFonts/Conceptual/TextAndWebiPhoneOS/CustomTextProcessing/CustomTextProcessing.html) stack. You can customize the behavior or swap in your own custom subclasses for the [layout manager](https://developer.apple.com/library/ios/documentation/uikit/reference/NSLayoutManager_Class_TextKit/Reference/Reference.html), the [text container](https://developer.apple.com/library/ios/documentation/uikit/reference/NSTextContainer_Class_TextKit/Reference/Reference.html), and the [text storage](https://developer.apple.com/library/ios/documentation/uikit/reference/NSTextStorage_Class_TextKit/Reference/Reference.html). Have a look at Max's [Text Kit article](/issues/5-ios7/getting-to-know-textkit/) in objc.io issue #5.
 
 Unfortunately, `UITextView` still has some issues in iOS 7. It's at version 1.0. It was reimplemented from scratch based on the OS X Text Kit. Before iOS 7, it was based on Webkit and was a lot less powerful. Have a look at [Peter's](http://petersteinberger.com/blog/2014/fixing-uitextview-on-ios-7/) and [Brent's](http://inessential.com/2014/01/07/uitextview_the_solution) articles on this matter to learn how to work around those issues.
 
@@ -73,42 +79,46 @@ Perhaps the most common case where everybody interacts with string drawing metho
 
 In our example, we will display a list of quotes in a table view:
 
-<img alt="Table view with quotes" src="/images/issue-9/uitableview-finished.png" width="50%" height="50%">
+![Table view with quotes](/images/issue-9/uitableview-finished.png)
 
 To do this, first we'll make sure we have full control of the `UITableViewCell` by creating a custom subclass. In that subclass, we'll do the layout of our label ourselves:
 
-    - (void)layoutSubviews
-    {
-        [super layoutSubviews];
-        self.textLabel.frame = CGRectInset(self.bounds, 
-                                           MyTableViewCellInset,
-                                           MyTableViewCellInset);
-    }
+```objc
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    self.textLabel.frame = CGRectInset(self.bounds, 
+                                       MyTableViewCellInset,
+                                       MyTableViewCellInset);
+}
+```
 
 The `MyTableViewCellInset` is defined as a constant, so that we can use it for height calculation in the table view's delegate. The easiest and most reliable way to calculate height is by converting the string into an attributed string, and calculating the height of the attributed string. We take the table view's width and subtract twice the `MyTableViewCellInset` constant (for leading and trailing space). To calculate the actual height, we use `boundingRectWithSize:options:context:`. 
 
 The first parameter is the size to which the text should be constrained. We only care about constraining the width, hence we pass in `CGFLOAT_MAX` for the height. The second parameter is very important: if you pass in other values, the bounding rect will almost certainly be wrong. If you want to adjust font scaling and/or tracking, you can use the third parameter. Finally, once we have the `boundingRect`, we have to add the inset again:
 
-    - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-    {
-        CGFloat labelWidth = self.tableView.bounds.size.width - MyTableViewCellInset*2;
-        NSAttributedString *text = [self attributedBodyTextAtIndexPath:indexPath];
-        NSStringDrawingOptions options = NSStringDrawingUsesLineFragmentOrigin |
-                                         NSStringDrawingUsesFontLeading;
-        CGRect boundingRect = [text boundingRectWithSize:CGSizeMake(labelWidth, CGFLOAT_MAX)
-                                                 options:options
-                                                 context:nil];
-    
-        return (CGFloat) (ceil(boundingRect.size.height) + MyTableViewCellInset*2);    
-    }
-    
+```objc
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    CGFloat labelWidth = self.tableView.bounds.size.width - MyTableViewCellInset*2;
+    NSAttributedString *text = [self attributedBodyTextAtIndexPath:indexPath];
+    NSStringDrawingOptions options = NSStringDrawingUsesLineFragmentOrigin |
+                                     NSStringDrawingUsesFontLeading;
+    CGRect boundingRect = [text boundingRectWithSize:CGSizeMake(labelWidth, CGFLOAT_MAX)
+                                             options:options
+                                             context:nil];
+
+    return (CGFloat) (ceil(boundingRect.size.height) + MyTableViewCellInset*2);    
+}
+```
+
 There are two more subtle things about the resulting bounding rect, which might not be obvious unless you read the documentation: the returned size returns fractional values, and the documentation tells us to round the result up using `ceil`. Finally, the result may actually still be larger than could be contained in the size argument.
 
 Note that, while our text is a plain `NSString`, we created the method `attributedBodyTextAtIndexPath:`, which is also used in the `tableView:cellForRowAtIndexPath:`. This way, we make sure that both stay in sync.
 
 Also, taking a look at the documentation (see the screenshot below), we can see that a lot of methods have been deprecated since iOS 7. If you browse the internet, or StackOverflow, you'll find a lot of answers and workarounds for measuring string sizes. Because the text system received a major overhaul (internally, everything is rendered using TextKit rather than WebKit), please use the new methods.
 
-<img alt="Deprecated string measuring methods" src="/images/issue-9/deprecated-methods.png">
+![Deprecated string measuring methods](/images/issue-9/deprecated-methods.png)
     
 Another option for dynamically sized table view cells is to use Auto Layout, for example, as explained in [this blog post](http://blog.amyworrall.com/post/66085151655/using-auto-layout-to-calculate-table-cell-height
 ). You can then piggyback on the `intrinsicContentSize` of the contained labels. However, Auto Layout is currently a lot slower than calculating things manually. For prototyping, however, it is perfect: it allows you to quickly adjust constraints and move things around (this is especially important if you have more than one element on your cell). Once you have finished the design iterations, you can then rewrite it to do the layout manually.
@@ -126,7 +136,7 @@ We want to give a few examples to highlight a few common layout problems, as wel
 
 First, let's take a look at some classic text. We'll use [Histoire des nombres et de la numération mécanique](http://www.gutenberg.org/ebooks/27936) by Jacomy-Régnier and set it in [Bodoni](http://www.myfonts.com/fonts/itc/bodoni-seventy-two/). The screenshot of the final result looks like this:
 
-<img src="/images/issue-9/Layout-Example-1.png" width="50%" height="50%">
+![](/images/issue-9/Layout-Example-1.png)
 
 This is all done with Text Kit. The ornament between sections is also text, set in the [Bodoni Ornaments](http://www.myfonts.com/fonts/itc/bodoni-ornaments/) font.
 
@@ -137,17 +147,19 @@ We have three different styles for this: the *body* style, the variation of it w
 Let's first set up the `body1stAttributes`:
 
 
-    CGFloat const fontSize = 15;
-    
-    NSMutableDictionary *body1stAttributes = [NSMutableDictionary dictionary];
-    body1stAttributes[NSFontAttributeName] = [UIFont fontWithName:@"BodoniSvtyTwoITCTT-Book" 
-                                                             size:fontSize];
-    NSMutableParagraphStyle *body1stParagraph = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-    body1stParagraph.alignment = NSTextAlignmentJustified;
-    body1stParagraph.minimumLineHeight = fontSize + 3;
-    body1stParagraph.maximumLineHeight = body1stParagraph.minimumLineHeight;
-    body1stParagraph.hyphenationFactor = 0.97;
-    body1stAttributes[NSParagraphStyleAttributeName] = body1stParagraph;
+```objc
+CGFloat const fontSize = 15;
+
+NSMutableDictionary *body1stAttributes = [NSMutableDictionary dictionary];
+body1stAttributes[NSFontAttributeName] = [UIFont fontWithName:@"BodoniSvtyTwoITCTT-Book" 
+                                                         size:fontSize];
+NSMutableParagraphStyle *body1stParagraph = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+body1stParagraph.alignment = NSTextAlignmentJustified;
+body1stParagraph.minimumLineHeight = fontSize + 3;
+body1stParagraph.maximumLineHeight = body1stParagraph.minimumLineHeight;
+body1stParagraph.hyphenationFactor = 0.97;
+body1stAttributes[NSParagraphStyleAttributeName] = body1stParagraph;
+```
 
 We're setting the font to `BodoniSvtyTwoITCTT`. This is the PostScript name of the font. To find the font name, we can use `+[UIFont familyNames]` to first get the available font families. A [font family](https://en.wikipedia.org/wiki/Font_family) is also known as a typeface. Each typeface or font family has one or multiple fonts. To get the names of those, we can use `+[UIFont fontNamesForFamilyName:]`. Note that the `UIFontDescriptor` class can be very helpful if you're working with multiple fonts, e.g. when you need to find out what the italic version of a given font is.
 
@@ -155,24 +167,28 @@ Many settings live inside the `NSParagraphStyle`. We're creating a mutable copy 
 
 Next up, we'll make a copy of these attributes and modify them to create `bodyAttributes`, which are our attributes for paragraphs that are not the first within a section:
 
-    NSMutableDictionary *bodyAttributes = [body1stAttributes mutableCopy];
-    NSMutableParagraphStyle *bodyParagraph = 
-      [bodyAttributes[NSParagraphStyleAttributeName] mutableCopy];
-    bodyParagraph.firstLineHeadIndent = fontSize;
-    bodyAttributes[NSParagraphStyleAttributeName] = bodyParagraph;
+```objc
+NSMutableDictionary *bodyAttributes = [body1stAttributes mutableCopy];
+NSMutableParagraphStyle *bodyParagraph = 
+  [bodyAttributes[NSParagraphStyleAttributeName] mutableCopy];
+bodyParagraph.firstLineHeadIndent = fontSize;
+bodyAttributes[NSParagraphStyleAttributeName] = bodyParagraph;
+```
 
 We're simply making a mutable copy of the attributes dictionary, and then making a mutable copy of the paragraph style in order to change it. Setting the `firstLineHeadIndent` to the same as the font size will give us the desired [em space](https://en.wikipedia.org/wiki/Em_space) indent.
 
 Next up, the ornament paragraph style:
 
-    NSMutableDictionary *ornamentAttributes = [NSMutableDictionary dictionary];
-    ornamentAttributes[NSFontAttributeName] = [UIFont fontWithName:@"BodoniOrnamentsITCTT"
-                                                              size:36];
-    NSMutableParagraphStyle *ornamentParagraph = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-    ornamentParagraph.alignment = NSTextAlignmentCenter;
-    ornamentParagraph.paragraphSpacingBefore = fontSize;
-    ornamentParagraph.paragraphSpacing = fontSize;
-    ornamentAttributes[NSParagraphStyleAttributeName] = ornamentParagraph;
+```objc
+NSMutableDictionary *ornamentAttributes = [NSMutableDictionary dictionary];
+ornamentAttributes[NSFontAttributeName] = [UIFont fontWithName:@"BodoniOrnamentsITCTT"
+                                                          size:36];
+NSMutableParagraphStyle *ornamentParagraph = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+ornamentParagraph.alignment = NSTextAlignmentCenter;
+ornamentParagraph.paragraphSpacingBefore = fontSize;
+ornamentParagraph.paragraphSpacing = fontSize;
+ornamentAttributes[NSParagraphStyleAttributeName] = ornamentParagraph;
+```
 
 This is pretty self-explanatory. We're using the ornaments font and setting the text alignment to center. Additionally, we're adding paragraph space before and after the ornament character.
 
@@ -180,45 +196,49 @@ This is pretty self-explanatory. We're using the ornaments font and setting the 
 
 Next up, a table of numbers. We want to align fractional numbers on their decimal separators, i.e. “.” in English:
 
-<img src="/images/issue-9/Layout-Example-2.png" width="50%" height="50%">
+![](/images/issue-9/Layout-Example-2.png)
 
 To achieve this, we have to specify tab stops that center on the decimal separator.
 
 For the above example, we're simply doing:
 
-    NSCharacterSet *decimalTerminator = [NSCharacterSet 
-      characterSetWithCharactersInString:decimalFormatter.decimalSeparator];
-    NSTextTab *decimalTab = [[NSTextTab alloc] 
-       initWithTextAlignment:NSTextAlignmentRight
-                    location:100
-                     options:@{NSTabColumnTerminatorsAttributeName:decimalTerminator}];
-    NSTextTab *percentTab = [[NSTextTab alloc] initWithTextAlignment:NSTextAlignmentRight
-                                                            location:200
-                                                             options:nil];
-    NSMutableParagraphStyle *tableParagraphStyle = 
-      [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-    tableParagraphStyle.tabStops = @[decimalTab, percentTab];
+```objc
+NSCharacterSet *decimalTerminator = [NSCharacterSet 
+  characterSetWithCharactersInString:decimalFormatter.decimalSeparator];
+NSTextTab *decimalTab = [[NSTextTab alloc] 
+   initWithTextAlignment:NSTextAlignmentRight
+                location:100
+                 options:@{NSTabColumnTerminatorsAttributeName:decimalTerminator}];
+NSTextTab *percentTab = [[NSTextTab alloc] initWithTextAlignment:NSTextAlignmentRight
+                                                        location:200
+                                                         options:nil];
+NSMutableParagraphStyle *tableParagraphStyle = 
+  [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+tableParagraphStyle.tabStops = @[decimalTab, percentTab];
+```
 
 ### Lists
 
 Another common use case is a list like this:
 
-<img src="/images/issue-9/Layout-Example-3.png" width="50%" height="50%">
+![](/images/issue-9/Layout-Example-3.png)
 
 (from [Robert's Rules of Order](http://www.gutenberg.org/ebooks/9097) by Henry M. Robert)
 
 The hanging indents are relatively simple to set up. We need to make sure there's a tab character between either the list number “(1)” and text or the bullet and the text. Then we'll adjust the paragraph style like so:
 
-    NSMutableDictionary *listAttributes = [bodyAttributes mutableCopy];
-    NSMutableParagraphStyle *listParagraph = 
-      [listAttributes[NSParagraphStyleAttributeName] mutableCopy];
-    listParagraph.headIndent = fontSize * 3;
-    listParagraph.firstLineHeadIndent = fontSize;
-    NSTextTab *listTab = [[NSTextTab alloc] initWithTextAlignment:NSTextAlignmentNatural
-                                                         location:fontSize * 3 
-                                                          options:nil];
-    listParagraph.tabStops = @[listTab];
-    listAttributes[NSParagraphStyleAttributeName] = listParagraph;
+```objc
+NSMutableDictionary *listAttributes = [bodyAttributes mutableCopy];
+NSMutableParagraphStyle *listParagraph = 
+  [listAttributes[NSParagraphStyleAttributeName] mutableCopy];
+listParagraph.headIndent = fontSize * 3;
+listParagraph.firstLineHeadIndent = fontSize;
+NSTextTab *listTab = [[NSTextTab alloc] initWithTextAlignment:NSTextAlignmentNatural
+                                                     location:fontSize * 3 
+                                                      options:nil];
+listParagraph.tabStops = @[listTab];
+listAttributes[NSParagraphStyleAttributeName] = listParagraph;
+```
 
 We're setting the `headIndent` to the indent of the actual text and the `firstLineHeadIndent` to the indent (from the left-hand side) that we want the bullet to have. Finally, we need to add a tab stop at the same position as the `headIndent`. The tab character after the bullet will then make sure the text on that line starts at the correct position.
 

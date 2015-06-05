@@ -2,8 +2,10 @@
 title:  "Something Slightly Less Terrible"
 category: "20"
 date: "2015-01-13 10:00:00"
-tags: article
-author: "<a href=\"https://twitter.com/lorenb\">Loren Brichter</a>"
+tags: article, interview
+author:
+  - name: Loren Brichter
+    url: https://twitter.com/lorenb
 ---
 
 **Loren, thanks for taking the time to talk to us — especially during the holidays. What are you up to these days?**

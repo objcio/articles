@@ -2,7 +2,9 @@
 title: "Concurrent Programming: APIs and Challenges"
 category: "2"
 date: "2013-07-07 10:00:00"
-author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: http://twitter.com/floriankugler
 tags: article
 ---
 
@@ -20,7 +22,7 @@ Apple's mobile and desktop operating systems provide the same APIs for concurren
 
 We'll start with the lower-level APIs and move our way up to the higher-level ones. We chose this route because the higher-level APIs are built on top of the lower-level APIs. However, when choosing an API for your use case, you should consider them in the exact opposite order: choose the highest level abstraction that gets the job done and keep your concurrency model very simple.
 
-If you're wondering why we are so persistent recommending high-level abstractions and very simple concurrency code, you should read the second part of this article, [challenges of concurrent programming](#challenges), as well as [Peter Steinberger's thread safety article][400].
+If you're wondering why we are so persistent recommending high-level abstractions and very simple concurrency code, you should read the second part of this article, [challenges of concurrent programming](#challenges-of-concurrent-programming), as well as [Peter Steinberger's thread safety article][400].
 
 
 ### Threads
@@ -35,123 +37,128 @@ The important thing to keep in mind is that you have no control over where and w
 
 Leaving this complexity aside for a moment, you can either use the [POSIX thread](http://en.wikipedia.org/wiki/POSIX_Threads) API, or the Objective-C wrapper around this API, `NSThread`, to create your own threads. Here's a small sample that finds the minimum and maximum in a set of 1 million numbers using `pthread`. It spawns off 4 threads that run in parallel. It should be obvious from this example why you wouldn't want to use pthreads directly.
 
-    #import <pthread.h>
-    
-    struct threadInfo {
-        uint32_t * inputValues;
-        size_t count;
-    };
-    
-    struct threadResult {
-        uint32_t min;
-        uint32_t max;
-    };
-    
-    void * findMinAndMax(void *arg)
-    {
-        struct threadInfo const * const info = (struct threadInfo *) arg;
-        uint32_t min = UINT32_MAX;
-        uint32_t max = 0;
-        for (size_t i = 0; i < info->count; ++i) {
-            uint32_t v = info->inputValues[i];
-            min = MIN(min, v);
-            max = MAX(max, v);
-        }
-        free(arg);
-        struct threadResult * const result = (struct threadResult *) malloc(sizeof(*result));
-        result->min = min;
-        result->max = max;
-        return result;
-    }
-    
-    int main(int argc, const char * argv[])
-    {
-        size_t const count = 1000000;
-        uint32_t inputValues[count];
-        
-        // Fill input values with random numbers:
-        for (size_t i = 0; i < count; ++i) {
-            inputValues[i] = arc4random();
-        }
-        
-        // Spawn 4 threads to find the minimum and maximum:
-        size_t const threadCount = 4;
-        pthread_t tid[threadCount];
-        for (size_t i = 0; i < threadCount; ++i) {
-            struct threadInfo * const info = (struct threadInfo *) malloc(sizeof(*info));
-            size_t offset = (count / threadCount) * i;
-            info->inputValues = inputValues + offset;
-            info->count = MIN(count - offset, count / threadCount);
-            int err = pthread_create(tid + i, NULL, &findMinAndMax, info);
-            NSCAssert(err == 0, @"pthread_create() failed: %d", err);
-        }
-        // Wait for the threads to exit:
-        struct threadResult * results[threadCount];
-        for (size_t i = 0; i < threadCount; ++i) {
-            int err = pthread_join(tid[i], (void **) &(results[i]));
-            NSCAssert(err == 0, @"pthread_join() failed: %d", err);
-        }
-        // Find the min and max:
-        uint32_t min = UINT32_MAX;
-        uint32_t max = 0;
-        for (size_t i = 0; i < threadCount; ++i) {
-            min = MIN(min, results[i]->min);
-            max = MAX(max, results[i]->max);
-            free(results[i]);
-            results[i] = NULL;
-        }
-        
-        NSLog(@"min = %u", min);
-        NSLog(@"max = %u", max);
-        return 0;
-    }
+```objc
+#import <pthread.h>
 
+struct threadInfo {
+    uint32_t * inputValues;
+    size_t count;
+};
+
+struct threadResult {
+    uint32_t min;
+    uint32_t max;
+};
+
+void * findMinAndMax(void *arg)
+{
+    struct threadInfo const * const info = (struct threadInfo *) arg;
+    uint32_t min = UINT32_MAX;
+    uint32_t max = 0;
+    for (size_t i = 0; i < info->count; ++i) {
+        uint32_t v = info->inputValues[i];
+        min = MIN(min, v);
+        max = MAX(max, v);
+    }
+    free(arg);
+    struct threadResult * const result = (struct threadResult *) malloc(sizeof(*result));
+    result->min = min;
+    result->max = max;
+    return result;
+}
+
+int main(int argc, const char * argv[])
+{
+    size_t const count = 1000000;
+    uint32_t inputValues[count];
+    
+    // Fill input values with random numbers:
+    for (size_t i = 0; i < count; ++i) {
+        inputValues[i] = arc4random();
+    }
+    
+    // Spawn 4 threads to find the minimum and maximum:
+    size_t const threadCount = 4;
+    pthread_t tid[threadCount];
+    for (size_t i = 0; i < threadCount; ++i) {
+        struct threadInfo * const info = (struct threadInfo *) malloc(sizeof(*info));
+        size_t offset = (count / threadCount) * i;
+        info->inputValues = inputValues + offset;
+        info->count = MIN(count - offset, count / threadCount);
+        int err = pthread_create(tid + i, NULL, &findMinAndMax, info);
+        NSCAssert(err == 0, @"pthread_create() failed: %d", err);
+    }
+    // Wait for the threads to exit:
+    struct threadResult * results[threadCount];
+    for (size_t i = 0; i < threadCount; ++i) {
+        int err = pthread_join(tid[i], (void **) &(results[i]));
+        NSCAssert(err == 0, @"pthread_join() failed: %d", err);
+    }
+    // Find the min and max:
+    uint32_t min = UINT32_MAX;
+    uint32_t max = 0;
+    for (size_t i = 0; i < threadCount; ++i) {
+        min = MIN(min, results[i]->min);
+        max = MAX(max, results[i]->max);
+        free(results[i]);
+        results[i] = NULL;
+    }
+    
+    NSLog(@"min = %u", min);
+    NSLog(@"max = %u", max);
+    return 0;
+}
+```
 
 `NSThread` is a simple Objective-C wrapper around pthreads. This makes the code look more familiar in a Cocoa environment. For example, you can define a thread as a subclass of NSThread, which encapsulates the code you want to run in the background. For the previous example, we could define an `NSThread` subclass like this:
 
-    @interface FindMinMaxThread : NSThread
-    @property (nonatomic) NSUInteger min;
-    @property (nonatomic) NSUInteger max;
-    - (instancetype)initWithNumbers:(NSArray *)numbers;
-    @end
+```objc
+@interface FindMinMaxThread : NSThread
+@property (nonatomic) NSUInteger min;
+@property (nonatomic) NSUInteger max;
+- (instancetype)initWithNumbers:(NSArray *)numbers;
+@end
 
-    @implementation FindMinMaxThread {
-        NSArray *_numbers;
-    }
+@implementation FindMinMaxThread {
+    NSArray *_numbers;
+}
 
-    - (instancetype)initWithNumbers:(NSArray *)numbers 
-    {
-        self = [super init];
-        if (self) {
-            _numbers = numbers;
-        }
-        return self;
+- (instancetype)initWithNumbers:(NSArray *)numbers 
+{
+    self = [super init];
+    if (self) {
+        _numbers = numbers;
     }
+    return self;
+}
 
-    - (void)main
-    {
-        NSUInteger min;
-        NSUInteger max;
-        // process the data
-        self.min = min;
-        self.max = max;
-    }
-    @end
+- (void)main
+{
+    NSUInteger min;
+    NSUInteger max;
+    // process the data
+    self.min = min;
+    self.max = max;
+}
+@end
+```
 
 To start new threads, we need to create new thread objects and call their `start` methods:
 
-    NSMutableSet *threads = [NSMutableSet set];
-    NSUInteger numberCount = self.numbers.count;
-    NSUInteger threadCount = 4;
-    for (NSUInteger i = 0; i < threadCount; i++) {
-        NSUInteger offset = (numberCount / threadCount) * i;
-        NSUInteger count = MIN(numberCount - offset, numberCount / threadCount);
-        NSRange range = NSMakeRange(offset, count);
-        NSArray *subset = [self.numbers subarrayWithRange:range];
-        FindMinMaxThread *thread = [[FindMinMaxThread alloc] initWithNumbers:subset];
-        [threads addObject:thread];
-        [thread start];
-    }
+```objc
+NSMutableSet *threads = [NSMutableSet set];
+NSUInteger numberCount = self.numbers.count;
+NSUInteger threadCount = 4;
+for (NSUInteger i = 0; i < threadCount; i++) {
+    NSUInteger offset = (numberCount / threadCount) * i;
+    NSUInteger count = MIN(numberCount - offset, numberCount / threadCount);
+    NSRange range = NSMakeRange(offset, count);
+    NSArray *subset = [self.numbers subarrayWithRange:range];
+    FindMinMaxThread *thread = [[FindMinMaxThread alloc] initWithNumbers:subset];
+    [threads addObject:thread];
+    [thread start];
+}
+```
 
 Now we could observe the threads' `isFinished` property to detect when all our newly spawned threads have finished before evaluating the result. We will leave this exercise to the interested reader though. The main point is that working directly with threads, using either the `pthread` or the `NSThread` APIs, is a relatively clunky experience and doesn't fit our mental model of coding very well. 
 
@@ -170,11 +177,11 @@ The other important change with GCD is that you as a developer think about work 
 
 GCD exposes five different queues: the main queue running on the main thread, three background queues with different priorities, and one background queue with an even lower priority, which is I/O throttled. Furthermore, you can create custom queues, which can either be serial or concurrent queues. While custom queues are a powerful abstraction, all blocks you schedule on them will ultimately trickle down to one of the system's global queues and its thread pool(s).
 
-<img src="/images/issue-2/gcd-queues@2x.png" style="width:628px" alt="GCD queues"/>
+![GCD Queues](/images/issue-2/gcd-queues@2x.png)
 
 Making use of several queues with different priorities sounds pretty straightforward at first. However, we strongly recommend that you use the default priority queue in almost all cases. Scheduling tasks on queues with different priorities can quickly result in unexpected behavior if these tasks access shared resources. This can lead as far as causing your whole program to come to a grinding halt because some low-priority tasks are blocking a high-priority task from executing. You can read more about this phenomenon, called priority inversion, [below](#priority-inversion).
 
-Although GCD is a low-level C API, it's pretty straightforward to use. This makes it easy to forget that all caveats and pitfalls of concurrent programming still apply while dispatching blocks onto GCD queues. Please make sure to read about the [challenges of concurrent programming](#challenges) below, in order to be aware of the potential problems. Furthermore, we have an excellent [walkthrough of the GCD API][300] in this issue that contains many in-depth explanations and valuable hints.
+Although GCD is a low-level C API, it's pretty straightforward to use. This makes it easy to forget that all caveats and pitfalls of concurrent programming still apply while dispatching blocks onto GCD queues. Please make sure to read about the [challenges of concurrent programming](#challenges-of-concurrent-programming) below, in order to be aware of the potential problems. Furthermore, we have an excellent [walkthrough of the GCD API][300] in this issue that contains many in-depth explanations and valuable hints.
 
 
 ### Operation Queues
@@ -185,52 +192,62 @@ The `NSOperationQueue` class has two different types of queues: the main queue a
 
 You can define your own operations in two ways: either by overriding `main`, or by overriding `start`. The former is very simple to do, but gives you less flexibility. In return, the state properties like `isExecuting` and `isFinished` are managed for you, simply by assuming that the operation is finished when `main` returns.
 
-    @implementation YourOperation
-        - (void)main
-        {
-            // do your work here ...
-        } 
-    @end
+```objc
+@implementation YourOperation
+    - (void)main
+    {
+        // do your work here ...
+    } 
+@end
+```
 
 If you want more control and to maybe execute an asynchronous task within the operation, you can override `start`:
 
-    @implementation YourOperation
-        - (void)start
-        {
-            self.isExecuting = YES;
-            self.isFinished = NO;
-            // start your work, which calls finished once it's done ...
-        }
-        
-        - (void)finished
-        {
-            self.isExecuting = NO;
-            self.isFinished = YES;
-        }
-    @end
+```objc
+@implementation YourOperation
+    - (void)start
+    {
+        self.isExecuting = YES;
+        self.isFinished = NO;
+        // start your work, which calls finished once it's done ...
+    }
+    
+    - (void)finished
+    {
+        self.isExecuting = NO;
+        self.isFinished = YES;
+    }
+@end
+```
 
 Notice that in this case, you have to manage the operation's state manually. In order for an operation queue to be able to pick up a such a change, the state properties have to be implemented in a KVO-compliant way. So make sure to send proper KVO messages in case you don't set them via default accessor methods.
 
 In order to benefit from the cancelation feature exposed by operation queues, you should regularly check the `isCancelled` property for longer-running operations:
 
-    - (void)main
-    {
-        while (notDone && !self.isCancelled) {
-            // do your processing
-        }
+```objc
+- (void)main
+{
+    while (notDone && !self.isCancelled) {
+        // do your processing
     }
-    
+}
+```
+
 Once you have defined your operation class, it's very easy to add an operation to a queue:
 
-    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-    YourOperation *operation = [[YourOperation alloc] init];
-    [queue  addOperation:operation];
+```objc
+NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+YourOperation *operation = [[YourOperation alloc] init];
+[queue  addOperation:operation];
+```
 
 Alternatively, you can also add blocks to operation queues. This comes in handy, e.g. if you want to schedule one-off tasks on the main queue:
 
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        // do something...
-    }];
+```objc
+[[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    // do something...
+}];
+```
 
 While this is a very convenient way of scheduling work onto a queue, defining your own NSOperation subclasses can be very helpful during debugging. If you override the operation's `description` method, you can easily identify all the operations currently scheduled in a certain queue.
 
@@ -238,9 +255,11 @@ Beyond the basics of scheduling operations or blocks, operation queues offer som
 
 Another convenient feature is the sorting of operations within a queue according to their priorities. This is not the same as GCD's queue priorities. It solely influences the execution order of all operations scheduled in one queue. If you need more control over the sequence of execution beyond the five standard priorities, you can specify dependencies between operations like this:
 
-    [intermediateOperation addDependency:operation1];
-    [intermediateOperation addDependency:operation2];
-    [finishedOperation addDependency:intermediateOperation];
+```objc
+[intermediateOperation addDependency:operation1];
+[intermediateOperation addDependency:operation2];
+[finishedOperation addDependency:intermediateOperation];
+```
 
 This simple code guarantees that `operation1` and `operation2` will be executed before `intermediateOperation`, which, in turn, will be executed before `finishedOperation`. Operation dependencies are a very powerful mechanism to specify a well-defined execution order. This lets you create things like operation groups, which are guaranteed to be executed before the dependent operation, or serial operations within an otherwise concurrent queue. 
 
@@ -264,16 +283,12 @@ The main thread always has the main run loop set up and running. Other threads t
 If you really need to set up a run loop on another thread, don't forget to add at least one input source to it. If a run loop has no input sources configured, every attempt to run it will exit immediately. 
 
 
-<a name="challenges" id="challenges"> </a>
-
 ## Challenges of Concurrent Programming
 
 Writing concurrent programs comes with many pitfalls. As soon as you're doing more than the most basic things, it becomes difficult to oversee all the different states in the interplay of multiple tasks being executed in parallel. Problems can occur in a non-deterministic way, which makes it even more difficult to debug concurrent code.
 
 There is a prominent example for unforeseen behavior of concurrent programs: In 1995, NASA sent the Pathfinder mission to Mars. Not too long after a successful landing on our red neighboring planet, the mission almost [came to an abrupt end](http://research.microsoft.com/en-us/um/people/mbj/Mars_Pathfinder/Mars_Pathfinder.html). The Mars rover kept rebooting for unknown reasons -- it suffered from a phenomenon called *priority inversion*, where a low-priority thread kept blocking a high-priority one. We are going to explore this particular issue in more detail below. But this example should demonstrate that even with vast resources and lots of engineering talent available, concurrency can come back to bite you in many ways.
 
-
-<a name="shared_resources" id="shared_resources"> </a>
 
 ### Sharing of Resources
 
@@ -283,7 +298,7 @@ In order to demonstrate the problem, let's look at a simple example of a resourc
 
 Imagine the hazards that can happen if both threads try to do this simultaneously. For example, thread A and thread B both read the value of the counter from memory; let's say it is `17`. Then thread A increments the counter by one and writes the resulting `18` back to memory. At the same time, thread B also increments the counter by one and writes a `18` back to memory, just after thread A. At this point the data has become corrupted, because the counter holds an `18` after it was incremented twice from a `17`. 
 
-<img src="/images/issue-2/race-condition@2x.png" style="width:574px" alt="Race condition"/>
+![Race condition](/images/issue-2/race-condition@2x.png)
 
 This problem is called a [race condition](http://en.wikipedia.org/wiki/Race_conditions#Software) and can always happen if multiple threads access a shared resource without making sure that one thread is finished operating on a resource before another one begins accessing it. If you're not only writing a simple integer but a more complex structure to memory, it might even happen that a second thread tries to read from this memory while you're in the midst of writing it, therefore seeing half new and half old or uninitialized data. In order to prevent this, multiple threads need to access shared resources in a mutually exclusive way.
 
@@ -295,7 +310,7 @@ In reality, the situation is even more complicated than this, because modern CPU
 
 [Mutual exclusive](http://en.wikipedia.org/wiki/Mutex) access means that only one thread at a time gets access to a certain resource. In order to ensure this, each thread that wants to access a resource first needs to acquire a [*mutex* lock](http://en.wikipedia.org/wiki/Lock_%28computer_science%29) on it. Once it has finished its operation, it releases the lock, so that other threads get a chance to access it. 
 
-<img src="/images/issue-2/locking@2x.png" style="width:624px" alt="Mutex locking"/>
+![Mutex locking](/images/issue-2/locking@2x.png)
 
 In addition to ensuring mutual exclusive access, locks must also handle the problem caused by out-of-order execution. If you cannot rely on the CPU accessing the memory in the sequence defined by your program instructions, guaranteeing mutually exclusive access alone is not enough. To work around this side effect of CPU optimization strategies, [memory barriers](http://en.wikipedia.org/wiki/Memory_barrier) are used. Setting a memory barrier makes sure that no out-of-order execution takes place across the barrier.
 
@@ -312,32 +327,34 @@ There is a trade-off to be made here: acquiring and releasing locks comes at a p
 It is quite common to see code which is supposed to run concurrently, but which actually results in only one thread being active at a time, because of the way locks for shared resources are set up. It's often non-trivial to predict how your code will get scheduled on multiple cores. You can use Instrument's [CPU strategy view](http://developer.apple.com/library/mac/#documentation/DeveloperTools/Conceptual/InstrumentsUserGuide/AnalysingCPUUsageinYourOSXApp/AnalysingCPUUsageinYourOSXApp.html) to get a better idea of whether you're efficiently using the available CPU cores or not.
 
 
-<a name="dead-locks" id="dead-locks"> </a>
-
 ### Dead Locks
 
 Mutex locks solve the problem of race conditions, but unfortunately they also introduce a new problem ([amongst others](http://en.wikipedia.org/wiki/Lock_%28computer_science%29#The_problems_with_locks)) at the same time: [dead locks](http://en.wikipedia.org/wiki/Deadlock). A dead lock occurs when multiple threads are waiting on each other to finish and get stuck.
 
-<img src="/images/issue-2/dead-lock@2x.png" style="width:453px" alt="Dead locks"/>
+![Dead locks](/images/issue-2/dead-lock@2x.png)
 
 Consider the following example code, which swaps the values of two variables:
 
-    void swap(A, B)
-    {
-        lock(lockA);
-        lock(lockB);
-        int a = A;
-        int b = B;
-        A = b;
-        B = a;
-        unlock(lockB);
-        unlock(lockA);
-    }
+```objc
+void swap(A, B)
+{
+    lock(lockA);
+    lock(lockB);
+    int a = A;
+    int b = B;
+    A = b;
+    B = a;
+    unlock(lockB);
+    unlock(lockA);
+}
+```
 
 This works quite well most of the time. But when by chance two threads call it at the same time with opposite variables
 
-    swap(X, Y); // thread 1
-    swap(Y, X); // thread 2
+```objc
+swap(X, Y); // thread 1
+swap(Y, X); // thread 2
+```
 
 we can end up in a dead lock. Thread 1 acquires a lock on X, thread 2 acquires a lock on Y. Now they're both waiting for the other lock, but will never be able to acquire it.
 
@@ -351,8 +368,6 @@ Just when you thought that there are enough problems to think of, a new one come
 In order to solve this issue, more clever solutions than a simple read/write lock are necessary, e.g. giving [writers preference](http://en.wikipedia.org/wiki/Readers–writer_lock) or using the [read-copy-update](http://en.wikipedia.org/wiki/Read-copy-update) algorithm. Daniel shows in his [low-level concurrency techniques][302] article how to implement a multiple reader/single writer pattern with GCD which doesn't suffer from writer starvation.
 
 
-<a name="priority-inversion" id="priority-inversion"> </a>
-
 ### Priority Inversion
 
 We started this section with the example of NASA's Pathfinder rover on Mars suffering from a concurrency problem. Now we will have a closer look why Pathfinder almost failed, and why your application can suffer from the same problem, called [priority inversion](http://en.wikipedia.org/wiki/Priority_inversion). 
@@ -361,7 +376,7 @@ Priority inversion describes a condition where a lower priority task blocks a hi
 
 The problem can occur when you have a high-priority and a low-priority task share a common resource. When the low-priority task takes a lock to the common resource, it is supposed to finish off quickly in order to release its lock and to let the high-priority task execute without significant delays. Since the high-priority task is blocked from running as long as the low-priority task has the lock, there is a window of opportunity for medium-priority tasks to run and to preempt the low-priority task, because the medium-priority tasks have now the highest priority of all currently runnable tasks. At this moment, the medium-priority tasks hinder the low-priority task from releasing its lock, therefore effectively gaining priority over the still waiting, high-priority tasks.
 
-<img src="/images/issue-2/priority-inversion@2x.png" style="width:509px" alt="Priority Inversion"/>
+![Priority Inversion](/images/issue-2/priority-inversion@2x.png)
 
 In your own code, things might not be as dramatic as the rebooting that occurred in the Mars rover, as priority inversion happens quite often in a less severe manner.
 
@@ -381,14 +396,14 @@ A safe pattern we recommend is this: pull out the data you want to work on the m
 
 
 
-[90]: /issue-2/editorial.html
-[100]: /issue-2/concurrency-apis-and-pitfalls.html
-[101]: /issue-2/concurrency-apis-and-pitfalls.html#challenges
-[102]: /issue-2/concurrency-apis-and-pitfalls.html#priority_inversion
-[103]: /issue-2/concurrency-apis-and-pitfalls.html#shared_resources
-[104]: /issue-2/concurrency-apis-and-pitfalls.html#dead_locks
-[200]: /issue-2/common-background-practices.html
-[300]: /issue-2/low-level-concurrency-apis.html
-[301]: /issue-2/low-level-concurrency-apis.html#async
-[302]: /issue-2/low-level-concurrency-apis.html#multiple-readers-single-writer
-[400]: /issue-2/thread-safe-class-design.html
+[90]: /issues/2-concurrency/editorial/
+[100]: /issues/2-concurrency/concurrency-apis-and-pitfalls/
+[101]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#challenges-of-concurrent-programming
+[102]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#priority-inversion
+[103]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#sharing-of-resources
+[104]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#dead_locks
+[200]: /issues/2-concurrency/common-background-practices/
+[300]: /issues/2-concurrency/low-level-concurrency-apis/
+[301]: /issues/2-concurrency/low-level-concurrency-apis/#async
+[302]: /issues/2-concurrency/low-level-concurrency-apis/#multiple-readers-single-writer
+[400]: /issues/2-concurrency/thread-safe-class-design/

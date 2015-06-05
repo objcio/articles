@@ -1,7 +1,0 @@
----
-category: "8"
-date: "2014-01-08 12:00:00"
-tags: toc
----
-
-Issue #8 is a bit different from what we've done so far. This is our holiday issue, where we decided to spend a few days during the holiday break working on a small and fun project that we would then write about. We ended up strapping an iPhone to a quadrocopter in order to autonomously navigate it. This issue describes how we used Core Foundation networking, the Multipeer Connectivity framework, and Core Location to achieve this goal.

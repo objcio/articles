@@ -2,7 +2,9 @@
 title: Data Models and Model Objects
 category: "4"
 date: "2013-09-09 08:00:00"
-author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: http://twitter.com/floriankugler
 tags: article
 ---
 
@@ -46,12 +48,16 @@ Core Data has support for many common data types like integers, floats, booleans
 
 But we can also just specify those properties with their correct scalar type, e.g. as `int64_t`, `float_t`, or `BOOL`, and it will work with Core Data. Xcode even has a little checkbox in the save dialogue of the `NSManagedObject` generator ("Use scalar properties for primitive data types") which does this for you. Anyway, instead of:
 
-    @property (nonatomic, strong) NSNumber *myInteger;
-    
+```objc
+@property (nonatomic, strong) NSNumber *myInteger;
+```
+
 the property would be declared as:
 
-    @property (nonatomic) int64_t myInteger;
-    
+```objc
+@property (nonatomic) int64_t myInteger;
+```
+
 That's all we have to do to retrieve and store scalar types in Core Data. The documentation still states that Core Data cannot automatically generate accessor methods for scalar values, but that seems to be outdated. 
 
 
@@ -61,8 +67,10 @@ Core Data doesn't limit us to only storing values of the predefined types. In fa
 
 In order to store `NSCoding` compliant objects we use [transformable attributes](https://developer.apple.com/library/ios/documentation/cocoa/conceptual/CoreData/Articles/cdNSAttributes.html#//apple_ref/doc/uid/TP40001919-SW7). All we have to do is select the "Transformable" type in the drop-down menu and we are ready to go. If you generate the managed object subclasses you will see a property declared like this:
 
-    @property (nonatomic, retain) id anObject;
-    
+```objc
+@property (nonatomic, retain) id anObject;
+```
+
 We can manually change the type from `id` to whatever we want to store in this attribute to get type checking from the compiler. However, there is one pitfall when using transformable attributes: we must not specify the name of the transformer if we want to use the default transformer (which we mostly want). Even specifying the default transformer's name, `NSKeyedUnarchiveFromDataTransformerName`, will result in [bad things](https://developer.apple.com/library/ios/documentation/cocoa/conceptual/CoreData/Articles/cdNSAttributes.html#//apple_ref/doc/uid/TP40001919-SW7).
 
 But it doesn't stop there. We can also create our custom value transformers and use them to store arbitrary object types. We can store anything as long as we can transform it into one of the supported basic types. In order to store not supported non-object types like structs, the basic approach is to create a transient attribute of undefined type and a persistent "shadow attribute" of one of the supported types. Then the accessor methods of the transient attribute are overridden to transform the value from and to the persisted type. This is not trivial, because these accessor methods have to be KVC and KVO compliant and make correct use of Core Data's primitive accessor methods. Please read the [custom code](https://developer.apple.com/library/ios/documentation/cocoa/conceptual/CoreData/Articles/cdNSAttributes.html#//apple_ref/doc/uid/TP40001919-SW8) section in Apple's guide to [non-standard persistent attributes](https://developer.apple.com/library/ios/documentation/cocoa/conceptual/CoreData/Articles/cdNSAttributes.html#//apple_ref/doc/uid/TP40001919-SW1).
@@ -111,37 +119,47 @@ The entity hierarchy is *independent* of the `NSManagedObject` subclass hierarch
 
 Let's have a look at the `Author` and `Book` example again. Both of these entities have common fields, like an identifier, a `createdAt` date field, and a `changedAt` date field. For this case we could create the following structure:
 
-    Entity hierarchy            Class hierarchy
-    ----------------            ---------------
-    
-       BaseEntity                 BaseEntity
-        |      |                   |      |
-     Authors  Books             Authors  Books
-     
+```
+Entity hierarchy            Class hierarchy
+----------------            ---------------
+
+   BaseEntity                 BaseEntity
+    |      |                   |      |
+ Authors  Books             Authors  Books
+```
+
 However, we can equally maintain this class hierarchy while flattening the entity hierarchy:
  
-     Entity hierarchy            Class hierarchy
-     ----------------            ---------------
+```
+ Entity hierarchy            Class hierarchy
+ ----------------            ---------------
+```
+
  
-      Authors  Books               BaseEntity
-                                    |      |
-                                 Authors  Books
+```objc
+  Authors  Books               BaseEntity
+                                |      |
+                             Authors  Books
+```
+
  
 The classes would be declared like this:
  
-     @interface BaseEntity : NSManagedObject
-     @property (nonatomic) int64_t identifier;
-     @property (nonatomic, strong) NSDate *createdAt;
-     @property (nonatomic, strong) NSDate *changedAt;
-     @end
+```objc
+ @interface BaseEntity : NSManagedObject
+ @property (nonatomic) int64_t identifier;
+ @property (nonatomic, strong) NSDate *createdAt;
+ @property (nonatomic, strong) NSDate *changedAt;
+ @end
 
-     @interface Author : BaseEntity
-     // Author specific code...
-     @end
+ @interface Author : BaseEntity
+ // Author specific code...
+ @end
 
-     @interface Book : BaseEntity
-     // Book specific code...
-     @end
+ @interface Book : BaseEntity
+ // Book specific code...
+ @end
+```
 
 This gives us the benefit of being able to move common code into the base class without the performance overhead of storing all entities in a single table. We cannot create class hierarchies deviating from the entity hierarchy with Xcode's managed object generator though. But that's a small price to pay, since there are more benefits to not auto-generating managed object classes, as we will discuss [below][210].
 
@@ -161,18 +179,22 @@ To be honest, I have a hard time coming up with convincing use cases of fetch re
 
 ## Managed Objects
 
-Managed objects are at the heart of any Core Data application. Managed objects live in a managed object context and represent our data. Managed objects are supposed to be passed around in the application, crossing at least the model-controller barrier, and potentially even the controller-view barrier. The latter is somewhat more controversial though, and can be [abstracted in a better way](/issue-1/table-views.html) by e.g. defining a protocol to which an object must conform in order to be consumed by a certain view, or by implementing configuration methods in a view category that bridge the gap from the model object to the specifics of the view.
+Managed objects are at the heart of any Core Data application. Managed objects live in a managed object context and represent our data. Managed objects are supposed to be passed around in the application, crossing at least the model-controller barrier, and potentially even the controller-view barrier. The latter is somewhat more controversial though, and can be [abstracted in a better way](/issues/1-view-controllers/table-views/) by e.g. defining a protocol to which an object must conform in order to be consumed by a certain view, or by implementing configuration methods in a view category that bridge the gap from the model object to the specifics of the view.
 
 Anyway, we shouldn't limit managed objects to the model layer and pull out their data into different structures as soon as we want to pass them around. Managed objects are first-class citizens in a Core Data app and we should use them accordingly. For example, managed objects should be passed between view controllers to provide them with the data they need. 
 
 In order to access the managed object context we often see code like this in view controllers:
 
-    NSManagedObjectContext *context = 
-      [(MyApplicationDelegate *)[[UIApplication sharedApplication] delegate] managedObjectContext];
+```objc
+NSManagedObjectContext *context = 
+  [(MyApplicationDelegate *)[[UIApplication sharedApplication] delegate] managedObjectContext];
+```
 
 If you already pass a model object to the view controller, it's much better to access the context directly via this object:
 
-    NSManagedObjectContext *context = self.myObject.managedObjectContext;
+```objc
+NSManagedObjectContext *context = self.myObject.managedObjectContext;
+```
 
 This removes the hidden dependency on the application delegate, and makes it much more readable and also easier to test. 
 
@@ -198,29 +220,35 @@ Once we start using our managed object subclasses to implement model logic, we m
 
 One good example of implementing useful helper methods on our model classes is a class method to insert a new object into a managed object context. Core Data's API for creating new objects is not very intuitive: 
 
-    Book *newBook = [NSEntityDescription insertNewObjectForEntityForName:@"Book"
-                                                  inManagedObjectContext:context];
-                                                  
+```objc
+Book *newBook = [NSEntityDescription insertNewObjectForEntityForName:@"Book"
+                                              inManagedObjectContext:context];
+```
+
 Luckily, we can easily solve this task in a much more elegant manner in our own subclass:
 
-    @implementation Book
-    // ...
-    
-    + (NSString *)entityName
-    {
-        return @"Book"
-    }
+```objc
+@implementation Book
+// ...
 
-    + (instancetype)insertNewObjectIntoContext:(NSManagedObjectContext *)context
-    {
-        return [NSEntityDescription insertNewObjectForEntityForName:[self entityName]
-                                             inManagedObjectContext:context];
-    }
-    @end
++ (NSString *)entityName
+{
+    return @"Book"
+}
+
++ (instancetype)insertNewObjectIntoContext:(NSManagedObjectContext *)context
+{
+    return [NSEntityDescription insertNewObjectForEntityForName:[self entityName]
+                                         inManagedObjectContext:context];
+}
+@end
+```
 
 Now, creating a new book object is much easier:
 
-    Book *book = [Book insertNewObjectIntoContext:context];
+```objc
+Book *book = [Book insertNewObjectIntoContext:context];
+```
 
 Of course, if we subclass our actual model classes from a common base class, we should move the `insertNewObjectIntoContext:` and `entityName` class methods into the common super class. Then each subclass only needs to overwrite `entityName`.
 
@@ -229,23 +257,29 @@ Of course, if we subclass our actual model classes from a common base class, we 
 
 If you generate a managed object subclass with Xcode which has a to-many relationship, it will create methods like this to add and remove objects to and from this relationship:
 
-    - (void)addBooksObject:(Book *)value;
-    - (void)removeBooksObject:(Book *)value;
-    - (void)addBooks:(NSSet *)values;
-    - (void)removeBooks:(NSSet *)values;
+```objc
+- (void)addBooksObject:(Book *)value;
+- (void)removeBooksObject:(Book *)value;
+- (void)addBooks:(NSSet *)values;
+- (void)removeBooks:(NSSet *)values;
+```
 
 Instead of using those four mutator methods, there is a much more elegant way of doing this, especially if we don't generate the managed object subclasses. We can simply use the [`mutableSetValueForKey:`](https://developer.apple.com/library/mac/documentation/cocoa/Reference/Foundation/Protocols/NSKeyValueCoding_Protocol/Reference/Reference.html#//apple_ref/occ/instm/NSObject/mutableSetValueForKey:) method to retrieve a mutable set of related objects (or [`mutableOrderedSetValueForKey:`](https://developer.apple.com/library/mac/documentation/cocoa/Reference/Foundation/Protocols/NSKeyValueCoding_Protocol/Reference/Reference.html#//apple_ref/occ/instm/NSObject/mutableOrderedSetValueForKey:) for ordered relationships). This can be encapsulated into a simple accessor method:
 
-    - (NSMutableSet *)mutableBooks
-    {
-        return [self mutableSetValueForKey:@"books"];
-    }
-    
+```objc
+- (NSMutableSet *)mutableBooks
+{
+    return [self mutableSetValueForKey:@"books"];
+}
+```
+
 Then we can use this mutable set like any other set. Core Data will pick up the changes and do the rest for us:
 
-    Book *newBook = [Book insertNewObjectIntoContext:context];
-    [author.mutableBooks addObject:newBook];
-    
+```objc
+Book *newBook = [Book insertNewObjectIntoContext:context];
+[author.mutableBooks addObject:newBook];
+```
+
 &nbsp;
 
 
@@ -266,26 +300,26 @@ We hope to have demonstrated some simple techniques to make working with managed
 
 
 
-[100]:/issue-4/importing-large-data-sets-into-core-data.html
-[110]:/issue-4/importing-large-data-sets-into-core-data.html#efficient-importing
-[120]:/issue-4/importing-large-data-sets-into-core-data.html#user-generated-data
+[100]:/issues/4-core-data/importing-large-data-sets-into-core-data/
+[110]:/issues/4-core-data/importing-large-data-sets-into-core-data/#efficient-importing
+[120]:/issues/4-core-data/importing-large-data-sets-into-core-data/#user-generated-data
 
-[200]:/issue-4/core-data-models-and-model-objects.html
-[210]:/issue-4/core-data-models-and-model-objects.html#managed-objects
-[220]:/issue-4/core-data-models-and-model-objects.html#validation
-[230]:/issue-4/core-data-models-and-model-objects.html#ivars-in-managed-object-classes
-[240]:/issue-4/core-data-models-and-model-objects.html#entity-vs-class-hierarchy
-[250]:/issue-4/core-data-models-and-model-objects.html#creating-objects
-[260]:/issue-4/core-data-models-and-model-objects.html#indexes
+[200]:/issues/4-core-data/core-data-models-and-model-objects/
+[210]:/issues/4-core-data/core-data-models-and-model-objects/#managed-objects
+[220]:/issues/4-core-data/core-data-models-and-model-objects/#validation
+[230]:/issues/4-core-data/core-data-models-and-model-objects/#ivars-in-managed-object-classes
+[240]:/issues/4-core-data/core-data-models-and-model-objects/#entity-vs-class-hierarchy
+[250]:/issues/4-core-data/core-data-models-and-model-objects/#creating-objects
+[260]:/issues/4-core-data/core-data-models-and-model-objects/#indexes
 
-[300]:/issue-4/core-data-overview.html
-[310]:/issue-4/core-data-overview.html#complicated-stacks
-[320]:/issue-4/core-data-overview.html#getting-to-objects
+[300]:/issues/4-core-data/core-data-overview/
+[310]:/issues/4-core-data/core-data-overview/#complicated-stacks
+[320]:/issues/4-core-data/core-data-overview/#getting-to-objects
 
-[400]:/issue-4/full-core-data-application.html
+[400]:/issues/4-core-data/full-core-data-application/
 
-[500]:/issue-4/SQLite-instead-of-core-data.html
+[500]:/issues/4-core-data/SQLite-instead-of-core-data/
 
-[600]:/issue-4/core-data-fetch-requests.html
+[600]:/issues/4-core-data/core-data-fetch-requests/
 
-[700]:/issue-4/core-data-migration.html
+[700]:/issues/4-core-data/core-data-migration/

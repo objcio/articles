@@ -3,7 +3,9 @@ title:  Capturing Video on iOS
 category: "23"
 date: "2015-04-13 11:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/astellingwerff\">Adriaan Stellingwerff</a>"
+author:
+  - name: Adriaan Stellingwerff
+    url: https://twitter.com/astellingwerff
 
 ---
 
@@ -87,7 +89,7 @@ If you want more control over the video capture process than `UIImagePickerContr
 
 The central AVFoundation class for video capture is `AVCaptureSession`. It coordinates the flow of data between audio and video inputs and outputs:
 
-<img src="/images/issue-23/AVCaptureSession.svg" alt="AVCaptureSession setup" width="620px" height="376px">
+![AVCaptureSession setup](/images/issue-23/AVCaptureSession.svg)
 
 To use a capture session, you instantiate it, add inputs and outputs, and start the flow of data from the connected inputs to the connected outputs:
 
@@ -187,7 +189,7 @@ To configure a specific device format, you first call `lockForConfiguration:` to
 
 Once you set the desired device format, you can configure specific settings on the capture device within the constraints of the device format.
 
-Focus, exposure, and white balance for video capture are managed in the same way as for image capture described in [“Camera Capture on iOS”](http://www.objc.io/issue-21/camera-capture-on-ios.html) from Issue #21. Aside from those, there are some video-specific configuration options.
+Focus, exposure, and white balance for video capture are managed in the same way as for image capture described in [“Camera Capture on iOS”](/issues/21-camera-and-photos/camera-capture-on-ios/) from Issue #21. Aside from those, there are some video-specific configuration options.
 
 You set the **frame rate** using the capture device’s `activeVideoMinFrameDuration` and `activeVideoMaxFrameDuration` properties, where the frame duration is the inverse of the frame rate. To set the frame rate, first make sure the desired frame rate is supported by the device format, and then lock the capture device for configuration. To ensure a constant frame rate, set the minimum and maximum frame duration to the same value:
 
@@ -300,7 +302,7 @@ To have more control over the video and audio output from our capture session, y
 
 These outputs will capture video and audio sample buffers respectively, and vend them to their delegates. The delegate can either apply some processing to the sample buffer (e.g. add a filter to the video) or pass them on unchanged. The sample buffers can then be written to file using an `AVAssetWriter` object:
 
-<img src="/images/issue-23/AVAssetWriter.svg" alt="Using an AVAssetWriter" width="620px" height="507px">
+![Using an AVAssetWriter](/images/issue-23/AVAssetWriter.svg)
 
 You configure an asset writer by defining an output URL and file format and adding one or more inputs to receive sample buffers. Because the writer inputs will be receiving data from the capture session’s outputs in real time, we also need to set the `expectsMediaInRealTime` attribute to YES:
 
@@ -341,7 +343,7 @@ previewLayer.frame = cameraView.bounds;
 [cameraView.layer addSublayer:previewLayer];
 ```
 
-If you need more control, e.g. to apply filters to the live preview, you will instead need to add an `AVCaptureVideoDataOutput` object to the capture session and display the frames onscreen using OpenGL, as discussed in [“Camera Capture on iOS”](http://www.objc.io/issue-21/camera-capture-on-ios.html) from Issue #21.
+If you need more control, e.g. to apply filters to the live preview, you will instead need to add an `AVCaptureVideoDataOutput` object to the capture session and display the frames onscreen using OpenGL, as discussed in [“Camera Capture on iOS”](/issues/21-camera-and-photos/camera-capture-on-ios/) from Issue #21.
 
 
 ## Summary

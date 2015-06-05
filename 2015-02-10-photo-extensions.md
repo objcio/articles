@@ -3,7 +3,9 @@ title:  "Photo Extensions"
 category: "21"
 date: "2015-02-10 07:30:00"
 tags: article
-author: "<a href=\"https://twitter.com/iwantmyrealname\">Sam Davies</a>"
+author:
+  - name: Sam Davies
+    url: https://twitter.com/iwantmyrealname
 ---
 
 
@@ -263,7 +265,7 @@ public func importFilterParameters(data: NSData?) {
 Here, these two methods are on the shared `FiltsterFilter` class, which is also
 responsible for determining compatibility of the adjustment data:
 
-```
+```swift
 public func supportsFilterIdentifier(identifier: String, version: String) -> Bool {
   return identifier == filterIdentifier && version == filterVersion
 }

@@ -2,8 +2,10 @@
 title:  "Infinite Things to Learn"
 category: "20"
 date: "2015-01-13 09:00:00"
-tags: article
-author: "<a href=\"https://twitter.com/NatashaTheRobot\">Natasha Murashev</a>"
+tags: article, interview
+author:
+  - name: Natasha Murashev
+    url: https://twitter.com/NatashaTheRobot
 ---
 
 **Thanks for taking the time, Natasha! Could you tell us a little bit of what you currently do in your job and in the developer community?**

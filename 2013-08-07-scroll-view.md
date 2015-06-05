@@ -2,7 +2,9 @@
 title: "Understanding Scroll Views"
 category: "3"
 date: "2013-08-07 09:00:00"
-author: "<a href=\"http://stablekernel.com\">Joe Conway</a>"
+author:
+  - name: Joe Conway
+    url: http://stablekernel.com
 tags: article
 ---
 
@@ -23,27 +25,31 @@ During the rasterization step, a view doesn't care about what is going to happen
 
 Before `drawRect:` is called, a blank image is created for the view to draw its content in. This image's coordinate system is the bounds rectangle of the view. For nearly every view, the bounds rectangle's origin is `{0, 0}`. Thus, to draw something in the top-left corner of the rasterized image, you would draw at the origin of the bounds, the point `{x:0, y:0}`. To draw something in the bottom right corner of an image, you would draw at point `{x:width, y:height}`. If you draw outside of a view's bounds, that drawing is not part of the rasterized image and is discarded.
 
-<img src="/images/issue-3/SV2@2x.png" width="454" height="574">
+![](/images/issue-3/SV2@2x.png)
 
 During the composition step, each view composites its rasterized image on top of its superview's image (and so on). A view's frame rectangle determines where the view's image is drawn on its superview's image - the origin of the frame indicates the offset between the top-left corner of the view's image and its superview's image. So, a frame origin of `{x:20, y:15}` will create a composited image where the view's image is drawn on top of its superview's image, shifted to the right 20 points and down 15 points. Because the frame and bounds rectangle of a view are always the same size, the image is composited pixel for pixel to its superview's image. This ensures there is no stretching or shrinking of the rasterized image.
 
-<img src="/images/issue-3/SV1@2x.png" width="685" height="428"> 
+![](/images/issue-3/SV1@2x.png) 
 
 Remember, we're talking about just one composite operation between a view and its superview. Once those two views are composited together, the resulting composite image is composited with the super-superview's image and so on: a snowball effect.
 
 Think about the math behind compositing an image onto another. The top-left corner of a view's image is offset by its frame's origin and then drawn onto its superview's image:
 
-	CompositedPosition.x = View.frame.origin.x - Superview.bounds.origin.x;
-	CompositedPosition.y = View.frame.origin.y - Superview.bounds.origin.y;
+```
+CompositedPosition.x = View.frame.origin.x - Superview.bounds.origin.x;
+CompositedPosition.y = View.frame.origin.y - Superview.bounds.origin.y;
+```
 
 Now, as we have said before, the origin of a view's bounds rectangle is typically just `{0, 0}`. Thus, when doing the math, we just drop out one of the values and we get:
 
-	CompositedPosition.x = View.frame.origin.x;
-	CompositedPosition.y = View.frame.origin.y;
-	
+```
+CompositedPosition.x = View.frame.origin.x;
+CompositedPosition.y = View.frame.origin.y;
+```
+
 So, we can look at a few different frames and see how they would look:
 
-<img src="/images/issue-3/SV3@2x.png" width="378" height="658">
+![](/images/issue-3/SV3@2x.png)
 
 And this should make sense. We change the frame's origin of the button, and it changes its position relative to its lovely purple superview. Notice that if we move the button so that parts of it are outside of the bounds of the purple superview, those parts are clipped in the same way drawing during rasterization would be clipped. However, technically, because of how iOS handles compositing under the hood, you can have a subview render outside of its superview's bounds, but drawing during rasterization cannot occur outside of a view's bounds.
 
@@ -53,21 +59,25 @@ Now, what does all of this have to do with UIScrollView? *Everything*. Think abo
 
 The problem with that, of course, is that there are typically many views in a scroll view. To implement this panning feature, you would have to change the frames of every view every time the user moved his or her finger. But we're missing something. Remember that equation that we came up with to determine where a view composited its image onto its superview?
 
-	CompositedPosition.x = View.frame.origin.x - Superview.bounds.origin.x;
-	CompositedPosition.y = View.frame.origin.y - Superview.bounds.origin.y;
+```
+CompositedPosition.x = View.frame.origin.x - Superview.bounds.origin.x;
+CompositedPosition.y = View.frame.origin.y - Superview.bounds.origin.y;
+```
 
 We dropped the `Superview.bounds.origin` values because they were always 0. But what if they weren't? What if, say, we used the same frames from the previous diagram, but we changed the purple view's `bounds` origin to something like {-30, -30}. We'd get this:
 
-<img src="/images/issue-3/SV4@2x.png" width="475" height="738">
+![](/images/issue-3/SV4@2x.png)
 
 Now, the beauty of this is that every single subview of this purple view is shifted by the change to its bounds. This is, in fact, exactly how a scroll view works when you set its [`contentOffset`](http://developer.apple.com/library/ios/documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html#//apple_ref/occ/instp/UIScrollView/contentOffset) property: it changes the origin of the scroll view's bounds. In fact, `contentOffset` isn't even real! Its code probably looks like this:
 
-	- (void)setContentOffset:(CGPoint)offset
-	{
-		CGRect bounds = [self bounds];
-		bounds.origin = offset;
-		[self setBounds:bounds];
-	}
+```
+- (void)setContentOffset:(CGPoint)offset
+{
+    CGRect bounds = [self bounds];
+    bounds.origin = offset;
+    [self setBounds:bounds];
+}
+```
 
 Notice that in the previous diagram, changing the bounds' origin enough moved the button outside of the composited image produced by the purple view and the button. This is just what happens when you scroll a scroll view enough so that a view disappears!
 
@@ -79,20 +89,22 @@ The content size of a scroll view doesn't change anything about the bounds of a 
 
 When the content size is set to be larger than the bounds of the scroll view, the user is allowed to scroll. You can think of the bounds of a scroll view as a window into the scrollable area defined by the content size:
 
-<img src="/images/issue-3/SV5@2x.png" width="443" height="443">
+![](/images/issue-3/SV5@2x.png)
 
 When the content offset is `{x:0, y:0}`, the viewing window's top-left corner is in the top-left corner of the scrollable area. This is also the minimum value of the content offset; the user can't scroll to the left or above the scrollable area. There's nothing there!
 
 The maximum value for the content offset is the difference between the content size and the scroll view's bounds' size. This makes sense; scrolling all the way to the bottom right, the user is stopped so that the bottom-right edge of the scrolling area is flush with the bottom-right edge of the scroll view's bounds. You could write the maximum content offset like this:
 
-	contentOffset.x = contentSize.width - bounds.size.width;
-	contentOffset.y = contentSize.height - bounds.size.height;
+```objc
+contentOffset.x = contentSize.width - bounds.size.width;
+contentOffset.y = contentSize.height - bounds.size.height;
+```
 
 ## Tweaking the Window with Content Insets
 
 The property [`contentInset`](http://developer.apple.com/library/ios/documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html#//apple_ref/occ/instp/UIScrollView/contentInset) can change the maximum and minimum values of the content offset to allow scrolling outside of the scrollable area. Its type is [`UIEdgeInsets`](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIKitDataTypesReference/Reference/reference.html#//apple_ref/doc/c_ref/UIEdgeInsets), which consists of 4 numbers: `{top, left, bottom, right}`. When you introduce an inset, you change the range of the content offset. For example, setting the content inset to have a value of 10 for its top value allows the content offset's y value to reach -10. This introduces padding around the scrollable area. 
 
-<img src="/images/issue-3/SV6@2x.png" width="393" height="304">
+![](/images/issue-3/SV6@2x.png)
 
 This may not seem very useful at first. In fact, why not just increase the content size? Well, you should avoid changing the content size of a scroll view unless you have to. To understand why, consider a table view (`UITableView` is a subclass of `UIScrollView`, so it has all of the same properties). The table view's scrollable area has been carefully calculated to fit each one of its cells snugly. When you scroll past the boundaries of the table view's first or last cells, the table view snaps the content offset back into place, so that the cells once again fit snugly in the scroll view's bounds.
 
@@ -106,7 +118,7 @@ Now, the scroll view's bounds haven't changed, and neither has its content size 
 
 The trick, then, is to put the interface in a scroll view. The content size of the scroll view remains fixed at the same size as the scroll view's bounds. When the keyboard appears on the screen, you set the bottom of the content inset equal to the height of the keyboard. 
 
-<img src="/images/issue-3/SV7@2x.png" width="442" height="504">
+![](/images/issue-3/SV7@2x.png)
 
 This allows the maximum value of the content offset to show the area beyond the scrollable area. The top of the visible area is outside the bounds of the scroll view, and is therefore clipped (although it is also off the screen itself, so that doesn't matter too much).
 
@@ -116,19 +128,19 @@ Hopefully, this gives you some insight into the inner workings of scroll views. 
 
 
 
-[100]:/issue-3/advanced-auto-layout-toolbox.html
-[110]:/issue-3/advanced-auto-layout-toolbox.html#layout-process
+[100]:/issues/3-views/advanced-auto-layout-toolbox/
+[110]:/issues/3-views/advanced-auto-layout-toolbox/#layout-process
 
-[200]:/issue-3/moving-pixels-onto-the-screen.html
-[210]:/issue-3/moving-pixels-onto-the-screen.html#compositing
-[220]:/issue-3/moving-pixels-onto-the-screen.html#pixels
-[230]:/issue-3/moving-pixels-onto-the-screen.html#off-screen-rendering
-[240]:/issue-3/moving-pixels-onto-the-screen.html#planar-data
-[250]:/issue-3/moving-pixels-onto-the-screen.html#concurrent-drawing
-[260]:/issue-3/moving-pixels-onto-the-screen.html#resizable-images
-[270]:/issue-3/moving-pixels-onto-the-screen.html#core-graphics
+[200]:/issues/3-views/moving-pixels-onto-the-screen/
+[210]:/issues/3-views/moving-pixels-onto-the-screen/#compositing
+[220]:/issues/3-views/moving-pixels-onto-the-screen/#pixels
+[230]:/issues/3-views/moving-pixels-onto-the-screen/#off-screen-rendering
+[240]:/issues/3-views/moving-pixels-onto-the-screen/#planar-data
+[250]:/issues/3-views/moving-pixels-onto-the-screen/#concurrent-drawing
+[260]:/issues/3-views/moving-pixels-onto-the-screen/#resizable-images
+[270]:/issues/3-views/moving-pixels-onto-the-screen/#core-graphics
 
-[300]:/issue-3/collection-view-layouts.html
-[310]:/issue-3/collection-view-layouts.html#layout-attributes-for-...-at-index-path
+[300]:/issues/3-views/collection-view-layouts/
+[310]:/issues/3-views/collection-view-layouts/#layout-attributes-for-...-at-index-path
 
-[400]:/issue-3/custom-controls.html
+[400]:/issues/3-views/custom-controls/

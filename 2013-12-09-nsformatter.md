@@ -3,7 +3,9 @@ title:  "Custom Formatters"
 category: "7"
 date: "2013-12-09 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/klaaspieter\">Klaas Pieter Annema</a>"
+author:
+  - name: Klaas Pieter Annema
+    url: https://twitter.com/klaaspieter
 ---
 
 When formatting data into a user-readable format we tend to use quick one-off solutions. This is a shame because Foundation comes with `NSFormatter`, which is perfectly suited for this task and can be easily reused throughout your code base. Heck, if you're on a Mac, AppKit classes have built-in support for `NSFormatter`, making your life a lot easier.
@@ -20,8 +22,10 @@ If you need a more subtle introduction, I recommend reading this [NSHipster post
 
 Because we don't like errors, we'll implement an `NSFormatter` subclass that can transform instances of `UIColor` to a human-readable name. For example, the following code will return the string "Blue":
 
-    KPAColorFormatter *colorFormatter = [[KPAColorFormatter alloc] init];
-    [colorFormatter stringForObjectValue:[UIColor blueColor]] // Blue
+```objc
+KPAColorFormatter *colorFormatter = [[KPAColorFormatter alloc] init];
+[colorFormatter stringForObjectValue:[UIColor blueColor]] // Blue
+```
 
 Two methods are required when implementing a `NSFormatter` subclass: `stringForObjectValue:` and `getObjectValue:forString:errorDescription:`. We'll start of with the first because that's the one you'll use most often. The second is, as far as I know, most often used in OS X and actually not very useful. More on that later.
 
@@ -29,15 +33,16 @@ Two methods are required when implementing a `NSFormatter` subclass: `stringForO
 
 Hold your horses, as first we need to do some setup. There is no pre-defined mapping from colors to their names, so we need to define this. For the sake of simplicity, this will be our initializer:
 
-    - (id)init;
-    {
-        return [self initWithColors:@{
-            [UIColor redColor]: @"Red",
-            [UIColor blueColor]: @"Blue",
-            [UIColor greenColor]: @"Green"
-        }];
-    }
-
+```objc
+- (id)init;
+{
+    return [self initWithColors:@{
+        [UIColor redColor]: @"Red",
+        [UIColor blueColor]: @"Blue",
+        [UIColor greenColor]: @"Green"
+    }];
+}
+```
 
 Our 'known' colors are a dictionary keyed by a `UIColor` with the English name as values. I'll leave the implementation of the `initWithColors:` method to your imagination. Or, if you're that person who looks at the answers on the last page of the puzzle book, go ahead and take a look at the [Github repo][Github repo]. 
 
@@ -45,23 +50,27 @@ Our 'known' colors are a dictionary keyed by a `UIColor` with the English name a
 
 The first thing we need to do in `stringForObjectValue:` is verify that the value is of the expected class. We can only format `UIColor`s so this is the start of our method:
 
-    - (NSString *)stringForObjectValue:(id)value;
-    {
-        if (![value isKindOfClass:[UIColor class]]) {
-            return nil;
-        }
-        
-        // To be continued...
+```objc
+- (NSString *)stringForObjectValue:(id)value;
+{
+    if (![value isKindOfClass:[UIColor class]]) {
+        return nil;
     }
+    
+    // To be continued...
+}
+```
 
 After we've verified that the value is what we expect it to be, we can do the real magic. Recall that our formatter has a dictionary of color names keyed by their color. To make it work, all we need to do is look up the name using the color value as key:
 
-    - (NSString *)stringForObjectValue:(id)value;
-    {
-        // Previously on KPAColorFormatter
-        
-        return [self.colors objectForKey:value];
-    }
+```objc
+- (NSString *)stringForObjectValue:(id)value;
+{
+    // Previously on KPAColorFormatter
+    
+    return [self.colors objectForKey:value];
+}
+```
 
 This is the simplest implementation possible. A more advanced (and useful) formatter would also be able to look up color names that don't exist in our dictionary by finding the closest known color. I'll leave that as an exercise to the reader. Or, if you don't work out much, take a look at the [Github repo][Github repo].
 
@@ -73,34 +82,38 @@ Any formatter should also support reverse formatting from a string back to an in
 
 There are two parts to implementing reverse formatting: the part where the formatter can successfully transform the string value into an instance of `UIColor`, and one where it cannot. Let's start with the happy path:
 
-    - (BOOL)getObjectValue:(out __autoreleasing id *)obj 
-                 forString:(NSString *)string 
-          errorDescription:(out NSString *__autoreleasing *)error;
-    {
-        __block UIColor *matchingColor = nil;
-        [self.colors enumerateKeysAndObjectsUsingBlock:^(UIColor *color, NSString *name, BOOL *stop) {
-            if([name isEqualToString:string]) {
-                matchingColor = color;
-                *stop = YES;
-            }
-        }];
+```objc
+- (BOOL)getObjectValue:(out __autoreleasing id *)obj 
+             forString:(NSString *)string 
+      errorDescription:(out NSString *__autoreleasing *)error;
+{
+    __block UIColor *matchingColor = nil;
+    [self.colors enumerateKeysAndObjectsUsingBlock:^(UIColor *color, NSString *name, BOOL *stop) {
+        if([name isEqualToString:string]) {
+            matchingColor = color;
+            *stop = YES;
+        }
+    }];
 
-        if (matchingColor) {
-            *obj = matchingColor;
-            return YES;
-        } // Snip
+    if (matchingColor) {
+        *obj = matchingColor;
+        return YES;
+    } // Snip
+```
 
 There is some optimization that can be done here, but let's not do that prematurely. This enumerates through every object in our colors dictionary and when a name is found it will return the color instance associated with it by reference. We also return `YES` to notify the caller that we were able to turn the string back into an object.
 
 Now the error path:
 
-    if (matchingColor) {
-        // snap
-    } else if (error) {
-        *error = [NSString stringWithFormat:@"No known color for name: %@", string];
-    }
+```objc
+if (matchingColor) {
+    // snap
+} else if (error) {
+    *error = [NSString stringWithFormat:@"No known color for name: %@", string];
+}
 
-    return NO;
+return NO;
+```
 
 If we can't find a matching color we check if the caller is interested in errors, and if so, return it by reference. The check for `error` here is important. If you don't do this you _will_ crash. We also return `NO` to notify the caller that conversion was not successful.
 
@@ -118,7 +131,7 @@ The first thing we need to do is translate the color strings. Messing with genst
 
 [Translating article 1]: https://developer.apple.com/internationalization/
 [Translating article 2]: http://nshipster.com/nslocalizedstring/
-[Translating article 3]: https://developer.apple.com/library/ios/documentation/MacOSX/Conceptual/BPInternational/BPInternational.html#//apple_ref/doc/uid/10000171i
+[Translating article 3]: https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPInternational/Introduction/Introduction.html
 [Translating article 4]: http://www.tethras.com/apple
 [Translating article 5]: http://www.ibabbleon.com/iphone_app_localization.html
 [Translating article 6]: http://www.getlocalization.com/library/get-localization-mac/
@@ -133,16 +146,18 @@ We are dealing with a dynamic locale here and `NSLocalizedString` will only find
 
 The new implementation of `stringForObjectValue:`
 
-    - (NSString *)stringForObjectValue:(id)value;
-    {
-        // Previously on... don't you hate these? I just watched that 20 seconds ago!
+```objc
+- (NSString *)stringForObjectValue:(id)value;
+{
+    // Previously on... don't you hate these? I just watched that 20 seconds ago!
 
-        NSString *languageCode = [self.locale objectForKey:NSLocaleLanguageCode];
-        NSURL *bundleURL = [[NSBundle bundleForClass:self.class] URLForResource:languageCode 
-                                                                  withExtension:@"lproj"];
-        NSBundle *languageBundle = [NSBundle bundleWithURL:bundleURL];
-        return [languageBundle localizedStringForKey:name value:name table:nil];
-    }
+    NSString *languageCode = [self.locale objectForKey:NSLocaleLanguageCode];
+    NSURL *bundleURL = [[NSBundle bundleForClass:self.class] URLForResource:languageCode 
+                                                              withExtension:@"lproj"];
+    NSBundle *languageBundle = [NSBundle bundleWithURL:bundleURL];
+    return [languageBundle localizedStringForKey:name value:name table:nil];
+}
+```
 
 This leaves room for some refactoring, but bear with me. It's easier to read if all the code is in the same place.
 
@@ -160,19 +175,21 @@ Formatters also have support for attributed strings. I find that whether or not 
 
 For ours, I want to set the text color to the color that we're formatting. This is what that looks like:
 
-    - (NSAttributedString *)attributedStringForObjectValue:(id)value 
-                                     withDefaultAttributes:(NSDictionary *)defaultAttributes;
-    {
-        NSString *string = [self stringForObjectValue:value];
+```objc
+- (NSAttributedString *)attributedStringForObjectValue:(id)value 
+                                 withDefaultAttributes:(NSDictionary *)defaultAttributes;
+{
+    NSString *string = [self stringForObjectValue:value];
 
-        if  (!string) {
-            return nil;
-        }
-
-        NSMutableDictionary *attributes = [NSMutableDictionary dictionaryWithDictionary:defaultAttributes];
-        attributes[NSForegroundColorAttributeName] = value;
-        return [[NSAttributedString alloc] initWithString:string attributes:attributes];
+    if  (!string) {
+        return nil;
     }
+
+    NSMutableDictionary *attributes = [NSMutableDictionary dictionaryWithDictionary:defaultAttributes];
+    attributes[NSForegroundColorAttributeName] = value;
+    return [[NSAttributedString alloc] initWithString:string attributes:attributes];
+}
+```
 
 First we format the string like normal, after which we check that formatting was successful. Then we merge the default attributes with our foreground color attribute. Finally, we return the attributed string. Simple, right?
 
@@ -180,15 +197,17 @@ First we format the string like normal, after which we check that formatting was
 
 Because initializing built-in formatters [is slow](https://twitter.com/ID_AA_Carmack/status/28939697453), it has become common practice to also expose a convenience class method on your formatter. The formatter should use same defaults and the current locale. This is the implementation for our formatter:
 
-    + (NSString *)localizedStringFromColor:(UIColor *)color;
-    {
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            KPAColorFormatterReusableInstance = [[KPAColorFormatter alloc] init];
-        });
+```objc
++ (NSString *)localizedStringFromColor:(UIColor *)color;
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        KPAColorFormatterReusableInstance = [[KPAColorFormatter alloc] init];
+    });
 
-        return [KPAColorFormatterReusableInstance stringForObjectValue:color];
-    }
+    return [KPAColorFormatterReusableInstance stringForObjectValue:color];
+}
+```
 
 Unless your formatter is doing really crazy formatting, like `NSNumberFormatter` and `NSDateFormatter`, you probably don't need this for performance reasons. But it's still good to do because it makes using your formatter easier.
 

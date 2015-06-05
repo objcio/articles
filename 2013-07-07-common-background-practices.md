@@ -2,7 +2,9 @@
 title:  "Common Background Practices"
 category: "2"
 date: "2013-07-07 09:00:00"
-author: "<a href=\"http://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: http://twitter.com/chriseidhof
 tags: article
 ---
 
@@ -94,14 +96,16 @@ this context will manage its own queue, and all operations on it
 need to be performed using `performBlock` or `performBlockAndWait`.
 This is crucial to make sure that they will be executed on the right thread.
 
-    NSManagedObjectContext* context = [[NSManagedObjectContext alloc]
-        initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    context.persistentStoreCoordinator = self.persistentStoreCoordinator;
-    context.undoManager = nil;
-    [self.context performBlockAndWait:^
-    {
-        [self import];
-    }];
+```objc
+NSManagedObjectContext* context = [[NSManagedObjectContext alloc]
+    initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+context.persistentStoreCoordinator = self.persistentStoreCoordinator;
+context.undoManager = nil;
+[self.context performBlockAndWait:^
+{
+    [self import];
+}];
+```
 
 Note that we reuse the existing persistent store coordinator.
 In modern code, you should initialize managed object contexts with either
@@ -112,47 +116,57 @@ legacy code, and our advice is to not use it anymore.
 To do the import, we iterate over the lines in our file and create a
 managed object for each line that we can parse:
 
-    [lines enumerateObjectsUsingBlock:
-      ^(NSString* line, NSUInteger idx, BOOL* shouldStop)
-      {
-          NSArray* components = [line csvComponents];
-          if(components.count < 5) {
-              NSLog(@"couldn't parse: %@", components);
-              return;
-          }
-          [Stop importCSVComponents:components intoContext:context];
-      }];
+```objc
+[lines enumerateObjectsUsingBlock:
+  ^(NSString* line, NSUInteger idx, BOOL* shouldStop)
+  {
+      NSArray* components = [line csvComponents];
+      if(components.count < 5) {
+          NSLog(@"couldn't parse: %@", components);
+          return;
+      }
+      [Stop importCSVComponents:components intoContext:context];
+  }];
+```
 
 To start this operation, we perform the following code from our view
 controller:
 
-    ImportOperation* operation = [[ImportOperation alloc] 
-         initWithStore:self.store fileName:fileName];
-    [self.operationQueue addOperation:operation];
+```objc
+ImportOperation* operation = [[ImportOperation alloc] 
+     initWithStore:self.store fileName:fileName];
+[self.operationQueue addOperation:operation];
+```
 
 For importing in the background, that's all you have to do. Now, we will add
 support for cancelation, and luckily, it's as simple as adding one check
 inside the enumeration block:
 
-    if(self.isCancelled) {
-        *shouldStop = YES;
-        return;
-    }
+```objc
+if(self.isCancelled) {
+    *shouldStop = YES;
+    return;
+}
+```
 
 Finally, to support progress indication, we create a `progressCallback`
 property on our operation. It is vital that we update our progress indicator on the main thread, otherwise UIKit will crash. 
 
-    operation.progressCallback = ^(float progress) 
+```objc
+operation.progressCallback = ^(float progress) 
+{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^
     {
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^
-        {
-            self.progressIndicator.progress = progress;
-        }];
-    };
+        self.progressIndicator.progress = progress;
+    }];
+};
+```
 
 To call the progress block, we add the following line in the enumeration block:
 
-    self.progressCallback(idx / (float) count);
+```objc
+self.progressCallback(idx / (float) count);
+```
 
 However, if you run this code, you will see that everything slows down
 enormously. Also, it looks like the operation doesn't cancel
@@ -161,12 +175,13 @@ blocks that want to update the progress indicator. A simple solution is to decre
 the granularity of updates, i.e. we only call the progress callback for
 one percent of the lines imported:
 
-    NSInteger progressGranularity = lines.count / 100;
-    
-    if (idx % progressGranularity == 0) {
-        self.progressCallback(idx / (float) count);
-    }
+```objc
+NSInteger progressGranularity = lines.count / 100;
 
+if (idx % progressGranularity == 0) {
+    self.progressCallback(idx / (float) count);
+}
+```
 
 ### Updating the Main Context
 
@@ -178,19 +193,21 @@ There is one missing piece to make this work; the data imported into the
 background context will not propagate to the main context unless we explicitly
 tell it to do so. We add the following line to the `init` method of the `Store` class where we set up the Core Data stack:
 
-    [[NSNotificationCenter defaultCenter] 
-        addObserverForName:NSManagedObjectContextDidSaveNotification
-                    object:nil
-                     queue:nil
-                usingBlock:^(NSNotification* note)
-    {
-        NSManagedObjectContext *moc = self.mainManagedObjectContext;
-        if (note.object != moc)
-            [moc performBlock:^(){
-                [moc mergeChangesFromContextDidSaveNotification:note];
-            }];
+```objc
+[[NSNotificationCenter defaultCenter] 
+    addObserverForName:NSManagedObjectContextDidSaveNotification
+                object:nil
+                 queue:nil
+            usingBlock:^(NSNotification* note)
+{
+    NSManagedObjectContext *moc = self.mainManagedObjectContext;
+    if (note.object != moc)
+        [moc performBlock:^(){
+            [moc mergeChangesFromContextDidSaveNotification:note];
         }];
     }];
+}];
+```
 
 Note that by calling `performBlock:` on the main managed object context, the block will be called on the main thread. 
 If you now start the app, you will notice that the table view reloads 
@@ -261,14 +278,16 @@ This is vital, otherwise you might be optimizing the wrong thing.
 If you have identified an expensive operation that you can isolate, 
 put it in an operation queue:
 
-    __weak id weakSelf = self;
-    [self.operationQueue addOperationWithBlock:^{
-        NSNumber* result = findLargestMersennePrime();
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            MyClass* strongSelf = weakSelf;
-            strongSelf.textLabel.text = [result stringValue];
-        }];
+```objc
+__weak id weakSelf = self;
+[self.operationQueue addOperationWithBlock:^{
+    NSNumber* result = findLargestMersennePrime();
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        MyClass* strongSelf = weakSelf;
+        strongSelf.textLabel.text = [result stringValue];
     }];
+}];
+```
 
 As you can see, this is not completely straightforward; we need to make
 a weak reference to self, otherwise we create a retain cycle (the block
@@ -297,11 +316,13 @@ original view with an image view that gets updated once the operation has
 completed. In your drawing method, use
 `UIGraphicsBeginImageContextWithOptions` instead of `UIGraphicsGetCurrentContext`:
 
-    UIGraphicsBeginImageContextWithOptions(size, NO, 0);
-    // drawing code here
-    UIImage *i = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return i;
+```objc
+UIGraphicsBeginImageContextWithOptions(size, NO, 0);
+// drawing code here
+UIImage *i = UIGraphicsGetImageFromCurrentImageContext();
+UIGraphicsEndImageContext();
+return i;
+```
 
 By passing in 0 as the third parameter, the scale of the device's main screen
 will be automatically filled in, and the image will look great on both
@@ -322,13 +343,15 @@ it's counterproductive.
 All your networking should be done asynchronously.
 However, with Grand Central Dispatch, you sometimes see code like this:
 
-    // Warning: please don't use this code.
-    dispatch_async(backgroundQueue, ^{
-       NSData* contents = [NSData dataWithContentsOfURL:url]
-       dispatch_async(dispatch_get_main_queue(), ^{
-          // do something with the data.
-       });
-    });
+```objc
+// Warning: please don't use this code.
+dispatch_async(backgroundQueue, ^{
+   NSData* contents = [NSData dataWithContentsOfURL:url]
+   dispatch_async(dispatch_get_main_queue(), ^{
+      // do something with the data.
+   });
+});
+```
 
 This might look quite smart, but there is a big problem with this code: there
 is no way to cancel this synchronous network call. It will block the
@@ -355,41 +378,46 @@ the url connection there. But you probably wouldn't want to do this yourself.
 
 To kick off the URL connection, we override the `start` method in our custom operation subclass:
 
-    - (void)start
+```objc
+- (void)start
+{
+    NSURLRequest* request = [NSURLRequest requestWithURL:self.url];
+    self.isExecuting = YES;
+    self.isFinished = NO;
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^
     {
-        NSURLRequest* request = [NSURLRequest requestWithURL:self.url];
-        self.isExecuting = YES;
-        self.isFinished = NO;
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^
-        {
-            self.connection = [NSURLConnection connectionWithRequest:request
-                                                            delegate:self];
-        }];
-    }
+        self.connection = [NSURLConnection connectionWithRequest:request
+                                                        delegate:self];
+    }];
+}
+```
 
 Since we overrode the `start` method, we now must manage the 
 operation's state properties, `isExecuting` and `isFinished`, ourselves. 
 To cancel an operation, we need to cancel the connection and then set
 the right flags so the operation queue knows the operation is done.
 
-    - (void)cancel
-    {
-        [super cancel];
-        [self.connection cancel];
-        self.isFinished = YES;
-        self.isExecuting = NO;
-    }
-
+```objc
+- (void)cancel
+{
+    [super cancel];
+    [self.connection cancel];
+    self.isFinished = YES;
+    self.isExecuting = NO;
+}
+```
 
 When the connection finishes loading, it sends a delegate callback:
 
-    - (void)connectionDidFinishLoading:(NSURLConnection *)connection 
-    {
-        self.data = self.buffer;
-        self.buffer = nil;
-        self.isExecuting = NO;
-        self.isFinished = YES;
-    }
+```objc
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection 
+{
+    self.data = self.buffer;
+    self.buffer = nil;
+    self.isExecuting = NO;
+    self.isFinished = YES;
+}
+```
 
 And that's all there is to it. Check the [example project on GitHub](https://github.com/objcio/issue-2-background-networking)
 for the full source code. 
@@ -440,11 +468,13 @@ line-by-line is as follows:
 To put this into practice, we created a [sample application](https://github.com/objcio/issue-2-background-file-io) with a
 `Reader` class that does just this. The interface is very simple:
 
-    @interface Reader : NSObject
-    - (void)enumerateLines:(void (^)(NSString*))block
-                completion:(void (^)())completion;
-    - (id)initWithFileAtPath:(NSString*)path;
-    @end
+```objc
+@interface Reader : NSObject
+- (void)enumerateLines:(void (^)(NSString*))block
+            completion:(void (^)())completion;
+- (id)initWithFileAtPath:(NSString*)path;
+@end
+```
 
 Note that this is not a subclass of `NSOperation`. Like URL connections, 
 input streams deliver
@@ -452,69 +482,75 @@ their events using a run loop. Therefore, we will use the main run loop
 again for event delivery, and then dispatch the processing of the data
 onto a background operation queue.
 
-    - (void)enumerateLines:(void (^)(NSString*))block
-                completion:(void (^)())completion
-    {
-        if (self.queue == nil) {
-            self.queue = [[NSOperationQueue alloc] init];
-            self.queue.maxConcurrentOperationCount = 1;
-        }
-        self.callback = block;
-        self.completion = completion;
-        self.inputStream = [NSInputStream inputStreamWithURL:self.fileURL];
-        self.inputStream.delegate = self;
-        [self.inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop]
-                                    forMode:NSDefaultRunLoopMode];
-        [self.inputStream open];
+```objc
+- (void)enumerateLines:(void (^)(NSString*))block
+            completion:(void (^)())completion
+{
+    if (self.queue == nil) {
+        self.queue = [[NSOperationQueue alloc] init];
+        self.queue.maxConcurrentOperationCount = 1;
     }
+    self.callback = block;
+    self.completion = completion;
+    self.inputStream = [NSInputStream inputStreamWithURL:self.fileURL];
+    self.inputStream.delegate = self;
+    [self.inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop]
+                                forMode:NSDefaultRunLoopMode];
+    [self.inputStream open];
+}
+```
 
 Now the input stream will send us delegate messages (on the main
 thread), and we do the processing on the operation
 queue by adding a block operation:
 
-    - (void)stream:(NSStream*)stream handleEvent:(NSStreamEvent)eventCode
-    {
-        switch (eventCode) {
-            ...
-            case NSStreamEventHasBytesAvailable: {
-                NSMutableData *buffer = [NSMutableData dataWithLength:4 * 1024];
-                NSUInteger length = [self.inputStream read:[buffer mutableBytes] 
-                                                 maxLength:[buffer length]];
-                if (0 < length) {
-                    [buffer setLength:length];
-                    __weak id weakSelf = self;
-                    [self.queue addOperationWithBlock:^{
-                        [weakSelf processDataChunk:buffer];
-                    }];
-                }
-                break;
+```objc
+- (void)stream:(NSStream*)stream handleEvent:(NSStreamEvent)eventCode
+{
+    switch (eventCode) {
+        ...
+        case NSStreamEventHasBytesAvailable: {
+            NSMutableData *buffer = [NSMutableData dataWithLength:4 * 1024];
+            NSUInteger length = [self.inputStream read:[buffer mutableBytes] 
+                                             maxLength:[buffer length]];
+            if (0 < length) {
+                [buffer setLength:length];
+                __weak id weakSelf = self;
+                [self.queue addOperationWithBlock:^{
+                    [weakSelf processDataChunk:buffer];
+                }];
             }
-            ...
+            break;
         }
+        ...
     }
+}
+```
 
 Processing a data chunk looks at the current buffered data and appends
 the newly streamed chunk. It then breaks that into components, separated
 by newlines, and emits each line. The remainder gets stored again:
 
-	- (void)processDataChunk:(NSMutableData *)buffer;
-    {
-        if (self.remainder != nil) {
-            [self.remainder appendData:buffer];
-        } else {
-            self.remainder = buffer;
-        }
-        [self.remainder obj_enumerateComponentsSeparatedBy:self.delimiter
-                                                usingBlock:^(NSData* component, BOOL last) {
-            if (!last) {
-                [self emitLineWithData:component];
-            } else if (0 < [component length]) {
-                self.remainder = [component mutableCopy];
-            } else {
-                self.remainder = nil;
-            }
-        }];
+```objc
+- (void)processDataChunk:(NSMutableData *)buffer;
+{
+    if (self.remainder != nil) {
+        [self.remainder appendData:buffer];
+    } else {
+        self.remainder = buffer;
     }
+    [self.remainder obj_enumerateComponentsSeparatedBy:self.delimiter
+                                            usingBlock:^(NSData* component, BOOL last) {
+        if (!last) {
+            [self emitLineWithData:component];
+        } else if (0 < [component length]) {
+            self.remainder = [component mutableCopy];
+        } else {
+            self.remainder = nil;
+        }
+    }];
+}
+```
 
 If you run the sample app, you will see that the app stays very
 responsive, and the memory stays very low (in our test runs, the heap
@@ -543,14 +579,14 @@ use a background operation queue to perform the actual work before getting
 back onto the main queue to deliver the results.
 
 
-[90]: /issue-2/editorial.html
-[100]: /issue-2/concurrency-apis-and-pitfalls.html
-[101]: /issue-2/concurrency-apis-and-pitfalls.html#challenges
-[102]: /issue-2/concurrency-apis-and-pitfalls.html#priority_inversion
-[103]: /issue-2/concurrency-apis-and-pitfalls.html#shared_resources
-[104]: /issue-2/concurrency-apis-and-pitfalls.html#dead_locks
-[200]: /issue-2/common-background-practices.html
-[300]: /issue-2/low-level-concurrency-apis.html
-[301]: /issue-2/low-level-concurrency-apis.html#async
-[302]: /issue-2/low-level-concurrency-apis.html#multiple-readers-single-writer
-[400]: /issue-2/thread-safe-class-design.html
+[90]: /issues/2-concurrency/editorial/
+[100]: /issues/2-concurrency/concurrency-apis-and-pitfalls/
+[101]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#challenges
+[102]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#priority_inversion
+[103]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#shared_resources
+[104]: /issues/2-concurrency/concurrency-apis-and-pitfalls/#dead_locks
+[200]: /issues/2-concurrency/common-background-practices/
+[300]: /issues/2-concurrency/low-level-concurrency-apis/
+[301]: /issues/2-concurrency/low-level-concurrency-apis/#async
+[302]: /issues/2-concurrency/low-level-concurrency-apis/#multiple-readers-single-writer
+[400]: /issues/2-concurrency/thread-safe-class-design/

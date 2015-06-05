@@ -1,7 +1,0 @@
----
-category: "10"
-date: "2014-03-07 12:00:00"
-tags: toc
----
-
-This issue is all about data synchronization and network communication. It's a world of connected devices out there. We all own multiple devices, and making our data available on all of them has become very important. Yet syncing is inherently difficult to solve well. Here, we will try to help you get a better grasp of the problems involved, with articles about syncing approaches, iCloud Core Data and Documents syncing, custom syncing solutions, and networking in general.

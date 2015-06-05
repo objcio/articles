@@ -2,7 +2,9 @@
 title: On Using SQLite and FMDB Instead of Core Data
 category: "4"
 date: "2013-09-09 09:00:00"
-author: "<a href=\"http://inessential.com/\">Brent Simmons</a>"
+author:
+  - name: Brent Simmons
+    url: http://inessential.com/
 tags: article
 ---
 
@@ -98,23 +100,29 @@ I have a single database controller — `VSDatabaseController` in my latest app 
 
 FMDB differentiates between updates and queries. To update the database the app calls: 
 
-    -[VSDatabaseController runDatabaseBlockInTransaction:(VSDatabaseUpdateBlock)databaseBlock]
+```objc
+-[VSDatabaseController runDatabaseBlockInTransaction:(VSDatabaseUpdateBlock)databaseBlock]
+```
 
 `VSDatabaseUpdateBlock` is simple:
 
-    typedef void (^VSDatabaseUpdateBlock)(FMDatabase *database);
+```objc
+typedef void (^VSDatabaseUpdateBlock)(FMDatabase *database);
+```
 
 `runDatabaseBlockInTransaction` is also simple:
 
-    - (void)runDatabaseBlockInTransaction:(VSDatabaseUpdateBlock)databaseBlock {
-        dispatch_async(self.serialDispatchQueue, ^{
-            @autoreleasepool {
-                [self beginTransaction];
-                databaseBlock(self.database);
-                [self endTransaction];
-            }
-        });
-    }
+```objc
+- (void)runDatabaseBlockInTransaction:(VSDatabaseUpdateBlock)databaseBlock {
+    dispatch_async(self.serialDispatchQueue, ^{
+        @autoreleasepool {
+            [self beginTransaction];
+            databaseBlock(self.database);
+            [self endTransaction];
+        }
+    });
+}
+```
 
 (Note that I’m using my own serial dispatch queue. Gus recommends checking out `FMDatabaseQueue`, which is also a serial dispatch queue. I just haven’t gotten around to checking it out yet, since it’s newer than much of the rest of FMDB.)
 
@@ -122,13 +130,15 @@ Calls to `beginTransaction` and `endTransaction` are nestable (in my database co
 
 Here’s a simple example of a call to update the database:
 
-    - (void)emptyTagsLookupTableForNote:(VSNote *)note {
-        NSString *uniqueID = note.uniqueID;
-        [self runDatabaseBlockInTransaction:^(FMDatabase *database) {
-            [database executeUpdate:
-                @"delete from tagsNotesLookup where noteUniqueID = ?;", uniqueID];
-        }];
-    }
+```objc
+- (void)emptyTagsLookupTableForNote:(VSNote *)note {
+    NSString *uniqueID = note.uniqueID;
+    [self runDatabaseBlockInTransaction:^(FMDatabase *database) {
+        [database executeUpdate:
+            @"delete from tagsNotesLookup where noteUniqueID = ?;", uniqueID];
+    }];
+}
+```
 
 This illustrates a few things. The first is that SQL isn’t that scary. Even if you’ve never seen it before, you know what’s going on in that line.
 
@@ -140,22 +150,28 @@ Note the ? in the update string. `-[FMDatabase executeUpdate:]` is a variadic fu
 
 And, finally, note that there is an index on noteUniqueID in the tagsNotesLookup table. (Indexes are another key to SQLite performance.) This line of code runs at each launch:
 
-    [self.database executeUpdate:
-        @"CREATE INDEX if not exists noteUniqueIDIndex on tagsNotesLookup (noteUniqueID);"];
+```objc
+[self.database executeUpdate:
+    @"CREATE INDEX if not exists noteUniqueIDIndex on tagsNotesLookup (noteUniqueID);"];
+```
 
 ### Database Fetching
 
 To fetch objects, the app calls: 
 
-    -[VSDatabaseController runFetchForClass:(Class)databaseObjectClass 
-                                 fetchBlock:(VSDatabaseFetchBlock)fetchBlock 
-                          fetchResultsBlock:(VSDatabaseFetchResultsBlock)fetchResultsBlock];
+```objc
+-[VSDatabaseController runFetchForClass:(Class)databaseObjectClass 
+                             fetchBlock:(VSDatabaseFetchBlock)fetchBlock 
+                      fetchResultsBlock:(VSDatabaseFetchResultsBlock)fetchResultsBlock];
+```
 
 These two lines do much of the work:
 
-    FMResultSet *resultSet = fetchBlock(self.database);
-    NSArray *fetchedObjects = [self databaseObjectsWithResultSet:resultSet 
-                                                           class:databaseObjectClass];
+```objc
+FMResultSet *resultSet = fetchBlock(self.database);
+NSArray *fetchedObjects = [self databaseObjectsWithResultSet:resultSet 
+                                                       class:databaseObjectClass];
+```
 
 A database fetch using FMDB returns an `FMResultSet`. With that resultSet you can step through and create model objects.
 
@@ -189,7 +205,9 @@ However, there are times when keeping all objects in memory is impractical. We d
 
 There are times, though, when for an object type that you can’t keep in memory, you will want to keep all the uniqueIDs in memory. You’d do a fetch like this:
 
-    FMResultSet *resultSet = [self.database executeQuery:@"select uniqueID from some_table"];
+```objc
+FMResultSet *resultSet = [self.database executeQuery:@"select uniqueID from some_table"];
+```
 
 The resultSet would contain just uniqueIDs, which you’d then store in an NSMutableSet.
 
@@ -207,10 +225,12 @@ Here’s how: a database object has a `detachedCopy` method which copies the dat
 
 This is a nice system, because it means I can still use model objects with the API calls. A method might look like this:
 
-    - (void)uploadNote:(VSNote *)note {
-        VSNoteAPICall *apiCall = [[VSNoteAPICall alloc] initWithNote:[note detachedCopy]];
-        [self enqueueAPICall:apiCall];
-    }
+```objc
+- (void)uploadNote:(VSNote *)note {
+    VSNoteAPICall *apiCall = [[VSNoteAPICall alloc] initWithNote:[note detachedCopy]];
+    [self enqueueAPICall:apiCall];
+}
+```
 
 And VSNoteAPICall would pull values from the detached `VSNote` and create the HTTP request, rather than having a dictionary or some other representation of the note.
 
@@ -224,7 +244,9 @@ The database is generally the easy part. For instance: there’s already a metho
 
 But there might also be an in-memory version of that same object. Luckily this is easy to find:
 
-    VSNote *cachedNote = [self.mapTable objectForKey:downloadedNote.uniqueID];
+```objc
+VSNote *cachedNote = [self.mapTable objectForKey:downloadedNote.uniqueID];
+```
 
 If the cachedNote exists, rather than replace it (which would violate uniquing), I have it pull values from the `downloadedNote`. (This can share code with the `detachedCopy` method.)
 
@@ -244,17 +266,23 @@ You can do this safely and easily.
 
 To add a table, for instance:
 
-    [self.database executeUpdate:@"CREATE TABLE if not exists tags "
-        "(uniqueID TEXT UNIQUE, name TEXT, deleted INTEGER, deletedModificationDate DATE);"];
+```objc
+[self.database executeUpdate:@"CREATE TABLE if not exists tags "
+    "(uniqueID TEXT UNIQUE, name TEXT, deleted INTEGER, deletedModificationDate DATE);"];
+```
 
 Or add an index:
 
-    [self.database executeUpdate:@"CREATE INDEX if not exists "
-        "archivedSortDateIndex on notes (archived, sortDate);"];
+```objc
+[self.database executeUpdate:@"CREATE INDEX if not exists "
+    "archivedSortDateIndex on notes (archived, sortDate);"];
+```
 
 Or add a column:
 
-    [self.database executeUpdate:@"ALTER TABLE tags ADD deletedDate DATE"];
+```objc
+[self.database executeUpdate:@"ALTER TABLE tags ADD deletedDate DATE"];
+```
 
 The app should set up the database in code in the first place using lines like the above. Any changes added later are just added executeUpdate calls — I leave them all in and have them run in order. Since it’s my database that I designed, this isn’t a problem. (And I’ve never seen a performance issue here. It’s fast.)
 
@@ -278,16 +306,22 @@ I avoid it like crazy, right up until it makes a serious performance difference.
 
 The create table statement for my app’s tags table looks like this: 
 
-    CREATE TABLE if not exists tags 
-      (uniqueID TEXT UNIQUE, name TEXT, deleted INTEGER, deletedModificationDate DATE);
+```sql
+CREATE TABLE if not exists tags 
+  (uniqueID TEXT UNIQUE, name TEXT, deleted INTEGER, deletedModificationDate DATE);
+```
 
 The uniqueID column is automatically indexed, since it’s defined as unique. But if I wanted to query that table by name, I might make an index on the name, like this: 
 
-    CREATE INDEX if not exists tagNameIndex on tags (name);
+```sql
+CREATE INDEX if not exists tagNameIndex on tags (name);
+```
 
 You can do indexes on multiple columns at once, like this: 
 
-    CREATE INDEX if not exists archivedSortDateIndex on notes (archived, sortDate);
+```sql
+CREATE INDEX if not exists archivedSortDateIndex on notes (archived, sortDate);
+```
 
 But note that too many indexes can slow down your inserts. You need just enough amount and just the right ones.
 
@@ -313,23 +347,31 @@ So I fired up sqlite3 and started experimenting. I looked again at my schema and
 
 Then I could do a query like this: 
 
-    select distinct tagUniqueID from tagsNotesLookup where archived=0;
+```sql
+select distinct tagUniqueID from tagsNotesLookup where archived=0;
+```
 
 I already had an index on tagUniqueID. So I used explain query plan to tell me what would happen when I ran that query.
 
-    sqlite> explain query plan select distinct tagUniqueID from tagsNotesLookup where archived=0;
-    0|0|0|SCAN TABLE tagsNotesLookup USING INDEX tagUniqueIDIndex (~100000 rows)
+```
+sqlite> explain query plan select distinct tagUniqueID from tagsNotesLookup where archived=0;
+0|0|0|SCAN TABLE tagsNotesLookup USING INDEX tagUniqueIDIndex (~100000 rows)
+```
 
 It’s nice that it’s using an index, but SCAN TABLE sounds ominous. Better yet would be a SEARCH TABLE and a [covering index](http://www.sqlite.org/queryplanner.html#covidx).
 
 I added an index on tagUniqueID and archive: 
 
-    CREATE INDEX archivedTagUniqueID on tagsNotesLookup(archived, tagUniqueID);
+```sql
+CREATE INDEX archivedTagUniqueID on tagsNotesLookup(archived, tagUniqueID);
+```
 
 I ran explain query plan again:
 
-    sqlite> explain query plan select distinct tagUniqueID from tagsNotesLookup where archived=0;
-    0|0|0|SEARCH TABLE tagsNotesLookup USING COVERING INDEX archivedTagUniqueID (archived=?) (~10 rows)
+```
+sqlite> explain query plan select distinct tagUniqueID from tagsNotesLookup where archived=0;
+0|0|0|SEARCH TABLE tagsNotesLookup USING COVERING INDEX archivedTagUniqueID (archived=?) (~10 rows)
+```
 
 *Way* better.
 
@@ -347,7 +389,9 @@ Gus Mueller asked me to cover custom SQLite functions. This isn’t something I�
 
 [Gus posted a Gist](https://gist.github.com/ccgus/6324222) where a query looks like this:
 
-<pre>select displayName, key from items where UTTypeConformsTo(uti, ?) order by 2;</pre>
+```sql
+select displayName, key from items where UTTypeConformsTo(uti, ?) order by 2;
+```
 
 SQLite doesn’t know anything about UTTypes. But you can add Core functions as a block — see `-[FMDatabase makeFunctionNamed:maximumArguments:withBlock:]`.
 

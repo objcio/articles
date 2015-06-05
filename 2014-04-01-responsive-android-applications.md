@@ -3,7 +3,9 @@ title:  "Responsive Android Applications"
 category: "11"
 date: "2014-04-01 09:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/Cstew\">Chris Stewart</a>"
+author:
+  - name: Chris Stewart
+    url: https://twitter.com/Cstew
 ---
 
 ## Introduction
@@ -38,29 +40,31 @@ Let’s dive in to the layout system in more detail. Layout files are XML files 
 
 We create a sample layout file below. This file is used as the view for a login screen in our application: 
 
-    <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:orientation="vertical"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:padding="14dp">
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="username"/>
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="password"/>
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Login"/>
-    </LinearLayout>
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="14dp">
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="username"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="password"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Login"/>
+</LinearLayout>
+```
 
-<img src="/images/issue-11/image02.png" width="470"> 
+![](/images/issue-11/image02.png) 
 
-<img style="margin-top:1em;" src="/images/issue-11/image01.png">
+![](/images/issue-11/image01.png)
 
 In the above layout file, `LinearLayout` has been used to align `Views` linearly. We’ve specified three views in the `LinearLayout`: a username `EditText`, a password `EditText`, and a login button. 
 
@@ -84,7 +88,7 @@ The addition of many buckets may seem overwhelming, but Android makes use of a r
 
 Below, you see an example of resource qualifiers for images. In an Android project, we have a `res` folder, which is where we store any resources that the app is going to use. This includes images, but also our layout files, as well as a few other project resources. 
 
-<img src="/images/issue-11/image00.png" width="187">
+![](/images/issue-11/image00.png)
 
 Here, `ic_launcher.png` is duplicated in the following three folders: `drawable-hdpi`, `drawable-mdpi`, and `drawable-xhdpi`. We can ask for the image named `ic_launcher` and the system will automatically choose the appropriate image at runtime, depending on the device configuration.
 
@@ -108,29 +112,35 @@ A final detail to consider is how device categories are managed on Android. Note
 
 For simple screens, padding can be adjusted around content, based on the size of the device. For example, let’s examine dimension resources. We can define a dimension value in a common location and reference it in our layout files: 
 
-    <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="@dimen/container_margin" >
-        ...
-    </LinearLayout>
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/container_margin" >
+    ...
+</LinearLayout>
+```
 
 Notice the `@dimen/container_margin` value. This refers to a named value stored in the resources system. We can define a base margin-dimension value that is used by default:
 
 In `res/values/dimens.xml`:
 
-    <resouces>
-	    <dimen name=”container_margin”>4dp</dimen>
-    </resources>
+```xml
+<resouces>
+    <dimen name=”container_margin”>4dp</dimen>
+</resources>
+```
 
 Then, we create a qualified version of this padding for tablets:
 
 In `res/values-w600dp/dimens.xml`:
 
-    <resouces>
-       <dimen name=”container_margin”>96dp</dimen>
-    </resources>
+```xml
+<resouces>
+   <dimen name=”container_margin”>96dp</dimen>
+</resources>
+```
 
 Now, on devices that have a minimum width of 600 dp units, the larger container margin value will be selected by the system. This additional margin will tweak our user interface so that the app is not just a stretched-out version of the application that looks great on phones.
 
@@ -148,11 +158,13 @@ For example, the layout file defined below is intended to be used on phone devic
 
 In `res/layout/activity_home.xml`:
 
-    <?xml version="1.0" encoding="utf-8"?>
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+```
 
 This `FrameLayout` defined by the `container` ID will contain the master view for our application and will host the view for our master fragment. 
 
@@ -160,21 +172,23 @@ We can create a qualified version of this same file for tablet devices:
 
 In `res/layout-sw600dp/activity_home.xml`:
 
-    <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    		<FrameLayout 
-    	    android:id="@+id/container"
-    	    android:layout_width="250dp"
-    	    android:layout_height="match_parent" />
-    		<FrameLayout 
-    	    android:id="@+id/detail_container"
-    	    android:layout_weight="1"
-    	    android:layout_width="0dp"
-    	    android:layout_height="match_parent" />
-    	</LinearLayout>
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+        <FrameLayout 
+        android:id="@+id/container"
+        android:layout_width="250dp"
+        android:layout_height="match_parent" />
+        <FrameLayout 
+        android:id="@+id/detail_container"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent" />
+    </LinearLayout>
+```
 
 Now, when we use the activity_home layout file on a tablet, we will have two panes in our layout instead of one, which means we can host two fragment views. We can now display the master and the detail view in the same screen with very little code modification. At runtime, the system will decide which version of the layout file to use based on the configuration of the device. 
 

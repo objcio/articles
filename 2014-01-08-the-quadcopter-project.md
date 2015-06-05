@@ -3,7 +3,9 @@ title:  "The Project"
 category: "8"
 date: "2014-01-08 11:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: https://twitter.com/floriankugler
 ---
 
 ## The Initial Plan
@@ -30,20 +32,20 @@ There is a running track close to Chris's house, and the idea of running on the 
 
 We used a standard AR Drone 2.0 for this project. To mount the iPhone to the drone, we simply wrapped the phone in some bubble wrap and duct-taped it to the drone's body. Initially, we tried to attach it to the top of the drone, but this turned out to be too unstable. These drones have basically no payload capacity whatsoever, so even the light weight of the iPhone affected the flight stability significantly.
 
-<img title="The iPhone mounted above the quadcopter" src="/images/issue-8/iphone-above.jpg">
+![The iPhone mounted above the quadcopter](/images/issue-8/iphone-above.jpg)
 
 The drone drifted off after takeoff a couple of times, so we decided to strap the phone to the bottom of the drone, in order to lower the center of mass. This turned out to work really well. Since the lowest point of the whole drone now was the phone beneath it, we used the widespread [zip tie mod](http://www.youtube.com/watch?v=wit3EmCo3Fs) to protect the phone in case the drone came crashing down somewhat harder (which probably was also a relief for the people living in the apartment below...).
 
-<img title="The iPhone mounted beneath the quadcopter" src="/images/issue-8/iphone-below.jpg">
+![The iPhone mounted beneath the quadcopter](/images/issue-8/iphone-below.jpg)
 
 &nbsp; 
 
 
 ### The Navigator App
 
-As mentioned above, the iPhone attached to the drone is connected via WiFi to the drone itself. Over this connection we can send navigation commands via a UDP API. This all feels a bit obscure, but once we figured out the basics, it worked pretty well. Daniel goes more into detail in [his article](/issue-8/communicating-with-the-quadcopter.html) of how we used the Core Foundation networking classes to get this to work.
+As mentioned above, the iPhone attached to the drone is connected via WiFi to the drone itself. Over this connection we can send navigation commands via a UDP API. This all feels a bit obscure, but once we figured out the basics, it worked pretty well. Daniel goes more into detail in [his article](/issues/8-quadcopter/communicating-with-the-quadcopter/) of how we used the Core Foundation networking classes to get this to work.
 
-Along with the actual communication between the phone and the drone, the navigator app also has to deal with the navigation part. It uses Core Location to measure its current position and orientation and then calculates the distance to the target. More importantly, it also determines the angular deviation of its current orientation to the target. You can read more about how this was done in [Chris's article](/issue-8/the-quadcopter-navigator-app.html).
+Along with the actual communication between the phone and the drone, the navigator app also has to deal with the navigation part. It uses Core Location to measure its current position and orientation and then calculates the distance to the target. More importantly, it also determines the angular deviation of its current orientation to the target. You can read more about how this was done in [Chris's article](/issues/8-quadcopter/the-quadcopter-navigator-app/).
 
 Lastly, the navigator app has to connect to the client app via multipeer and receive some basic control commands and the target location for the navigation of the drone.
 
@@ -52,13 +54,13 @@ Lastly, the navigator app has to connect to the client app via multipeer and rec
 
 The client app's only job is to transmit the target location coordinates to the phone attached to the drone, and to send basic commands like takeoff and land. It advertises itself for the multipeer connection and simply broadcasts its location to all connected peers.
 
-<img title="Screenshot of the client app" src="/images/issue-8/client-app.jpg" width="320">
+![Screenshot of the client app](/images/issue-8/client-app.jpg)
 
 Since we wanted to have a way to test the whole setup without running around too much, and since we also wanted to stay indoors, we added two different modes to this app. The first mode simply transmits the center location of a map view as its current location. This way, we could pan around the map and simulate changing target locations. The other mode transmits the phone's real location as reported by Core Location.
 
 We ended up using only the first mode in our short test flights due to time constraints and the very uncomfortable weather conditions outside. Therefore, our idea of the drone chasing somebody around the running track unfortunately didn't work out. 
 
-Still, it was a fun project and we got to experiment with some interesting APIs. Check out the subsequent articles about [Core Foundation networking](/issue-8/communicating-with-the-quadcopter.html), the [navigator app](/issue-8/the-quadcopter-navigator-app.html), and the [client app](/issue-8/the-quadcopter-client-app.html) for more details.
+Still, it was a fun project and we got to experiment with some interesting APIs. Check out the subsequent articles about [Core Foundation networking](/issues/8-quadcopter/communicating-with-the-quadcopter/), the [navigator app](/issues/8-quadcopter/the-quadcopter-navigator-app/), and the [client app](/issues/8-quadcopter/the-quadcopter-client-app) for more details.
 
 
 

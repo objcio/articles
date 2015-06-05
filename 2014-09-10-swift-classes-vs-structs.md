@@ -2,7 +2,9 @@
 title:  "A Warm Welcome to Structs and Value Types"
 category: "16"
 date: "2014-09-10 10:00:00"
-author: "<a href=\"https://twitter.com/andy_matuschak\">Andy Matuschak</a>"
+author:
+  - name: Andy Matuschak
+    url: https://twitter.com/andy_matuschak
 tags: article
 ---
 
@@ -17,7 +19,7 @@ A small distinction in behavior drives the architectural possibilities at play h
 
 Instances of value types are copied whenever they're assigned or used as a function argument. Numbers, strings, arrays, dictionaries, enums, tuples, and structs are value types. For example:
 
-```swift
+```objc
 var a = "Hello"
 var b = a
 b.extend(", world")
@@ -26,7 +28,7 @@ println("a: \(a); b: \(b)") // a: Hello; b: Hello, world
 
 Instances of reference types (chiefly: classes, functions) can have multiple owners. When assigning a reference to a new variable or passing it to a function, those locations all point to the same instance. This is the behavior you're used to with objects. For instance:
 
-```swift
+```objc
 var a = UIView()
 var b = a
 b.alpha = 0.5

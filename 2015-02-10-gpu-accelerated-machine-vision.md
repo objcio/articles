@@ -2,7 +2,9 @@
 title:  "GPU-Accelerated Machine Vision"
 category: "21"
 date: "2015-02-10 05:00:00"
-author: "<a href=\"https://twitter.com/bradlarson\">Brad Larson</a>"
+author:
+  - name: Brad Larson
+    url: https://twitter.com/bradlarson
 tags: article
 ---
 
@@ -17,7 +19,7 @@ GPUs are ideally suited to operate on images and video because they are tuned to
 
 One of the things I learned while working on GPUImage is how even seemingly complex image processing operations can be built from smaller, simpler ones. I'd like to break down the components of some common machine vision processes, and show how these processes can be accelerated to run on modern GPUs.
 
-Every operation analyzed here has a full implementation within GPUImage, and you can try each one yourself by grabbing the project and building the `FilterShowcase` sample application either for OS X or iOS. Additionally, all of these operations have CPU-based (and some GPU-accelerated) implementations within the OpenCV framework, which Engin Kurutepe talks about in [his article within this issue](/issue-21/face-recognition-with-opencv.html).
+Every operation analyzed here has a full implementation within GPUImage, and you can try each one yourself by grabbing the project and building the `FilterShowcase` sample application either for OS X or iOS. Additionally, all of these operations have CPU-based (and some GPU-accelerated) implementations within the OpenCV framework, which Engin Kurutepe talks about in [his article within this issue](/issues/21-camera-and-photos/face-recognition-with-opencv/).
 
 ## Sobel Edge Detection
 
@@ -25,20 +27,20 @@ The first operation I'll describe may actually be used more frequently for cosme
 
 For example, let's see a scene before and after Sobel edge detection:
 
-<img src="/images/issue-21/MV-Chair.png" style="display: inline-block; width:240px" alt="Original image"/>
-<img src="/images/issue-21/MV-Sobel.png" style="display: inline-block; width:240px" alt="Sobel edge detection image"/>
+![Original image](/images/issue-21/MV-Chair.png)
+![Sobel edge detection image](/images/issue-21/MV-Sobel.png)
 
 As I mentioned, this is often used for visual effects. If the colors of the above are inverted, with the strongest edges represented in black instead of white, we get an image that resembles a pencil sketch:
 
-<img src="/images/issue-21/MV-Sketch.png" style="width:240px" alt="Sketch filtered image"/>
+![Sketch filtered image](/images/issue-21/MV-Sketch.png)
 
-So how are these edges calculated? The first step in this process is a reduction of a color image to a luminance (grayscale) image. Janie Clayton explains how this is calculated in a fragment shader within [her article](/issue-21/gpu-accelerated-image-processing.html), but basically the red, green, and blue components of each pixel are weighted and summed to arrive at a single value for how bright that pixel is.
+So how are these edges calculated? The first step in this process is a reduction of a color image to a luminance (grayscale) image. Janie Clayton explains how this is calculated in a fragment shader within [her article](/issues/21-camera-and-photos/gpu-accelerated-image-processing/), but basically the red, green, and blue components of each pixel are weighted and summed to arrive at a single value for how bright that pixel is.
 
 Some video sources and cameras provide YUV-format images, rather than RGB. The YUV color format splits luminance information (Y) from chrominance (UV), so for these types of inputs, a color conversion step can be avoided. The luminance part of the image can be used directly.
 
 Once an image is reduced to its luminance, the edge strength near a pixel is calculated by looking at a 3×3 array of neighboring pixels. An image processing calculation performed over a block of pixels involves what is called a convolution kernel. Convolution kernels consist of a matrix of weights that are multiplied with the values of the pixels surrounding a central pixel, with the sum of those weighted values determining the final pixel value.
 
-These kernels are applied once per pixel across the entire image. The order in which pixels are processed doesn't matter, so a convolution across an image is an easy operation to parallelize. As a result, this can be greatly accelerated by running on a programmable GPU using fragment shaders. As described in [Janie's article](/issue-21/gpu-accelerated-image-processing.html), fragment shaders are C-like programs that can be used by GPUs to perform incredibly fast image processing.
+These kernels are applied once per pixel across the entire image. The order in which pixels are processed doesn't matter, so a convolution across an image is an easy operation to parallelize. As a result, this can be greatly accelerated by running on a programmable GPU using fragment shaders. As described in [Janie's article](/issues/21-camera-and-photos/gpu-accelerated-image-processing/), fragment shaders are C-like programs that can be used by GPUs to perform incredibly fast image processing.
 
 This is the horizontal kernel of the Sobel operator:
 
@@ -134,7 +136,7 @@ Sobel edge detection can give you a good visual measure of edge strength in a sc
 
 A more involved form of edge detection, called Canny edge detection,[^3] might be what you want here. Canny edge detection can produce connected, single-pixel-wide edges of objects in a scene:
 
-<img src="/images/issue-21/MV-Canny.png" style="width:240px" alt="Canny edge detection image"/>
+![Canny edge detection image](/images/issue-21/MV-Canny.png)
 
 The Canny edge detection process consists of a sequence of steps. First, like with Sobel edge detection (and the other techniques we'll discuss), the image needs to be converted to luminance before edge detection is applied to it. Once a grayscale luminance image has been obtained, a slight [Gaussian blur](http://www.sunsetlakesoftware.com/2013/10/21/optimizing-gaussian-blurs-mobile-gpu) is used to reduce the effect of sensor noise on the edges being detected.
 
@@ -222,17 +224,17 @@ Looking at this equation, you might think that the first two terms should cancel
 
 Here we start with a test image drawn from [this question on the Signal Processing Stack Exchange site](http://dsp.stackexchange.com/questions/401/how-to-detect-corners-in-a-binary-images-with-opengl):
 
-<img src="/images/issue-21/MV-HarrisSquares.png" alt="Harris corner detector test image"/>
+![Harris corner detector test image](/images/issue-21/MV-HarrisSquares.png)
 
 The resulting cornerness map from the above calculation looks something like this:
 
-<img src="/images/issue-21/MV-HarrisCornerness.png" alt="Harris cornerness intermediate image"/>
+![Harris cornerness intermediate image](/images/issue-21/MV-HarrisCornerness.png)
 
 To find the exact location of corners within this map, we need to pick out local maxima (pixels of highest brightness in a region). A non-maximum suppression filter is used for this. Similar to what we did with the Canny edge detection, we now look at pixels surrounding a central one (starting at a one-pixel radius, but this can be expanded), and only keep a pixel if it is brighter than all of its neighbors. We turn it to black otherwise. This should leave behind only the brightest pixels in a general region, or those most likely to be corners.
 
 From that, we now can read the image and see that any non-black pixel is a location of a corner:
 
-<img src="/images/issue-21/MV-HarrisCorners.png" alt="Harris corners"/>
+![Harris corners](/images/issue-21/MV-HarrisCorners.png)
 
 I'm currently doing this point extraction stage on the CPU, which can be a bottleneck in the corner detection process, but it may be possible to accelerate this on the GPU using histogram pyramids.[^8]
 
@@ -244,17 +246,17 @@ Straight lines are another large-scale feature we might want to detect in a scen
 
 Many line detection processes are based on a Hough transform, which is a technique where points in a real-world, Cartesian coordinate space are converted to another coordinate space. Calculations are then performed in this alternate coordinate space and the results converted back into normal space to determine the location of lines or other features. Unfortunately, many of these proposed calculations aren't suited for being run on a GPU because they aren't sufficiently parallel in nature, and they require intense mathematical operations, like trigonometry functions, to be performed at each pixel.
 
-In 2011, Dubská, *et al.*[^10] [^11]</sup> proposed a much simpler, more elegant way of performing this coordinate space transformation and analysis — one that was ideally suited to being run on a GPU. Their process relies on a concept called parallel coordinate space, which sounds completely abstract, but I'll show how it's actually fairly simple to understand.
+In 2011, Dubská, *et al.*[^10] [^11] proposed a much simpler, more elegant way of performing this coordinate space transformation and analysis — one that was ideally suited to being run on a GPU. Their process relies on a concept called parallel coordinate space, which sounds completely abstract, but I'll show how it's actually fairly simple to understand.
 
 Let's take a line and pick three points within it:
 
-<img src="/images/issue-21/MV-ParallelCoordinateSpace.png" alt="An example line"/>
+![An example line](/images/issue-21/MV-ParallelCoordinateSpace.png)
 
 To transform this to parallel coordinate space, we'll draw three parallel vertical axes. On the center axis, we'll take the X components of our line points and draw points at 1, 2, and 3 steps up from zero. On the left axis, we'll take the Y components of our line points and draw points at 3, 5, and 7 steps up from zero. On the right axis, we'll do the same, only we'll make the Y values negative.
 
 We'll then connect the Y component points to the corresponding X-coordinate component on the center axis. That creates a drawing like the following:
 
-<img src="/images/issue-21/MV-ParallelCoordinateTransform.png" alt="Points transformed into parallel coordinate space"/>
+![Points transformed into parallel coordinate space](/images/issue-21/MV-ParallelCoordinateTransform.png)
 
 You'll notice that the three lines on the right intersect at a point. This point determines the slope and intercept of our line in real space. If we had a line that sloped downward, we'd have an intersection on the left half of this graph.
 
@@ -273,15 +275,15 @@ After the edge detection, the edge points are read and used to draw lines in par
 
 For example, we can start with this test image:
 
-<img src="/images/issue-21/MV-HoughSampleImage.png" alt="Sample image for line detection"/>
+![Sample image for line detection](/images/issue-21/MV-HoughSampleImage.png)
 
 And this is what we get in parallel coordinate space (I've shifted the negative half upward to halve the Y space needed):
 
-<img src="/images/issue-21/MV-HoughParallel.png" alt="Hough parallel coordinate space"/>
+![Hough parallel coordinate space](/images/issue-21/MV-HoughParallel.png)
 
 Those bright central points are where we detect lines. A non-maximum suppression filter is then used to find the local maxima and reduce everything else to black. From there, the points are converted back to line slopes and intercepts, yielding this result:
 
-<img src="/images/issue-21/MV-HoughLines.png" alt="Hough transform line detection"/>
+![Hough transform line detection](/images/issue-21/MV-HoughLines.png)
 
 I should point out that the non-maximum suppression is one of the weaker points in the current implementation of this within GPUImage. It causes lines to be detected where there are none, or multiple lines to be detected near strong lines in a noisy scene.
 

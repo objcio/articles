@@ -3,13 +3,17 @@ title:  "iCloud and Core Data"
 category: "10"
 date: "2014-03-07 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/mb\">Matthew Bischoff</a> & <a href=\"https://twitter.com/bcapps\">Brian Capps</a>"
+author:
+  - name: Matthew Bischoff
+    url: https://twitter.com/mb
+  - name: Brian Capps
+    url: https://twitter.com/bcapps
 ---
 
 
-When Steve Jobs first introduced [iCloud](http://en.wikipedia.org/wiki/ICloud) at WWDC 2011, the promise of seamless syncing seemed too good to be true. And if you tried to implement iCloud [Core Data](http://www.objc.io/issue-4/core-data-overview.html) syncing in [iOS 5](http://adcdownload.apple.com//videos/wwdc_2011__hd/session_303__whats_new_in_core_data_on_ios.m4v) or [iOS 6](http://adcdownload.apple.com//videos/wwdc_2012__hd/session_227__using_icloud_with_core_data.mov), you know very well that it was.
+When Steve Jobs first introduced [iCloud](http://en.wikipedia.org/wiki/ICloud) at WWDC 2011, the promise of seamless syncing seemed too good to be true. And if you tried to implement iCloud [Core Data](/issues/4-core-data/core-data-overview/) syncing in [iOS 5](http://adcdownload.apple.com//videos/wwdc_2011__hd/session_303__whats_new_in_core_data_on_ios.m4v) or [iOS 6](http://adcdownload.apple.com//videos/wwdc_2012__hd/session_227__using_icloud_with_core_data.mov), you know very well that it was.
 
-Problems with syncing [library-style applications](https://developer.apple.com/library/mac/documentation/General/Conceptual/MOSXAppProgrammingGuide/CoreAppDesign/CoreAppDesign.html#//apple_ref/doc/uid/TP40010543-CH3-SW3) continued as [many](http://www.macworld.com/article/1167742/developers_dish_on_iclouds_challenges.html) [developers](http://blog.caffeine.lu/problems-with-core-data-icloud-storage.html) [abandoned](http://www.jumsoft.com/2013/01/response-to-sync-issues/) iCloud in favor of alternatives like [Simperium](http://simperium.com), [TICoreDataSync](https://github.com/nothirst/TICoreDataSync), and [WasabiSync](http://www.wasabisync.com).
+Problems with syncing [library-style applications](https://developer.apple.com/library/mac/documentation/General/Conceptual/MOSXAppProgrammingGuide/CoreAppDesign/CoreAppDesign.html#//apple_ref/doc/uid/TP40010543-CH3-SW3) continued as [many](http://www.macworld.com/article/1167742/developers_dish_on_iclouds_challenges.html) [developers](http://blog.caffeine.lu/problems-with-core-data-icloud-storage.html) [abandoned](http://web.archive.org/web/20130926051046/http://www.jumsoft.com/2013/01/response-to-sync-issues/) iCloud in favor of alternatives like [Simperium](http://simperium.com), [TICoreDataSync](https://github.com/nothirst/TICoreDataSync), and [WasabiSync](http://www.wasabisync.com).
 
 In early 2013, after years of struggling with Apple’s opaque and buggy implementation of iCloud Core Data sync, the issues reached a breaking point when developers [called out](http://arstechnica.com/apple/2013/03/frustrated-with-icloud-apples-developer-community-speaks-up-en-masse/) the service’s shortcomings, culminating in a [pointed article](http://www.theverge.com/2013/3/26/4148628/why-doesnt-icloud-just-work) by Ellis Hamburger at The Verge.
 
@@ -49,65 +53,67 @@ Setting up a managed object context for your application is as simple as allocat
 
 While Apple hasn’t released official sample code for iCloud Core Data in iOS 7, an Apple engineer on the Core Data team provided this basic template [on the Developer Forums](https://devforums.apple.com/message/828503#828503). We’ve edited it slightly for clarity:
 
-    #pragma mark - Notification Observers
-    - (void)registerForiCloudNotifications {
-        NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-    	
-        [notificationCenter addObserver:self 
-                               selector:@selector(storesWillChange:) 
-                                   name:NSPersistentStoreCoordinatorStoresWillChangeNotification 
-                                 object:self.persistentStoreCoordinator];
+```objc
+#pragma mark - Notification Observers
+- (void)registerForiCloudNotifications {
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     
-        [notificationCenter addObserver:self 
-                               selector:@selector(storesDidChange:) 
-                                   name:NSPersistentStoreCoordinatorStoresDidChangeNotification 
-                                 object:self.persistentStoreCoordinator];
+    [notificationCenter addObserver:self 
+                           selector:@selector(storesWillChange:) 
+                               name:NSPersistentStoreCoordinatorStoresWillChangeNotification 
+                             object:self.persistentStoreCoordinator];
+
+    [notificationCenter addObserver:self 
+                           selector:@selector(storesDidChange:) 
+                               name:NSPersistentStoreCoordinatorStoresDidChangeNotification 
+                             object:self.persistentStoreCoordinator];
+
+    [notificationCenter addObserver:self 
+                           selector:@selector(persistentStoreDidImportUbiquitousContentChanges:) 
+                               name:NSPersistentStoreDidImportUbiquitousContentChangesNotification 
+                             object:self.persistentStoreCoordinator];
+}
+
+# pragma mark - iCloud Support
+
+/// Use these options in your call to -addPersistentStore:
+- (NSDictionary *)iCloudPersistentStoreOptions {
+    return @{NSPersistentStoreUbiquitousContentNameKey: @"MyAppStore"};
+}
+
+- (void) persistentStoreDidImportUbiquitousContentChanges:(NSNotification *)changeNotification {
+    NSManagedObjectContext *context = self.managedObjectContext;
     
-        [notificationCenter addObserver:self 
-                               selector:@selector(persistentStoreDidImportUbiquitousContentChanges:) 
-                                   name:NSPersistentStoreDidImportUbiquitousContentChangesNotification 
-                                 object:self.persistentStoreCoordinator];
-    }
+    [context performBlock:^{
+        [context mergeChangesFromContextDidSaveNotification:changeNotification];
+    }];
+}
+
+- (void)storesWillChange:(NSNotification *)notification {
+    NSManagedObjectContext *context = self.managedObjectContext;
     
-    # pragma mark - iCloud Support
-    
-    /// Use these options in your call to -addPersistentStore:
-    - (NSDictionary *)iCloudPersistentStoreOptions {
-        return @{NSPersistentStoreUbiquitousContentNameKey: @"MyAppStore"};
-    }
-    
-    - (void) persistentStoreDidImportUbiquitousContentChanges:(NSNotification *)changeNotification {
-        NSManagedObjectContext *context = self.managedObjectContext;
-    	
-        [context performBlock:^{
-            [context mergeChangesFromContextDidSaveNotification:changeNotification];
-        }];
-    }
-    
-    - (void)storesWillChange:(NSNotification *)notification {
-        NSManagedObjectContext *context = self.managedObjectContext;
-    	
-        [context performBlockAndWait:^{
-            NSError *error;
-    		
-            if ([context hasChanges]) {
-                BOOL success = [context save:&error];
-                
-                if (!success && error) {
-                    // perform error handling
-                    NSLog(@"%@",[error localizedDescription]);
-                }
-            }
+    [context performBlockAndWait:^{
+        NSError *error;
+        
+        if ([context hasChanges]) {
+            BOOL success = [context save:&error];
             
-            [context reset];
-        }];
-    
-        // Refresh your User Interface.
-    }
-    
-    - (void)storesDidChange:(NSNotification *)notification {
-        // Refresh your User Interface.
-    }
+            if (!success && error) {
+                // perform error handling
+                NSLog(@"%@",[error localizedDescription]);
+            }
+        }
+        
+        [context reset];
+    }];
+
+    // Refresh your User Interface.
+}
+
+- (void)storesDidChange:(NSNotification *)notification {
+    // Refresh your User Interface.
+}
+```
 
 ### Asynchronous Persistent Store Setup
 
@@ -135,32 +141,34 @@ The framework will manage one persistent store file per account inside the appli
 
 Implementing a switch to enable or disable iCloud in your app is also much easier in iOS 7, although it probably isn’t necessary for most applications. Because the API now automatically creates a separate file structure when iCloud options are passed to the `NSPersistentStore` upon creation, we can have the same store URL and many of the same options between both local and iCloud stores. This means that switching from an iCloud store to a local store can be done by migrating the iCloud persistent store to the same URL with the same options, plus the `NSPersistentStoreRemoveUbiquitousMetadataOption`. This option will disassociate the ubiquitous metadata from the store, and is specifically designed for these kinds of migration or copying scenarios. Here's a sample:
 
-    - (void)migrateiCloudStoreToLocalStore {
-        // assuming you only have one store.
-        NSPersistentStore *store = [[_coordinator persistentStores] firstObject]; 
-        
-        NSMutableDictionary *localStoreOptions = [[self storeOptions] mutableCopy];
-        [localStoreOptions setObject:@YES forKey:NSPersistentStoreRemoveUbiquitousMetadataOption];
-        
-        NSPersistentStore *newStore =  [_coordinator migratePersistentStore:store 
-                                                                      toURL:[self storeURL] 
-                                                                    options:localStoreOptions 
-                                                                   withType:NSSQLiteStoreType error:nil];
-        
-        [self reloadStore:newStore];
-    }
+```objc
+- (void)migrateiCloudStoreToLocalStore {
+    // assuming you only have one store.
+    NSPersistentStore *store = [[_coordinator persistentStores] firstObject]; 
     
-    - (void)reloadStore:(NSPersistentStore *)store {
-        if (store) {
-            [_coordinator removePersistentStore:store error:nil];
-        }
+    NSMutableDictionary *localStoreOptions = [[self storeOptions] mutableCopy];
+    [localStoreOptions setObject:@YES forKey:NSPersistentStoreRemoveUbiquitousMetadataOption];
     
-        [_coordinator addPersistentStoreWithType:NSSQLiteStoreType 
-                                   configuration:nil 
-                                             URL:[self storeURL] 
-                                         options:[self storeOptions] 
-                                           error:nil];
+    NSPersistentStore *newStore =  [_coordinator migratePersistentStore:store 
+                                                                  toURL:[self storeURL] 
+                                                                options:localStoreOptions 
+                                                               withType:NSSQLiteStoreType error:nil];
+    
+    [self reloadStore:newStore];
+}
+
+- (void)reloadStore:(NSPersistentStore *)store {
+    if (store) {
+        [_coordinator removePersistentStore:store error:nil];
     }
+
+    [_coordinator addPersistentStoreWithType:NSSQLiteStoreType 
+                               configuration:nil 
+                                         URL:[self storeURL] 
+                                     options:[self storeOptions] 
+                                       error:nil];
+}
+```
 
 Switching from a local store back to iCloud is just as easy; simply migrate with iCloud-enabled options, and add a persistent store with same options to the coordinator.
 

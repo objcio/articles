@@ -2,7 +2,9 @@
 title:  A Complete Core Data Application
 category: "4"
 date: "2013-09-09 10:00:00"
-author: "<a href=\"http://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: http://twitter.com/chriseidhof
 tags: article
 ---
 
@@ -23,24 +25,26 @@ code, you might see `[[NSManagedObjectContext alloc] init]`. These days,
 you should use the `initWithConcurrencyType:` initializer to make it
 explicit that you're using the queue-based concurrency model:
 
-    - (void)setupManagedObjectContext
-    {
-        self.managedObjectContext = 
-             [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-        self.managedObjectContext.persistentStoreCoordinator = 
-            [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
-        NSError* error;
-        [self.managedObjectContext.persistentStoreCoordinator 
-             addPersistentStoreWithType:NSSQLiteStoreType
-                          configuration:nil
-                                    URL:self.storeURL 
-                                options:nil 
-                                  error:&error];
-        if (error) {
-            NSLog(@"error: %@", error);
-        }
-        self.managedObjectContext.undoManager = [[NSUndoManager alloc] init];
+```objc
+- (void)setupManagedObjectContext
+{
+    self.managedObjectContext = 
+         [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+    self.managedObjectContext.persistentStoreCoordinator = 
+        [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
+    NSError* error;
+    [self.managedObjectContext.persistentStoreCoordinator 
+         addPersistentStoreWithType:NSSQLiteStoreType
+                      configuration:nil
+                                URL:self.storeURL 
+                            options:nil 
+                              error:&error];
+    if (error) {
+        NSLog(@"error: %@", error);
     }
+    self.managedObjectContext.undoManager = [[NSUndoManager alloc] init];
+}
+```
 
 It's important to check the error, because this will probably fail a
 lot during development. When you change your data model, Core Data detects this and will
@@ -99,20 +103,21 @@ and pass it to our root view controller. As an optimization, you can
 store the object id of the item in the user defaults, in order to look it up even
 faster:
 
-    - (Item*)rootItem
-    {
-        NSFetchRequest* request = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
-        request.predicate = [NSPredicate predicateWithFormat:@"parent = %@", nil];
-        NSArray* objects = [self.managedObjectContext executeFetchRequest:request error:NULL];
-        Item* rootItem = [objects lastObject];
-        if (rootItem == nil) {
-            rootItem = [Item insertItemWithTitle:nil 
-                                          parent:nil 
-                          inManagedObjectContext:self.managedObjectContext];
-        }
-        return rootItem;
+```objc
+- (Item*)rootItem
+{
+    NSFetchRequest* request = [NSFetchRequest fetchRequestWithEntityName:@"Item"];
+    request.predicate = [NSPredicate predicateWithFormat:@"parent = %@", nil];
+    NSArray* objects = [self.managedObjectContext executeFetchRequest:request error:NULL];
+    Item* rootItem = [objects lastObject];
+    if (rootItem == nil) {
+        rootItem = [Item insertItemWithTitle:nil 
+                                      parent:nil 
+                      inManagedObjectContext:self.managedObjectContext];
     }
-
+    return rootItem;
+}
+```
 
 Adding an item is mostly
 straightforward. 
@@ -124,41 +129,47 @@ that the first child has an `order` of 0, and every subsequent child has an
 We create a custom method on the `Item` class where we
 put the logic:
 
-    + (instancetype)insertItemWithTitle:(NSString*)title
-                                 parent:(Item*)parent
-                 inManagedObjectContext:(NSManagedObjectContext *)managedObjectContext
-    {
-        NSUInteger order = parent.numberOfChildren;
-        Item* item = [NSEntityDescription insertNewObjectForEntityForName:self.entityName
-                                                   inManagedObjectContext:managedObjectContext];
-        item.title = title;
-        item.parent = parent;
-        item.order = @(order);
-        return item;
-    }
+```objc
++ (instancetype)insertItemWithTitle:(NSString*)title
+                             parent:(Item*)parent
+             inManagedObjectContext:(NSManagedObjectContext *)managedObjectContext
+{
+    NSUInteger order = parent.numberOfChildren;
+    Item* item = [NSEntityDescription insertNewObjectForEntityForName:self.entityName
+                                               inManagedObjectContext:managedObjectContext];
+    item.title = title;
+    item.parent = parent;
+    item.order = @(order);
+    return item;
+}
+```
 
 The number of children is a very simple method:
 
-    - (NSUInteger)numberOfChildren
-    {
-        return self.children.count;
-    }
+```objc
+- (NSUInteger)numberOfChildren
+{
+    return self.children.count;
+}
+```
 
 To support automatic updates to our table view, we will use a fetched
 results controller. A fetched results controller is an object that can
 manage a fetch request with a big number of items and is the perfect
 Core Data companion to a table view, as we will see in the next section:
     
-    - (NSFetchedResultsController*)childrenFetchedResultsController
-    {
-        NSFetchRequest* request = [NSFetchRequest fetchRequestWithEntityName:[self.class entityName]];
-        request.predicate = [NSPredicate predicateWithFormat:@"parent = %@", self];
-        request.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"order" ascending:YES]];
-        return [[NSFetchedResultsController alloc] initWithFetchRequest:request 
-                                                   managedObjectContext:self.managedObjectContext 
-                                                     sectionNameKeyPath:nil 
-                                                              cacheName:nil];
-    }
+```objc
+- (NSFetchedResultsController*)childrenFetchedResultsController
+{
+    NSFetchRequest* request = [NSFetchRequest fetchRequestWithEntityName:[self.class entityName]];
+    request.predicate = [NSPredicate predicateWithFormat:@"parent = %@", self];
+    request.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"order" ascending:YES]];
+    return [[NSFetchedResultsController alloc] initWithFetchRequest:request 
+                                               managedObjectContext:self.managedObjectContext 
+                                                 sectionNameKeyPath:nil 
+                                                          cacheName:nil];
+}
+```
 
 ## Add a Table-View Backed by Fetched Results Controller
 
@@ -175,43 +186,49 @@ update automatically.
 
 ### Creating the Table View's Data Source
 
-In our article on [lighter view controllers](/issue-1/lighter-view-controllers.html), we demonstrated how to separate out the data source of a table view. We will do exactly the same for a fetched results controller; we create a separate class `FetchedResultsControllerDataSource` that acts as a table view's data source, and by listening to the fetched results controller, updates the table view automatically.
+In our article on [lighter view controllers](/issues/1-view-controllers/lighter-view-controllers/), we demonstrated how to separate out the data source of a table view. We will do exactly the same for a fetched results controller; we create a separate class `FetchedResultsControllerDataSource` that acts as a table view's data source, and by listening to the fetched results controller, updates the table view automatically.
 
 We initialize the object with a table view, and the initializer looks like this:
 
-    - (id)initWithTableView:(UITableView*)tableView
-    {
-        self = [super init];
-        if (self) {
-            self.tableView = tableView;
-            self.tableView.dataSource = self;
-        }
-        return self;
+```objc
+- (id)initWithTableView:(UITableView*)tableView
+{
+    self = [super init];
+    if (self) {
+        self.tableView = tableView;
+        self.tableView.dataSource = self;
     }
+    return self;
+}
+```
 
 When we set the fetch results controller, we have to make ourselves the
 delegate, and perform the initial fetch. It is easy to forget the
 `performFetch:` call, and you will get no results (and no errors):
 
-    - (void)setFetchedResultsController:(NSFetchedResultsController*)fetchedResultsController
-    {
-        _fetchedResultsController = fetchedResultsController;
-        fetchedResultsController.delegate = self;
-        [fetchedResultsController performFetch:NULL];
-    }
+```objc
+- (void)setFetchedResultsController:(NSFetchedResultsController*)fetchedResultsController
+{
+    _fetchedResultsController = fetchedResultsController;
+    fetchedResultsController.delegate = self;
+    [fetchedResultsController performFetch:NULL];
+}
+```
 
 Because our class implements the `UITableViewDataSource` protocol, we need to implement some methods for that. In these two methods we just ask the fetched results controller for the required information:
 
-    - (NSInteger)numberOfSectionsInTableView:(UITableView*)tableView
-    {
-        return self.fetchedResultsController.sections.count;
-    }
-    
-    - (NSInteger)tableView:(UITableView*)tableView numberOfRowsInSection:(NSInteger)sectionIndex
-    {
-        id<NSFetchedResultsSectionInfo> section = self.fetchedResultsController.sections[sectionIndex];
-        return section.numberOfObjects;
-    }
+```objc
+- (NSInteger)numberOfSectionsInTableView:(UITableView*)tableView
+{
+    return self.fetchedResultsController.sections.count;
+}
+
+- (NSInteger)tableView:(UITableView*)tableView numberOfRowsInSection:(NSInteger)sectionIndex
+{
+    id<NSFetchedResultsSectionInfo> section = self.fetchedResultsController.sections[sectionIndex];
+    return section.numberOfObjects;
+}
+```
 
 However, when we need to create cells, it requires some simple steps: we
 ask the fetched results controller for the right object, we dequeue a
@@ -220,15 +237,17 @@ view controller) to configure that cell with the object. Now, we have a
 nice separation of concerns, as the view controller only has to care about
 updating the cell with the model object:
     
-    - (UITableViewCell*)tableView:(UITableView*)tableView 
-            cellForRowAtIndexPath:(NSIndexPath*)indexPath
-    {
-        id object = [self.fetchedResultsController objectAtIndexPath:indexPath];
-        id cell = [tableView dequeueReusableCellWithIdentifier:self.reuseIdentifier
-                                                 forIndexPath:indexPath];
-        [self.delegate configureCell:cell withObject:object];
-        return cell;
-    }
+```objc
+- (UITableViewCell*)tableView:(UITableView*)tableView 
+        cellForRowAtIndexPath:(NSIndexPath*)indexPath
+{
+    id object = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    id cell = [tableView dequeueReusableCellWithIdentifier:self.reuseIdentifier
+                                             forIndexPath:indexPath];
+    [self.delegate configureCell:cell withObject:object];
+    return cell;
+}
+```
 
 ### Creating the Table View Controller
 
@@ -238,24 +257,27 @@ and added a navigation controller with a table view controller. This
 automatically sets the view controller as the data source, which is not
 what we want. Therefore, in our `viewDidLoad`, we do the following:
 
-    fetchedResultsControllerDataSource =
-        [[FetchedResultsControllerDataSource alloc] initWithTableView:self.tableView];
-    self.fetchedResultsControllerDataSource.fetchedResultsController = 
-        self.parent.childrenFetchedResultsController;
-    fetchedResultsControllerDataSource.delegate = self;
-    fetchedResultsControllerDataSource.reuseIdentifier = @"Cell";
-
+```objc
+fetchedResultsControllerDataSource =
+    [[FetchedResultsControllerDataSource alloc] initWithTableView:self.tableView];
+self.fetchedResultsControllerDataSource.fetchedResultsController = 
+    self.parent.childrenFetchedResultsController;
+fetchedResultsControllerDataSource.delegate = self;
+fetchedResultsControllerDataSource.reuseIdentifier = @"Cell";
+```
 
 In the initializer of the fetched results controller data source, the
 table view's data source gets set. The reuse identifier matches the one
 in the Storyboard. Now, we have to implement the delegate method:
 
-    - (void)configureCell:(id)theCell withObject:(id)object
-    {
-        UITableViewCell* cell = theCell;
-        Item* item = object;
-        cell.textLabel.text = item.title;
-    }
+```objc
+- (void)configureCell:(id)theCell withObject:(id)object
+{
+    UITableViewCell* cell = theCell;
+    Item* item = object;
+    cell.textLabel.text = item.title;
+}
+```
 
 Of course, you could do a lot more than just setting the text label, but
 you get the point. Now we have pretty much everything in place for
@@ -276,14 +298,16 @@ To add items, we steal the interaction design from
 of most beautiful apps. We add a text field as the table view's header,
 and modify the content inset of the table view to make sure it stays
 hidden by default, as explained in Joe's [scroll view
-article](/issue-3/scroll-view.html). As always, the full code is on github, but
+article](/issues/3-views/scroll-view/). As always, the full code is on github, but
 here's the relevant call to inserting the item, in `textFieldShouldReturn`:
 
-    [Item insertItemWithTitle:title 
-                       parent:self.parent
-       inManagedObjectContext:self.parent.managedObjectContext];
-    textField.text = @"";
-    [textField resignFirstResponder];
+```objc
+[Item insertItemWithTitle:title 
+                   parent:self.parent
+   inManagedObjectContext:self.parent.managedObjectContext];
+textField.text = @"";
+[textField resignFirstResponder];
+```
 
 ### Listening to Changes
 
@@ -291,17 +315,19 @@ The next step is making sure that your table view inserts a row for the
 newly created item. There are several ways to go about this, but we'll use
 the fetched results controller's delegate method:
 
-    - (void)controller:(NSFetchedResultsController*)controller
-       didChangeObject:(id)anObject
-           atIndexPath:(NSIndexPath*)indexPath
-         forChangeType:(NSFetchedResultsChangeType)type
-          newIndexPath:(NSIndexPath*)newIndexPath
-    {
-        if (type == NSFetchedResultsChangeInsert) {
-            [self.tableView insertRowsAtIndexPaths:@[newIndexPath]
-                                  withRowAnimation:UITableViewRowAnimationAutomatic];
-        }
+```objc
+- (void)controller:(NSFetchedResultsController*)controller
+   didChangeObject:(id)anObject
+       atIndexPath:(NSIndexPath*)indexPath
+     forChangeType:(NSFetchedResultsChangeType)type
+      newIndexPath:(NSIndexPath*)newIndexPath
+{
+    if (type == NSFetchedResultsChangeInsert) {
+        [self.tableView insertRowsAtIndexPaths:@[newIndexPath]
+                              withRowAnimation:UITableViewRowAnimationAutomatic];
     }
+}
+```
 
 The fetched results controller also calls these methods for deletions,
 changes, and moves (we'll implement that later). If you have multiple
@@ -311,15 +337,17 @@ simple single-item insertions and deletions, it doesn't make a difference,
 but if you choose to implement syncing at some time, it makes everything
 a lot prettier:
 
-    - (void)controllerWillChangeContent:(NSFetchedResultsController*)controller
-    {
-        [self.tableView beginUpdates];
-    }
-    
-    - (void)controllerDidChangeContent:(NSFetchedResultsController*)controller
-    {
-        [self.tableView endUpdates];
-    }
+```objc
+- (void)controllerWillChangeContent:(NSFetchedResultsController*)controller
+{
+    [self.tableView beginUpdates];
+}
+
+- (void)controllerDidChangeContent:(NSFetchedResultsController*)controller
+{
+    [self.tableView endUpdates];
+}
+```
 
 #### Using a Collection View
 
@@ -356,19 +384,21 @@ My pattern for dealing with segues looks like this: first, you try to
 identify which segue it is, and for each segue you pull out a separate
 method that prepares the destination view controller:
 
-    - (void)prepareForSegue:(UIStoryboardSegue*)segue sender:(id)sender
-    {
-        [super prepareForSegue:segue sender:sender];
-        if ([segue.identifier isEqualToString:selectItemSegue]) {
-            [self presentSubItemViewController:segue.destinationViewController];
-        }
+```objc
+- (void)prepareForSegue:(UIStoryboardSegue*)segue sender:(id)sender
+{
+    [super prepareForSegue:segue sender:sender];
+    if ([segue.identifier isEqualToString:selectItemSegue]) {
+        [self presentSubItemViewController:segue.destinationViewController];
     }
-    
-    - (void)presentSubItemViewController:(ItemViewController*)subItemViewController
-    {
-        Item* item = [self.fetchedResultsControllerDataSource selectedItem];
-        subItemViewController.parent = item;
-    }
+}
+
+- (void)presentSubItemViewController:(ItemViewController*)subItemViewController
+{
+    Item* item = [self.fetchedResultsControllerDataSource selectedItem];
+    subItemViewController.parent = item;
+}
+```
 
 The only thing the child view controller needs is the item. From the
 item, it can also get to the managed object context.
@@ -390,33 +420,37 @@ controller. The latter one tries to update its table view, which is
 offscreen, and everything crashes. The solution is to tell our data
 source to stop listening to the fetched results controller delegate methods:
 
-    - (void)viewWillAppear:(BOOL)animated
-    {
-        [super viewWillAppear:animated];
-        self.fetchedResultsControllerDataSource.paused = NO;
-    }
-    
-    - (void)viewWillDisappear:(BOOL)animated
-    {
-        [super viewWillDisappear:animated];
-        self.fetchedResultsControllerDataSource.paused = YES;
-    }
+```objc
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.fetchedResultsControllerDataSource.paused = NO;
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    self.fetchedResultsControllerDataSource.paused = YES;
+}
+```
 
 One way to implement this inside the data source is setting the fetched
 results controller's delegate to nil, so that no updates are received
 any longer. We then need to add it after we come out of `paused` state:
 
-    - (void)setPaused:(BOOL)paused
-    {
-        _paused = paused;
-        if (paused) {
-            self.fetchedResultsController.delegate = nil;
-        } else {
-            self.fetchedResultsController.delegate = self;
-            [self.fetchedResultsController performFetch:NULL];
-            [self.tableView reloadData];
-        }
+```objc
+- (void)setPaused:(BOOL)paused
+{
+    _paused = paused;
+    if (paused) {
+        self.fetchedResultsController.delegate = nil;
+    } else {
+        self.fetchedResultsController.delegate = self;
+        [self.fetchedResultsController performFetch:NULL];
+        [self.tableView reloadData];
     }
+}
+```
 
 The `performFetch` will then make sure your data source is up to date.
 Of course, a nicer implementation would be to not set the delegate to nil, but
@@ -433,20 +467,22 @@ correct.
 To allow for swipe to delete, we need to implement two methods in the
 data source:
 
-         - (BOOL)tableView:(UITableView*)tableView
-     canEditRowAtIndexPath:(NSIndexPath*)indexPath
-     {
-         return YES;
+```objc
+     - (BOOL)tableView:(UITableView*)tableView
+ canEditRowAtIndexPath:(NSIndexPath*)indexPath
+ {
+     return YES;
+ }
+ 
+  - (void)tableView:(UITableView *)tableView 
+ commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
+  forRowAtIndexPath:(NSIndexPath *)indexPath {
+     if (editingStyle == UITableViewCellEditingStyleDelete) {
+         id object = [self.fetchedResultsController objectAtIndexPath:indexPath]
+         [self.delegate deleteObject:object];
      }
-     
-      - (void)tableView:(UITableView *)tableView 
-     commitEditingStyle:(UITableViewCellEditingStyle)editingStyle
-      forRowAtIndexPath:(NSIndexPath *)indexPath {
-         if (editingStyle == UITableViewCellEditingStyleDelete) {
-             id object = [self.fetchedResultsController objectAtIndexPath:indexPath]
-             [self.delegate deleteObject:object];
-         }
-     }
+ }
+```
 
 Rather than deleting immediately, we tell our delegate (the view
 controller) to delete the object. That way, we don't have to share the
@@ -464,16 +500,18 @@ For enforcing our order variant, we can override the
 `prepareForDeletion` method, and update all the siblings with a higher
 `order`:
 
-    - (void)prepareForDeletion
+```objc
+- (void)prepareForDeletion
+{
+    NSSet* siblings = self.parent.children;
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"order > %@", self.order];
+    NSSet* siblingsAfterSelf = [siblings filteredSetUsingPredicate:predicate];
+    [siblingsAfterSelf enumerateObjectsUsingBlock:^(Item* sibling, BOOL* stop)
     {
-        NSSet* siblings = self.parent.children;
-        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"order > %@", self.order];
-        NSSet* siblingsAfterSelf = [siblings filteredSetUsingPredicate:predicate];
-        [siblingsAfterSelf enumerateObjectsUsingBlock:^(Item* sibling, BOOL* stop)
-        {
-            sibling.order = @(sibling.order.integerValue - 1);
-        }];
-    }
+        sibling.order = @(sibling.order.integerValue - 1);
+    }];
+}
+```
 
 Now we're almost there. We can interact with table view cells and delete
 the model object. The final step is to implement the necessary code to
@@ -481,12 +519,13 @@ delete the table view cells once the model objects get deleted. In our
 data source's `controller:didChangeObject:...` method we add another if
 clause:
 
-    ...
-    else if (type == NSFetchedResultsChangeDelete) {
-        [self.tableView deleteRowsAtIndexPaths:@[indexPath]
-                              withRowAnimation:UITableViewRowAnimationAutomatic];
-    }
-
+```objc
+...
+else if (type == NSFetchedResultsChangeDelete) {
+    [self.tableView deleteRowsAtIndexPaths:@[indexPath]
+                          withRowAnimation:UITableViewRowAnimationAutomatic];
+}
+```
 
 ### Add Undo Support
 
@@ -494,29 +533,35 @@ One of the nice things about Core Data is that it comes with integrated
 undo support. We will add *the shake to undo* feature, and a first step
 is telling the application that we can do this:
 
-    application.applicationSupportsShakeToEdit = YES;
+```objc
+application.applicationSupportsShakeToEdit = YES;
+```
 
 Now, whenever a shake is triggered, the application will ask the first
 responder for its undo manager, and perform an undo. In [last month's
-article](http://www.objc.io/issue-3/custom-controls.html), we saw that a
+article](/issues/3-views/custom-controls/), we saw that a
 view controller is also in the responder chain, and this is exactly
 what we'll use. In our view controller, we override the following two
 methods from the `UIResponder` class:
 
-    - (BOOL)canBecomeFirstResponder {
-        return YES;
-    }
-    
-    - (NSUndoManager*)undoManager
-    {
-        return self.managedObjectContext.undoManager;
-    }
+```objc
+- (BOOL)canBecomeFirstResponder {
+    return YES;
+}
+
+- (NSUndoManager*)undoManager
+{
+    return self.managedObjectContext.undoManager;
+}
+```
 
 Now, when a shake gesture happens, the managed object context's undo manager will get an
 undo message, and undo the last change.  Remember, on iOS, a managed object context doesn't have an undo manager by default, (whereas on Mac, a newly created managed object context does have an undo manager), so we created that in the setup of the persistent
 stack:
 
-    self.managedObjectContext.undoManager = [[NSUndoManager alloc] init];
+```objc
+self.managedObjectContext.undoManager = [[NSUndoManager alloc] init];
+```
 
 And that's almost all there is to it. Now, when you shake, you get the
 default iOS alert view with two buttons: one for undoing, and one for
@@ -528,11 +573,13 @@ To make managing the undos a bit easier for the user, we can also name
 the actions, and change the first lines of `textFieldShouldReturn:` to
 this:
 
-    NSString* title = textField.text;
-    NSString* actionName = [NSString stringWithFormat:
-        NSLocalizedString(@"add item \"%@\"", @"Undo action name of add item"), title];
-    [self.undoManager setActionName:actionName];
-    [self.store addItem:title parent:nil];
+```objc
+NSString* title = textField.text;
+NSString* actionName = [NSString stringWithFormat:
+    NSLocalizedString(@"add item \"%@\"", @"Undo action name of add item"), title];
+[self.undoManager setActionName:actionName];
+[self.store addItem:title parent:nil];
+```
 
 Now, when the user shakes, he or she gets a bit more context than just the
 generic label "Undo".
@@ -582,26 +629,26 @@ I was able to move almost all code from the `Store` class into the
 `Item` class, and everything became a lot cleaner.
 
 
-[100]:/issue-4/importing-large-data-sets-into-core-data.html
-[110]:/issue-4/importing-large-data-sets-into-core-data.html#efficient-importing
-[120]:/issue-4/importing-large-data-sets-into-core-data.html#user-generated-data
+[100]:/issues/4-core-data/importing-large-data-sets-into-core-data/
+[110]:/issues/4-core-data/importing-large-data-sets-into-core-data/#efficient-importing
+[120]:/issues/4-core-data/importing-large-data-sets-into-core-data/#user-generated-data
 
-[200]:/issue-4/core-data-models-and-model-objects.html
-[210]:/issue-4/core-data-models-and-model-objects.html#managed-objects
-[220]:/issue-4/core-data-models-and-model-objects.html#validation
-[230]:/issue-4/core-data-models-and-model-objects.html#ivars-in-managed-object-classes
-[240]:/issue-4/core-data-models-and-model-objects.html#entity-vs-class-hierarchy
-[250]:/issue-4/core-data-models-and-model-objects.html#creating-objects
-[260]:/issue-4/core-data-models-and-model-objects.html#indexes
+[200]:/issues/4-core-data/core-data-models-and-model-objects/
+[210]:/issues/4-core-data/core-data-models-and-model-objects/#managed-objects
+[220]:/issues/4-core-data/core-data-models-and-model-objects/#validation
+[230]:/issues/4-core-data/core-data-models-and-model-objects/#ivars-in-managed-object-classes
+[240]:/issues/4-core-data/core-data-models-and-model-objects/#entity-vs-class-hierarchy
+[250]:/issues/4-core-data/core-data-models-and-model-objects/#creating-objects
+[260]:/issues/4-core-data/core-data-models-and-model-objects/#indexes
 
-[300]:/issue-4/core-data-overview.html
-[310]:/issue-4/core-data-overview.html#complicated-stacks
-[320]:/issue-4/core-data-overview.html#getting-to-objects
+[300]:/issues/4-core-data/core-data-overview/
+[310]:/issues/4-core-data/core-data-overview/#complicated-stacks
+[320]:/issues/4-core-data/core-data-overview/#getting-to-objects
 
-[400]:/issue-4/full-core-data-application.html
+[400]:/issues/4-core-data/full-core-data-application/
 
-[500]:/issue-4/SQLite-instead-of-core-data.html
+[500]:/issues/4-core-data/SQLite-instead-of-core-data/
 
-[600]:/issue-4/core-data-fetch-requests.html
+[600]:/issues/4-core-data/core-data-fetch-requests/
 
-[700]:/issue-4/core-data-migration.html
+[700]:/issues/4-core-data/core-data-migration/

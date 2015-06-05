@@ -2,7 +2,9 @@
 title: Bad Testing Practices
 category: "15"
 date: "2014-08-11 08:00:00"
-author: "<a href=\"http://twitter.com/luisobo\">Luis Solano</a>"
+author:
+  - name: Luis Solano
+    url: http://twitter.com/luisobo
 tags: article
 ---
 

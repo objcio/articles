@@ -3,7 +3,9 @@ title:  "Android’s Notification Center"
 category: "11"
 date: "2014-04-01 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/kevingrant5\">Kevin Grant</a>"
+author:
+  - name: Kevin Grant
+    url: https://twitter.com/kevingrant5
 ---
 
 
@@ -34,27 +36,29 @@ Notifications on Android today have come a long way since their debut in 2008.
 
 This is where Android began for most of us (including me). We had a few options available to us, which consisted mainly of an icon, a title, a description, and the time. If you wanted to implement your own custom control, for example, for a music player, you could. The system maintained the desired width and height constraints, but you could put whatever views in there you wanted. Using these custom layouts is how the first versions of many custom music players implemented their custom controls in the notification:
 
-    private void showNotification() {
-      // Create the base notification (the R.drawable is a reference fo a png file)
-      Notification notification = new Notification(R.drawable.stat_notify_missed_call,
-          "Ticket text", System.currentTimeMillis());
+```java
+private void showNotification() {
+  // Create the base notification (the R.drawable is a reference fo a png file)
+  Notification notification = new Notification(R.drawable.stat_notify_missed_call,
+      "Ticket text", System.currentTimeMillis());
 
-      // The action you want to perform on click
-      Intent intent = new Intent(this, Main.class);
+  // The action you want to perform on click
+  Intent intent = new Intent(this, Main.class);
 
-      // Holds the intent in waiting until it’s ready to be used
-      PendingIntent pi = PendingIntent.getActivity(this, 1, intent, 0);
+  // Holds the intent in waiting until it’s ready to be used
+  PendingIntent pi = PendingIntent.getActivity(this, 1, intent, 0);
 
-      // Set the latest event info
-      notification.setLatestEventInfo(this, "Content title", "Content subtext", pi);
+  // Set the latest event info
+  notification.setLatestEventInfo(this, "Content title", "Content subtext", pi);
 
-      // Get an instance of the notification manager
-      NotificationManager noteManager = (NotificationManager)
-          getSystemService(Context.NOTIFICATION_SERVICE);
+  // Get an instance of the notification manager
+  NotificationManager noteManager = (NotificationManager)
+      getSystemService(Context.NOTIFICATION_SERVICE);
 
-      // Post to the system bar
-      noteManager.notify(1, notification);
-    }
+  // Post to the system bar
+  noteManager.notify(1, notification);
+}
+```
 
 Code: Function on how notifications were created in 1.5-2.3.
 
@@ -72,26 +76,28 @@ What the code looks like run on Android 2.3:
 
 Notifications in Android 3.0 actually took a slight turn for the worse. Android’s tablet version, in response to Apple’s iPad, was a fresh take on how to run Android on a large screen. Instead of a single unified drawer, Android tried to make use of its extra space and provide a separate notification experience, one where you still had a drawer, but you would also receive 'growl-like' notifications. Fortunately for developers, this also came with a brand new API, the `NotificationBuilder`, which allowed us to utilize a [builder pattern](http://en.wikipedia.org/wiki/Builder_pattern) to create our notifications. Even though it’s slightly more involved, the builder abstracts away the complexity of creating notification objects that differ ever so slightly with every new version of the operating system:
 
-    // The action you want to perform on click
-    Intent intent = new Intent(this, Main.class);
+```java
+// The action you want to perform on click
+Intent intent = new Intent(this, Main.class);
 
-    // Holds the intent in waiting until it’s ready to be used
-    PendingIntent pi = PendingIntent.getActivity(this, 1, intent, 0);
+// Holds the intent in waiting until it’s ready to be used
+PendingIntent pi = PendingIntent.getActivity(this, 1, intent, 0);
 
-    Notification noti = new Notification.Builder(getContext())
-      .setContentTitle("Honeycomb")
-      .setContentText("Notifications in Honeycomb")
-      .setTicker("Ticker text")
-      .setSmallIcon(R.drawable.stat_notify_missed_call)
-      .setContentIntent(pi)
-      .build();
+Notification noti = new Notification.Builder(getContext())
+  .setContentTitle("Honeycomb")
+  .setContentText("Notifications in Honeycomb")
+  .setTicker("Ticker text")
+  .setSmallIcon(R.drawable.stat_notify_missed_call)
+  .setContentIntent(pi)
+  .build();
 
-    // Get an instance of the notification manager
-    NotificationManager noteManager = (NotificationManager)
-        getSystemService(Context.NOTIFICATION_SERVICE);
+// Get an instance of the notification manager
+NotificationManager noteManager = (NotificationManager)
+    getSystemService(Context.NOTIFICATION_SERVICE);
 
-    // Post to the system bar
-    noteManager.notify(1, notification);
+// Post to the system bar
+noteManager.notify(1, notification);
+```
 
 What a notification looks like when initially received in Honeycomb:
 
@@ -119,10 +125,12 @@ Here are a few examples of the 4.0+ API’s that are utilized in the [Tumblr app
 
 If the text is short enough, why do I have to open the app to read it? Big text solves that problem by giving you some more room to read. No wasted application opens for no reason:
 
-    Notification noti = new Notification.Builder()
-      ... // The same notification properties as the others
-      .setStyle(new Notification.BigTextStyle().bigText("theblogofinfinite replied..."))
-      .build();
+```java
+Notification noti = new Notification.Builder()
+  ... // The same notification properties as the others
+  .setStyle(new Notification.BigTextStyle().bigText("theblogofinfinite replied..."))
+  .build();
+```
 
 Big text notification contracted:
 
@@ -137,10 +145,12 @@ Big text notification expanded:
 
 These wonderful notifications offer a content-first experience without ever requiring the user to open an application. This provides an immense amount of context, and is a beautiful way to interact with your notifications:
 
-    Notification noti = new Notification.Builder()
-      ... // The same notification properties as the others
-      .setStyle(new Notification.BigPictureStyle().bigPicture(mBitmap))
-      .build();
+```java
+Notification noti = new Notification.Builder()
+  ... // The same notification properties as the others
+  .setStyle(new Notification.BigPictureStyle().bigPicture(mBitmap))
+  .build();
+```
 
 ![Big picture notification](/images/issue-11/ics/big_pic.png)
 
@@ -149,14 +159,16 @@ These wonderful notifications offer a content-first experience without ever requ
 
 Roll-up notification is bringing multiple notifications into one. The rollup cheats a little bit because it doesn’t actually stack existing notifications. You’re still responsible for building it yourself, so really it’s just more of a nice way of presenting it:
 
-    Notification noti = new Notification.Builder()
-      ... // The same notification properties as the others
-      .setStyle(new Notification.InboxStyle()
-         .addLine("Soandso likes your post")
-         .addLine("Soandso reblogged your post")
-         .setContentTitle("3 new notes")
-         .setSummaryText("+3 more"))
-      .build();
+```java
+Notification noti = new Notification.Builder()
+  ... // The same notification properties as the others
+  .setStyle(new Notification.InboxStyle()
+     .addLine("Soandso likes your post")
+     .addLine("Soandso reblogged your post")
+     .setContentTitle("3 new notes")
+     .setSummaryText("+3 more"))
+  .build();
+```
 
 ![Rollup notification](/images/issue-11/ics/rollup.png)
 
@@ -165,11 +177,13 @@ Roll-up notification is bringing multiple notifications into one. The rollup che
 
 Adding actions to a notification is just as easy as you’d imagine. The builder pattern ensures that it will use whatever default styles are suggested by the system, ensuring that the user always feels at home in his or her notification drawer:
 
-    Notification noti = new Notification.Builder()
-      ... // The same notification properties as the others
-      .addAction(R.drawable.ic_person, "Visit blog", mPendingBlogIntent)
-      .addAction(R.drawable.ic_follow, "Follow", mPendingFollowIntent)
-      .build();
+```java
+Notification noti = new Notification.Builder()
+  ... // The same notification properties as the others
+  .addAction(R.drawable.ic_person, "Visit blog", mPendingBlogIntent)
+  .addAction(R.drawable.ic_follow, "Follow", mPendingFollowIntent)
+  .build();
+```
 
 ![Action notification](/images/issue-11/ics/actions.png)
 
@@ -179,8 +193,8 @@ These sorts of interactions lent to an application design that put the user in c
 
 It’s no secret to anyone in the tech world right now that Android wear is a fascinating introduction into the wearables space. Whether or not it will succeed as a consumer product is certainly up for debate. What isn’t up for debate is the barrier to entry for developers who want to support Android Wear. Living up to its legacy, Android Wear appears to have gotten notifications correct, in regards to syncing with your device. As a matter of fact, if you phone is connected to an Android Wear device, it will push any notifications created with a builder directly to the device, with no code modification necessary. The ongoing simplicity of the `NotificationBuilder` pattern will ensure that whatever devices that come out and support Android or Android Wear will almost immediately have an breadth of app developers who are already comfortable using the APIs to send and receive data.
 
-<img style="display:inline;" alt="Action notification" src="/images/issue-11/watch/picture.png" width="40%">
-<img style="display:inline;margin-left:1em;" alt="Action notification" src="/images/issue-11/watch/hunkosis.png" width="40%">
+![Action notification](/images/issue-11/watch/picture.png)
+![Action notification](/images/issue-11/watch/hunkosis.png)
 
 NotificationBuilder provides out-of-the-box support for Android Wear, no code required!
 
@@ -204,25 +218,26 @@ Custom notifications are limited to a subset of view components that are support
 
 Creating these custom views takes a bit more work however. Custom notification views are created using Android's XML layout system, and you are responsible for making sure your notifications look decent on all the different versions of Android. It’s a pain, but when you see some of these beautiful notifications, you can instantly understand their value:
 
-    <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    	android:layout_width="match_parent"
-    	android:layout_height="match_parent"
-    	android:orientation="horizontal">
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
 
-    	<ImageView
-    		android:id="@+id/avatar"
-    		android:layout_width="32dp"
-    		android:layout_height="32dp"
-    		android:layout_gravity="center_vertical" />
+    <ImageView
+        android:id="@+id/avatar"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center_vertical" />
 
-    	<TextView
-    		android:layout_width="wrap_content"
-    		android:layout_height="wrap_content"
-    		android:layout_gravity="center_vertical"
-    		android:text="You received a notification" />
-
-    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:text="You received a notification" />
+</LinearLayout>
+```
 An extremely basic custom-notification layout that shows an image, with some text beside it.
 
 ## Notification Behavior
@@ -246,15 +261,17 @@ But even these four steps are more than an average developer would like to handl
 
 So what kind of control do we have as developers over how the user is interacting with the notifications? Sure, we’ve seen that there is a possibility to add custom controls and buttons onto them, and we’ve already seen how to interact with a general click, but is there anything else? Actually, there is! There is a 'delete' action, `setDeleteIntent`, that gets fired when the user dismisses the notification from the drawer. Hooking into delete is a great way to make sure we don’t ever show the user this information again:
 
-    // In Android, we can create arbitrary names of actions, and let
-    // individual components decide if they want to receive these actions.
-    Intent clearIntent = new Intent("clear_all_notifications");
-    PendingIntent clearNotesFromDb = PendingIntent.getBroadcast(aContext, 1, clearIntent, 0)
+```java
+// In Android, we can create arbitrary names of actions, and let
+// individual components decide if they want to receive these actions.
+Intent clearIntent = new Intent("clear_all_notifications");
+PendingIntent clearNotesFromDb = PendingIntent.getBroadcast(aContext, 1, clearIntent, 0)
 
-    Notification noti = new Notification.Builder(getContext())
-      ...
-      .setDeleteIntent(clearNotesFromDb)
-      .build();
+Notification noti = new Notification.Builder(getContext())
+  ...
+  .setDeleteIntent(clearNotesFromDb)
+  .build();
+```
 
 ### Recreating the Navigation Hierarchy
 

@@ -2,7 +2,9 @@
 title:  "The Photos Framework"
 category: "21"
 date: "2015-02-10 08:00:00"
-author: "<a href=\"https://twitter.com/saniul\">Saniul Ahmed</a>"
+author:
+  - name: Saniul Ahmed
+    url: https://twitter.com/saniul
 tags: article
 ---
 
@@ -85,7 +87,7 @@ To find out if an asset was marked as favorite or was hidden by the user, just i
 
 The user can flag assets within a burst sequence; additionally, the system uses various heuristics to mark potential user picks automatically. This metadata is accessible via `PHAsset`'s `burstSelectionTypes` property. This property is a bitmask with three defined constants: `.UserPick` for assets marked manually by the user, `.AutoPick` for potential user picks, and `.None` for unmarked assets.
 
-<img src="/images/issue-21/photos-burst-example.jpg" width="478" alt=".AutoPick Example">
+![.AutoPick Example](/images/issue-21/photos-burst-example.jpg)
 
 The screenshot shows how Photos.app automatically marks potential user picks in a burst sequence.
 
@@ -119,7 +121,7 @@ Another iCloud-related property is `progressHandler`. You can set it to a [`PHAs
 
 PhotoKit allows apps to make non-destructive adjustments to photos. For edited photos, the system keeps a separate copy of the original image and the app-specific adjustment data. When fetching assets using the image manager, you can specify which version of the image asset should be delivered via the result handler. This is done by setting the `version` property: `.Current` will deliver the image with all adjustments applied to it; `.Unadjusted` delivers the image before any adjustments are applied to it; and `.Original` delivers the image in its original, highest-quality format (e.g. the RAW data, while `.Unadjusted` would deliver a JPEG).
 
-You can read more about this aspect of the framework in Sam Davies' [article on Photo Extensions](/issue-21/photo-extensions.html).
+You can read more about this aspect of the framework in Sam Davies' [article on Photo Extensions](/issues/21-camera-and-photos/photo-extensions/).
 
 #### Result Handler
 

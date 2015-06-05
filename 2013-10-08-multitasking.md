@@ -3,7 +3,9 @@ title: "Multitasking in iOS 7"
 category: "5"
 date: "2013-10-07 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/dcaunt\">David Caunt</a>"
+author:
+  - name: David Caunt
+    url: https://twitter.com/dcaunt
 ---
 
 
@@ -21,23 +23,27 @@ Background Fetch is a kind of smart polling mechanism which works best for apps 
 
 The first step in enabling Background Fetch is to specify that you’ll use the feature in the [`UIBackgroundModes`](https://developer.apple.com/library/ios/documentation/general/Reference/InfoPlistKeyReference/Articles/iPhoneOSKeys.html#//apple_ref/doc/uid/TP40009252-SW22) key in your info plist. The easiest way to do this is to use the new Capabilities tab in Xcode 5’s project editor, which includes a Background Modes section for easy configuration of multitasking options. 
 
-<img alt="A screenshot showing Xcode 5’s new Capabilities tab" src="/images/issue-5/capabilities-on-bgfetch.jpg">
+![A screenshot showing Xcode 5’s new Capabilities tab](/images/issue-5/capabilities-on-bgfetch.jpg)
 
 Alternatively, you can edit the key manually:
 
-    <key>UIBackgroundModes</key>
-    <array>
-        <string>fetch</string>
-    </array>
+```xml
+<key>UIBackgroundModes</key>
+<array>
+    <string>fetch</string>
+</array>
+```
 
 Next, tell iOS how often you'd like to fetch:  
 
-    - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-    {
-        [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
-    
-        return YES;
-    }
+```objc
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
+
+    return YES;
+}
+```
 
 The default fetch interval is never, so you'll need to set a time interval or the app won't ever be called in the background. The value of `UIApplicationBackgroundFetchIntervalMinimum` asks the system to manage when your app is woken, as often as possible, but you should specify your own time interval if this is unnecessary. For example, a weather app might only update conditions hourly. iOS will wait at least the specified time interval between background fetches.
 
@@ -45,33 +51,35 @@ If your application allows a user to logout, and you know that there won’t be 
 
 The final step is to implement the following method in your application delegate:
 
-    - (void)                application:(UIApplication *)application 
-      performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
-    {
-        NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-        NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
+```objc
+- (void)                application:(UIApplication *)application 
+  performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
+
+    NSURL *url = [[NSURL alloc] initWithString:@"http://yourserver.com/data.json"];
+    NSURLSessionDataTask *task = [session dataTaskWithURL:url 
+                                        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
     
-        NSURL *url = [[NSURL alloc] initWithString:@"http://yourserver.com/data.json"];
-        NSURLSessionDataTask *task = [session dataTaskWithURL:url 
-                                            completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        
-            if (error) {
-                completionHandler(UIBackgroundFetchResultFailed);
-                return;
-            }
-        
-            // Parse response/data and determine whether new content was available
-            BOOL hasNewData = ...
-            if (hasNewData) {
-                completionHandler(UIBackgroundFetchResultNewData);
-            } else {
-                completionHandler(UIBackgroundFetchResultNoData);
-            }
-        }];
+        if (error) {
+            completionHandler(UIBackgroundFetchResultFailed);
+            return;
+        }
     
-        // Start the task
-        [task resume];
-    }
+        // Parse response/data and determine whether new content was available
+        BOOL hasNewData = ...
+        if (hasNewData) {
+            completionHandler(UIBackgroundFetchResultNewData);
+        } else {
+            completionHandler(UIBackgroundFetchResultNoData);
+        }
+    }];
+
+    // Start the task
+    [task resume];
+}
+```
 
 This is where you can perform work when you are woken by the system. Remember, you only have 30 seconds to determine whether new content is available, to process the new content, and to update your UI. This should be enough time to fetch data from the network and to fetch a few thumbnails for your UI, but not much more. When your network requests are complete and your UI has been updated, you should call the completion handler. 
 
@@ -83,12 +91,14 @@ At this point, you might be wondering how iOS can snapshot your app's UI when it
 
 In most cases, you'll perform the same work when the application launches in the background as you would in the foreground, but you can detect background launches by looking at the [`applicationState`](https://developer.apple.com/library/ios/documentation/uikit/reference/UIApplication_Class/Reference/Reference.html#//apple_ref/doc/uid/TP40006728-CH3-SW77) property of UIApplication:
 
-    - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-    {
-        NSLog(@"Launched in background %d", UIApplicationStateBackground == application.applicationState);
-    
-        return YES;
-    }
+```objc
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    NSLog(@"Launched in background %d", UIApplicationStateBackground == application.applicationState);
+
+    return YES;
+}
+```
 
 ### Testing Background Fetch
 
@@ -96,7 +106,7 @@ There are two ways you can simulate a background fetch. The easiest method is to
 
 Alternatively, you can use a scheme to change how Xcode runs your app. Under the Xcode menu item Product, choose Scheme and then Manage Schemes. From here, edit or add a new scheme and check the _Launch due to a background fetch event_ checkbox as shown below.
 
-<img alt="A screenshot showing Xcode 5’s scheme editor" src="/images/issue-5/edit-scheme-simulate-background-fetch.png">
+![A screenshot showing Xcode 5’s scheme editor](/images/issue-5/edit-scheme-simulate-background-fetch.png)
 
 ## Remote Notifications
 
@@ -114,36 +124,44 @@ I recommend using [Nomad CLI’s Houston](http://nomad-cli.com/#houston) utility
 
 You can install Houston as part of the nomad-cli ruby gem:
 
-    gem install nomad-cli
+```
+gem install nomad-cli
+```
 
 And then send a notification with the apn utility included in Nomad
 
-    # Send a Push Notification to your Device
-    apn push <device token> -c /path/to/key-cert.pem -n -d content-id=42
+```
+# Send a Push Notification to your Device
+apn push <device token> -c /path/to/key-cert.pem -n -d content-id=42
+```
 
 Here the `-n` flag specifies that the content-available key should be included, and `-d` allows us to add our own data keys to the payload.
 
 The resulting notification payload looks like this:
 
-    {
-        "aps" : {
-            "content-available" : 1
-        },
-        "content-id" : 42
-    }
+```json
+{
+    "aps" : {
+        "content-available" : 1
+    },
+    "content-id" : 42
+}
+```
 
 iOS 7 adds a new application delegate method, which is called when a push notification with the content-available key is received:
 
-    - (void)           application:(UIApplication *)application 
-      didReceiveRemoteNotification:(NSDictionary *)userInfo 
-            fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
-    {
-        NSLog(@"Remote Notification userInfo is %@", userInfo);
-    
-        NSNumber *contentID = userInfo[@"content-id"];
-        // Do something with the content ID
-        completionHandler(UIBackgroundFetchResultNewData);
-    }
+```objc
+- (void)           application:(UIApplication *)application 
+  didReceiveRemoteNotification:(NSDictionary *)userInfo 
+        fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+    NSLog(@"Remote Notification userInfo is %@", userInfo);
+
+    NSNumber *contentID = userInfo[@"content-id"];
+    // Do something with the content ID
+    completionHandler(UIBackgroundFetchResultNewData);
+}
+```
 
 Again, the app is launched into the background and given 30 seconds to fetch new content and update its UI, before calling the completion handler. We could perform a quick network request as we did in the Background Fetch example, but let's use the powerful new Background Transfer Service to enqueue a large download task and see how we can update our UI when it completes.
 
@@ -161,38 +179,40 @@ Now we know a little about `NSURLSession`, and how a background session function
 
 First of all, let's handle a Remote Notification and enqueue an `NSURLSessionDownloadTask` on the background transfer service. In `backgroundURLSession`, we create an `NURLSession` with a background session configuration and add our application delegate as the session delegate. The documentation advises against instantiating multiple sessions with the same identifier, so we use `dispatch_once` to avoid potential issues:
 
-    - (NSURLSession *)backgroundURLSession
-    {
-        static NSURLSession *session = nil;
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            NSString *identifier = @"io.objc.backgroundTransferExample";
-            NSURLSessionConfiguration* sessionConfig = [NSURLSessionConfiguration backgroundSessionConfiguration:identifier];
-            session = [NSURLSession sessionWithConfiguration:sessionConfig 
-                                                    delegate:self 
-                                               delegateQueue:[NSOperationQueue mainQueue]];
-        });
-    
-        return session;
-    }
+```objc
+- (NSURLSession *)backgroundURLSession
+{
+    static NSURLSession *session = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSString *identifier = @"io.objc.backgroundTransferExample";
+        NSURLSessionConfiguration* sessionConfig = [NSURLSessionConfiguration backgroundSessionConfiguration:identifier];
+        session = [NSURLSession sessionWithConfiguration:sessionConfig 
+                                                delegate:self 
+                                           delegateQueue:[NSOperationQueue mainQueue]];
+    });
 
-    - (void)           application:(UIApplication *)application 
-      didReceiveRemoteNotification:(NSDictionary *)userInfo 
-            fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
-    {
-        NSLog(@"Received remote notification with userInfo %@", userInfo);
-    
-        NSNumber *contentID = userInfo[@"content-id"];
-        NSString *downloadURLString = [NSString stringWithFormat:@"http://yourserver.com/downloads/%d.mp3", [contentID intValue]];
-        NSURL* downloadURL = [NSURL URLWithString:downloadURLString];
+    return session;
+}
 
-        NSURLRequest *request = [NSURLRequest requestWithURL:downloadURL];
-        NSURLSessionDownloadTask *task = [[self backgroundURLSession] downloadTaskWithRequest:request];
-        task.taskDescription = [NSString stringWithFormat:@"Podcast Episode %d", [contentID intValue]];
-        [task resume];
-    
-        completionHandler(UIBackgroundFetchResultNewData);
-    }
+- (void)           application:(UIApplication *)application 
+  didReceiveRemoteNotification:(NSDictionary *)userInfo 
+        fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+    NSLog(@"Received remote notification with userInfo %@", userInfo);
+
+    NSNumber *contentID = userInfo[@"content-id"];
+    NSString *downloadURLString = [NSString stringWithFormat:@"http://yourserver.com/downloads/%d.mp3", [contentID intValue]];
+    NSURL* downloadURL = [NSURL URLWithString:downloadURLString];
+
+    NSURLRequest *request = [NSURLRequest requestWithURL:downloadURL];
+    NSURLSessionDownloadTask *task = [[self backgroundURLSession] downloadTaskWithRequest:request];
+    task.taskDescription = [NSString stringWithFormat:@"Podcast Episode %d", [contentID intValue]];
+    [task resume];
+
+    completionHandler(UIBackgroundFetchResultNewData);
+}
+```
 
 We create a download task using the `NSURLSession` class method and configure its request, and provide a description for use later. You must remember to call `[task resume]` to actually start the task, as all session tasks begin in the suspended state.
 
@@ -200,81 +220,84 @@ Now we need to implement the `NSURLSessionDownloadDelegate` methods to receive c
 
 None of the `NSURLSessionDownloadDelegate` delegate methods are optional, though the only one where we need to take action in this example is `[NSURLSession downloadTask:didFinishDownloadingToURL:]`. When the task finishes downloading, you're provided with a temporary URL to the file on disk. You must move or copy the file to your app's storage, as it will be removed from temporary storage when you return from this delegate method.
 
-    #Pragma Mark - NSURLSessionDownloadDelegate
+```objc
+#Pragma Mark - NSURLSessionDownloadDelegate
 
-    - (void)         URLSession:(NSURLSession *)session 
-                   downloadTask:(NSURLSessionDownloadTask *)downloadTask
-      didFinishDownloadingToURL:(NSURL *)location
-    {
-        NSLog(@"downloadTask:%@ didFinishDownloadingToURL:%@", downloadTask.taskDescription, location);
+- (void)         URLSession:(NSURLSession *)session 
+               downloadTask:(NSURLSessionDownloadTask *)downloadTask
+  didFinishDownloadingToURL:(NSURL *)location
+{
+    NSLog(@"downloadTask:%@ didFinishDownloadingToURL:%@", downloadTask.taskDescription, location);
 
-        // Copy file to your app's storage with NSFileManager
-        // ...
+    // Copy file to your app's storage with NSFileManager
+    // ...
 
-        // Notify your UI
-    }
+    // Notify your UI
+}
 
-    - (void)  URLSession:(NSURLSession *)session 
-            downloadTask:(NSURLSessionDownloadTask *)downloadTask 
-       didResumeAtOffset:(int64_t)fileOffset 
-      expectedTotalBytes:(int64_t)expectedTotalBytes
-    {
-    }
+- (void)  URLSession:(NSURLSession *)session 
+        downloadTask:(NSURLSessionDownloadTask *)downloadTask 
+   didResumeAtOffset:(int64_t)fileOffset 
+  expectedTotalBytes:(int64_t)expectedTotalBytes
+{
+}
 
-    - (void)         URLSession:(NSURLSession *)session 
-                   downloadTask:(NSURLSessionDownloadTask *)downloadTask 
-                   didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten 
-      totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
-    {
-    }
+- (void)         URLSession:(NSURLSession *)session 
+               downloadTask:(NSURLSessionDownloadTask *)downloadTask 
+               didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten 
+  totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
+{
+}
+```
 
 If your app is still running in the foreground when the background session task completes, the above code will be sufficient. In most cases, however, your app won't be running, or it will be suspended in the background. In these cases, you must implement two application delegates methods so the system can wake your application. Unlike previous delegate callbacks, the application delegate is called twice, as your session and task delegates may receive several messages. The app delegate method `application: handleEventsForBackgroundURLSession:` is called before these `NSURLSession` delegate messages are sent, and `URLSessionDidFinishEventsForBackgroundURLSession` is called afterward. In the former method, you store a background `completionHandler`, and in the latter you call it to update your UI:
 
-    - (void)                  application:(UIApplication *)application 
-      handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
-    {
-        // You must re-establish a reference to the background session, 
-        // or NSURLSessionDownloadDelegate and NSURLSessionDelegate methods will not be called
-        // as no delegate is attached to the session. See backgroundURLSession above.
-        NSURLSession *backgroundSession = [self backgroundURLSession];
-    
-        NSLog(@"Rejoining session with identifier %@ %@", identifier, backgroundSession);
-    
-        // Store the completion handler to update your UI after processing session events
-        [self addCompletionHandler:completionHandler forSession:identifier];
+```objc
+- (void)                  application:(UIApplication *)application 
+  handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
+{
+    // You must re-establish a reference to the background session, 
+    // or NSURLSessionDownloadDelegate and NSURLSessionDelegate methods will not be called
+    // as no delegate is attached to the session. See backgroundURLSession above.
+    NSURLSession *backgroundSession = [self backgroundURLSession];
+
+    NSLog(@"Rejoining session with identifier %@ %@", identifier, backgroundSession);
+
+    // Store the completion handler to update your UI after processing session events
+    [self addCompletionHandler:completionHandler forSession:identifier];
+}
+
+- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session
+{
+    NSLog(@"Background URL session %@ finished events.\n", session);
+
+    if (session.configuration.identifier) {
+        // Call the handler we stored in -application:handleEventsForBackgroundURLSession:
+        [self callCompletionHandlerForSession:session.configuration.identifier];
+    }
+}
+
+- (void)addCompletionHandler:(CompletionHandlerType)handler forSession:(NSString *)identifier
+{
+    if ([self.completionHandlerDictionary objectForKey:identifier]) {
+        NSLog(@"Error: Got multiple handlers for a single session identifier.  This should not happen.\n");
     }
 
-    - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session
-    {
-        NSLog(@"Background URL session %@ finished events.\n", session);
-    
-        if (session.configuration.identifier) {
-            // Call the handler we stored in -application:handleEventsForBackgroundURLSession:
-            [self callCompletionHandlerForSession:session.configuration.identifier];
-        }
-    }
+    [self.completionHandlerDictionary setObject:handler forKey:identifier];
+}
 
-    - (void)addCompletionHandler:(CompletionHandlerType)handler forSession:(NSString *)identifier
-    {
-        if ([self.completionHandlerDictionary objectForKey:identifier]) {
-            NSLog(@"Error: Got multiple handlers for a single session identifier.  This should not happen.\n");
-        }
-    
-        [self.completionHandlerDictionary setObject:handler forKey:identifier];
-    }
+- (void)callCompletionHandlerForSession: (NSString *)identifier
+{
+    CompletionHandlerType handler = [self.completionHandlerDictionary objectForKey: identifier];
 
-    - (void)callCompletionHandlerForSession: (NSString *)identifier
-    {
-        CompletionHandlerType handler = [self.completionHandlerDictionary objectForKey: identifier];
+    if (handler) {
+        [self.completionHandlerDictionary removeObjectForKey: identifier];
+        NSLog(@"Calling completion handler for session %@", identifier);
     
-        if (handler) {
-            [self.completionHandlerDictionary removeObjectForKey: identifier];
-            NSLog(@"Calling completion handler for session %@", identifier);
-        
-            handler();
-        }
+        handler();
     }
-
+}
+```
 
 This two-stage process is necessary to update your app UI if you aren't already in the foreground when the background transfer completes. Additionally, if the app is not running at all when the background transfer finishes, iOS will launch it into the background, and the preceding application and session delegate methods are called after `application:didFinishLaunchingWithOptions:`.
 

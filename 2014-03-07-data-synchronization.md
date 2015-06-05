@@ -3,7 +3,9 @@ title:  "Data Synchronization"
 category: "10"
 date: "2014-03-07 11:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/drewmccormack\">Drew McCormack</a>"
+author:
+  - name: Drew McCormack
+    url: https://twitter.com/drewmccormack
 ---
 
 <br/>
@@ -48,7 +50,7 @@ We've already seen that approaches to sync can be categorized according to wheth
 	<td style="margin-right:1em"><strong>Client-Server</strong></td> 
 		<td style="margin-right:1em">
 		<a href="https://parse.com">Parse</a><br/>
-		<a href="https://www.stackmob.com">StackMob</a><br/>
+		StackMob<br/>
 		<a href="http://www.windowsazure.com/en-us/services/mobile-services/">Windows Azure Mobile Services</a><br/>
 		<a href="http://helios.io">Helios</a><br/>
 		Custom Web Service

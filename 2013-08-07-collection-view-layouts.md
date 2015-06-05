@@ -2,7 +2,9 @@
 title: "Custom Collection View Layouts"
 category: "3"
 date: "2013-08-07 08:00:00"
-author: "<a href=\"http://oleb.net\">Ole Begemann</a>"
+author:
+  - name: Ole Begemann
+    url: http://oleb.net
 tags: article
 ---
 
@@ -35,7 +37,7 @@ Supplementary and decoration views must be subclasses of [`UICollectionReusableV
 
 As an example of a non-trivial custom collection view layout, consider a week view in a typical calendar app. The calendar displays one week at a time, with the days of the week arranged in columns. Each calendar event will be displayed by a cell in our collection view, positioned and sized so as to represent the event start date/time and duration.
 
-<img src="/images/issue-3/calendar-collection-view-layout.png" style="width:1024px" alt="Screenshot of our custom calendar collection view layout"/>
+![Screenshot of our custom calendar collection view layout](/images/issue-3/calendar-collection-view-layout.png)
 
 There are two general types of collection view layouts:
 
@@ -55,17 +57,19 @@ Since the collection view does not know anything about its content, the first pi
 
 In our calendar example, we want the view to scroll vertically. For instance, if we want one hour to take up 100 points of vertical space, the content height to display an entire day should be 2,400 points. Notice that we do not enable horizontal scrolling, which means that our collection view displays only one week. To enable paging between multiple weeks in the calendar, we could embed multiple collection views (one per week) in a separate (paged) scroll view (possibly using [`UIPageViewController`](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIPageViewControllerClassReferenceClassRef/UIPageViewControllerClassReference.html) for the implementation), or stick with just one collection view and return a content width that is large enough to let the user scroll freely in both directions. This is beyond the scope of this article, though.
 
-    - (CGSize)collectionViewContentSize
-    {
-        // Don't scroll horizontally
-        CGFloat contentWidth = self.collectionView.bounds.size.width;
-    
-        // Scroll vertically to display a full day
-        CGFloat contentHeight = DayHeaderHeight + (HeightPerHour * HoursPerDay);
-    
-        CGSize contentSize = CGSizeMake(contentWidth, contentHeight);
-        return contentSize;
-    }
+```objc
+- (CGSize)collectionViewContentSize
+{
+    // Don't scroll horizontally
+    CGFloat contentWidth = self.collectionView.bounds.size.width;
+
+    // Scroll vertically to display a full day
+    CGFloat contentHeight = DayHeaderHeight + (HeightPerHour * HoursPerDay);
+
+    CGSize contentSize = CGSizeMake(contentWidth, contentHeight);
+    return contentSize;
+}
+```
 
 Note that for clarity reasons, I have chosen to model the layout on a very simple model that assumes a constant number of days per week and hours per day and represents days just as indices from 0 to 6. In a real calendar application, the layout would make heavy use of `NSCalendar`-based date calculations for its computations.
 
@@ -93,41 +97,43 @@ Your implementation should perform these steps:
 
 Our custom layout uses no decoration views but two kinds of supplementary views (column headers and row headers):
 
-    - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
-    {
-        NSMutableArray *layoutAttributes = [NSMutableArray array];
+```objc
+- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
+{
+    NSMutableArray *layoutAttributes = [NSMutableArray array];
 
-        // Cells
-        // We call a custom helper method -indexPathsOfItemsInRect: here
-        // which computes the index paths of the cells that should be included
-        // in rect.
-        NSArray *visibleIndexPaths = [self indexPathsOfItemsInRect:rect];
-        for (NSIndexPath *indexPath in visibleIndexPaths) {
-            UICollectionViewLayoutAttributes *attributes = 
-                [self layoutAttributesForItemAtIndexPath:indexPath];
-            [layoutAttributes addObject:attributes];
-        }
-
-        // Supplementary views
-        NSArray *dayHeaderViewIndexPaths = 
-            [self indexPathsOfDayHeaderViewsInRect:rect];
-        for (NSIndexPath *indexPath in dayHeaderViewIndexPaths) {
-            UICollectionViewLayoutAttributes *attributes =
-                [self layoutAttributesForSupplementaryViewOfKind:@"DayHeaderView"
-                                                     atIndexPath:indexPath];
-            [layoutAttributes addObject:attributes];
-        }
-        NSArray *hourHeaderViewIndexPaths =
-            [self indexPathsOfHourHeaderViewsInRect:rect];
-        for (NSIndexPath *indexPath in hourHeaderViewIndexPaths) {
-            UICollectionViewLayoutAttributes *attributes =
-                [self layoutAttributesForSupplementaryViewOfKind:@"HourHeaderView"
-                                                     atIndexPath:indexPath];
-            [layoutAttributes addObject:attributes];
-        }
-
-        return layoutAttributes;
+    // Cells
+    // We call a custom helper method -indexPathsOfItemsInRect: here
+    // which computes the index paths of the cells that should be included
+    // in rect.
+    NSArray *visibleIndexPaths = [self indexPathsOfItemsInRect:rect];
+    for (NSIndexPath *indexPath in visibleIndexPaths) {
+        UICollectionViewLayoutAttributes *attributes = 
+            [self layoutAttributesForItemAtIndexPath:indexPath];
+        [layoutAttributes addObject:attributes];
     }
+
+    // Supplementary views
+    NSArray *dayHeaderViewIndexPaths = 
+        [self indexPathsOfDayHeaderViewsInRect:rect];
+    for (NSIndexPath *indexPath in dayHeaderViewIndexPaths) {
+        UICollectionViewLayoutAttributes *attributes =
+            [self layoutAttributesForSupplementaryViewOfKind:@"DayHeaderView"
+                                                 atIndexPath:indexPath];
+        [layoutAttributes addObject:attributes];
+    }
+    NSArray *hourHeaderViewIndexPaths =
+        [self indexPathsOfHourHeaderViewsInRect:rect];
+    for (NSIndexPath *indexPath in hourHeaderViewIndexPaths) {
+        UICollectionViewLayoutAttributes *attributes =
+            [self layoutAttributesForSupplementaryViewOfKind:@"HourHeaderView"
+                                                 atIndexPath:indexPath];
+        [layoutAttributes addObject:attributes];
+    }
+
+    return layoutAttributes;
+}
+```
 
 <a name="layout-attributes-for-...-at-index-path"> </a>
 
@@ -137,16 +143,18 @@ Sometimes, the collection view will ask the layout object for the layout attribu
 
 You do this by calling the [`+[UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:]`](http://developer.apple.com/library/ios/documentation/uikit/reference/UICollectionViewLayoutAttributes_class/Reference/Reference.html#//apple_ref/occ/clm/UICollectionViewLayoutAttributes/layoutAttributesForCellWithIndexPath:) factory method. Then modify the attributes according to the index path. You may need to ask the collection view's data source for information about the data object that is displayed at this index path to get the data you need. Make sure to at least set the `frame` property here unless all your cells should sit on top of each other.
 
-    - (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:
-        (NSIndexPath *)indexPath
-    {
-        CalendarDataSource *dataSource = self.collectionView.dataSource;
-        id<CalendarEvent> event = [dataSource eventAtIndexPath:indexPath];
-        UICollectionViewLayoutAttributes *attributes = 
-            [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
-        attributes.frame = [self frameForEvent:event];
-        return attributes;
-    }
+```objc
+- (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:
+    (NSIndexPath *)indexPath
+{
+    CalendarDataSource *dataSource = self.collectionView.dataSource;
+    id<CalendarEvent> event = [dataSource eventAtIndexPath:indexPath];
+    UICollectionViewLayoutAttributes *attributes = 
+        [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
+    attributes.frame = [self frameForEvent:event];
+    return attributes;
+}
+```
 
 If you are using Auto Layout, you may be surprised that we are modifying the `frame` property of the layout attributes directly rather than working with constraints, but that is how `UICollectionViewLayout` works. Although you would use Auto Layout to define the collection view's frame and the internal layout of each cell, the frames of the cells have to be computed the old-fashioned way.
 
@@ -158,14 +166,16 @@ Lastly, the layout must tell the collection view if it needs to recompute the la
 
 Our custom layout must be invalidated when the collection view's width changes but is not affected by scrolling. Fortunately, the collection view passes its new bounds to the `shouldInvalidateLayoutForBoundsChange:` method. This enables us to compare the view's current bounds to the new value and only return `YES` if we have to:
 
-    - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
-    {
-        CGRect oldBounds = self.collectionView.bounds;
-        if (CGRectGetWidth(newBounds) != CGRectGetWidth(oldBounds)) {
-            return YES;
-        }
-        return NO;
+```objc
+- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
+{
+    CGRect oldBounds = self.collectionView.bounds;
+    if (CGRectGetWidth(newBounds) != CGRectGetWidth(oldBounds)) {
+        return YES;
     }
+    return NO;
+}
+```
 
 ## Animation
 
@@ -192,7 +202,7 @@ Changes from one collection view layout to another can be animated in a similar 
 
 Depending on the complexity of a custom collection view layout, writing one is often not easy. In fact, it is essentially just as difficult as writing a totally custom view class that implements the same layout from scratch, since the computations that are involved to determine which subviews are currently visible and where they are positioned are identical. Nevertheless, using `UICollectionView` gives you some nice benefits such as cell reuse and automatic support for animations, not to mention the clean separation of layout, subview management, and data preparation its architecture prescribes.
 
-A custom collection view layout is also a nice step toward a [lighter view controller](/issue-1/lighter-view-controllers.html) as your view controller does not contain any layout code. Combine this with a separate datasource class as explained in Chris' article and the view controller for a collection view will hardly contain any code at all.
+A custom collection view layout is also a nice step toward a [lighter view controller](/issues/1-view-controllers/lighter-view-controllers/) as your view controller does not contain any layout code. Combine this with a separate datasource class as explained in Chris' article and the view controller for a collection view will hardly contain any code at all.
 
 Whenever I use `UICollectionView`, I feel a certain admiration for its clean design. `NSTableView` and `UITableView` probably needed to come first in order for an experienced Apple engineer to come up with such a flexible class.
 
@@ -205,19 +215,19 @@ Whenever I use `UICollectionView`, I feel a certain admiration for its clean des
 
 
 
-[100]:/issue-3/advanced-auto-layout-toolbox.html
-[110]:/issue-3/advanced-auto-layout-toolbox.html#layout-process
+[100]:/issues/3-views/advanced-auto-layout-toolbox/
+[110]:/issues/3-views/advanced-auto-layout-toolbox/#layout-process
 
-[200]:/issue-3/moving-pixels-onto-the-screen.html
-[210]:/issue-3/moving-pixels-onto-the-screen.html#compositing
-[220]:/issue-3/moving-pixels-onto-the-screen.html#pixels
-[230]:/issue-3/moving-pixels-onto-the-screen.html#off-screen-rendering
-[240]:/issue-3/moving-pixels-onto-the-screen.html#planar-data
-[250]:/issue-3/moving-pixels-onto-the-screen.html#concurrent-drawing
-[260]:/issue-3/moving-pixels-onto-the-screen.html#resizable-images
-[270]:/issue-3/moving-pixels-onto-the-screen.html#core-graphics
+[200]:/issues/3-views/moving-pixels-onto-the-screen/
+[210]:/issues/3-views/moving-pixels-onto-the-screen/#compositing
+[220]:/issues/3-views/moving-pixels-onto-the-screen/#pixels
+[230]:/issues/3-views/moving-pixels-onto-the-screen/#off-screen-rendering
+[240]:/issues/3-views/moving-pixels-onto-the-screen/#planar-data
+[250]:/issues/3-views/moving-pixels-onto-the-screen/#concurrent-drawing
+[260]:/issues/3-views/moving-pixels-onto-the-screen/#resizable-images
+[270]:/issues/3-views/moving-pixels-onto-the-screen/#core-graphics
 
-[300]:/issue-3/collection-view-layouts.html
-[310]:/issue-3/collection-view-layouts.html#layout-attributes-for-...-at-index-path
+[300]:/issues/3-views/collection-view-layouts/
+[310]:/issues/3-views/collection-view-layouts/#layout-attributes-for-...-at-index-path
 
-[400]:/issue-3/custom-controls.html
+[400]:/issues/3-views/custom-controls/

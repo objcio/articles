@@ -3,10 +3,12 @@ title:  "A Sync Case Study"
 category: "10"
 date: "2014-03-07 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: https://twitter.com/floriankugler
 ---
 
-A while ago I was working together with [Chris](https://twitter.com/chriseidhof) on an enterprise iPad application that was to be deployed in a large youth sports organization. We chose to use Core Data for our persistency needs and built a custom data synchronization solution around it that fit our needs. In the syncing grid explained in [Drew's article](/issue-10/data-synchronization.html), this solution uses the asynchronous client-server approach.
+A while ago I was working together with [Chris](https://twitter.com/chriseidhof) on an enterprise iPad application that was to be deployed in a large youth sports organization. We chose to use Core Data for our persistency needs and built a custom data synchronization solution around it that fit our needs. In the syncing grid explained in [Drew's article](/issues/10-syncing-data/data-synchronization/), this solution uses the asynchronous client-server approach.
 
 In this article, I will lay out the decision and implementation process as a case study for rolling out your own syncing solution. It's not a perfect or a universally applicable one, but it fit our needs at the time.
 
@@ -15,7 +17,7 @@ Before we dive into it: if you're interested in the topic of data syncing soluti
 
 ## Use Case
 
-Most syncing solutions today focus on the problem of syncing a user's data across multiple personal devices, e.g. [iCloud Core Data sync](/issue-10/icloud-core-data.html) or the [Dropbox Datastore API](https://www.dropbox.com/developers/datastore). Our syncing needs were a bit different, though. The app we were building was to be deployed within an organization with approximately 50 devices in total. We needed to sync the data between all those devices, each device belonging to a different staff member, with everybody working off the same data set.
+Most syncing solutions today focus on the problem of syncing a user's data across multiple personal devices, e.g. [iCloud Core Data sync](/issues/10-syncing-data/icloud-core-data/) or the [Dropbox Datastore API](https://www.dropbox.com/developers/datastore). Our syncing needs were a bit different, though. The app we were building was to be deployed within an organization with approximately 50 devices in total. We needed to sync the data between all those devices, each device belonging to a different staff member, with everybody working off the same data set.
 
 The data itself had a moderately complex structure with approximately a dozen entities and many relationships between them. But we needed to handle quite a bit of data. In production, the number of records would quickly grow into the six figures.
 
@@ -46,118 +48,126 @@ In order to achieve this, we needed a custom format of exchanging data between t
 
 The client and the server exchange data via a custom JSON format. The same format is used in both directions -- the client talks to the server in the same way the server talks back to the client. A simple example of this format looks like this:
 
-    {
-        "maxRevision": 17382,
-        "changeSets: [
-            ...
-        ]
-    }
-    
+```json
+{
+    "maxRevision": 17382,
+    "changeSets: [
+        ...
+    ]
+}
+```
+
 On the top level, the JSON data has two keys: `maxRevision` and `changeSets`. `maxRevision` is a simple revision number that unambiguously identifies the revision of the data set currently available on the client that sends this request. The `changeSets` key holds an array of change set objects that look something like this:
 
-    {
-        "types": [ "users" ],
-        "users": {
-            "create": [],
-            "update": [ 1013 ],
-            "delete": [],
-            "attributes": {
-                "1013": {
-                    "first_name": "Florian",
-                    "last_name": "Kugler",
-                    "date_of_birth": "1979-09-12 00:00:00.000+00"
-                    "revision": 355
-                }
+```json
+{
+    "types": [ "users" ],
+    "users": {
+        "create": [],
+        "update": [ 1013 ],
+        "delete": [],
+        "attributes": {
+            "1013": {
+                "first_name": "Florian",
+                "last_name": "Kugler",
+                "date_of_birth": "1979-09-12 00:00:00.000+00"
+                "revision": 355
             }
         }
     }
-    
+}
+```
+
 The top level, `types`, key lists all the entity types that are contained in this change set. Each entity type then is described by its own change object, which contains the keys `create`, `update`, and `delete`, which are arrays of record IDs -- as well as `attributes`, which actually holds the new or updated data for each changed record.
 
 This data format carries a little bit of legacy cruft from a previously existing web application where this particular structure was beneficial for processing in the client-side framework used at the time. But it serves the purpose of the syncing solution described here equally well.
 
 Let's have a look at a slightly more complex example. We have entered some new screening data for one of the players on a device, which now should be synced up to the server. The request would look something like this:
 
-    {
-        "maxRevision": 1000,
-        "changeSets": [
-            {
-                "types": [ "screen_instances", "screen_instance_items" ],
-                "screen_instances": {
-                    "create": [ -10 ],
-                    "update": [],
-                    "delete": [],
-                    "attributes": {
-                        "-10": {
-                            "screen_id": 749,
-                            "date": "2014-02-01 13:15:23.487+01",
-                            "comment": ""
-                        }
+```json
+{
+    "maxRevision": 1000,
+    "changeSets": [
+        {
+            "types": [ "screen_instances", "screen_instance_items" ],
+            "screen_instances": {
+                "create": [ -10 ],
+                "update": [],
+                "delete": [],
+                "attributes": {
+                    "-10": {
+                        "screen_id": 749,
+                        "date": "2014-02-01 13:15:23.487+01",
+                        "comment": ""
                     }
-                },
-                "screen_instance_items: {
-                    "create": [ -11, -12 ],
-                    "update": [],
-                    "delete": [],
-                    "attributes": {
-                        "-11": {
-                            "screen_instance_id": -10,
-                            "numeric_value": 2
-                        },
-                        "-12": {
-                            ...
-                        }
+                }
+            },
+            "screen_instance_items: {
+                "create": [ -11, -12 ],
+                "update": [],
+                "delete": [],
+                "attributes": {
+                    "-11": {
+                        "screen_instance_id": -10,
+                        "numeric_value": 2
+                    },
+                    "-12": {
+                        ...
                     }
                 }
             }
-        ]
-    }
+        }
+    ]
+}
+```
 
 Notice how the records being sent have negative IDs. That's because they are newly created records. The new `screen_instance` record has the ID `-10`, and the `screen_instance_items` records reference this record by their foreign keys. 
 
 Once the server has processed this request (let's assume there was no conflict or permission problem), it would respond with JSON data like this:
 
-    {
-        "maxRevision": 1001,
-        "changeSets": [
-            {
-                "conflict": false,
-                "types": [ "screen_instances", "screen_instance_items" ],
-                "screen_instances": {
-                    "create": [ 321 ],
-                    "update": [],
-                    "delete": [],
-                    "attributes": {
-                        "321": {
-                            "__oldId__": -10
-                            "revision": 1001
-                            "screen_id": 749,
-                            "date": "2014-02-01 13:15:23.487+01",
-                            "comment": "",
-                        }
+```objc
+{
+    "maxRevision": 1001,
+    "changeSets": [
+        {
+            "conflict": false,
+            "types": [ "screen_instances", "screen_instance_items" ],
+            "screen_instances": {
+                "create": [ 321 ],
+                "update": [],
+                "delete": [],
+                "attributes": {
+                    "321": {
+                        "__oldId__": -10
+                        "revision": 1001
+                        "screen_id": 749,
+                        "date": "2014-02-01 13:15:23.487+01",
+                        "comment": "",
                     }
-                },
-                "screen_instance_items: {
-                    "create": [ 412, 413 ],
-                    "update": [],
-                    "delete": [],
-                    "attributes": {
-                        "412": {
-                            "__oldId__": -11,
-                            "revision": 1001,
-                            "screen_instance_id": 321,
-                            "numeric_value": 2
-                        },
-                        "413": {
-                            "__oldId__": -12,
-                            "revision": 1001,
-                            ...
-                        }
+                }
+            },
+            "screen_instance_items: {
+                "create": [ 412, 413 ],
+                "update": [],
+                "delete": [],
+                "attributes": {
+                    "412": {
+                        "__oldId__": -11,
+                        "revision": 1001,
+                        "screen_instance_id": 321,
+                        "numeric_value": 2
+                    },
+                    "413": {
+                        "__oldId__": -12,
+                        "revision": 1001,
+                        ...
                     }
                 }
             }
-        ]
-    }
+        }
+    ]
+}
+```
 
 The client sent the request with the revision number `1000`, and the server now responds with a revision number, `1001`, which is also assigned to all of the newly created records. (The fact that it is only incremented by one tells us that the client's data set was up to date before this request was issued.)
 
@@ -227,12 +237,14 @@ Since we're dealing with substantial amounts of data for mobile devices (in the 
 
 Then we take the SQLite database generated in this process, and run the following two commands on it:
 
-    sqlite> PRAGMA wal_checkpoint;
-    sqlite> VACUUM;
-    
+```objc
+sqlite> PRAGMA wal_checkpoint;
+sqlite> VACUUM;
+```
+
 The first one makes sure that all changes from the write-ahead logging file are transferred to the main `.sqlite` file, while the second command makes sure that the file is not unnecessarily bloated.
 
-Once the app is started the first time, the database is copied from the app bundle to its final location. For more information on this process and other ways to import data into Core Data, see [this article in objc.io #4](/issue-4/importing-large-data-sets-into-core-data.html).
+Once the app is started the first time, the database is copied from the app bundle to its final location. For more information on this process and other ways to import data into Core Data, see [this article in objc.io #4](/issues/4-core-data/importing-large-data-sets-into-core-data/).
 
 Since the Core Data data model includes a special entity that stores the revision number, the database shipped with the app automatically includes the correct revision number of the data set used to seed the client. 
 

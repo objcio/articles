@@ -3,7 +3,9 @@ title: Debugging Checklist
 category: "19"
 date: "2014-12-08 09:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: http://twitter.com/chriseidhof
 ---
 
 Finding bugs can be very time-consuming; almost every experienced developer can
@@ -50,7 +52,7 @@ Meanwhile, there are many different devices with different capabilities. If you 
 
 Mutability is also a common source of bugs that can be very hard to track down. For example, if you share an object between two threads, and they both modify it at the same time, you might get very unexpected behavior. The tough thing about these kinds of bugs is that they can be very hard to reproduce.
 
-One way to deal with this is to have immutable objects. This way, once you have access to an object, you know that it'll never change its state. There is so much to say about this, but for more information, we'd rather direct you to read the following: [A Warm Welcome to Structs and Value Types](/issue-16/swift-classes-vs-structs.html), [Value Objects](/issue-7/value-objects.html), [Object Mutability](https://developer.apple.com/library/mac/documentation/General/Conceptual/CocoaEncyclopedia/ObjectMutability/ObjectMutability.html), and [About Mutability](http://www.bignerdranch.com/blog/about-mutability/).
+One way to deal with this is to have immutable objects. This way, once you have access to an object, you know that it'll never change its state. There is so much to say about this, but for more information, we'd rather direct you to read the following: [A Warm Welcome to Structs and Value Types](/issues/16-swift/swift-classes-vs-structs/), [Value Objects](/issues/7-foundation/value-objects/), [Object Mutability](https://developer.apple.com/library/mac/documentation/General/Conceptual/CocoaEncyclopedia/ObjectMutability/ObjectMutability.html), and [About Mutability](http://www.bignerdranch.com/blog/about-mutability/).
 
 ## Nullability
 

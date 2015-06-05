@@ -3,7 +3,9 @@ title:  "AppKit for UIKit Developers"
 category: "14"
 date: "2014-07-11 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: https://twitter.com/floriankugler
 ---
 
 The Mac is not only a great platform to develop on — it's also a great platform to develop *for*. Last year we started building our first [Mac app](http://decksetapp.com), and it was a great experience to finally build something for the platform we're working on all day. However, we also had some difficulties discovering the peculiarities of the Mac compared to developing for iOS. In this article, we'll summarize what we've learned from this transition to hopefully give you a head start on your first Mac app.
@@ -45,8 +47,10 @@ If you're developing for OS X 10.9 or lower, be aware that view controllers are 
 
 In addition to the difference in the responder chain, AppKit also has a stricter convention as to the method signature of actions. In AppKit, an action method always looks like this:
 
-    - (void)performAction:(id)sender;
-    
+```objc
+- (void)performAction:(id)sender;
+```
+
 The variants that are permissible on iOS with no arguments at all, or with a sender and an event argument, don't work on OS X. Furthermore, in AppKit, controls usually hold a reference to one target and an action pair, whereas you can associate multiple target-action pairs with a control on iOS using the `addTarget:action:forControlEvents:` method.
 
 
@@ -65,38 +69,42 @@ The most straightforward approach to enable layer backing is to set the `wantsLa
 
 In contrast to iOS, on the Mac you should treat the backing layers as an implementation detail. This means you should not try to interact with the layers directly, as AppKit owns those layers. For example, on iOS you could simply say:
 
-    self.layer.backgroundColor = [UIColor redColor].CGColor;
-    
+```objc
+self.layer.backgroundColor = [UIColor redColor].CGColor;
+```
+
 But in AppKit, you shouldn't touch the layer. If you want to interact with the layer in such ways, then you have to go one step further. Overriding `NSView`'s `wantsUpdateLayer` method to return `YES` enables you to change the layer's properties. If you do this though, AppKit will no longer call the view's `drawRect:` method. Instead, `updateLayer` will be called during the view update cycle, and this is where you can modify the layer. 
 
 You can use this, for example, to implement a very simple view with a uniform background color (yes, `NSView` has no `backgroundColor` property):
 
-    @interface ColoredView: NSView
-    
-    @property (nonatomic) NSColor *backgroundColor;
-    
-    @end
-    
-    
-    @implementation ColoredView
-    
-    - (BOOL)wantsUpdateLayer
-    {
-        return YES;
-    }
-    
-    - (void)updateLayer
-    {
-        self.layer.backgroundColor = self.backgroundColor.CGColor;
-    }
-    
-    - (void)setBackgroundColor:(NSColor *)backgroundColor
-    {
-        _backgroundColor = backgroundColor;
-        [self setNeedsDisplay:YES];
-    }
-    
-    @end
+```objc
+@interface ColoredView: NSView
+
+@property (nonatomic) NSColor *backgroundColor;
+
+@end
+
+
+@implementation ColoredView
+
+- (BOOL)wantsUpdateLayer
+{
+    return YES;
+}
+
+- (void)updateLayer
+{
+    self.layer.backgroundColor = self.backgroundColor.CGColor;
+}
+
+- (void)setBackgroundColor:(NSColor *)backgroundColor
+{
+    _backgroundColor = backgroundColor;
+    [self setNeedsDisplay:YES];
+}
+
+@end
+```
 
 This example assumes that layer backing is already enabled for the view tree where you'll insert this view. The alternative to this would be to simply override the `drawRect:` method to draw the colored background. 
 
@@ -123,15 +131,17 @@ Once you change the redraw policy in this way, you might also want to look into 
 
 To create a layer-hosting view, you first have to assign a layer object to the `layer` property, and then set the `wantsLayer` to `YES`. Note that the sequence of these steps is crucial:
 
-    - (instancetype)initWithFrame:(NSRect)frame
-    {
-        self = [super initWithFrame:frame];
-        if (self) {
-            self.layer = [[CALayer alloc] init];
-            self.wantsLayer = YES;
-        }
+```objc
+- (instancetype)initWithFrame:(NSRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.layer = [[CALayer alloc] init];
+        self.wantsLayer = YES;
     }
-    
+}
+```
+
 It's important that you set `wantsLayer` *after* you've set your custom layer.
 
 
@@ -143,15 +153,17 @@ As AppKit views don't have background color properties that you can set to `[NSC
 
 In order to receive events for the mouse cursor entering or exiting the view or being moved within the view, you need to create a tracking area. There's a special override point in `NSView` called `updateTrackingAreas`, which you can use to do this. A common pattern looks like this:
 
-    - (void)updateTrackingAreas
-    {
-        [self removeTrackingArea:self.trackingArea];
-        self.trackingArea = [[NSTrackingArea alloc] initWithRect:CGRectZero 
-                                                         options:NSTrackingMouseEnteredAndExited|NSTrackingInVisibleRect|NSTrackingActiveInActiveApp
-                                                           owner:self 
-                                                        userInfo:nil];
-        [self addTrackingArea:self.trackingArea];
-    }
+```objc
+- (void)updateTrackingAreas
+{
+    [self removeTrackingArea:self.trackingArea];
+    self.trackingArea = [[NSTrackingArea alloc] initWithRect:CGRectZero 
+                                                     options:NSTrackingMouseEnteredAndExited|NSTrackingInVisibleRect|NSTrackingActiveInActiveApp
+                                                       owner:self 
+                                                    userInfo:nil];
+    [self addTrackingArea:self.trackingArea];
+}
+```
 
 AppKit controls have been traditionally backed by `NSCell` subclasses. These cells should not be confused with table view cells or collection view cells in UIKit. AppKit originally made the distinction between views and cells in order to save resources — views would delegate all their drawing to a more lightweight cell object that could be reused for all views of the same type. 
 
@@ -170,44 +182,56 @@ As mentioned above, you should never touch the backing layers of layer-backed vi
 
 There are a few different ways you can trigger an animation on a view. First, you can use the [animator proxy](https://developer.apple.com/library/mac/documentation/cocoa/reference/NSAnimatablePropertyContainer_protocol/Introduction/Introduction.html#//apple_ref/occ/intfm/NSAnimatablePropertyContainer/animator):
 
-    view.animator.alphaValue = .5;
-    
+```objc
+view.animator.alphaValue = .5;
+```
+
 Behind the scenes, this will enable implicit animations on the backing layer, set the alpha value, and disable the implicit animations again.
 
 You can also wrap this into an [animation context](https://developer.apple.com/library/mac/documentation/cocoa/reference/NSAnimationContext_class/Introduction/Introduction.html) in order to get a completion handler callback:
 
-    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context){
-        view.animator.alphaValue = .5;
-    } completionHandler:^{
-        // ...
-    }]; 
+```objc
+[NSAnimationContext runAnimationGroup:^(NSAnimationContext *context){
+    view.animator.alphaValue = .5;
+} completionHandler:^{
+    // ...
+}]; 
+```
 
 In order to influence the duration and the timing function, we have to set these values on the animation context:
 
-    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context){
-        context.duration = 1;
-        context.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
-        view.animator.alphaValue = .5;
-    } completionHandler:^{
-        // ...
-    }]; 
+```objc
+[NSAnimationContext runAnimationGroup:^(NSAnimationContext *context){
+    context.duration = 1;
+    context.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+    view.animator.alphaValue = .5;
+} completionHandler:^{
+    // ...
+}]; 
+```
 
 If you don't need the completion handler, you can also use the shorthand form:
 
-    [NSAnimationContext currentContext].duration = 1;
-    view.animator.alphaValue = .5;    
+```objc
+[NSAnimationContext currentContext].duration = 1;
+view.animator.alphaValue = .5;    
+```
 
 Lastly, you can also enable implicit animations, so that you don't have to explicitly use the animator proxy each time:
 
-    [NSAnimationContext currentContext].allowsImplicitAnimations = YES;
-    view.alphaValue = .5;
+```objc
+[NSAnimationContext currentContext].allowsImplicitAnimations = YES;
+view.alphaValue = .5;
+```
 
 For more control over the animation, you can also use `CAAnimation` instances. Contrary to on iOS, you don't add them directly to the layer (as you're not supposed to touch the layer yourself), but you use the API defined in the [`NSAnimatablePropertyContainer`](https://developer.apple.com/library/mac/documentation/cocoa/reference/NSAnimatablePropertyContainer_protocol/Introduction/Introduction.html), which is implemented by `NSView` and `NSWindow`. For example:
 
-    CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
-    animation.values = @[@1, @.9, @.8, @.7, @.6];
-    view.animations = @{@"alphaValue": animation};
-    view.animator.alphaValue = .5;
+```objc
+CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
+animation.values = @[@1, @.9, @.8, @.7, @.6];
+view.animations = @{@"alphaValue": animation};
+view.animator.alphaValue = .5;
+```
 
 For `frame` animations, it's important to set the view's `layerContentsRedrawPolicy` to `NSViewLayerContentsRedrawOnSetNeedsDisplay`, because the view's content will otherwise be redrawn on every frame.
 
@@ -233,13 +257,14 @@ Another difference from `UIImage` is that `NSImage` will cache the result when i
 
 But working with images on the Mac isn't always more complex than on iOS. `NSImage` provides a very easy way to draw a new image, whereas on iOS you would have to create a bitmap context, then create a `CGImage` from that, and finally use it to initialize an `UIImage` instance. With `NSImage`, you can simply do:
 
-    [NSImage imageWithSize:(NSSize)size 
-                flipped:(BOOL)drawingHandlerShouldBeCalledWithFlippedContext 
-         drawingHandler:^BOOL (NSRect dstRect) 
-    {
-        // your drawing commands here...
-    }];
-
+```objc
+[NSImage imageWithSize:(NSSize)size 
+            flipped:(BOOL)drawingHandlerShouldBeCalledWithFlippedContext 
+     drawingHandler:^BOOL (NSRect dstRect) 
+{
+    // your drawing commands here...
+}];
+```
 
 ### Colors
 
@@ -252,7 +277,7 @@ A common task is to use a color in your app that your designers have specified f
 
 ### Text System
 
-With [TextKit](http://www.objc.io/issue-5/getting-to-know-textkit.html), iOS 7 finally got an equivalent to what has been around on the Mac for ages as the [Cocoa Text System](https://developer.apple.com/library/mac/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextSystemArchitecture/ArchitectureOverview.html). But Apple didn't just transfer the system from the Mac to iOS; instead, Apple made some significant changes to it. 
+With [TextKit](/issues/5-ios7/getting-to-know-textkit/), iOS 7 finally got an equivalent to what has been around on the Mac for ages as the [Cocoa Text System](https://developer.apple.com/library/mac/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextSystemArchitecture/ArchitectureOverview.html). But Apple didn't just transfer the system from the Mac to iOS; instead, Apple made some significant changes to it. 
 
 For example, AppKit exposes the `NSTypesetter` and `NSGlyphGenerator`, both of which you can subclass to customize their behaviors. On iOS, those classes are not exposed, but some of the hooks for customization are available via the `NSLayoutManagerDelegate` protocol. 
 
@@ -274,7 +299,7 @@ Take a look at Apple's [sandboxing guides](https://developer.apple.com/app-sandb
 
 ## What's Unique
 
-There are many things you can only do on the Mac, mostly either due to its different interaction model or to its more liberal security policies. In this issue, we have articles covering some of these things in depth: [cross-process communication](/issue-14/xpc.html), [making an app scriptable](/issue-14/scripting-data.html), [scripting other apps in the sandbox](/issue-14/sandbox-scripting.html), and creating a [plugin infrastructure](/issue-14/plugins.html) for your apps.
+There are many things you can only do on the Mac, mostly either due to its different interaction model or to its more liberal security policies. In this issue, we have articles covering some of these things in depth: [cross-process communication](/issues/14-mac/xpc/), [making an app scriptable](/issues/14-mac/scripting-data/), [scripting other apps in the sandbox](/issues/14-mac/sandbox-scripting/), and creating a [plugin infrastructure](/issues/14-mac/plugins/) for your apps.
 
 Of course, that's just a small subset of features unique to the Mac, but it gives you a good idea of the aspects that iOS 8 just starts to scratch the surface of in terms of extensibility and communication between apps. There's, of course, much more to explore: Drag and Drop, Printing, Bindings, OpenCL, to name just a few examples.
 

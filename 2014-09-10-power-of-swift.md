@@ -3,7 +3,9 @@ title:  "The Power of Swift"
 category: "16"
 date: "2014-09-10 11:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: https://twitter.com/chriseidhof
 ---
 
 Before writing anything else, I have to admit I'm very biased: I love Swift. I think it's the best thing that happened to the Cocoa ecosystem since I started. I want to let you know why I think this by sharing my experiences with Swift, Objective-C, and Haskell. This article is not really about any best practices (at the moment of writing, Swift is much too young to have any established best practices), but rather about showing some examples of where Swift really shines.
@@ -28,7 +30,7 @@ One of my favorite features of Swift is the use of optionals. Optionals allow us
 
 For example, consider the following snippet in Objective-C:
 
-```objectivec
+```objc
 - (NSAttributedString *)attributedString:(NSString *)input 
 {
     return [[NSAttributedString alloc] initWithString:input];
@@ -100,7 +102,7 @@ The `Either` type is used a lot in functional programming when you want to repre
 
 > Theoretical aside: sometimes enums are so-called *sum types*, because they represent a sum of different types. In the case of `Either`, they represent the sum of `A` and `B`. Structs or tuples are called *product types* because they represent the product of different types. See also: [algebraic data types](http://en.wikipedia.org/wiki/Algebraic_data_type).
 
-Knowing when to use enums and when to use other data types (such as [classes or structs](/issue-16/swift-classes-vs-structs.html)) can be a bit difficult. They are most useful when you have a closed set of possible values. For example, if we design a Swift wrapper around the GitHub API, we could represent the endpoints with an enum. There's a `/zen` endpoint, which doesn't take any parameters. To fetch a user profile, we have to provide the username, and finally, to display a user's repositories, we provide the username and a key that shows whether or not to sort the result ascendingly:
+Knowing when to use enums and when to use other data types (such as [classes or structs](/issues/16-swift/swift-classes-vs-structs/)) can be a bit difficult. They are most useful when you have a closed set of possible values. For example, if we design a Swift wrapper around the GitHub API, we could represent the endpoints with an enum. There's a `/zen` endpoint, which doesn't take any parameters. To fetch a user profile, we have to provide the username, and finally, to display a user's repositories, we provide the username and a key that shows whether or not to sort the result ascendingly:
 
 ```swift
 enum Github {
@@ -228,7 +230,7 @@ Not only have we made it easier for consumers of this function to immediately un
 
 ## Immutability
 
-Another really nice feature of Swift is the built-in support for immutability. In Cocoa, many of the APIs already show the value of immutability. For a good overview of why this is important, see also [Value Objects](/issue-7/value-objects.html). For example, as Cocoa developers, we use a lot of pairs of classes (`NSString` vs. `NSMutableString`, `NSArray` vs. `NSMutableArray`). When you receive an `NSString` value, you can assume it won't be changed. To be completely sure, you still have to `copy` it, and then you know that you have a unique immutable copy that won't be changed.
+Another really nice feature of Swift is the built-in support for immutability. In Cocoa, many of the APIs already show the value of immutability. For a good overview of why this is important, see also [Value Objects](/issues/7-foundation/value-objects/). For example, as Cocoa developers, we use a lot of pairs of classes (`NSString` vs. `NSMutableString`, `NSArray` vs. `NSMutableArray`). When you receive an `NSString` value, you can assume it won't be changed. To be completely sure, you still have to `copy` it, and then you know that you have a unique immutable copy that won't be changed.
 
 In Swift, immutability is built directly into the language. For example, if you want to create a mutable string, you would write the following code:
 

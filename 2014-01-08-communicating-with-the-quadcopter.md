@@ -3,7 +3,9 @@ title: "Communicating with the Quadcopter"
 category: "8"
 date: "2014-01-08 10:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
 ---
 
 
@@ -33,9 +35,9 @@ The AR Drone interface is built on top of three UDP ports. As discussed above, u
 
 The IP address of the drone is `192.168.1.1` and there are three ports we can use to connect over UDP:
 
- * Navigation Data Port = 5554
- * On-Board Video Port = 5555
- * AT Command Port = 5556
+* Navigation Data Port = 5554
+* On-Board Video Port = 5555
+* AT Command Port = 5556
 
 We need to use the *AT Command Port* to send commands to the drone. We can use the *Navigation Data Port* to retrieve data back from the drone. We'll talk about these two separately since they work quite differently. That said, they both rely on UDP sockets. Let's first see how that is done.
 
@@ -49,23 +51,27 @@ The C API we'll use is defined in `sys/socket.h`, `netinet/in.h`, `arpa/inet.h`.
 
 First off, we'll create a *socket* with:
 
-    int nativeSocket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+```objc
+int nativeSocket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+```
 
 `PF_INET` is the domain of the socket. In this case, *internet*. `SOCK_DGRAM` specified that type to be a *datagram* socket (as opposed to a stream socket). Finally, `IPPROTO_UDP` specifies that the protocol is *UDP*. This socket now works similarly to a file descriptor that we would have obtained by calling the `open(2)` function.
 
 Next, we'll create a `struct` with our own address and the address of the drone. The type is `struct sockaddr_in` -- a socket address. We'll use `sin_me` for *our* address, and `sin_other` for the *other* end's address:
 
-    struct sockaddr_in sin_me = {};
-    sin_me.sin_len = (__uint8_t) sizeof(sin);
-    sin_me.sin_family = AF_INET;
-    sin_me.sin_port = htons(0);
-    sin_me.sin_addr.s_addr = htonl(INADDR_ANY);
-    
-    struct sockaddr_in sin_other = {};
-    sin_other.sin_len = (__uint8_t) sizeof(sin_other);
-    sin_other.sin_family = AF_INET;
-    sin_other.sin_port = htons(self.port);
-    int r = inet_aton([self.address UTF8String], &sin_other.sin_addr)
+```objc
+struct sockaddr_in sin_me = {};
+sin_me.sin_len = (__uint8_t) sizeof(sin);
+sin_me.sin_family = AF_INET;
+sin_me.sin_port = htons(0);
+sin_me.sin_addr.s_addr = htonl(INADDR_ANY);
+
+struct sockaddr_in sin_other = {};
+sin_other.sin_len = (__uint8_t) sizeof(sin_other);
+sin_other.sin_family = AF_INET;
+sin_other.sin_port = htons(self.port);
+int r = inet_aton([self.address UTF8String], &sin_other.sin_addr)
+```
 
 Initializing the `struct` with ` = {}` is a good practice in general, regardless of what struct you use, because it ensures that everything starts out being zero -- otherwise the values would be undefined, based on whatever happens to be on the stack. We'd easily run into odd bugs that only happen sometimes.
 
@@ -77,11 +83,15 @@ The drone's address is set with `inet_aton(3)`, which converts the C string `192
 
 We now bind the socket to our socket address with:
 
-    int r2 = bind(nativeSocket, (struct sockaddr *) &sin_me, sizeof(sin_me));
+```objc
+int r2 = bind(nativeSocket, (struct sockaddr *) &sin_me, sizeof(sin_me));
+```
 
 Finally, we connect the other end's socket address with the socket:
 
-    int r3 = connect(nativeSocket, (struct sockaddr *) &sin_other, sizeof(sin_other));
+```objc
+int r3 = connect(nativeSocket, (struct sockaddr *) &sin_other, sizeof(sin_other));
+```
 
 This last step is optional. We could also specify the destination address every time we send a packet.
 
@@ -91,12 +101,14 @@ In our sample code, this is implemented inside `-[DatagramSocket configureIPv4Wi
 
 Once we have a socket, sending data is a trivial matter. If we have an `NSData` object called `data`, we can call:
 
-    ssize_t const result = sendto(nativeSocket, [data bytes], data.length, 0, NULL, 0);
-    if (result < 0) {
-        NSLog(@"sendto() failed: %s (%d)", strerror(errno), errno);
-    } else if (result != data.length) {
-        NSLog(@"sendto() failed to send all bytes. Sent %ld of %lu bytes.", result, (unsigned long) data.length);
-    }
+```objc
+ssize_t const result = sendto(nativeSocket, [data bytes], data.length, 0, NULL, 0);
+if (result < 0) {
+    NSLog(@"sendto() failed: %s (%d)", strerror(errno), errno);
+} else if (result != data.length) {
+    NSLog(@"sendto() failed to send all bytes. Sent %ld of %lu bytes.", result, (unsigned long) data.length);
+}
+```
 
 Note that [UDP](https://en.wikipedia.org/wiki/User_Datagram_Protocol) is unreliable by design. Once we've called `sendto(2)`, there's nothing more we can do to know what's happening to the data being transmitted over the internet.
 
@@ -104,28 +116,32 @@ Note that [UDP](https://en.wikipedia.org/wiki/User_Datagram_Protocol) is unrelia
 
 Receiving data is, at its core, quite simple too. The function `recvfrom(2)` expects two arguments: The first argument is the socket address `sin_other`, which is the socket we want to receive data from. The second argument is a pointer to a buffer, into which the data will be written. Upon success, it returns the number of bytes read:
 
-    NSMutableData *data  = [NSMutableData dataWithLength:65535];
-    ssize_t count = recvfrom(nativeSocket, [data mutableBytes], [data length], 0, (struct sockaddr *) &sin_other, &length);
-    if (count < 0) {
-        NSLog(@"recvfrom() failed: %s (%d)", strerror(errno), errno);
-        data = nil;
-    } else {
-        data.length = count;
-    }
+```objc
+NSMutableData *data  = [NSMutableData dataWithLength:65535];
+ssize_t count = recvfrom(nativeSocket, [data mutableBytes], [data length], 0, (struct sockaddr *) &sin_other, &length);
+if (count < 0) {
+    NSLog(@"recvfrom() failed: %s (%d)", strerror(errno), errno);
+    data = nil;
+} else {
+    data.length = count;
+}
+```
 
 One thing to note, though, is that the `recvfrom(2)` call is blocking. The thread that calls it will wait until it can read data. Usually that's not what we want. With [GCD](https://developer.apple.com/library/ios/documentation/Performance/Reference/GCD_libdispatch_Ref), we can set up an event source that will fire whenever the socket has data available to be read. This is the recommended way to read data from a socket.
 
 In our case, the `DatagramSocket` class implements this method to set up the event source:
 
-    - (void)createReadSource
-    {
-        self.readEventSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, self.nativeSocket, 0, self.readEventQueue);
-        __weak DatagramSocket *weakSelf = self;
-        dispatch_source_set_event_handler(self.readEventSource, ^{
-            [weakSelf socketHasBytesAvailable];
-        });
-        dispatch_resume(self.readEventSource);
-    }
+```objc
+- (void)createReadSource
+{
+    self.readEventSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, self.nativeSocket, 0, self.readEventQueue);
+    __weak DatagramSocket *weakSelf = self;
+    dispatch_source_set_event_handler(self.readEventSource, ^{
+        [weakSelf socketHasBytesAvailable];
+    });
+    dispatch_resume(self.readEventSource);
+}
+```
 
 Event sources start out in a suspended state. That's why we must call `dispatch_resume(3)`. Otherwise, no event would ever get delivered to the source. The `-socketHasBytesAvailable` then calls `recvfrom(2)` on the socket.
 
@@ -133,20 +149,24 @@ Event sources start out in a suspended state. That's why we must call `dispatch_
 
 As a small sidestep, we'll point out how the `nativeSocket` property:
 
-    @property (nonatomic) int nativeSocket;
+```objc
+@property (nonatomic) int nativeSocket;
+```
 
 is implemented:
 
-    @synthesize nativeSocket = _nativeSocket;
-    - (void)setNativeSocket:(int)nativeSocket;
-    {
-        _nativeSocket = nativeSocket + 1;
-    }
-    
-    - (int)nativeSocket
-    {
-        return _nativeSocket - 1;
-    }
+```objc
+@synthesize nativeSocket = _nativeSocket;
+- (void)setNativeSocket:(int)nativeSocket;
+{
+    _nativeSocket = nativeSocket + 1;
+}
+
+- (int)nativeSocket
+{
+    return _nativeSocket - 1;
+}
+```
 
 We're subtracting one from the underlying instance variable. The reason for this is that, firstly, the Objective-C runtime guarantees all instance variables to be initialized to zero after `-alloc` has been called. And secondly, sockets are considered valid as long as they're non-negative, i.e. zero and up are valid socket numbers.
 
@@ -157,102 +177,117 @@ By offsetting the value, we can safely check if the socket value has been set ev
 
 Our [`DatagramSocket` class](https://github.com/objcio/issue-8-quadcopter-navigator/blob/master/DatagramSocket.m) wraps all the low-level UDP socket workings. The `DroneCommunicator` class uses it to communicate with the drone on both the *Navigation Data Port* 5554 and the *AT Command Port* 5556, like this:
 
-    NSError *error = nil;
-    self.commandSocket = [DatagramSocket ipv4socketWithAddress:DroneAddress
-                                                          port:ATCommandPort
-                                               receiveDelegate:self
-                                                  receiveQueue:[NSOperationQueue mainQueue]
-                                                         error:&error];
-    
-    self.navigationDataSocket = [DatagramSocket ipv4socketWithAddress:DroneAddress
-                                                                 port:NavigationDataPort
-                                                      receiveDelegate:self
-                                                         receiveQueue:[NSOperationQueue mainQueue]
-                                                                error:&error];
+```objc
+NSError *error = nil;
+self.commandSocket = [DatagramSocket ipv4socketWithAddress:DroneAddress
+                                                      port:ATCommandPort
+                                           receiveDelegate:self
+                                              receiveQueue:[NSOperationQueue mainQueue]
+                                                     error:&error];
+
+self.navigationDataSocket = [DatagramSocket ipv4socketWithAddress:DroneAddress
+                                                             port:NavigationDataPort
+                                                  receiveDelegate:self
+                                                     receiveQueue:[NSOperationQueue mainQueue]
+                                                            error:&error];
+```
 
 The delegate method then branches based on the socket:
 
-    - (void)datagramSocket:(DatagramSocket *)datagramSocket didReceiveData:(NSData *)data;
-    {
-        if (datagramSocket == self.navigationDataSocket) {
-            [self didReceiveNavigationData:data];
-        } else if (datagramSocket == self.commandSocket) {
-            [self didReceiveCommandResponseData:data];
-        }
+```objc
+- (void)datagramSocket:(DatagramSocket *)datagramSocket didReceiveData:(NSData *)data;
+{
+    if (datagramSocket == self.navigationDataSocket) {
+        [self didReceiveNavigationData:data];
+    } else if (datagramSocket == self.commandSocket) {
+        [self didReceiveCommandResponseData:data];
     }
+}
+```
 
 The only data that our sample app processes is the navigation data. This is done by the `DroneNavigationState` class, like this:
 
-    - (void)didReceiveNavigationData:(NSData *)data;
-    {
-        DroneNavigationState *state = [DroneNavigationState stateFromNavigationData:data];
-        if (state != nil) {
-            self.navigationState = state;
-        }
+```objc
+- (void)didReceiveNavigationData:(NSData *)data;
+{
+    DroneNavigationState *state = [DroneNavigationState stateFromNavigationData:data];
+    if (state != nil) {
+        self.navigationState = state;
     }
-
+}
+```
 
 ## Sending Commands
 
 With the UDP socket up and running, sending commands is relatively straightforward. The so-called *AT Command Port* accepts plain ASCII commands, which look something like this:
 
-    AT*CONFIG=1,"general:navdata_demo","FALSE"
-    AT*CONFIG=2,"control:altitude_max","1600"
-    AT*CONFIG=3,"control:flying_mode","1000"
-    AT*COMWDG=4
-    AT*FTRIM=5
+```objc
+AT*CONFIG=1,"general:navdata_demo","FALSE"
+AT*CONFIG=2,"control:altitude_max","1600"
+AT*CONFIG=3,"control:flying_mode","1000"
+AT*COMWDG=4
+AT*FTRIM=5
+```
 
 The [AR Drone SDK](https://projects.ardrone.org/projects/show/ardrone-api) contains a PDF document called *ARDrone Developer Guide*, which describes all AT commands in more detail.
 
 We created a series of convenience and helper methods inside the `DroneCommunicator` class, so that the above can be sent with:
 
 
-    [self setConfigurationKey:@"general:navdata_demo" toString:@"FALSE"];
-    [self setConfigurationKey:@"control:altitude_max" toString:@"1600"];
-    [self setConfigurationKey:@"control:flying_mode" toString:@"1000"];
-    [self sendCommand:@"COMWDG" arguments:nil];
-    [self sendCommand:@"FTRIM" arguments:nil];
+```objc
+[self setConfigurationKey:@"general:navdata_demo" toString:@"FALSE"];
+[self setConfigurationKey:@"control:altitude_max" toString:@"1600"];
+[self setConfigurationKey:@"control:flying_mode" toString:@"1000"];
+[self sendCommand:@"COMWDG" arguments:nil];
+[self sendCommand:@"FTRIM" arguments:nil];
+```
 
 All drone commands start with `AT*`, followed by the command name, and `=`, followed by the arguments separated by commas. The first argument is the sequence number of the command.
 
 For this, we created `-sendCommand:arguments:`, which inserts the command sequence number at index 0:
 
-    - (int)sendCommand:(NSString *)command arguments:(NSArray *)arguments;
-    {
-        NSMutableArray *args2 = [NSMutableArray arrayWithArray:arguments];
-        self.commandSequence++;
-        NSString *seq = [NSString stringWithFormat:@"%d", self.commandSequence];
-        [args2 insertObject:seq atIndex:0];
-        [self sendCommandWithoutSequenceNumber:command arguments:args2];
-        return self.commandSequence;
-    }
+```objc
+- (int)sendCommand:(NSString *)command arguments:(NSArray *)arguments;
+{
+    NSMutableArray *args2 = [NSMutableArray arrayWithArray:arguments];
+    self.commandSequence++;
+    NSString *seq = [NSString stringWithFormat:@"%d", self.commandSequence];
+    [args2 insertObject:seq atIndex:0];
+    [self sendCommandWithoutSequenceNumber:command arguments:args2];
+    return self.commandSequence;
+}
+```
 
 and in turn calls `-sendCommandWithoutSequenceNumber:arguments:`, which prefixes the `AT*` and concatenates the command and arguments:
 
-    - (void)sendCommandWithoutSequenceNumber:(NSString *)command arguments:(NSArray *)arguments;
-    {
-        NSMutableString *atString = [NSMutableString stringWithString:@"AT*"];
-        [atString appendString:command];
-        NSArray* processedArgs = [arguments valueForKey:@"description"];
-        if (0 < arguments.count) {
-            [atString appendString:@"="];
-            [atString appendString:[processedArgs componentsJoinedByString:@","]];
-        }
-        [atString appendString:@"\r"];
-        [self sendString:atString];
+```objc
+- (void)sendCommandWithoutSequenceNumber:(NSString *)command arguments:(NSArray *)arguments;
+{
+    NSMutableString *atString = [NSMutableString stringWithString:@"AT*"];
+    [atString appendString:command];
+    NSArray* processedArgs = [arguments valueForKey:@"description"];
+    if (0 < arguments.count) {
+        [atString appendString:@"="];
+        [atString appendString:[processedArgs componentsJoinedByString:@","]];
     }
+    [atString appendString:@"\r"];
+    [self sendString:atString];
+}
+```
 
 Finally, the completed string is converted to data and passed to the socket by:
 
-    - (void)sendString:(NSString*)string
-    {
-        NSData *data = [string dataUsingEncoding:NSASCIIStringEncoding];
-        if (data != nil) {
-            [self.commandSocket asynchronouslySendData:data];
-        } else {
-            NSLog(@"Unable to convert string to ASCII: %@", string);
-        }
+```objc
+- (void)sendString:(NSString*)string
+{
+    NSData *data = [string dataUsingEncoding:NSASCIIStringEncoding];
+    if (data != nil) {
+        [self.commandSocket asynchronouslySendData:data];
+    } else {
+        NSLog(@"Unable to convert string to ASCII: %@", string);
     }
+}
+```
 
 ### Encoding Floating Point Values
 
@@ -260,23 +295,29 @@ For some strange reason, the people that engineered the drone protocol decided t
 
 Let's say we'd want to tell the drone to move forward at the relative speed 0.5. The `float` value 0.5 looks like this in binary:
 
-    0011 1111 0000 0000 0000 0000 0000 0000
+```objc
+0011 1111 0000 0000 0000 0000 0000 0000
+```
 
 If we reinterpret this value as a 32-bit integer, it's 1056964608. Hence, we'd send:
 
-    AT*PCMD=6,1,0,1056964608,0,0
+```objc
+AT*PCMD=6,1,0,1056964608,0,0
+```
 
 to the drone.
 
 In our case, we're using numbers wrapped in `NSNumber` and the resulting code looks like this:
 
-    NSNumber *number = (id) self.flightState[i];
-    union {
-        float f;
-        int i;
-    } u;
-    u.f = number.floatValue;
-    [result addObject:@(u.i)];
+```objc
+NSNumber *number = (id) self.flightState[i];
+union {
+    float f;
+    int i;
+} u;
+u.f = number.floatValue;
+[result addObject:@(u.i)];
+```
 
 The trick here is to use a `union` -- a lesser-known part of the C language. Unions allow multiple different types (in this case, `int` and `float`) to reside at the same memory location. We then store the floating point value into `u.f` and read the integer value from `u.i`.
 

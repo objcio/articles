@@ -3,10 +3,12 @@ title: "Face Recognition with OpenCV"
 category: "21"
 date: "2015-02-10 04:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/ekurutepe\">Engin Kurutepe</a>"
+author:
+  - name: Engin Kurutepe
+    url: https://twitter.com/ekurutepe
 ---
 
-##A Bit of Background
+## A Bit of Background
 
 OpenCV is an open-source computer vision and machine learning library. It contains thousands of optimized algorithms, which provide a common toolkit for various computer vision applications. According to the project's [about page](http://opencv.org/about.html), OpenCV is being used in many applications, ranging from stitching Google's Street View images to running interactive art shows.
 
@@ -16,9 +18,9 @@ In 1999, [Half-Life](http://en.wikipedia.org/wiki/Half-Life_(video_game)) was re
 
 In this article, I will provide an overview of OpenCV from an iOS developer's perspective and introduce a few fundamental classes and concepts. Additionally, I cover how to integrate OpenCV to your iOS projects, and share the basics of Objective-C++. Finally, we'll look at a demo project to see how OpenCV can be used on an iOS device to perform facial detection and recognition.
 
-##Overview of OpenCV
+## Overview of OpenCV
 
-###Concepts
+### Concepts
 
 OpenCV is a C++ API consisting of various modules containing a wide range of functions, from low-level image color space conversions to high-level machine learning tools.
 
@@ -26,7 +28,7 @@ Using C++ APIs for iOS development is not something most of us do daily. You nee
 
 OpenCV declares the `cv` namespace, such that classes are prefixed with `cv::`, like `cv::Mat`, `cv::Algorithm`, etc. It is possible to use `using namespace cv` in your `.mm` files in order to be able to drop the `cv::` prefixes for a lot of classes, but you will still need to write them out for classes like `cv::Rect` and `cv::Point`, due to collisions with `Rect` and `Point` defined in `MacTypes.h`. While it's a matter of personal preference, I prefer to use `cv::` everywhere for the sake of consistency.
 
-###Modules
+### Modules
 
 Below is a list of the most important modules as described in the [official documentation](http://docs.opencv.org/modules/core/doc/intro.html).
 
@@ -43,7 +45,7 @@ Below is a list of the most important modules as described in the [official docu
 - a few more helper modules such as Python bindings and user-contributed algorithms
 
 
-###Fundamental Classes and Operations
+### Fundamental Classes and Operations
 
 OpenCV contains hundreds of classes. Let's limit ourselves to a few fundamental classes and operations in the interest of brevity, and refer to the [full documentation](http://docs.opencv.org/modules/core/doc/core.html) for further reading. Going over these core classes should be enough to get a feel for the logic behind the library.
 
@@ -63,9 +65,9 @@ The data format for each pixel is retrieved by the `type()` function. In additio
 
 `Algorithm` is an abstract base class for many algorithms implemented in OpenCV, including the `FaceRecognizer` we will be using in the demo project. It provides an API not unlike `CIFilter` in Apple's Core Image framework, where you can create an `Algorithm` by calling `Algorithm::create()` with the name of the algorithm, and can set and get various parameters using the `get()` and `set()` methods, vaguely similar to key-value coding. Moreover, the `Algorithm` base provides functionality to save and load parameters to/from XML or YAML files.
 
-##Using OpenCV on iOS
+## Using OpenCV on iOS
 
-###Adding OpenCV to Your Project
+### Adding OpenCV to Your Project
 
 You have three options to integrate OpenCV into your iOS project.
 
@@ -73,7 +75,7 @@ You have three options to integrate OpenCV into your iOS project.
 - Download the official [iOS framework release](http://opencv.org/downloads.html) and add the framework to your project.
 - Pull the sources from [GitHub](https://github.com/Itseez/opencv) and build the library on your own according to the instructions [here](http://docs.opencv.org/doc/tutorials/introduction/ios_install/ios_install.html#ios-installation).
 
-###Objective-C++
+### Objective-C++
 
 As mentioned previously, OpenCV is a C++ API, and thus cannot be directly used in Swift and Objective-C code. It is, however, possible to use OpenCV in Objective-C++ files.
 
@@ -83,7 +85,7 @@ The second important point when using Objective-C++ in your iOS project is leaki
 
 For more details on how exactly C++ and Objective-C work together, have a look at [this tutorial](http://www.raywenderlich.com/62989/introduction-c-ios-developers-part-1) by [Matt Galloway](https://twitter.com/mattjgalloway).
 
-##Demo: Facial Detection and Recognition
+## Demo: Facial Detection and Recognition
 
 So, now that we have an overview of OpenCV and how to integrate it into our apps, let's build a small demo app with it: an app that uses the video feed from the iPhone camera to continuously detect faces and draw them on screen. When the user taps on a face, our app will attempt to recognize the person. The user must then either tap "Correct" if our recognizer was right, or tap on the correct person to correct the prediction if it was wrong. Our face recognizer then learns from its mistakes and gets better over time:
 
@@ -91,7 +93,7 @@ So, now that we have an overview of OpenCV and how to integrate it into our apps
 
 The source code for the demo app is available on [GitHub](https://github.com/objcio/issue-21-OpenCV-FaceRec).
 
-###Live Video Capture
+### Live Video Capture
 
 The highgui module in OpenCV comes with a class, `CvVideoCamera`, that abstracts the iPhone camera and provides our app with a video feed through a delegate method, `- (void)processImage:(cv::Mat&)image`. An instance of the `CvVideoCamera` can be set up like this:
 
@@ -107,7 +109,7 @@ videoCamera.delegate = self;
 
 Now that we have set up our camera with a 30-frames-per-second frame rate, our implementation of `processImage:` will be called 30 times per second. Since our app will detect faces continuously, we should perform our facial detection here. Please note that if the facial detection at each frame takes longer than 1/30 seconds, we will be dropping frames.
 
-###Face Detection
+### Face Detection
 
 You don't actually need OpenCV for facial detection, since Core Image already provides the `CIDetector` class. This can perform pretty good facial detection, and it is optimized and very easy to use:
 
@@ -153,7 +155,7 @@ During detection, the trained classifier is moved across all the pixels in the i
 
 Once we have at least one face rectangle, either using a `CIDetector` or an OpenCV `CascadeClassifier`, we can try to identify the person in the image.
 
-###Facial Recognition
+### Facial Recognition
 
 OpenCV comes with three algorithms for recognizing faces: Eigenfaces, Fisherfaces, and Local Binary Patterns Histograms (LBPH). Please read the very informative OpenCV [documentation](http://docs.opencv.org/modules/contrib/doc/facerec/facerec_tutorial.html#local-binary-patterns-histograms) if you would like to know how they work and how they differ from each other.
 
@@ -215,6 +217,6 @@ Here again we do the conversion from `UIImage` to `cv::Mat` and from `int` label
 
 This "predict, get feedback, update cycle" is known as [supervised learning](http://en.wikipedia.org/wiki/Supervised_learning) in literature.
 
-##Conclusion
+## Conclusion
 
 OpenCV is a very powerful and multi-faceted framework covering many fields which are still active research areas. Attempting to provide a fully detailed instruction manual in an article would be a fool's errand. Therefore, this article is meant to be a very high-level overview of the OpenCV framework. I attempted to cover some practical tips to integrate OpenCV in your iOS project, and went through a facial recognition example to show how OpenCV can be used in a real project. If you think OpenCV could help you for your project, the official OpenCV documentation is mostly very well written and very detailed. Go ahead and create the next big hit app!

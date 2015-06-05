@@ -3,14 +3,18 @@ title:  "Video Toolbox and Hardware Acceleration"
 category: "23"
 date: "2015-04-13 09:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/feepk\">Felix Paul Kühne</a> and <a href=\"https://twitter.com/_caro_n\">Carola Nitz</a>"
+author:
+  - name: Felix Paul Kühne
+    url: https://twitter.com/feepk
+  - name: Carola Nitz
+    url: https://twitter.com/_caro_n
 ---
 
 The process of decoding a video on OS X and iOS is complex.
 
 In order to get a grasp on what is happening on our machines, we first need to understand the underlying concepts. Only then can we talk about implementation details.
 
-##A Brief History of Hardware Accelerated Decoding on Macs
+## A Brief History of Hardware Accelerated Decoding on Macs
 
 CPU load is expensive and codecs are complex. When video decoding with software on computers became popular, it was revolutionary. With the introduction of QuickTime 1.0 and its C-based API in the early 90s, you were able to have a thumbnail-sized video playing, with up to 32,768 possible colors per pixel decoded solely by the CPU. Up until this point, only specialized computers with certain graphics hardware were able to play color video.
 
@@ -44,9 +48,9 @@ The A7 SoC added support for H.264’s profile 110, which allows the individual 
 
 While the A8 seems to include basic support for the fifth-generation codec HEVC / H.265, as documented in the FaceTime specifications for the equipped devices, it is not exposed to third-party applications. This is expected to change in subsequent iOS releases,[^5] but might be limited to future devices.
 
-##Video Toolbox
+## Video Toolbox
 
-###When Do You Need Direct Access to Video Toolbox?
+### When Do You Need Direct Access to Video Toolbox?
 
 Out of the box, Apple’s SDKs provide a media player that can deal with any file that was playable by the QuickTime Player. The only exception is for contents purchased from the iTunes Store which are protected by FairPlay2, the deployed Digital Rights Management. In addition, Apple's SDKs include support for Apple’s scaleable HTTP streaming protocol [HTTP Live Streaming (HLS)](http://en.wikipedia.org/wiki/HTTP_Live_Streaming) on iOS and OS X 10.7 and above. HLS typically consists of small chunks of H.264/AAC video stored in the [MPEG-TS container format](http://en.wikipedia.org/wiki/MPEG_transport_stream), and playlists that allow the client application to switch dynamically between different versions, depending on the available hardware.
 
@@ -56,7 +60,7 @@ However, there are more container formats than just MP4 — for example, MKV. Th
 
 A final word on Video Toolbox deployment on iOS devices. It was introduced as a private framework in iOS 4 and was recently made public in iOS 8. When building applications with a deployment target less than 8.0, including Video Toolbox won't lead to any problems, since the actual symbols stayed the same and the API is virtually unchanged. However, any worker session creation will be terminated with the undocumented error -12913, as the framework is not available for sandboxed applications on previous OS releases due to security concerns.
 
-###Basic Concepts of Video Toolbox Usage
+### Basic Concepts of Video Toolbox Usage
 
 Video Toolbox is a C API depending on the CoreMedia, CoreVideo, and CoreFoundation frameworks and based on sessions with three different types available: compression, decompression, and pixel transfer. It derives various types from the CoreMedia and CoreVideo frameworks for time and frame management, such as CMTime or CVPixelBuffer.
 
@@ -64,15 +68,15 @@ To illustrate the basic concepts of Video Toolbox, the following paragraphs will
 
 To initialize a decompression session, Video Toolbox needs to know about the input format as part of a `CMVideoFormatDescriptionRef` structure, and — unless you want to use the undocumented default — your specified output format as plain CFDictionary reference. A video format description can be obtained from an AVAssetTrack instance or created manually with `CMVideoFormatDescriptionCreate` if you are using a custom demuxer. Finally, decoded data is provided through an asynchronous callback mechanism. The callback reference and the video format description are required by `VTDecompressionSessionCreate`, while setting the output format is optional.
 
-###What Is a Video Format Description?
+### What Is a Video Format Description?
 
 It is an opaque structure describing the encoded video. It includes a [FourCC](http://en.wikipedia.org/wiki/FourCC) indicating the used codec, the video dimensions, and a dictionary documented as `extensions`. What are those? On OS X, hardware accelerated decoding is optional and disabled by default. To enable it, the `kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder` key must be set, optionally combined with `kVTVideoDecoderSpecification_RequireHardwareAcceleratedVideoDecoder` set to fail if hardware accelerated playback is not available. This is not needed on iOS, as accelerated decoding is the only available option. Furthermore, `extensions` allows you to forward metadata required by modern video codecs such as MPEG-4 Part 2 or H.264 to the decoder.[^6] Additionally, it may contain metadata to handle support for non-square pixels with the `CVPixelAspectRatio` key.
 
-###The Video Output Format
+### The Video Output Format
 
 This is a plain CFDictionary. The result of a decompression session is a raw, uncompressed video image. To optimize for speed, it is preferable to have the hardware decoder output's native [chroma format](http://en.wikipedia.org/wiki/Chroma_subsampling), which appears to be `kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange`. However, a number of further formats are available, and transformation is performed in a rather efficient way using the GPU. It can be set using the `kCVPixelBufferPixelFormatTypeKey` key. We also need to set the dimensions of the output using `kCVPixelBufferWidthKey` and `kCVPixelBufferHeightKey` as plain integers. An optional key worth mentioning is `kCVPixelBufferOpenGLCompatibilityKey`, which allows direct drawing of the decoded image in an OpenGL context without copying the data back and forth between the main bus and the GPU. This is sometimes referenced as a *0-copy pipeline*, as no copy of the decoded image is created for drawing.[^7]
 
-###Data Callback Record
+### Data Callback Record
 
 `VTDecompressionOutputCallbackRecord` is a simple structure with a pointer to the callback function invoked when frame decompression (`decompressionOutputCallback`) is complete. Additionally, you need to provide the instance of where to find the callback function (`decompressionOutputRefCon`). The `VTDecompressionOutputCallback` function consists of seven parameters:
 
@@ -86,15 +90,15 @@ This is a plain CFDictionary. The result of a decompression session is a raw, un
 
 The callback is invoked for any decoded or dropped frame. Therefore, your implementation should be highly optimized and strictly avoid any copying. The reason is that the decoder is blocked until the callback returns, which can lead to decoder congestion and further complications. Additionally, note that the decoder will always return the frames in the decoding order, which is absolutely not guaranteed to be the playback order. Frame reordering is up to the developer.
 
-###Decoding Frames
+### Decoding Frames
 
 Once your session is created, feeding frames to the decoder is a walk in the park. It is a matter of calling `VTDecompressionSessionDecodeFrame` repeatedly, with a reference to the session and a sample buffer to decode, and optionally with advanced flags. The sample buffer can be obtained from an `AVAssetReaderTrackOutput`, or alternatively, it can be created manually from a raw memory block, along with timing information, using `CMBlockBufferCreateWithMemoryBlock`, `CMSampleTimingInfo`, and `CMSampleBufferCreate`.
 
-###Conclusion
+## Conclusion
 
 Video Toolbox is a low-level, highly efficient way to speed up video processing in specific setups. The higher level framework AVFoundation allows decompression of supported media for direct display and compression directly to a file. Video Toolbox is the tool of choice when support of custom file formats, streaming protocols, or direct access to the codec chain is required. On the downside, profound knowledge of the involved video technology is required to master the sparsely documented API. Regardless, it is the way to go to achieve an engaging user experience with better performance, increased efficiency, and extended battery life.
 
-####References
+## References
 
 - [Apple Sample Code](https://developer.apple.com/devcenter/download.action?path=/wwdc_2014/wwdc_2014_sample_code/usingVideoToolboxtodecodecompressedsamplebuffers.zip)
 - [WWDC 2014 Session #513](https://developer.apple.com/videos/wwdc/2014/#513)

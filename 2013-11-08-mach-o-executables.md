@@ -3,7 +3,9 @@ title: "Mach-O Executables"
 category: "6"
 date: "2013-11-08 09:00:00"
 tags: article
-author: "<a href=\"http://twitter.com/danielboedewadt\">Daniel Eggert</a>"
+author:
+  - name: Daniel Eggert
+    url: http://twitter.com/danielboedewadt
 ---
 
 When we build an application in Xcode, part of what happens is that the sources files (`.m` and `.h`) get turned into an executable. This executable contains the byte code than will run on the CPU, the ARM processor on the iOS device, or the Intel processor on your Mac.
@@ -18,11 +20,15 @@ Hopefully this will give you a better understanding of how an executable on iOS 
 
 Some infrastructure first: There's a command-line tool called `xcrun` which we'll use a lot. It may seem odd, but it's pretty awesome. This little tool is used to run other tools. Instead of running:
 
-    % clang -v
+```
+% clang -v
+```
 
 On the Terminal, we'll use:
 
-    % xcrun clang -v
+```
+% xcrun clang -v
+```
 
 What `xcrun` does is to locate `clang` and run it with the arguments that follow `clang`.
 
@@ -33,27 +39,35 @@ Why would we do this? It may seem pointless. But `xcrun` allows us to (1) have m
 
 Back in Terminal, let's create a folder with a C file in it:
 
-    % mkdir ~/Desktop/objcio-command-line
-    % cd !$
-    % touch helloworld.c
+```
+% mkdir ~/Desktop/objcio-command-line
+% cd !$
+% touch helloworld.c
+```
 
 Now edit this file in your favorite text editor -- even TextEdit.app will do:
 
-    % open -e helloworld.c
+```
+% open -e helloworld.c
+```
 
 Fill in this piece of code:
 
-    #include <stdio.h>
-    int main(int argc, char *argv[])
-    {
-        printf("Hello World!\n");
-        return 0;
-    }
+```objc
+#include <stdio.h>
+int main(int argc, char *argv[])
+{
+    printf("Hello World!\n");
+    return 0;
+}
+```
 
 Save and return to Terminal to run this:
 
-    % xcrun clang helloworld.c
-    % ./a.out
+```
+% xcrun clang helloworld.c
+% ./a.out
+```
 
 You should now see a lovely `Hello World!` message on your terminal. You compiled a C program and ran it. All without an IDE. Take a deep breath. Rejoice.
 
@@ -63,34 +77,34 @@ How did this binary get generated? There are multiple pieces to look at and unde
 
 ### Hello World and the Compiler
 
-The compiler of choice nowadays is `clang` (pronounced /klæŋ/). Chris writes in more detail [about the compiler](/issue-6/compiler.html).
+The compiler of choice nowadays is `clang` (pronounced /klæŋ/). Chris writes in more detail [about the compiler](/issues/6-build-tools/compiler/).
 
 Briefly put, the compiler will process the `helloworld.c` input file and produce the executable `a.out`. This processing consist of multiple steps/stages. What we just did is run all of them in succession:
 
-##### Preprocessing
+**Preprocessing**
 
 * Tokenization
 * Macro expansion
 * `#include` expansion
 
-##### Parsing and Semantic Analysis
+**Parsing and Semantic Analysis**
 
 * Translates preprocessor tokens into a parse tree
 * Applies semantic analysis to the parse tree
 * Outputs an *Abstract Syntax Tree* (AST)
 
-##### Code Generation and Optimization
+**Code Generation and Optimization**
 
 * Translates an AST into low-level intermediate code (LLVM IR)
 * Responsible for optimizing the generated code
 * target-specific code generation
 * Outputs assembly
 
-##### Assembler
+**Assembler**
 
 * Translates assembly code into a target object file
 
-##### Linker
+**Linker**
 
 * Merges multiple object files into an executable (or a dynamic library)
 
@@ -100,15 +114,21 @@ Let's see how these steps look for our simple example.
 
 The first thing the compiler will do is preprocess the file. We can tell clang to show us what it looks like if we stop after that step:
 
-    % xcrun clang -E helloworld.c
+```
+% xcrun clang -E helloworld.c
+```
 
 Wow. That will output 413 lines. Let's open that in an editor to see what's going on:
 
-    % xcrun clang -E helloworld.c | open -f
+```
+% xcrun clang -E helloworld.c | open -f
+```
 
 At the very top you'll see lots and lots of lines starting with a `#` (pronounced 'hash'). These are so-called *linemarker* statements that tell us which file the following lines are from. We need this. If you look at the `helloworld.c` file again, you'll see that the first line is:
 
-    #include <stdio.h>
+```
+#include <stdio.h>
+```
 
 We have all used `#include` and `#import` before. What it does is to tell the preprocessor to insert the content of the file `stdio.h` where the `#include` statement was. This is a recursive process: The `stdio.h` header file in turn includes other files.
 
@@ -116,12 +136,14 @@ Since there's a lot of recursive insertion going on, we need to be able to keep 
 
 If you scroll to the very end of the output, you'll find our `helloworld.c` code:
 
-    # 2 "helloworld.c" 2
-    int main(int argc, char *argv[])
-    {
-     printf("Hello World!\n");
-     return 0;
-    }
+```
+# 2 "helloworld.c" 2
+int main(int argc, char *argv[])
+{
+ printf("Hello World!\n");
+ return 0;
+}
+```
 
 In Xcode, you can look at the preprocessor output of any file by selecting **Product** -> **Perform Action** -> **Preprocess**. Note that it takes a few seconds for the Editor to load the preprocessed file -- it'll most likely be close to 100,000 lines long.
 
@@ -129,15 +151,19 @@ In Xcode, you can look at the preprocessor output of any file by selecting **Pro
 
 Next up: parsing and code generation. We can tell `clang` to output the resulting assembly code like so:
 
-    % xcrun clang -S -o - helloworld.c | open -f
+```
+% xcrun clang -S -o - helloworld.c | open -f
+```
 
 Let's take a look at the output. First we'll notice how some lines start with a dot `.`. These are assembler directives. The other ones are actual x86_64 assembly. Finally there are labels, which are similar to labels in C.
 
 Let's start with the first three lines:
 
-        .section    __TEXT,__text,regular,pure_instructions
-        .globl  _main
-        .align  4, 0x90
+```
+    .section    __TEXT,__text,regular,pure_instructions
+    .globl  _main
+    .align  4, 0x90
+```
 
 These three lines are assembler directives, not assembly code. The `.section` directive specifies into which section the following will go. More about sections in a bit.
 
@@ -147,18 +173,20 @@ The `.align` directive specifies the alignment of what follows. In our case, the
 
 Next up is the preamble for the main function:
 
-    _main:                                  ## @main
-        .cfi_startproc
-    ## BB#0:
-        pushq   %rbp
-    Ltmp2:
-        .cfi_def_cfa_offset 16
-    Ltmp3:
-        .cfi_offset %rbp, -16
-        movq    %rsp, %rbp
-    Ltmp4:
-        .cfi_def_cfa_register %rbp
-        subq    $32, %rsp
+```
+_main:                                  ## @main
+    .cfi_startproc
+## BB#0:
+    pushq   %rbp
+Ltmp2:
+    .cfi_def_cfa_offset 16
+Ltmp3:
+    .cfi_offset %rbp, -16
+    movq    %rsp, %rbp
+Ltmp4:
+    .cfi_def_cfa_register %rbp
+    subq    $32, %rsp
+```
 
 This part has a bunch of labels that work the same way as C labels do. They are symbolic references to certain parts of the assembly code. First is the actual start of our function `_main`. This is also the symbol that is exported. The binary will hence have a reference to this position.
 
@@ -172,43 +200,53 @@ Now, `movq %rsp, %rbp` will allow us to put local variables onto the stack. `sub
 
 Next, we'll call `printf()`:
 
-    leaq    L_.str(%rip), %rax
-    movl    $0, -4(%rbp)
-    movl    %edi, -8(%rbp)
-    movq    %rsi, -16(%rbp)
-    movq    %rax, %rdi
-    movb    $0, %al
-    callq   _printf
+```
+leaq    L_.str(%rip), %rax
+movl    $0, -4(%rbp)
+movl    %edi, -8(%rbp)
+movq    %rsi, -16(%rbp)
+movq    %rax, %rdi
+movb    $0, %al
+callq   _printf
+```
 
 First, `leaq` loads the pointer to `L_.str` into the `rax` register. Note how the `L_.str` label is defined further down in the assembly code. This is our C string `"Hello World!\n"`. The `edi` and `rsi` registers hold the first and second function arguments. Since we'll call another function, we first need to store their current values. That's what we'll use the 32 bytes based off `rbp` we just reserved for. First a 32-bit 0, then the 32-bit value of the `edi` register (which holds `argc`), then the 64-bit value of the `rsi` register (which holds `argv`). We're not using those values later, but since the compiler is running without optimizations, it'll store them anyway.
 
 Now we'll put the first function argument for `printf()`, `rax`, into the first function argument register `edi`. The `printf()` function is a variadic function. The ABI-calling convention specifies that the number of vector registers used to hold arguments need to be stored in the `al` register. In our case it's 0. Finally, `callq` calls the `printf()` function:
 
-        movl    $0, %ecx
-        movl    %eax, -20(%rbp)         ## 4-byte Spill
-        movl    %ecx, %eax
+```
+    movl    $0, %ecx
+    movl    %eax, -20(%rbp)         ## 4-byte Spill
+    movl    %ecx, %eax
+```
 
 This sets the `ecx` register to 0, saves (spills) the `eax` register onto the stack, then copies the 0 values in `ecx` into `eax`. The ABI specifies that `eax` will hold the return value of a function, and our `main()` function returns 0:
 
-        addq    $32, %rsp
-        popq    %rbp
-        ret
-        .cfi_endproc
+```
+    addq    $32, %rsp
+    popq    %rbp
+    ret
+    .cfi_endproc
+```
 
 Since we're done, we'll restore the stack pointer by shifting the stack pointer `rsp` back 32 bytes to undo the effect of `subq $32, %rsp` from above. Finally, we'll pop the value of `rbp` we'd stored earlier and then return to the caller with `ret`, which will read the return address off the stack. The `.cfi_endproc` balances the `.cfi_startproc` directive.
 
 Next up is the output for our string literal `"Hello World!\n"`:
 
-        .section    __TEXT,__cstring,cstring_literals
-    L_.str:                                 ## @.str
-        .asciz   "Hello World!\n"
+```
+    .section    __TEXT,__cstring,cstring_literals
+L_.str:                                 ## @.str
+    .asciz   "Hello World!\n"
+```
 
 Again, the `.section` directive specifies which section the following needs to go into. The `L_.str` label allows the actual code to get a pointer to the string literal. The `.asciz` directive tells the assembler to output a 0-terminated string literal. 
 
 This starts a new section `__TEXT __cstring`. This section contains C strings:
 
-    L_.str:                                 ## @.str
-        .asciz     "Hello World!\n"
+```
+L_.str:                                 ## @.str
+    .asciz     "Hello World!\n"
+```
 
 And these two lines create a null-terminated string. Note how `L_.str` is the name used further up to access the string.
 
@@ -226,7 +264,9 @@ The assembler, simply put, converts the (human-readable) assembly code into mach
 
 We'll talk a bit more about the linker later. But simply put, the linker will resolve symbols between object files and libraries. What does that mean? Recall the
 
-    callq   _printf
+```
+callq   _printf
+```
 
 statement. `printf()` is a function in the *libc* library. Somehow, the final executable needs to be able to know where in memory the `printf()` is, i.e. what the address of the `_printf` symbol is. The linker takes all object files (in our case, only one) and the libraries (in our case, implicitly *libc*) and resolves any unknown symbols (in our case, the `_printf`). It then encodes into the final executable that this symbol can be found in *libc*, and the linker then outputs the final executable that can be run: `a.out`.
 
@@ -237,22 +277,24 @@ As we mentioned above, there's something called sections. An executable will hav
 
 Let's take a look at the sections of our `a.out` binary. We can use the `size` tool to do that:
 
-    % xcrun size -x -l -m a.out 
-    Segment __PAGEZERO: 0x100000000 (vmaddr 0x0 fileoff 0)
-    Segment __TEXT: 0x1000 (vmaddr 0x100000000 fileoff 0)
-        Section __text: 0x37 (addr 0x100000f30 offset 3888)
-        Section __stubs: 0x6 (addr 0x100000f68 offset 3944)
-        Section __stub_helper: 0x1a (addr 0x100000f70 offset 3952)
-        Section __cstring: 0xe (addr 0x100000f8a offset 3978)
-        Section __unwind_info: 0x48 (addr 0x100000f98 offset 3992)
-        Section __eh_frame: 0x18 (addr 0x100000fe0 offset 4064)
-        total 0xc5
-    Segment __DATA: 0x1000 (vmaddr 0x100001000 fileoff 4096)
-        Section __nl_symbol_ptr: 0x10 (addr 0x100001000 offset 4096)
-        Section __la_symbol_ptr: 0x8 (addr 0x100001010 offset 4112)
-        total 0x18
-    Segment __LINKEDIT: 0x1000 (vmaddr 0x100002000 fileoff 8192)
-    total 0x100003000
+```
+% xcrun size -x -l -m a.out 
+Segment __PAGEZERO: 0x100000000 (vmaddr 0x0 fileoff 0)
+Segment __TEXT: 0x1000 (vmaddr 0x100000000 fileoff 0)
+    Section __text: 0x37 (addr 0x100000f30 offset 3888)
+    Section __stubs: 0x6 (addr 0x100000f68 offset 3944)
+    Section __stub_helper: 0x1a (addr 0x100000f70 offset 3952)
+    Section __cstring: 0xe (addr 0x100000f8a offset 3978)
+    Section __unwind_info: 0x48 (addr 0x100000f98 offset 3992)
+    Section __eh_frame: 0x18 (addr 0x100000fe0 offset 4064)
+    total 0xc5
+Segment __DATA: 0x1000 (vmaddr 0x100001000 fileoff 4096)
+    Section __nl_symbol_ptr: 0x10 (addr 0x100001000 offset 4096)
+    Section __la_symbol_ptr: 0x8 (addr 0x100001010 offset 4112)
+    total 0x18
+Segment __LINKEDIT: 0x1000 (vmaddr 0x100002000 fileoff 8192)
+total 0x100003000
+```
 
 Our `a.out` file has four segments. Some of these have sections.
 
@@ -279,63 +321,73 @@ Apple's [OS X Assembler Reference](https://developer.apple.com/library/mac/docum
 
 We can inspect the content of a section with `otool(1)` like so:
 
-    % xcrun otool -s __TEXT __text a.out 
-    a.out:
-    (__TEXT,__text) section
-    0000000100000f30 55 48 89 e5 48 83 ec 20 48 8d 05 4b 00 00 00 c7 
-    0000000100000f40 45 fc 00 00 00 00 89 7d f8 48 89 75 f0 48 89 c7 
-    0000000100000f50 b0 00 e8 11 00 00 00 b9 00 00 00 00 89 45 ec 89 
-    0000000100000f60 c8 48 83 c4 20 5d c3 
+```
+% xcrun otool -s __TEXT __text a.out 
+a.out:
+(__TEXT,__text) section
+0000000100000f30 55 48 89 e5 48 83 ec 20 48 8d 05 4b 00 00 00 c7 
+0000000100000f40 45 fc 00 00 00 00 89 7d f8 48 89 75 f0 48 89 c7 
+0000000100000f50 b0 00 e8 11 00 00 00 b9 00 00 00 00 89 45 ec 89 
+0000000100000f60 c8 48 83 c4 20 5d c3 
+```
 
 This is the code of our app. Since `-s __TEXT __text` is very common, `otool` has a shortcut to it with the `-t` argument. We can even look at the disassembled code by adding `-v`:
 
-    % xcrun otool -v -t a.out
-    a.out:
-    (__TEXT,__text) section
-    _main:
-    0000000100000f30    pushq   %rbp
-    0000000100000f31    movq    %rsp, %rbp
-    0000000100000f34    subq    $0x20, %rsp
-    0000000100000f38    leaq    0x4b(%rip), %rax
-    0000000100000f3f    movl    $0x0, 0xfffffffffffffffc(%rbp)
-    0000000100000f46    movl    %edi, 0xfffffffffffffff8(%rbp)
-    0000000100000f49    movq    %rsi, 0xfffffffffffffff0(%rbp)
-    0000000100000f4d    movq    %rax, %rdi
-    0000000100000f50    movb    $0x0, %al
-    0000000100000f52    callq   0x100000f68
-    0000000100000f57    movl    $0x0, %ecx
-    0000000100000f5c    movl    %eax, 0xffffffffffffffec(%rbp)
-    0000000100000f5f    movl    %ecx, %eax
-    0000000100000f61    addq    $0x20, %rsp
-    0000000100000f65    popq    %rbp
-    0000000100000f66    ret
+```
+% xcrun otool -v -t a.out
+a.out:
+(__TEXT,__text) section
+_main:
+0000000100000f30    pushq   %rbp
+0000000100000f31    movq    %rsp, %rbp
+0000000100000f34    subq    $0x20, %rsp
+0000000100000f38    leaq    0x4b(%rip), %rax
+0000000100000f3f    movl    $0x0, 0xfffffffffffffffc(%rbp)
+0000000100000f46    movl    %edi, 0xfffffffffffffff8(%rbp)
+0000000100000f49    movq    %rsi, 0xfffffffffffffff0(%rbp)
+0000000100000f4d    movq    %rax, %rdi
+0000000100000f50    movb    $0x0, %al
+0000000100000f52    callq   0x100000f68
+0000000100000f57    movl    $0x0, %ecx
+0000000100000f5c    movl    %eax, 0xffffffffffffffec(%rbp)
+0000000100000f5f    movl    %ecx, %eax
+0000000100000f61    addq    $0x20, %rsp
+0000000100000f65    popq    %rbp
+0000000100000f66    ret
+```
 
 This is the same stuff, this time disassembled. It should look familiar -- it's what we looked at a bit further back when compiling the code. The only difference is that we don't have any of the assembler directives in the code anymore; this is the bare binary executable.
 
 In a similar fashion, we can look at other sections:
 
-    % xcrun otool -v -s __TEXT __cstring a.out
-    a.out:
-    Contents of (__TEXT,__cstring) section
-    0x0000000100000f8a  Hello World!\n
+```
+% xcrun otool -v -s __TEXT __cstring a.out
+a.out:
+Contents of (__TEXT,__cstring) section
+0x0000000100000f8a  Hello World!\n
+```
 
 Or:
 
-    % xcrun otool -v -s __TEXT __eh_frame a.out 
-    a.out:
-    Contents of (__TEXT,__eh_frame) section
-    0000000100000fe0    14 00 00 00 00 00 00 00 01 7a 52 00 01 78 10 01 
-    0000000100000ff0    10 0c 07 08 90 01 00 00 
+```
+% xcrun otool -v -s __TEXT __eh_frame a.out 
+a.out:
+Contents of (__TEXT,__eh_frame) section
+0000000100000fe0    14 00 00 00 00 00 00 00 01 7a 52 00 01 78 10 01 
+0000000100000ff0    10 0c 07 08 90 01 00 00 
+```
 
 #### Side Note on Performance
 
-On a side note: The `__DATA` and `__TEXT` segments have performance implications. If you have a very large binary, you might want to check out Apple's documentation on [Code Size Performance Guidelines](https://developer.apple.com/library/mac/documentation/Performance/Conceptual/CodeFootprint/Articles/MachOOverview.html). Moving data into the `__TEXT` segment is beneficial, because those pages are never dirty. 
+On a side note: The `__DATA` and `__TEXT` segments have performance implications. If you have a very large binary, you might want to check out Apple's documentation on [Code Size Performance Guidelines](https://developer.apple.com/legacy/library/documentation/Performance/Conceptual/CodeFootprint/CodeFootprint.pdf). Moving data into the `__TEXT` segment is beneficial, because those pages are never dirty. 
 
 #### Arbitrary Sections
 
 You can add arbitrary data as a section to your executable with the `-sectcreate` linker flag. This is how you'd add a Info.plist to a single file executable. The Info.plist data needs to go into a `__info_plist` section of the `__TEXT` segment. You'd pass `-sectcreate segname sectname file` to the linker by passing
 
-    -Wl,-sectcreate,__TEXT,__info_plist,path/to/Info.plist
+```
+-Wl,-sectcreate,__TEXT,__info_plist,path/to/Info.plist
+```
 
 to clang. Similarly, `-sectalign` specifies the alignment. If you're adding an entirely new segment, check out `-segprot` to specify the protection (read/write/executable) of the segment. These are all documented in the main page for the linker, i.e. `ld(1)`.
 
@@ -345,61 +397,73 @@ You can get to sections using the functions defined in `/usr/include/mach-o/gets
 
 Executables on OS X and iOS are [Mach-O](https://en.wikipedia.org/wiki/Mach-o) executables:
 
-    % file a.out 
-    a.out: Mach-O 64-bit executable x86_64
+```
+% file a.out 
+a.out: Mach-O 64-bit executable x86_64
+```
 
 This is true for GUI applications too:
 
-    % file /Applications/Preview.app/Contents/MacOS/Preview 
-    /Applications/Preview.app/Contents/MacOS/Preview: Mach-O 64-bit executable x86_64
+```
+% file /Applications/Preview.app/Contents/MacOS/Preview 
+/Applications/Preview.app/Contents/MacOS/Preview: Mach-O 64-bit executable x86_64
+```
 
 Apple has detailed information about the [Mach-O file format](https://developer.apple.com/library/mac/documentation/DeveloperTools/Conceptual/MachORuntime/index.html).
 
 We can use `otool(1)` to peek into the executable's Mach header. It specifies what this file is and how it's to be loaded. We'll use the `-h` flag to print the header information:
 
-    % otool -v -h a.out           a.out:
-    Mach header
-          magic cputype cpusubtype  caps    filetype ncmds sizeofcmds      flags
-    MH_MAGIC_64  X86_64        ALL LIB64     EXECUTE    16       1296   NOUNDEFS DYLDLINK TWOLEVEL PIE
+```
+% otool -v -h a.out           a.out:
+Mach header
+      magic cputype cpusubtype  caps    filetype ncmds sizeofcmds      flags
+MH_MAGIC_64  X86_64        ALL LIB64     EXECUTE    16       1296   NOUNDEFS DYLDLINK TWOLEVEL PIE
+```
 
 The `cputype` and `cpusubtype` specify the target architecture this executable can run on. The `ncmds` and `sizeofcmds` are the load commands which we can look at with the `-l` argument:
 
-    % otool -v -l a.out | open -f
-    a.out:
-    Load command 0
-          cmd LC_SEGMENT_64
-      cmdsize 72
-      segname __PAGEZERO
-       vmaddr 0x0000000000000000
-       vmsize 0x0000000100000000
-    ...
+```
+% otool -v -l a.out | open -f
+a.out:
+Load command 0
+      cmd LC_SEGMENT_64
+  cmdsize 72
+  segname __PAGEZERO
+   vmaddr 0x0000000000000000
+   vmsize 0x0000000100000000
+...
+```
 
 The load commands specify the logical structure of the file and its layout in virtual memory. Most of the information `otool` prints out is derived from these load commands. Looking at the `Load command 1` part, we find `initprot r-x`, which specifies the protection mentioned above: read-only (no-write) and executable.
 
 For each segment and each section within a segment, the load command specifies where in memory it should end up, and with what protection, etc. Here's the output for the `__TEXT __text` section:
 
-    Section
-      sectname __text
-       segname __TEXT
-          addr 0x0000000100000f30
-          size 0x0000000000000037
-        offset 3888
-         align 2^4 (16)
-        reloff 0
-        nreloc 0
-          type S_REGULAR
-    attributes PURE_INSTRUCTIONS SOME_INSTRUCTIONS
-     reserved1 0
-     reserved2 0
+```
+Section
+  sectname __text
+   segname __TEXT
+      addr 0x0000000100000f30
+      size 0x0000000000000037
+    offset 3888
+     align 2^4 (16)
+    reloff 0
+    nreloc 0
+      type S_REGULAR
+attributes PURE_INSTRUCTIONS SOME_INSTRUCTIONS
+ reserved1 0
+ reserved2 0
+```
 
 Our code will end up in memory at 0x100000f30. Its offset in the file is 3888. If you look at the disassembly output from before of `xcrun otool -v -t a.out`, you'll see that the code is, in fact, at 0x100000f30.
 
 We can also take a look at which dynamic libraries the executable is using:
 
-    % otool -v -L a.out
-    a.out:
-        /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 169.3.0)
-        time stamp 2 Thu Jan  1 01:00:02 1970
+```
+% otool -v -L a.out
+a.out:
+    /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 169.3.0)
+    time stamp 2 Thu Jan  1 01:00:02 1970
+```
 
 This is where our executable will find the `_printf` symbol it's using.
 
@@ -411,63 +475,77 @@ Let's look at a slightly more complex sample with three files:
 
 `Foo.h`:
 
-    #import <Foundation/Foundation.h>
-    
-    @interface Foo : NSObject
-    
-    - (void)run;
-    
-    @end
+```objc
+#import <Foundation/Foundation.h>
+
+@interface Foo : NSObject
+
+- (void)run;
+
+@end
+```
 
 `Foo.m`:
 
-    #import "Foo.h"
-    
-    @implementation Foo
-    
-    - (void)run
-    {
-        NSLog(@"%@", NSFullUserName());
-    }
-    
-    @end
+```objc
+#import "Foo.h"
+
+@implementation Foo
+
+- (void)run
+{
+    NSLog(@"%@", NSFullUserName());
+}
+
+@end
+```
 
 `helloworld.m`:
 
-    #import "Foo.h"
-    
-    int main(int argc, char *argv[])
-    {
-        @autoreleasepool {
-            Foo *foo = [[Foo alloc] init];
-            [foo run];
-            return 0;
-        }
+```objc
+#import "Foo.h"
+
+int main(int argc, char *argv[])
+{
+    @autoreleasepool {
+        Foo *foo = [[Foo alloc] init];
+        [foo run];
+        return 0;
     }
+}
+```
 
 ### Compiling Multiple Files
 
 In this sample, we have more than one file. We therefore need to tell clang to first generate object files for each input file:
 
-    % xcrun clang -c Foo.m
-    % xcrun clang -c helloworld.m
+```
+% xcrun clang -c Foo.m
+% xcrun clang -c helloworld.m
+```
 
 We're never compiling the header file. Its purpose is simply to share code between the implementation files which do get compiled. Both `Foo.m` and `helloworld.m` pull in the content of the `Foo.h` through the `#import` statement.
 
 We end up with two object files:
 
-    % file helloworld.o Foo.o
-    helloworld.o: Mach-O 64-bit object x86_64
-    Foo.o:        Mach-O 64-bit object x86_64
+```
+% file helloworld.o Foo.o
+helloworld.o: Mach-O 64-bit object x86_64
+Foo.o:        Mach-O 64-bit object x86_64
+```
 
 In order to generate an executable, we need to link these two object files and the Foundation framework with each other:
 
-    xcrun clang helloworld.o Foo.o -Wl,`xcrun --show-sdk-path`/System/Library/Frameworks/Foundation.framework/Foundation
+```
+xcrun clang helloworld.o Foo.o -Wl,`xcrun --show-sdk-path`/System/Library/Frameworks/Foundation.framework/Foundation
+```
 
 We can now run our code:
 
-    % ./a.out 
-    2013-11-03 18:03:03.386 a.out[8302:303] Daniel Eggert
+```
+% ./a.out 
+2013-11-03 18:03:03.386 a.out[8302:303] Daniel Eggert
+```
 
 ### Symbols and Linking
 
@@ -481,19 +559,21 @@ Each function, global variable, class, etc. that is defined or used results in a
 
 Executables and object files have a symbol table that specify their symbols. If we take a look at the `helloworld.o` object file with the `nm(1)` tool, we get this:
 
-    % xcrun nm -nm helloworld.o
-                     (undefined) external _OBJC_CLASS_$_Foo
-    0000000000000000 (__TEXT,__text) external _main
-                     (undefined) external _objc_autoreleasePoolPop
-                     (undefined) external _objc_autoreleasePoolPush
-                     (undefined) external _objc_msgSend
-                     (undefined) external _objc_msgSend_fixup
-    0000000000000088 (__TEXT,__objc_methname) non-external L_OBJC_METH_VAR_NAME_
-    000000000000008e (__TEXT,__objc_methname) non-external L_OBJC_METH_VAR_NAME_1
-    0000000000000093 (__TEXT,__objc_methname) non-external L_OBJC_METH_VAR_NAME_2
-    00000000000000a0 (__DATA,__objc_msgrefs) weak private external l_objc_msgSend_fixup_alloc
-    00000000000000e8 (__TEXT,__eh_frame) non-external EH_frame0
-    0000000000000100 (__TEXT,__eh_frame) external _main.eh
+```
+% xcrun nm -nm helloworld.o
+                 (undefined) external _OBJC_CLASS_$_Foo
+0000000000000000 (__TEXT,__text) external _main
+                 (undefined) external _objc_autoreleasePoolPop
+                 (undefined) external _objc_autoreleasePoolPush
+                 (undefined) external _objc_msgSend
+                 (undefined) external _objc_msgSend_fixup
+0000000000000088 (__TEXT,__objc_methname) non-external L_OBJC_METH_VAR_NAME_
+000000000000008e (__TEXT,__objc_methname) non-external L_OBJC_METH_VAR_NAME_1
+0000000000000093 (__TEXT,__objc_methname) non-external L_OBJC_METH_VAR_NAME_2
+00000000000000a0 (__DATA,__objc_msgrefs) weak private external l_objc_msgSend_fixup_alloc
+00000000000000e8 (__TEXT,__eh_frame) non-external EH_frame0
+0000000000000100 (__TEXT,__eh_frame) external _main.eh
+```
 
 These are all symbols of that file. `_OBJC_CLASS_$_Foo` is the symbol as the `Foo` Objective-C class. It's an *undefined, external* symbol of the `Foo` class. *External* means it's not private to this object file, as opposed to `non-external` symbols which are private to the particular object file. Our `helloworld.o` object file references the class `Foo`, but it doesn't implement it. Hence, its symbol table ends up having an entry marked as undefined.
 
@@ -501,26 +581,28 @@ Next, the `_main` symbol for the `main()` function is also *external* because it
 
 If we turn toward the `Foo.o` object file, we get this output:
 
-    % xcrun nm -nm Foo.o
-    0000000000000000 (__TEXT,__text) non-external -[Foo run]
-                     (undefined) external _NSFullUserName
-                     (undefined) external _NSLog
-                     (undefined) external _OBJC_CLASS_$_NSObject
-                     (undefined) external _OBJC_METACLASS_$_NSObject
-                     (undefined) external ___CFConstantStringClassReference
-                     (undefined) external __objc_empty_cache
-                     (undefined) external __objc_empty_vtable
-    000000000000002f (__TEXT,__cstring) non-external l_.str
-    0000000000000060 (__TEXT,__objc_classname) non-external L_OBJC_CLASS_NAME_
-    0000000000000068 (__DATA,__objc_const) non-external l_OBJC_METACLASS_RO_$_Foo
-    00000000000000b0 (__DATA,__objc_const) non-external l_OBJC_$_INSTANCE_METHODS_Foo
-    00000000000000d0 (__DATA,__objc_const) non-external l_OBJC_CLASS_RO_$_Foo
-    0000000000000118 (__DATA,__objc_data) external _OBJC_METACLASS_$_Foo
-    0000000000000140 (__DATA,__objc_data) external _OBJC_CLASS_$_Foo
-    0000000000000168 (__TEXT,__objc_methname) non-external L_OBJC_METH_VAR_NAME_
-    000000000000016c (__TEXT,__objc_methtype) non-external L_OBJC_METH_VAR_TYPE_
-    00000000000001a8 (__TEXT,__eh_frame) non-external EH_frame0
-    00000000000001c0 (__TEXT,__eh_frame) non-external -[Foo run].eh
+```
+% xcrun nm -nm Foo.o
+0000000000000000 (__TEXT,__text) non-external -[Foo run]
+                 (undefined) external _NSFullUserName
+                 (undefined) external _NSLog
+                 (undefined) external _OBJC_CLASS_$_NSObject
+                 (undefined) external _OBJC_METACLASS_$_NSObject
+                 (undefined) external ___CFConstantStringClassReference
+                 (undefined) external __objc_empty_cache
+                 (undefined) external __objc_empty_vtable
+000000000000002f (__TEXT,__cstring) non-external l_.str
+0000000000000060 (__TEXT,__objc_classname) non-external L_OBJC_CLASS_NAME_
+0000000000000068 (__DATA,__objc_const) non-external l_OBJC_METACLASS_RO_$_Foo
+00000000000000b0 (__DATA,__objc_const) non-external l_OBJC_$_INSTANCE_METHODS_Foo
+00000000000000d0 (__DATA,__objc_const) non-external l_OBJC_CLASS_RO_$_Foo
+0000000000000118 (__DATA,__objc_data) external _OBJC_METACLASS_$_Foo
+0000000000000140 (__DATA,__objc_data) external _OBJC_CLASS_$_Foo
+0000000000000168 (__TEXT,__objc_methname) non-external L_OBJC_METH_VAR_NAME_
+000000000000016c (__TEXT,__objc_methtype) non-external L_OBJC_METH_VAR_TYPE_
+00000000000001a8 (__TEXT,__eh_frame) non-external EH_frame0
+00000000000001c0 (__TEXT,__eh_frame) non-external -[Foo run].eh
+```
 
 The fifth-to-last line shows that `_OBJC_CLASS_$_Foo` is defined and external to `Foo.o` -- it has this class's implementation.
 
@@ -532,59 +614,69 @@ When the linker resolves a symbol through a dynamic library (in our case, the Fo
 
 We can look at the symbol table of the final executable `a.out` and see how the linker resolved all the symbols:
 
-    % xcrun nm -nm a.out 
-                     (undefined) external _NSFullUserName (from Foundation)
-                     (undefined) external _NSLog (from Foundation)
-                     (undefined) external _OBJC_CLASS_$_NSObject (from CoreFoundation)
-                     (undefined) external _OBJC_METACLASS_$_NSObject (from CoreFoundation)
-                     (undefined) external ___CFConstantStringClassReference (from CoreFoundation)
-                     (undefined) external __objc_empty_cache (from libobjc)
-                     (undefined) external __objc_empty_vtable (from libobjc)
-                     (undefined) external _objc_autoreleasePoolPop (from libobjc)
-                     (undefined) external _objc_autoreleasePoolPush (from libobjc)
-                     (undefined) external _objc_msgSend (from libobjc)
-                     (undefined) external _objc_msgSend_fixup (from libobjc)
-                     (undefined) external dyld_stub_binder (from libSystem)
-    0000000100000000 (__TEXT,__text) [referenced dynamically] external __mh_execute_header
-    0000000100000e50 (__TEXT,__text) external _main
-    0000000100000ed0 (__TEXT,__text) non-external -[Foo run]
-    0000000100001128 (__DATA,__objc_data) external _OBJC_METACLASS_$_Foo
-    0000000100001150 (__DATA,__objc_data) external _OBJC_CLASS_$_Foo
+```
+% xcrun nm -nm a.out 
+                 (undefined) external _NSFullUserName (from Foundation)
+                 (undefined) external _NSLog (from Foundation)
+                 (undefined) external _OBJC_CLASS_$_NSObject (from CoreFoundation)
+                 (undefined) external _OBJC_METACLASS_$_NSObject (from CoreFoundation)
+                 (undefined) external ___CFConstantStringClassReference (from CoreFoundation)
+                 (undefined) external __objc_empty_cache (from libobjc)
+                 (undefined) external __objc_empty_vtable (from libobjc)
+                 (undefined) external _objc_autoreleasePoolPop (from libobjc)
+                 (undefined) external _objc_autoreleasePoolPush (from libobjc)
+                 (undefined) external _objc_msgSend (from libobjc)
+                 (undefined) external _objc_msgSend_fixup (from libobjc)
+                 (undefined) external dyld_stub_binder (from libSystem)
+0000000100000000 (__TEXT,__text) [referenced dynamically] external __mh_execute_header
+0000000100000e50 (__TEXT,__text) external _main
+0000000100000ed0 (__TEXT,__text) non-external -[Foo run]
+0000000100001128 (__DATA,__objc_data) external _OBJC_METACLASS_$_Foo
+0000000100001150 (__DATA,__objc_data) external _OBJC_CLASS_$_Foo
+```
 
 We see that all the Foundation and Objective-C runtime symbols are still undefined, but the symbol table now has information about how to resolve them, i.e. in which dynamic library they're to be found.
 
 The executable also knows where to find these libraries:
 
-    % xcrun otool -L a.out
-    a.out:
-        /System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 1056.0.0)
-        /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1197.1.1)
-        /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 855.11.0)
-        /usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)
+```
+% xcrun otool -L a.out
+a.out:
+    /System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 1056.0.0)
+    /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1197.1.1)
+    /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 855.11.0)
+    /usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)
+```
 
 These undefined symbols are resolved by the dynamic linker `dyld(1)` at runtime. When we run the executable, `dyld` will make sure that `_NSFullUserName`, etc. point to their implementation inside Foundation, etc.
 
 We can run `nm(1)` against Foundation and check that these symbols are, in fact, defined there:
 
-    % xcrun nm -nm `xcrun --show-sdk-path`/System/Library/Frameworks/Foundation.framework/Foundation | grep NSFullUserName
-    0000000000007f3e (__TEXT,__text) external _NSFullUserName 
+```
+% xcrun nm -nm `xcrun --show-sdk-path`/System/Library/Frameworks/Foundation.framework/Foundation | grep NSFullUserName
+0000000000007f3e (__TEXT,__text) external _NSFullUserName 
+```
 
 ### The Dynamic Link Editor
 
 There are a few environment variables that can be useful to see what `dyld` is up to. First and foremost, `DYLD_PRINT_LIBRARIES`. If set, `dyld` will print out what libraries are loaded:
 
-    % (export DYLD_PRINT_LIBRARIES=; ./a.out )
-    dyld: loaded: /Users/deggert/Desktop/command_line/./a.out
-    dyld: loaded: /System/Library/Frameworks/Foundation.framework/Versions/C/Foundation
-    dyld: loaded: /usr/lib/libSystem.B.dylib
-    dyld: loaded: /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
-    dyld: loaded: /usr/lib/libobjc.A.dylib
-    dyld: loaded: /usr/lib/libauto.dylib
-    [...]
+```
+% (export DYLD_PRINT_LIBRARIES=; ./a.out )
+dyld: loaded: /Users/deggert/Desktop/command_line/./a.out
+dyld: loaded: /System/Library/Frameworks/Foundation.framework/Versions/C/Foundation
+dyld: loaded: /usr/lib/libSystem.B.dylib
+dyld: loaded: /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
+dyld: loaded: /usr/lib/libobjc.A.dylib
+dyld: loaded: /usr/lib/libauto.dylib
+[...]
+```
 
 This will show you all seventy dynamic libraries that get loaded as part of loading Foundation. That's because Foundation depends on other dynamic libraries, which, in turn, depend on others, and so forth. You can run
 
-    % xcrun otool -L `xcrun --show-sdk-path`/System/Library/Frameworks/Foundation.framework/Foundation
+```
+% xcrun otool -L `xcrun --show-sdk-path`/System/Library/Frameworks/Foundation.framework/Foundation
+```
 
 to see a list of the fifteen dynamic libraries that Foundation uses.
 

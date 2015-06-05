@@ -3,7 +3,9 @@ title:  "Functional APIs with Swift"
 category: "16"
 date: "2014-09-10 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: https://twitter.com/floriankugler
 ---
 
 

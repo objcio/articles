@@ -3,7 +3,9 @@ title:  "Android Intents"
 category: "11"
 date: "2014-04-01 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/Gryzor\">Martin Marconcini</a>"
+author:
+  - name: Martin Marconcini
+    url: https://twitter.com/Gryzor
 ---
 
 
@@ -42,9 +44,11 @@ Let's get back on topic. *Intents*.
 
 The English dictionary defines an Intent as:
 
-    noun
-    intention or purpose
-    
+```
+noun
+intention or purpose
+```
+
 According to the official Android [documentation](http://developer.android.com/guide/components/intents-filters.html), an `Intent` *is a messaging object you can use to request an action from another app component*. In truth, an Intent is an abstract description of an operation to be performed. 
 
 This sounds interesting, but there's more than meets the eye. Intents are used everywhere, no matter how simple your app is; even your Hello World app will use an Intent. That's because the most common case for an Intent is to start an `Activity`.[^1]
@@ -73,7 +77,9 @@ So how does Android use an `Intent` to start an `Activity`?
 
 If you dig through the `Activity` class hierarchy, you will find that it extends from a `Context`, which, in turn, contains a method called `startActivity()`, defined as:
 
-    public abstract void startActivity(Intent intent, Bundle options);
+```java
+public abstract void startActivity(Intent intent, Bundle options);
+```
 
 This abstract method is implemented in `Activity`. This means you can start activities from any activity, but you need to pass an `Intent` to do so. How?
 
@@ -81,50 +87,63 @@ Let's imagine we want to launch an `Activity` called `ImageActivity`.
 
 The `Intent` constructor is defined as:
 
-    public Intent(Context packageContext, Class<?> cls)
+```java
+public Intent(Context packageContext, Class<?> cls)
+```
 
 So we need a `Context` (remember, any `Activity` is a valid `Context`) and a `Class` type. 
 
 With that in mind:
 
-    Intent i = new Intent(this, ImageActivity.class);
-    startActivity(i);
+```java
+Intent i = new Intent(this, ImageActivity.class);
+startActivity(i);
+```
 
 This triggers a lot of code behind the scenes, but the end result is that if everything went well, your `Activity` will start its lifecycle and the current one will likely be paused and stopped. 
 
 Since Intents can also be used to pass certain data between activities, we could use them to pass *Extras*. For example:
 
-    Intent i = new Intent(this, ImageActivity.class);
-    i.putExtra("A_BOOLEAN_EXTRA", true); //boolean extra
-    i.putExtra("AN_INTEGER_EXTRA", 3); //integer extra
-    i.putExtra("A_STRING_EXTRA", "three"); //string extra
-    startActivity(i);
+```java
+Intent i = new Intent(this, ImageActivity.class);
+i.putExtra("A_BOOLEAN_EXTRA", true); //boolean extra
+i.putExtra("AN_INTEGER_EXTRA", 3); //integer extra
+i.putExtra("A_STRING_EXTRA", "three"); //string extra
+startActivity(i);
+```
 
 Behind the scenes, the *extras* are stored in an Android `Bundle`,[^3] which is pretty much a glorified serializable container. 
 
 The nice thing is that our `ImageActivity` will receive these values in the `Intent` and can easily do:
 
-     int value = getIntent().getIntExtra("AN_INTEGER_EXTRA", 0); //name, default value
+```java
+ int value = getIntent().getIntExtra("AN_INTEGER_EXTRA", 0); //name, default value
+```
 
 This is how you pass data between activities. If you can serialize it, you can pass it. 
 
 Imagine you have an object that implements `Serializable`. You could then do this:
 
-    YourComplexObject obj = new YourComplexObject();
-    Intent i = new Intent(this, ImageActivity.class);
-    i.putSerializable("SOME_FANCY_NAME", obj); //using the serializable constructor here
-    startActivity(i);
+```java
+YourComplexObject obj = new YourComplexObject();
+Intent i = new Intent(this, ImageActivity.class);
+i.putSerializable("SOME_FANCY_NAME", obj); //using the serializable constructor here
+startActivity(i);
+```
 
 And it would work the same way on the other `Activity`:
 
-    YourComplexObject obj = (YourComplexObject) getIntent().getSerializableExtra("SOME_FANCY_NAME");
-    
+```java
+YourComplexObject obj = (YourComplexObject) getIntent().getSerializableExtra("SOME_FANCY_NAME");
+```
 
 As a side note, *always check for null when retrieving the Intent*:
 
-    if (getIntent() != null ) {
-             // you have an intent, so go ahead and get the extras…
-    }
+```java
+if (getIntent() != null ) {
+         // you have an intent, so go ahead and get the extras…
+}
+```
 
 This is Java, and Java doesn't like null references. Get used to it. ;)
 
@@ -157,10 +176,12 @@ The easiest way to understand it is to see some code:
 
 In some `Activity`, you could do:
 
-    Intent i = new Intent(this, YourService.class);
-    i.setAction("SOME_COMMAND");
-    startService(i);
-    
+```java
+Intent i = new Intent(this, YourService.class);
+i.setAction("SOME_COMMAND");
+startService(i);
+```
+
 What happens next will depend on whether or not this was the first time you did that. If so, the service will be started (it's constructor, and `onCreate()` methods will be executed first). If it was already running, the `onStartCommand()` method will be directly called.
 
 The signature is: `public int onStartCommand(Intent intent, int flags, int startId);`
@@ -169,14 +190,16 @@ Let's ignore the `flags` and `startId`, as they have nothing to do with the topi
 
 We set an `Action` earlier with `setAction("SOME_COMMAND")`. This action is passed to the `Service` and we can retrieve it from the `onStartCommand()`. For example, in our `Service`, we could do:
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        String action = intent.getAction();
-        if (action.equals("SOME_COMMAND")) {
-            // Do SOME COMMAND ;)
-        }
-        return START_NOT_STICKY; // Don't restart the Service if it's killed.
+```java
+@Override
+public int onStartCommand(Intent intent, int flags, int startId) {
+    String action = intent.getAction();
+    if (action.equals("SOME_COMMAND")) {
+        // Do SOME COMMAND ;)
     }
+    return START_NOT_STICKY; // Don't restart the Service if it's killed.
+}
+```
 
 If you are wondering what that `START_NOT_STICKY` thing is, the [Android docs](http://developer.android.com/reference/android/app/Service.html) are an excellent source of information.
 
@@ -188,7 +211,9 @@ Let's imagine we are developing an application that can reproduce YouTube videos
 
 The streaming would be implemented in a `Service` so the streaming doesn't stop if the user goes to another application while he or she is playing a video. You could have different actions defined, like:
 
-    ACTION_PLAY, ACTION_PAUSE, ACTION_SKIP.
+```
+ACTION_PLAY, ACTION_PAUSE, ACTION_SKIP.
+```
 
 You could also have a `switch` or `if` statement in the `onStartCommand()` to deal with each case. 
 
@@ -210,25 +235,27 @@ You have an `Activity` that is displaying the currently playing music track alon
 
 In your activity (or in its own .java file) you would create your broadcast receiver:
 
-    private final class ServiceReceiver extends BroadcastReceiver {
-        public IntentFilter intentFilter;
-        public ServiceReceiver() {
-            super();
-            intentFilter = new IntentFilter();
-            intentFilter.addAction("ACTION_PLAY");
-            intentFilter.addAction("ACTION_STOP");
-            intentFilter.addAction("ACTION_ERROR");
+```java
+private final class ServiceReceiver extends BroadcastReceiver {
+    public IntentFilter intentFilter;
+    public ServiceReceiver() {
+        super();
+        intentFilter = new IntentFilter();
+        intentFilter.addAction("ACTION_PLAY");
+        intentFilter.addAction("ACTION_STOP");
+        intentFilter.addAction("ACTION_ERROR");
+    }
+    @Override
+    public void onReceive(final Context context, final Intent intent) {
+        if (intent.getAction().equals("ACTION_ERROR")) {
+           // THERE HAS BEEN AN ERROR, PLAYBACK HAS STOPPED
+        } else if (intent.getAction().equals("ACTION_PLAY")){
+           // Playback has started
         }
-        @Override
-        public void onReceive(final Context context, final Intent intent) {
-            if (intent.getAction().equals("ACTION_ERROR")) {
-               // THERE HAS BEEN AN ERROR, PLAYBACK HAS STOPPED
-            } else if (intent.getAction().equals("ACTION_PLAY")){
-               // Playback has started
-            }
-            // etc…
-        }
-     }
+        // etc…
+    }
+ }
+```
 
 That's your basic receiver. Notice how we added an `IntentFilter` with the `Actions` that we're interested in. We called them `ACTION_PLAY`, `ACTION_STOP`, and `ACTION_ERROR`.
 
@@ -240,25 +267,32 @@ But creating this object is not enough. We also need to register it somewhere. I
 
 The signature for the method is (in `Context`):
 
-    public abstract Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter);
+```java
+public abstract Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter);
+```
+
  
 *`Activities` and `Services` are also `Contexts`, so both implement this method. This means that either can register one or more `BroadcastReceivers`.*
 
 The method needs a `BroadcastReceiver` and an `IntentFilter`. We've created both, so we pass them:
 
-    @Override
-    public void onStart() {
-        onStart();
-          registerReceiver(mServiceReceiver, mServiceReceiver.intentFilter);
-    }
-    
+```java
+@Override
+public void onStart() {
+    onStart();
+      registerReceiver(mServiceReceiver, mServiceReceiver.intentFilter);
+}
+```
+
 In order to be good Java/Android citizens, we want to unregister if our `Activity` is stopping:
     
-    @Override
-    public void onStop() {
-        super.onStop();
-        unregisterReceiver(mServiceReceiver);
-    }
+```java
+@Override
+public void onStop() {
+    super.onStop();
+    unregisterReceiver(mServiceReceiver);
+}
+```
 
 This approach is not incorrect, but you have to keep in mind that if the user navigates outside of your application, you will never receive the broadcast. This is because your `Activity` will be stopped, and because you are unregistering during `onStop()`. When designing `BroadcastReceivers`, you have to keep in mind whether or not this makes sense. There are other ways to implement them (outside an `Activity`) to act as independent objects.
 
@@ -298,17 +332,19 @@ I tapped on a YouTube link in the Facebook App. How did Android know that it was
 
 If we had access to YouTube's `AndroidManifest.xml`, we would likely see something like this: 
 
-    1 <activity android:name=".YouTubeActivity">
-    2     <intent-filter>
-    3        <action android:name="android.intent.action.VIEW" />
-    4       <category android:name="android.intent.category.DEFAULT" />
-    5         <category android:name="android.intent.category.BROWSABLE" />
-    6       <data
-    7        android:scheme="http"
-    8        android:host="www.youtube.com"
-    9        android:pathPrefix="/" />
-    10   </intent-filter>
-    11 </activity>
+```xml
+1 <activity android:name=".YouTubeActivity">
+2     <intent-filter>
+3        <action android:name="android.intent.action.VIEW" />
+4       <category android:name="android.intent.category.DEFAULT" />
+5         <category android:name="android.intent.category.BROWSABLE" />
+6       <data
+7        android:scheme="http"
+8        android:host="www.youtube.com"
+9        android:pathPrefix="/" />
+10   </intent-filter>
+11 </activity>
+```
 
 Let's examine this simple XML line by line.
 
@@ -334,19 +370,20 @@ The Android `PackageManager`[^6] will be queried using the `Intent` information 
 
 This works well for many apps, but sometimes you need to use the same iOS link (where your only choice is to use a custom URI). In Android, you could support both, since you can add more filters to the same activity. To continue with the YouTubeActivity, let's add now an imaginary YouTube URI scheme:
 
-    1 <activity android:name=".YouTubeActivity">
-    2     <intent-filter>
-    3        <action android:name="android.intent.action.VIEW" />
-    4       <category android:name="android.intent.category.DEFAULT" />
-    5         <category android:name="android.intent.category.BROWSABLE" />
-    6       <data
-    7        android:scheme="http"
-    8        android:host="www.youtube.com"
-    9        android:pathPrefix="/" />
-    10      <data android:scheme="youtube" android:host="path" />
-    11   </intent-filter>
-    12 </activity>
-
+```xml
+<activity android:name=".YouTubeActivity">
+  <intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+      <category android:name="android.intent.category.BROWSABLE" />
+    <data
+     android:scheme="http"
+     android:host="www.youtube.com"
+     android:pathPrefix="/" />
+    <data android:scheme="youtube" android:host="path" />
+  </intent-filter>
+</activity>
+```
 
 The filter is almost the same, except we added a new line 10, specifying our own scheme. 
 
@@ -367,11 +404,12 @@ Meanwhile, a custom URL like `yourapp://some.data` may not be understood by a we
 
 In the following example, we're going to share a text and let the user make the final decision:
 
-    1  Intent shareIntent = new Intent(Intent.ACTION_SEND);
-    2  shareIntent.setType("text/plain");
-    3  shareIntent.putExtra(Intent.EXTRA_TEXT, "Super Awesome Text!");
-    4  startActivity(Intent.createChooser(shareIntent, "Share this text using…"));
-        
+```java
+1  Intent shareIntent = new Intent(Intent.ACTION_SEND);
+2  shareIntent.setType("text/plain");
+3  shareIntent.putExtra(Intent.EXTRA_TEXT, "Super Awesome Text!");
+4  startActivity(Intent.createChooser(shareIntent, "Share this text using…"));
+```
 
 Line 1 creates an `Intent` and passes an action using the constructor: `public Intent(String action);`
 
@@ -401,13 +439,15 @@ Before wrapping up, let's see another example. This time, we'll see how to share
 
 We need to do something like this in our `AndroidManifest`:
 
-    1    <activity android:name="ImageActivity">
-    2        <intent-filter>
-    3            <action android:name="android.intent.action.SEND"/>
-    4            <category android:name="android.intent.category.DEFAULT"/>
-    5            <data android:mimeType="image/*"/>
-    6        </intent-filter>
-    7    </activity>
+```xml
+1 <activity android:name="ImageActivity">
+2   <intent-filter>
+3     <action android:name="android.intent.action.SEND"/>
+4     <category android:name="android.intent.category.DEFAULT"/>
+5     <data android:mimeType="image/*"/>
+6   </intent-filter>
+7 </activity>
+```
 
 Remember, we need at least one action and one category. 
 
@@ -419,35 +459,38 @@ Line 5 is they key that sets the MIME type as *any type of image*.
 
 Now, in our `ImageActivity`, we handle the Intent like this:
 
-    1    @Override
-    2    protected void onCreate(Bundle savedInstanceState) {
-    3        super.onCreate(savedInstanceState);
-    4        setContentView(R.layout.main);
-    5        
-    6        // Deal with the intent (if any)
-    7        Intent intent = getIntent();
-    8        if ( intent != null ) {
-    9            if (intent.getType().indexOf("image/") != -1) {
-    10                 Uri data = intent.getData();
-    11                 // handle the image…
-    12            } 
-    13        }
-    14    }
+```java
+1    @Override
+2    protected void onCreate(Bundle savedInstanceState) {
+3        super.onCreate(savedInstanceState);
+4        setContentView(R.layout.main);
+5        
+6        // Deal with the intent (if any)
+7        Intent intent = getIntent();
+8        if ( intent != null ) {
+9            if (intent.getType().indexOf("image/") != -1) {
+10                 Uri data = intent.getData();
+11                 // handle the image…
+12            } 
+13        }
+14    }
+```
 
 The relevant code is in line 9, where we're actually checking if the Intent contains image data.
 
 Now, let's do the opposite. This is how we *share* an image:
 
-    1    Uri imageUri = Uri.parse("/path/to/image.png");
-    2    Intent intent = new Intent(Intent.ACTION_SEND);
-    3    intent.setType("image/png");    
-    4    intent.putExtra(Intent.EXTRA_STREAM, imageUri);
-    5    startActivity(Intent.createChooser(intent , "Share"));
+```
+1    Uri imageUri = Uri.parse("/path/to/image.png");
+2    Intent intent = new Intent(Intent.ACTION_SEND);
+3    intent.setType("image/png");    
+4    intent.putExtra(Intent.EXTRA_STREAM, imageUri);
+5    startActivity(Intent.createChooser(intent , "Share"));
+```
 
 The interesting code is in line 3, where we define the MIME type (so only `IntentFilters` capable of dealing with this type will be shown), and in line 4, where we actually place the data that will be shared.
 
 Finally, line 5 creates the *chooser* dialog we've seen before, but only containing apps that can handle `image/png`.
-    
 
 ## Summary
 

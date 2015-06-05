@@ -3,11 +3,13 @@ title:  "Activity Tracing"
 category: "19"
 date: "2014-12-08 07:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: https://twitter.com/floriankugler
 ---
 
 
-Tracking down crashes in asynchronous code is often very hard, because the stack trace is confined to the crashed thread and you're missing contextual information. At the same time, writing asynchronous code has become significantly easier with APIs like [libdispatch](/issue-2/low-level-concurrency-apis.html), operation queues, and [XPC](/issue-14/xpc.html).
+Tracking down crashes in asynchronous code is often very hard, because the stack trace is confined to the crashed thread and you're missing contextual information. At the same time, writing asynchronous code has become significantly easier with APIs like [libdispatch](/issues/2-concurrency/low-level-concurrency-apis/), operation queues, and [XPC](/issues/14-mac/xpc/).
 
 Activity tracing is a new technology introduced in iOS 8 and OS X 10.10 that aims to alleviate this problem. This year's WWDC had an excellent [session][wwdcsession] about it, but we thought it would be a good idea to give another overview here, since it is not widely known yet.
 
@@ -26,7 +28,7 @@ Activity tracing is integrated into AppKit and UIKit, so that an activity is sta
 
 Starting an activity is very simple:
 
-```
+```objc
 #import <os/activity.h>
 
 os_activity_initiate("activity name", OS_ACTIVITY_FLAG_DEFAULT, ^{
@@ -40,7 +42,7 @@ The second parameter, `OS_ACTIVITY_FLAG_DEFAULT`, is the activity flag you use t
 
 There are other variants of this API that work in the same away — a function-based one (`os_activity_initiate_f`), and one that consists of a pair of macros:
 
-```
+```objc
 os_activity_t activity = os_activity_start("label", OS_ACTIVITY_FLAG_DEFAULT);
 // do some work...
 os_activity_end(activity);
@@ -53,7 +55,7 @@ Note that activities will not show up in crash reports (or other ways of inspect
 
 Breadcrumbs are used for what the name suggests: your code leaves a trail of labeled events while it executes in order to provide context across activities in case a crash happens. Adding a breadcrumb is very simple:
 
-```
+```objc
 os_activity_set_breadcrumb("event description");
 ```
 
@@ -66,7 +68,7 @@ Note that this API only has an effect from within the scope of an activity: it m
 
 Trace messages are used to add additional information to activities, very similar to how you would use log messages. You can use them to add valuable information to crash reports, in order to more easily understand the root cause of the problem. Within an activity, a very simple trace message can be set like this:
 
-```
+```objc
 #import <os/trace.h>
 
 os_trace("my message");
@@ -76,7 +78,7 @@ Trace messages can do more than that though. The first argument to `os_trace` is
 
 Here are two examples of using format strings with `os_trace`:
 
-```
+```objc
 os_trace("Received %d creates, %d updates, %d deletes", created, updated, deleted);
 os_trace("Processed %d records in %g seconds", count, time);
 ```
@@ -94,7 +96,7 @@ As discussed above, the standard `os_trace` API only accepts a constant format s
 
 The API for this is `os_trace_with_payload`, and may seem a bit weird at first: similar to `os_trace`, it takes a format string, a variable number of value arguments, and a block with a parameter of type `xpc_object_t`. This block will not be called in production mode, and therefore poses no overhead. However, when debugging, you can store whatever data you want in the dictionary that the block receives as its first and only argument:
 
-```
+```objc
 os_trace_with_payload("logged in: %d", guid, ^(xpc_object_t xdict) {
     xpc_dictionary_set_string(xdict, "name", username);
 });
@@ -203,7 +205,7 @@ At the time of writing, activity tracing is not accessible from Swift.
 
 If you want to use it now within a Swift project, you would have to create an Objective-C wrapper around it and make this API accessible in Swift using the bridging header. Note that activity tracing macros expect strings to be constant, i.e. you can't pass a string argument of your wrapper function to the activity tracing API. To illustrate this point, the following doesn't work:
 
-```
+```objc
 void sendTraceMessage(const char *msg) {
     os_trace(msg); // this doesn't work!
 }
@@ -211,7 +213,7 @@ void sendTraceMessage(const char *msg) {
 
 One possible workaround is to define specific helper functions like this:
 
-```
+```objc
 void traceLogin(int guid) {
     os_trace("Login: %d", guid);
 }

@@ -3,7 +3,9 @@ title: "The Foundation Collection Classes"
 category: "7"
 date: "2013-12-09 11:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/steipete\">Peter Steinberger</a>"
+author:
+  - name: Peter Steinberger
+    url: https://twitter.com/steipete
 ---
 
 
@@ -57,18 +59,24 @@ With iOS 7, we finally got a public `firstObject` method, which joins `lastObjec
 
 There's a nice detail about the construction of (mutable) arrays that can be used to save code. If you are creating a mutable array from a source that might be nil, you usually have some code like this:
 
-    NSMutableArray *mutableObjects = [array mutableCopy];
-    if (!mutableObjects) {
-        mutableObjects = [NSMutableArray array];
-    }
-    
+```objc
+NSMutableArray *mutableObjects = [array mutableCopy];
+if (!mutableObjects) {
+    mutableObjects = [NSMutableArray array];
+}
+```
+
 or via the more concise [ternary operator](http://en.wikipedia.org/wiki/%3F:):
     
-    NSMutableArray *mutableObjects = [array mutableCopy] ?: [NSMutableArray array];
-    
+```objc
+NSMutableArray *mutableObjects = [array mutableCopy] ?: [NSMutableArray array];
+```
+
 The better solution is to use the fact that `arrayWithArray:` will return an object in either way - even if the source array is nil:
     
-    NSMutableArray *mutableObjects = [NSMutableArray arrayWithArray:array];
+```objc
+NSMutableArray *mutableObjects = [NSMutableArray arrayWithArray:array];
+```
 
 The two operations are almost equal in performance. Using `copy` is a bit faster, but then again, it's highly unlikely that this will be your app bottleneck. **Side Note:** Please don't use `[@[] mutableCopy]`. The classic `[NSMutableArray array]` is a lot better to read.
     
@@ -78,21 +86,28 @@ Reversing an array is really easy: `array.reverseObjectEnumerator.allObjects`. W
 
 There are various ways to sort an array. If it's string based, `sortedArrayUsingSelector:` is your first choice:
 
-    NSArray *array = @[@"John Appleseed", @"Tim Cook", @"Hair Force One", @"Michael Jurewitz"];
-    NSArray *sortedArray = [array sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+```objc
+NSArray *array = @[@"John Appleseed", @"Tim Cook", @"Hair Force One", @"Michael Jurewitz"];
+NSArray *sortedArray = [array sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+```
+
    
 This works equally well for number-based content, since `NSNumber` implements `compare:` as well:
     
-    NSArray *numbers = @[@9, @5, @11, @3, @1];
-    NSArray *sortedNumbers = [numbers sortedArrayUsingSelector:@selector(compare:)];
-    
+```objc
+NSArray *numbers = @[@9, @5, @11, @3, @1];
+NSArray *sortedNumbers = [numbers sortedArrayUsingSelector:@selector(compare:)];
+```
+
 For more control, you can use the function-pointer-based sorting methods:
 
-    - (NSData *)sortedArrayHint;
-    - (NSArray *)sortedArrayUsingFunction:(NSInteger (*)(id, id, void *))comparator 
-                                  context:(void *)context;
-    - (NSArray *)sortedArrayUsingFunction:(NSInteger (*)(id, id, void *))comparator 
-                                  context:(void *)context hint:(NSData *)hint;
+```objc
+- (NSData *)sortedArrayHint;
+- (NSArray *)sortedArrayUsingFunction:(NSInteger (*)(id, id, void *))comparator 
+                              context:(void *)context;
+- (NSArray *)sortedArrayUsingFunction:(NSInteger (*)(id, id, void *))comparator 
+                              context:(void *)context hint:(NSData *)hint;
+```
 
 Apple added an (opaque) way to speed up sorting using `sortedArrayHint`. 
 
@@ -100,9 +115,11 @@ Apple added an (opaque) way to speed up sorting using `sortedArrayHint`.
 
 Since blocks are around, there are also the newer block-based sorting methods:
 
-    - (NSArray *)sortedArrayUsingComparator:(NSComparator)cmptr;
-    - (NSArray *)sortedArrayWithOptions:(NSSortOptions)opts 
-                        usingComparator:(NSComparator)cmptr;
+```objc
+- (NSArray *)sortedArrayUsingComparator:(NSComparator)cmptr;
+- (NSArray *)sortedArrayWithOptions:(NSSortOptions)opts 
+                    usingComparator:(NSComparator)cmptr;
+```
 
 Performance-wise, there's not much difference between the different methods. Interestingly, the selector-based approach is actually the fastest. [You'll find the source code the benchmarks used here on GitHub.](https://github.com/steipete/PSTFoundationBenchmark):
 
@@ -112,16 +129,18 @@ Performance-wise, there's not much difference between the different methods. Int
 
 `NSArray` has come with built-in [binary search](http://en.wikipedia.org/wiki/Binary_search_algorithm) since iOS 4 / Snow Leopard:
 
-    typedef NS_OPTIONS(NSUInteger, NSBinarySearchingOptions) {
-            NSBinarySearchingFirstEqual     = (1UL << 8),
-            NSBinarySearchingLastEqual      = (1UL << 9),
-            NSBinarySearchingInsertionIndex = (1UL << 10),
-    };
-    
-    - (NSUInteger)indexOfObject:(id)obj 
-                  inSortedRange:(NSRange)r 
-                        options:(NSBinarySearchingOptions)opts 
-                usingComparator:(NSComparator)cmp;
+```objc
+typedef NS_OPTIONS(NSUInteger, NSBinarySearchingOptions) {
+        NSBinarySearchingFirstEqual     = (1UL << 8),
+        NSBinarySearchingLastEqual      = (1UL << 9),
+        NSBinarySearchingInsertionIndex = (1UL << 10),
+};
+
+- (NSUInteger)indexOfObject:(id)obj 
+              inSortedRange:(NSRange)r 
+                    options:(NSBinarySearchingOptions)opts 
+            usingComparator:(NSComparator)cmp;
+```
 
 Why would you want to use this? Methods like `containsObject:` and `indexOfObject:` start at index 0 and search every object until the match is found - they don't require the array to be sorted but have a performance characteristic of O(n). Binary search, on the other hand, requires the array to be sorted, but only needs O(log n) time. Thus, for one million entries, binary search requires, at most, 21 comparisons, while the naive linear search would require an average of 500,000 comparisons.
 
@@ -139,54 +158,55 @@ With specifying `NSBinarySearchingInsertionIndex`, you can find the correct inse
 
 For a benchmark, we look at a common use case. Filter elements from an array into another array. This tests both the various enumeration ways, as well as the APIs specific to filtering:
 
-    // First variant, using `indexesOfObjectsWithOptions:passingTest:`.
-    NSIndexSet *indexes = [randomArray indexesOfObjectsWithOptions:NSEnumerationConcurrent 
-                                                       passingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        return testObj(obj);
-    }];
-    NSArray *filteredArray = [randomArray objectsAtIndexes:indexes];
+```objc
+// First variant, using `indexesOfObjectsWithOptions:passingTest:`.
+NSIndexSet *indexes = [randomArray indexesOfObjectsWithOptions:NSEnumerationConcurrent 
+                                                   passingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+    return testObj(obj);
+}];
+NSArray *filteredArray = [randomArray objectsAtIndexes:indexes];
 
-    // Filtering using predicates (block-based or text)    
-    NSArray *filteredArray2 = [randomArray filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id obj, NSDictionary *bindings) {
-        return testObj(obj);
-    }]];
+// Filtering using predicates (block-based or text)    
+NSArray *filteredArray2 = [randomArray filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id obj, NSDictionary *bindings) {
+    return testObj(obj);
+}]];
 
-    // Block-based enumeration 
-    NSMutableArray *mutableArray = [NSMutableArray array];
-    [randomArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if (testObj(obj)) {
-            [mutableArray addObject:obj];
-        }
-    }];
-    
-    // Classic enumeration
-    NSMutableArray *mutableArray = [NSMutableArray array];
-    for (id obj in randomArray) {
-        if (testObj(obj)) {
-            [mutableArray addObject:obj];
-        }
+// Block-based enumeration 
+NSMutableArray *mutableArray = [NSMutableArray array];
+[randomArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+    if (testObj(obj)) {
+        [mutableArray addObject:obj];
     }
-    
-    // Using NSEnumerator, old school.
-    NSMutableArray *mutableArray = [NSMutableArray array];
-    NSEnumerator *enumerator = [randomArray objectEnumerator];
-    id obj = nil;
-    while ((obj = [enumerator nextObject]) != nil) {
-        if (testObj(obj)) {
-            [mutableArray addObject:obj];
-        }
+}];
+
+// Classic enumeration
+NSMutableArray *mutableArray = [NSMutableArray array];
+for (id obj in randomArray) {
+    if (testObj(obj)) {
+        [mutableArray addObject:obj];
     }
-    
-    // Using objectAtIndex: (via subscripting)
-    NSMutableArray *mutableArray = [NSMutableArray array];
-    for (NSUInteger idx = 0; idx < randomArray.count; idx++) {
-        id obj = randomArray[idx];
-        if (testObj(obj)) {
-            [mutableArray addObject:obj];
-        }
+}
+
+// Using NSEnumerator, old school.
+NSMutableArray *mutableArray = [NSMutableArray array];
+NSEnumerator *enumerator = [randomArray objectEnumerator];
+id obj = nil;
+while ((obj = [enumerator nextObject]) != nil) {
+    if (testObj(obj)) {
+        [mutableArray addObject:obj];
     }
-    
-    
+}
+
+// Using objectAtIndex: (via subscripting)
+NSMutableArray *mutableArray = [NSMutableArray array];
+for (NSUInteger idx = 0; idx < randomArray.count; idx++) {
+    id obj = randomArray[idx];
+    if (testObj(obj)) {
+        [mutableArray addObject:obj];
+    }
+}
+```
+
 <table><thead><tr><th style="text-align: left;padding-right:1em;">Enumeration Method / Time [ms]</th><th style="text-align:right;padding-right:1em;">10.000.000 elements</th><th style="text-align:right;padding-right:1em;">10.000 elements</th></tr></thead><tbody><tr><td style="text-align: left;"><code>indexesOfObjects:</code>, concurrent</td><td style="text-align: right;padding-right:1em;">1844.73</td><td style="text-align: right;padding-right:1em;">2.25</td>
 </tr><tr><td style="text-align: left;padding-right:1em;"><code>NSFastEnumeration</code> (<code>for in</code>)</td><td style="text-align: right;padding-right:1em;">3223.45</td><td style="text-align: right;padding-right:1em;">3.21</td>
 </tr><tr><td style="text-align: left;padding-right:1em;"><code>indexesOfObjects:</code></td><td style="text-align: right;padding-right:1em;">4221.23</td><td style="text-align: right;padding-right:1em;">3.36</td>
@@ -245,58 +265,59 @@ The dictionary - much like array - uses different implementations depending on t
 
 Again, there are several ways how to best filter a dictionary:
 
-    // Using keysOfEntriesWithOptions:passingTest:,optionally concurrent
-    NSSet *matchingKeys = [randomDict keysOfEntriesWithOptions:NSEnumerationConcurrent 
-                                                   passingTest:^BOOL(id key, id obj, BOOL *stop) 
-    {
-        return testObj(obj);
-    }];
-    NSArray *keys = matchingKeys.allObjects;
-    NSArray *values = [randomDict objectsForKeys:keys notFoundMarker:NSNull.null];
-    __unused NSDictionary *filteredDictionary = [NSDictionary dictionaryWithObjects:values 
-                                                                            forKeys:keys];    
-        
-    // Block-based enumeration.
-    NSMutableDictionary *mutableDictionary = [NSMutableDictionary dictionary];
-    [randomDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        if (testObj(obj)) {
-            mutableDictionary[key] = obj;
-        }
-    }];
+```objc
+// Using keysOfEntriesWithOptions:passingTest:,optionally concurrent
+NSSet *matchingKeys = [randomDict keysOfEntriesWithOptions:NSEnumerationConcurrent 
+                                               passingTest:^BOOL(id key, id obj, BOOL *stop) 
+{
+    return testObj(obj);
+}];
+NSArray *keys = matchingKeys.allObjects;
+NSArray *values = [randomDict objectsForKeys:keys notFoundMarker:NSNull.null];
+__unused NSDictionary *filteredDictionary = [NSDictionary dictionaryWithObjects:values 
+                                                                        forKeys:keys];    
     
-    // NSFastEnumeration
-    NSMutableDictionary *mutableDictionary = [NSMutableDictionary dictionary];
-    for (id key in randomDict) {
-        id obj = randomDict[key];
-        if (testObj(obj)) {
-            mutableDictionary[key] = obj;
-        }
+// Block-based enumeration.
+NSMutableDictionary *mutableDictionary = [NSMutableDictionary dictionary];
+[randomDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+    if (testObj(obj)) {
+        mutableDictionary[key] = obj;
     }
-    
-     // NSEnumeration
-     NSMutableDictionary *mutableDictionary = [NSMutableDictionary dictionary];
-     NSEnumerator *enumerator = [randomDict keyEnumerator];
-     id key = nil;
-     while ((key = [enumerator nextObject]) != nil) {
-           id obj = randomDict[key];
-           if (testObj(obj)) {
-               mutableDictionary[key] = obj;
-           }
-     }
-    
-    // C-based array enumeration via getObjects:andKeys:
-    NSMutableDictionary *mutableDictionary = [NSMutableDictionary dictionary];
-    id __unsafe_unretained objects[numberOfEntries];
-    id __unsafe_unretained keys[numberOfEntries];
-    [randomDict getObjects:objects andKeys:keys];
-    for (int i = 0; i < numberOfEntries; i++) {
-        id obj = objects[i];
-        id key = keys[i];
-        if (testObj(obj)) {
-           mutableDictionary[key] = obj;
-        }
-     }
+}];
 
+// NSFastEnumeration
+NSMutableDictionary *mutableDictionary = [NSMutableDictionary dictionary];
+for (id key in randomDict) {
+    id obj = randomDict[key];
+    if (testObj(obj)) {
+        mutableDictionary[key] = obj;
+    }
+}
+
+ // NSEnumeration
+ NSMutableDictionary *mutableDictionary = [NSMutableDictionary dictionary];
+ NSEnumerator *enumerator = [randomDict keyEnumerator];
+ id key = nil;
+ while ((key = [enumerator nextObject]) != nil) {
+       id obj = randomDict[key];
+       if (testObj(obj)) {
+           mutableDictionary[key] = obj;
+       }
+ }
+
+// C-based array enumeration via getObjects:andKeys:
+NSMutableDictionary *mutableDictionary = [NSMutableDictionary dictionary];
+id __unsafe_unretained objects[numberOfEntries];
+id __unsafe_unretained keys[numberOfEntries];
+[randomDict getObjects:objects andKeys:keys];
+for (int i = 0; i < numberOfEntries; i++) {
+    id obj = objects[i];
+    id key = keys[i];
+    if (testObj(obj)) {
+       mutableDictionary[key] = obj;
+    }
+ }
+```
 
 <table><thead><tr><th style="text-align: left;min-width:22em;">Filtering/Enumeration Method</th><th style="text-align: right;">Time [ms], 50.000 elements</th><th style="text-align: right;">1.000.000 elements</th></tr></thead><tbody><tr><td style="text-align: left;"><code>keysOfEntriesWithOptions:</code>, concurrent</td><td style="text-align: right;">16.65</td><td style="text-align: right;">425.24</td>
 </tr><tr><td style="text-align: left;"><code>getObjects:andKeys:</code></td><td style="text-align: right;">30.33</td><td style="text-align: right;">798.49*</td>
@@ -323,10 +344,12 @@ By now you already now how this test works, and the short answer is NO, the `cou
 
 There's not much to say about dictionary sorting. You can only sort the key array as a new object, thus you can use any of the regular `NSArray` sorting methods as well:
 
-    - (NSArray *)keysSortedByValueUsingSelector:(SEL)comparator;
-    - (NSArray *)keysSortedByValueUsingComparator:(NSComparator)cmptr;
-    - (NSArray *)keysSortedByValueWithOptions:(NSSortOptions)opts 
-                              usingComparator:(NSComparator)cmptr;
+```objc
+- (NSArray *)keysSortedByValueUsingSelector:(SEL)comparator;
+- (NSArray *)keysSortedByValueUsingComparator:(NSComparator)cmptr;
+- (NSArray *)keysSortedByValueWithOptions:(NSSortOptions)opts 
+                          usingComparator:(NSComparator)cmptr;
+```
 
 ### Shared Keys
 
@@ -336,13 +359,16 @@ This makes it perfect for use cases like a JSON parser, although in our limited 
 
 **Interesting detail**: Shared-key dictionaries are **always mutable**, even when calling 'copy' on them. This behavior is not documented but can be easily tested:
 
-    id sharedKeySet = [NSDictionary sharedKeySetForKeys:@[@1, @2, @3]]; // returns NSSharedKeySet
-    NSMutableDictionary *test = [NSMutableDictionary dictionaryWithSharedKeySet:sharedKeySet];
-    test[@4] = @"First element (not in the shared key set, but will work as well)";
-    NSDictionary *immutable = [test copy];
-    NSParameterAssert(immutable == 1);
-    ((NSMutableDictionary *)immutable)[@5] = @"Adding objects to an immutable collection should throw an exception.";
-    NSParameterAssert(immutable == 2);
+```objc
+id sharedKeySet = [NSDictionary sharedKeySetForKeys:@[@1, @2, @3]]; // returns NSSharedKeySet
+NSMutableDictionary *test = [NSMutableDictionary dictionaryWithSharedKeySet:sharedKeySet];
+test[@4] = @"First element (not in the shared key set, but will work as well)";
+NSDictionary *immutable = [test copy];
+NSParameterAssert(immutable == 1);
+((NSMutableDictionary *)immutable)[@5] = @"Adding objects to an immutable collection should throw an exception.";
+NSParameterAssert(immutable == 2);
+```
+
  
 
 ## NSSet
@@ -527,23 +553,27 @@ There are a few use cases where `NSIndexSet` (and its mutable variant, `NSMutabl
 
 This is how you would convert an array of integers to an `NSIndexSet`:
 
-    NSIndexSet *PSPDFIndexSetFromArray(NSArray *array) {
-        NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-        for (NSNumber *number in array) {
-            [indexSet addIndex:[number unsignedIntegerValue]];
-        }
-        return [indexSet copy];
+```objc
+NSIndexSet *PSPDFIndexSetFromArray(NSArray *array) {
+    NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
+    for (NSNumber *number in array) {
+        [indexSet addIndex:[number unsignedIntegerValue]];
     }
+    return [indexSet copy];
+}
+```
 
 Getting all indexes out of the index set was a bit fiddly before we had blocks, with `getIndexes:maxCount:inIndexRange:` being the fastest way, next to using `firstIndex` and iterating until `indexGreaterThanIndex:` returned `NSNotFound`. With the arrival of blocks, working with `NSIndexSet` has become a lot more convenient:
 
-    NSArray *PSPDFArrayFromIndexSet(NSIndexSet *indexSet) {
-        NSMutableArray *indexesArray = [NSMutableArray arrayWithCapacity:indexSet.count];
-        [indexSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
-           [indexesArray addObject:@(idx)];
-        }];
-        return [indexesArray copy];
-    }
+```objc
+NSArray *PSPDFArrayFromIndexSet(NSIndexSet *indexSet) {
+    NSMutableArray *indexesArray = [NSMutableArray arrayWithCapacity:indexSet.count];
+    [indexSet enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+       [indexesArray addObject:@(idx)];
+    }];
+    return [indexesArray copy];
+}
+```
 
 ### Performance of NSIndexSet
 

@@ -3,7 +3,9 @@ title:  "Animations Explained"
 category: "12"
 date: "2014-05-08 11:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/ceterum_censeo\">Robert Böhnke</a>"
+author:
+  - name: Robert Böhnke
+    url: https://twitter.com/ceterum_censeo
 ---
 
 The applications we write are rarely a static experience, as they adapt to the user's needs and change states to perform a multitude of tasks.
@@ -36,25 +38,25 @@ By using `-[CALayer presentationLayer]` and `-[CALayer modelLayer]`, you can swi
 
 Probably the most common case is to animate a view's property from one value to another. Consider this example:
 
-<center><img src="/images/issue-12/rocket-linear@2x.gif" width="400px"></center>
+![](/images/issue-12/rocket-linear@2x.gif)
 
 Here, we animate our little red rocket from an x-position of `77.0` to one of `455.0`, which is just beyond the edge of its parent view. In order to fill in all the steps along the way, we need to determine where our rocket is going to be at any given point in time. This is commonly done using linear interpolation:
 
-<center>
-    <img src="/images/issue-12/lerp.png" width="135">
-</center>
+![](/images/issue-12/lerp@2x.png)
 
 That is, for a given fraction of the animation `t`, the x-coordinate of the rocket is the x-coordinate of the starting point `77`, plus the distance to the end point `∆x = 378`, multiplied with said fraction.
 
 Using `CABasicAnimation`, we can implement this animation as follows:
 
-    CABasicAnimation *animation = [CABasicAnimation animation];
-    animation.keyPath = @"position.x";
-    animation.fromValue = @77;
-    animation.toValue = @455;
-    animation.duration = 1;
+```objc
+CABasicAnimation *animation = [CABasicAnimation animation];
+animation.keyPath = @"position.x";
+animation.fromValue = @77;
+animation.toValue = @455;
+animation.duration = 1;
 
-    [rocket.layer addAnimation:animation forKey:@"basic"];
+[rocket.layer addAnimation:animation forKey:@"basic"];
+```
 
 Note that the key path we animate, `position.x`, actually contains a member of the `CGPoint` struct stored in the `position` property. This is a very convenient feature of Core Animation. Make sure to check [the complete list of supported key paths](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/CoreAnimation_guide/Key-ValueCodingExtensions/Key-ValueCodingExtensions.html).
 
@@ -68,45 +70,51 @@ The first approach is to update the property directly on the model layer. _This 
 
 Once the animation completes and is removed from the layer, the presentation layer will fall through to the value that is set on the model, which matches the last step of the animation:
 
-    CABasicAnimation *animation = [CABasicAnimation animation];
-    animation.keyPath = @"position.x";
-    animation.fromValue = @77;
-    animation.toValue = @455;
-    animation.duration = 1;
+```objc
+CABasicAnimation *animation = [CABasicAnimation animation];
+animation.keyPath = @"position.x";
+animation.fromValue = @77;
+animation.toValue = @455;
+animation.duration = 1;
 
-    [rocket.layer addAnimation:animation forKey:@"basic"];
+[rocket.layer addAnimation:animation forKey:@"basic"];
 
-    rocket.layer.position = CGPointMake(455, 61);
+rocket.layer.position = CGPointMake(455, 61);
+```
 
 Alternatively, you can tell the animation to remain in its final state by setting its `fillMode` property to ` kCAFillModeForwards` and prevent it from being automatically removed by setting `removedOnCompletion` to `NO`. However, it's a good practice to keep the model and presentation layers in sync, so _this approach should be used carefully_.
 
 [Andy Matuschak also pointed out](https://twitter.com/andy_matuschak/status/464799423785336832), that keeping completed animations around adds additional overhead and may cause the renderer to draw unnecessary frames.
 
-    CABasicAnimation *animation = [CABasicAnimation animation];
-    animation.keyPath = @"position.x";
-    animation.fromValue = @77;
-    animation.toValue = @455;
-    animation.duration = 1;
+```objc
+CABasicAnimation *animation = [CABasicAnimation animation];
+animation.keyPath = @"position.x";
+animation.fromValue = @77;
+animation.toValue = @455;
+animation.duration = 1;
 
-    animation.fillMode = kCAFillModeForward;
-    animation.removedOnCompletion = NO;
+animation.fillMode = kCAFillModeForward;
+animation.removedOnCompletion = NO;
 
-    [rectangle.layer addAnimation:animation forKey:@"basic"];
+[rectangle.layer addAnimation:animation forKey:@"basic"];
+```
 
 It's worth pointing out that the animation object we create is actually copied as soon as it is added to the layer. This is useful to keep in mind when reusing animations for multiple views. Let's say we have a second rocket that we want to take off shortly after the first one:
 
-    CABasicAnimation *animation = [CABasicAnimation animation];
-    animation.keyPath = @"position.x";
-    animation.byValue = @378;
-    animation.duration = 1;
+```objc
+CABasicAnimation *animation = [CABasicAnimation animation];
+animation.keyPath = @"position.x";
+animation.byValue = @378;
+animation.duration = 1;
 
-    [rocket1.layer addAnimation:animation forKey:@"basic"];
-    rocket1.layer.position = CGPointMake(455, 61);
+[rocket1.layer addAnimation:animation forKey:@"basic"];
+rocket1.layer.position = CGPointMake(455, 61);
 
-    animation.beginTime = CACurrentMediaTime() + 0.5;
+animation.beginTime = CACurrentMediaTime() + 0.5;
 
-    [rocket2.layer addAnimation:animation forKey:@"basic"];
-    rocket2.layer.position = CGPointMake(455, 111);
+[rocket2.layer addAnimation:animation forKey:@"basic"];
+rocket2.layer.position = CGPointMake(455, 111);
+```
 
 Setting the `beginTime` of the animation 0.5 seconds into the future will only affect `rocket2`, since the animation was copied by `[rocket1.layer addAnimation:animation forKey:@"basic"];`, and further changes to the animation object are not taken into account by `rocket1`.
 
@@ -124,19 +132,19 @@ Keyframes allow us to define an arbitrary number of points during the animation,
 
 Let's say we are working on a log-in form for our next iPhone application and want to shake the form whenever the user enters his or her password incorrectly. Using keyframe animations, this could look a little like so:
 
-<center>
-    <img src="/images/issue-12/form.gif" width="320px">
-</center>
+![](/images/issue-12/form.gif)
 
-    CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
-    animation.keyPath = @"position.x";
-    animation.values = @[ @0, @10, @-10, @10, @0 ];
-    animation.keyTimes = @[ @0, @(1 / 6.0), @(3 / 6.0), @(5 / 6.0), @1 ];
-    animation.duration = 0.4;
+```objc
+CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
+animation.keyPath = @"position.x";
+animation.values = @[ @0, @10, @-10, @10, @0 ];
+animation.keyTimes = @[ @0, @(1 / 6.0), @(3 / 6.0), @(5 / 6.0), @1 ];
+animation.duration = 0.4;
 
-    animation.additive = YES;
+animation.additive = YES;
 
-    [form.layer addAnimation:animation forKey:@"shake"];
+[form.layer addAnimation:animation forKey:@"shake"];
+```
 
 The `values` array defines which positions the form should have.
 
@@ -153,20 +161,22 @@ Thankfully, `CAKeyframeAnimation` offers the more convenient `path` property as 
 
 For instance, this is how we would animate a view in a circle:
 
-<center><img src="/images/issue-12/planets@2x.gif" width="400px"></center>
+![](/images/issue-12/planets.gif)
 
-    CGRect boundingRect = CGRectMake(-150, -150, 300, 300);
+```objc
+CGRect boundingRect = CGRectMake(-150, -150, 300, 300);
 
-    CAKeyframeAnimation *orbit = [CAKeyframeAnimation animation];
-    orbit.keyPath = @"position";
-    orbit.path = CFAutorelease(CGPathCreateWithEllipseInRect(boundingRect, NULL));
-    orbit.duration = 4;
-    orbit.additive = YES;
-    orbit.repeatCount = HUGE_VALF;
-    orbit.calculationMode = kCAAnimationPaced;
-    orbit.rotationMode = kCAAnimationRotateAuto;
+CAKeyframeAnimation *orbit = [CAKeyframeAnimation animation];
+orbit.keyPath = @"position";
+orbit.path = CFAutorelease(CGPathCreateWithEllipseInRect(boundingRect, NULL));
+orbit.duration = 4;
+orbit.additive = YES;
+orbit.repeatCount = HUGE_VALF;
+orbit.calculationMode = kCAAnimationPaced;
+orbit.rotationMode = kCAAnimationRotateAuto;
 
-    [satellite.layer addAnimation:orbit forKey:@"orbit"];
+[satellite.layer addAnimation:orbit forKey:@"orbit"];
+```
 
 Using `CGPathCreateWithEllipseInRect()`, we create a circular `CGPath` that we use as the `path` of our keyframe animation. 
 
@@ -175,7 +185,7 @@ Setting it to `kCAAnimationPaced` also disregards any `keyTimes` we would've set
 
 Setting the `rotationMode` property to `kCAAnimationRotateAuto` ensures that the satellite follows the rotation along the path. By contrast, this is what the animation would look like had we left the property `nil`:
 
-<center><img src="/images/issue-12/planets-incorrect@2x.gif" width="400px"></center>
+![](/images/issue-12/planets-incorrect.gif)
 
 You can achieve a couple of interesting effects using animations with paths;
 fellow objc.io author [Ole Begemann](https://twitter.com/olebegemann) wrote [a great post](http://oleb.net/blog/2010/12/animating-drawing-of-cgpath-with-cashapelayer) about how you can combine path-based animations with `CAShapeLayer` to create cool drawing animations with only a couple of lines of code.
@@ -184,7 +194,7 @@ fellow objc.io author [Ole Begemann](https://twitter.com/olebegemann) wrote [a g
 
 Let's look at our first example again:
 
-<center><img src="/images/issue-12/rocket-linear@2x.gif" width="400px"></center>
+![](/images/issue-12/rocket-linear@2x.gif)
 
 You'll notice that there is something very artificial about the animation of our rocket. That is because most movements we see in the real world take time to accelerate or decelerate. Objects that instantly reach their top speed and then stop immediately tend to look very unnatural. Unless you're [dancing the robot](https://www.youtube.com/watch?v=o8HkEprSaAs&t=1m2s), that's rarely a desired effect.
 
@@ -194,60 +204,62 @@ Instead, it's common practice to decouple the interpolation of the animated prop
 
 We can achieve this by introducing a _timing function_ (also sometimes referred to as an easing function). This function controls the speed of the animation by modifying the fraction of the duration:
 
-<center>
-    <img src="/images/issue-12/lerp-with-easing.png" width="145">
-</center>
+![](/images/issue-12/lerp-with-easing.png)
 
 The simplest easing function is _linear_. It maintains a constant speed throughout the animation and is effectively what we see above.
 In Core Animation, this function is represented by the `CAMediaTimingFunction`
 class:
 
-<img src="/images/issue-12/rect-linear@2x.gif" width="540px">
+![](/images/issue-12/rect-linear@2x.gif)
 
-    CABasicAnimation *animation = [CABasicAnimation animation];
-    animation.keyPath = @"position.x";
-    animation.fromValue = @50;
-    animation.toValue = @150;
-    animation.duration = 1;
+```objc
+CABasicAnimation *animation = [CABasicAnimation animation];
+animation.keyPath = @"position.x";
+animation.fromValue = @50;
+animation.toValue = @150;
+animation.duration = 1;
 
-    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
 
-    [rectangle.layer addAnimation:animation forKey:@"basic"];
+[rectangle.layer addAnimation:animation forKey:@"basic"];
 
-    rectangle.layer.position = CGPointMake(150, 0);
+rectangle.layer.position = CGPointMake(150, 0);
+```
 
 Core Animation comes with a number of built-in easing functions beyond linear, such as:
 
 * Ease in (`kCAMediaTimingFunctionEaseIn`):  
-  <center><img src="/images/issue-12/rect-easein@2x.gif" width="540px"></center>
+  ![](/images/issue-12/rect-easein@2x.gif)
 * Ease out (`kCAMediaTimingFunctionEaseOut`):  
-  <center><img src="/images/issue-12/rect-easeout@2x.gif" width="540px"></center>
+  ![](/images/issue-12/rect-easeout@2x.gif)
 * Ease in ease out (`kCAMediaTimingFunctionEaseInEaseOut`):  
-  <center><img src="/images/issue-12/rect-easeineaseout@2x.gif" width="540px"></center>
+  ![](/images/issue-12/rect-easeineaseout@2x.gif)
 * Default (`kCAMediaTimingFunctionDefault`):  
-  <center><img src="/images/issue-12/rect-default@2x.gif" width="540px"></center>
+  ![](/images/issue-12/rect-default@2x.gif)
 
 It's also possible, within limits, to create your own easing function using `+functionWithControlPoints::::`.[^3] By passing in the _x_ and _y_ components of two control points of a cubic Bézier curve, you can easily create custom easing functions, such as the one I chose for our little red rocket:
 
 [^3]: This method is infamous for having three nameless parameters, not something that we recommend you make use of in your APIs.
 
-<center><img src="/images/issue-12/rocket-custom@2x.gif" width="400px"></center>
+![](/images/issue-12/rocket-custom@2x.gif)
 
-    CABasicAnimation *animation = [CABasicAnimation animation];
-    animation.keyPath = @"position.x";
-    animation.fromValue = @77;
-    animation.toValue = @455;
-    animation.duration = 1;
+```objc
+CABasicAnimation *animation = [CABasicAnimation animation];
+animation.keyPath = @"position.x";
+animation.fromValue = @77;
+animation.toValue = @455;
+animation.duration = 1;
 
-    animation.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.5:0:0.9:0.7];
+animation.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.5:0:0.9:0.7];
 
-    [rocket.layer addAnimation:animation forKey:@"basic"];
+[rocket.layer addAnimation:animation forKey:@"basic"];
 
-    rocket.layer.position = CGPointMake(150, 0);
+rocket.layer.position = CGPointMake(150, 0);
+```
 
 Without going into too much detail on Bézier curves, they are a common technique to create smooth curves in computer graphics. You've probably seen them in vector-based drawing tools such as Sketch or Adobe Illustrator.
 
-<center><img src="/images/issue-12/bezier.png"></center>
+![](/images/issue-12/bezier.png)
 
 The values passed to `+functionWithControlPoints::::` effectively control the position of the handles. The resulting timing function will then adjust the speed of the animation based on the resulting path. The x-axis represents the fraction of the duration, while the y-axis is the input value of the interpolation function.
 
@@ -255,61 +267,65 @@ While [the documentation](https://developer.apple.com/library/mac/documentation/
 
 Since `CAMediaTimingFunction` is limited to functions that can be expressed as cubic Bézier curves, I wrote a small library, called [RBBAnimation](https://github.com/robb/RBBAnimation), that contains a custom `CAKeyframeAnimation` subclass which allows you to use [more complex easing functions](https://github.com/robb/RBBAnimation#rbbtweenanimation), including bounces:
 
-<center><img src="/images/issue-12/bounce@2x.gif" width="140"></center>
+![](/images/issue-12/bounce@2x.gif)
 
-    RBBTweenAnimation *animation = [RBBTweenAnimation animation];
-    animation.keyPath = @"position.y";
-    animation.fromValue = @50;
-    animation.toValue = @150;
-    animation.duration = 1;
+```objc
+RBBTweenAnimation *animation = [RBBTweenAnimation animation];
+animation.keyPath = @"position.y";
+animation.fromValue = @50;
+animation.toValue = @150;
+animation.duration = 1;
 
-    animation.easing = RBBEasingFunctionEaseOutBounce;
+animation.easing = RBBEasingFunctionEaseOutBounce;
+```
 
 ## Animation Groups
 
 For certain complex effects, it may be necessary to animate multiple properties at once. Imagine we were to implement a shuffle animation when advancing to a random track in a media player app, it could look like this:
 
-<center><img src="/images/issue-12/covers@2x.gif" width="440"></center>
+![](/images/issue-12/covers.gif)
 
 You can see that we have to animate the position, rotation and z-position of the artworks at once. Using `CAAnimationGroup`, the code to animate one of the covers could look a little something like this:
 
-    CABasicAnimation *zPosition = [CABasicAnimation animation];
-    zPosition.keyPath = @"zPosition";
-    zPosition.fromValue = @-1;
-    zPosition.toValue = @1;
-    zPosition.duration = 1.2;
+```objc
+CABasicAnimation *zPosition = [CABasicAnimation animation];
+zPosition.keyPath = @"zPosition";
+zPosition.fromValue = @-1;
+zPosition.toValue = @1;
+zPosition.duration = 1.2;
 
-    CAKeyframeAnimation *rotation = [CAKeyframeAnimation animation];
-    rotation.keyPath = @"transform.rotation";
-    rotation.values = @[ @0, @0.14, @0 ];
-    rotation.duration = 1.2;
-    rotation.timingFunctions = @[
-        [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
-        [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
-    ];
+CAKeyframeAnimation *rotation = [CAKeyframeAnimation animation];
+rotation.keyPath = @"transform.rotation";
+rotation.values = @[ @0, @0.14, @0 ];
+rotation.duration = 1.2;
+rotation.timingFunctions = @[
+    [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
+    [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
+];
 
-    CAKeyframeAnimation *position = [CAKeyframeAnimation animation];
-    position.keyPath = @"position";
-    position.values = @[
-        [NSValue valueWithCGPoint:CGPointZero],
-        [NSValue valueWithCGPoint:CGPointMake(110, -20)],
-        [NSValue valueWithCGPoint:CGPointZero]
-    ];
-    position.timingFunctions = @[
-        [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
-        [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
-    ];
-    position.additive = YES;
-    position.duration = 1.2;
+CAKeyframeAnimation *position = [CAKeyframeAnimation animation];
+position.keyPath = @"position";
+position.values = @[
+    [NSValue valueWithCGPoint:CGPointZero],
+    [NSValue valueWithCGPoint:CGPointMake(110, -20)],
+    [NSValue valueWithCGPoint:CGPointZero]
+];
+position.timingFunctions = @[
+    [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],
+    [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]
+];
+position.additive = YES;
+position.duration = 1.2;
 
-    CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
-    group.animations = @[ zPosition, rotation, position ];
-    group.duration = 1.2;
-    group.beginTime = 0.5;
+CAAnimationGroup *group = [[CAAnimationGroup alloc] init];
+group.animations = @[ zPosition, rotation, position ];
+group.duration = 1.2;
+group.beginTime = 0.5;
 
-    [card.layer addAnimation:group forKey:@"shuffle"];
+[card.layer addAnimation:group forKey:@"shuffle"];
 
-    card.layer.zPosition = 1;
+card.layer.zPosition = 1;
+```
 
 One benefit we get from using `CAAnimationGroup` is being able to expose all animations as a single object. This is useful if you have a factory object that creates animations to be reused at multiple points in your application.
 

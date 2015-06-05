@@ -3,7 +3,9 @@ title:  "Functional Signal Processing Using Swift"
 category: "24"
 date: "2015-05-11 10:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/liscio\">Chris Liscio</a>"
+author:
+  - name: Chris Liscio
+    url: https://twitter.com/liscio
 ---
 
 As a long-time Core Audio programmer, Apple's introduction of Swift left me both excited and confused. I was excited by the prospect of a modern language built with performance in mind, but I wasn't entirely sure how functional programming could apply to "my world." Fortunately for me, many have [explored and conquered][faust] this problem set already, so I decided to apply some of what I learned from those projects to the Swift programming language.

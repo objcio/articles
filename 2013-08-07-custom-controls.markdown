@@ -2,7 +2,9 @@
 title:  "Custom Controls"
 category: "3"
 date: "2013-08-07 07:00:00"
-author: "<a href=\"http://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: http://twitter.com/chriseidhof
 tags: article
 ---
 
@@ -86,14 +88,16 @@ to draw round avatars and a border, such as in the picture below:
 To achieve this, we created an image view subclass with the following
 code:
 
-    // called from initializer
-    - (void)setupView
-    {
-        self.clipsToBounds = YES;
-        self.layer.cornerRadius = self.bounds.size.width / 2;
-        self.layer.borderWidth = 3;
-        self.layer.borderColor = [UIColor darkGrayColor].CGColor;
-    }
+```objc
+// called from initializer
+- (void)setupView
+{
+    self.clipsToBounds = YES;
+    self.layer.cornerRadius = self.bounds.size.width / 2;
+    self.layer.borderWidth = 3;
+    self.layer.borderColor = [UIColor darkGrayColor].CGColor;
+}
+```
 
 I would like to encourage you to dive into `CALayer` and its properties,
 because most of what you can achieve with that will be faster than
@@ -137,7 +141,9 @@ As said, when writing custom controls, you almost always want to
 extend a subclass of UIControl. In your subclass, you can fire events
 using the target action mechanism, as shown in this example:
 
-    [self sendActionsForControlEvents:UIControlEventValueChanged];
+```objc
+[self sendActionsForControlEvents:UIControlEventValueChanged];
+```
 
 To respond to touches, you almost always want to use gesture
 recognizers. However, if you want to go low-level, you can still
@@ -159,22 +165,26 @@ The old-school way, and often the most convenient, is to use
 target-action. After the selection, you would do something like this in
 your custom view:
 
-    [self sendActionsForControlEvents:UIControlEventValueChanged];
+```objc
+[self sendActionsForControlEvents:UIControlEventValueChanged];
+```
 
 If you have a view controller that manages this view, it would do
 something like this:
 
-     - (void)setupPieChart
-     {
-        [self.pieChart addTarget:self 
-                          action:@selector(updateSelection:)
-                forControlEvents:UIControlEventValueChanged];
-     }
-     
-     - (void)updateSelection:(id)sender
-     {
-        NSLog(@"%@", self.pieChart.selectedSector);
-     }
+```objc
+ - (void)setupPieChart
+ {
+    [self.pieChart addTarget:self 
+                      action:@selector(updateSelection:)
+            forControlEvents:UIControlEventValueChanged];
+ }
+ 
+ - (void)updateSelection:(id)sender
+ {
+    NSLog(@"%@", self.pieChart.selectedSector);
+ }
+```
 
 The advantage is that you need to do very little in your custom view
 subclass, and you automatically get support for multiple targets.
@@ -186,25 +196,28 @@ the view to the controller, it is often handy to
 use the delegate pattern. In case of our pie chart, it would look
 something like this:
 
-    [self.delegate pieChart:self didSelectSector:self.selectedSector];
+```objc
+[self.delegate pieChart:self didSelectSector:self.selectedSector];
+```
 
 And in the view controller, you would write code like so:
 
 
-     @interface MyViewController <PieChartDelegate>
+```objc
+ @interface MyViewController <PieChartDelegate>
 
-     ...
+ ...
 
-     - (void)setupPieChart
-     {
-         self.pieChart.delegate = self;
-     }
-     
-     - (void)pieChart:(PieChart*)pieChart didSelectSector:(PieChartSector*)sector
-     {
-         // Handle the sector
-     }
-
+ - (void)setupPieChart
+ {
+     self.pieChart.delegate = self;
+ }
+ 
+ - (void)pieChart:(PieChart*)pieChart didSelectSector:(PieChartSector*)sector
+ {
+     // Handle the sector
+ }
+```
 
 This is nice when you want to do more complicated things than just
 letting the owner know that the value changed. Even though most
@@ -221,29 +234,35 @@ almost always resort to.
 Another option you have is to use blocks. Again, in case of the pie
 chart, it would look something like this:
 
-    @interface PieChart : UIControl
+```objc
+@interface PieChart : UIControl
 
-    @property (nonatomic,copy) void(^selectionHandler)(PieChartSection* selectedSection);
+@property (nonatomic,copy) void(^selectionHandler)(PieChartSection* selectedSection);
 
-    @end
+@end
+```
 
 Then, in the selection code, you would just call it. It is important to
 check if the block is set, because calling a block that is not set will
 crash.
 
-    if (self.selectionHandler != NULL) {
-      self.selectionHandler(self.selectedSection);
-    }
+```objc
+if (self.selectionHandler != NULL) {
+  self.selectionHandler(self.selectedSection);
+}
+```
 
 The advantage of setting things up this way is that you can group
 related code together in the view controller:
 
-    - (void)setupPieChart
-    {
-       self.pieChart.selectionHandler = ^(PieChartSection* section) {
-          // Do something with the section
-       }
-    }
+```objc
+- (void)setupPieChart
+{
+   self.pieChart.selectionHandler = ^(PieChartSection* section) {
+      // Do something with the section
+   }
+}
+```
 
 Just like with delegates, you typically have only one block per
 action. Another more important limitation is that you don't want to
@@ -253,11 +272,13 @@ view controller, you've created a retain cycle. To make this mistake, you only
 need to reference self in the block. So you often end up with code like
 this:
 
-    __weak id weakSelf = self;
-    self.pieChart.selectionHandler = ^(PieChartSection* section) {
-       MyViewController* strongSelf = weakSelf;
-       [strongSelf handleSectionChange:section];
-    }
+```objc
+__weak id weakSelf = self;
+self.pieChart.selectionHandler = ^(PieChartSection* section) {
+   MyViewController* strongSelf = weakSelf;
+   [strongSelf handleSectionChange:section];
+}
+```
 
 Once the block bodies get out of hand, you will also probably extract
 them to methods of their own, and then you might as well have used
@@ -270,23 +291,27 @@ magical and less direct, but when you are already using it in your
 application, it's a nice pattern to decouple things. In your pie chart
 class, you would do this:
 
-    self.selectedSegment = theNewSelectedSegment.
+```objc
+self.selectedSegment = theNewSelectedSegment.
+```
 
 When you use synthesized properties, KVO will pick up this change and
 send notifications. In your view controller, you would do something like
 this:
 
-    - (void)setupPieChart
-    {
-        [self.pieChart addObserver:self forKeyPath:@"selectedSegment" options:0 context:NULL];
-    }
-    
-    - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context 
-    {
-      if(object == self.pieChart && [keyPath isEqualToString:@"selectedSegment"]) {
-         // Handle change
-      }
-    }
+```objc
+- (void)setupPieChart
+{
+    [self.pieChart addObserver:self forKeyPath:@"selectedSegment" options:0 context:NULL];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context 
+{
+  if(object == self.pieChart && [keyPath isEqualToString:@"selectedSegment"]) {
+     // Handle change
+  }
+}
+```
 
 You also need to remove the observer, for example, in `viewWillDisappear:` or `dealloc`, depending on your use case. Observing multiple children from the same object quickly gets messy. There are some techniques for dealing with this, such as [ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) or the more lightweight [`THObserversAndBinders`](https://github.com/th-in-gs/THObserversAndBinders).
 
@@ -297,36 +322,45 @@ notifications for letting other objects know about changes. In case of the pie c
 you almost certainly wouldn't want this, but for completeness, here is
 how you would do it. In the pie chart's header file:
 
-    extern NSString* const SelectedSegmentChangedNotification;
+```objc
+extern NSString* const SelectedSegmentChangedNotification;
+```
 
 And in the implementation:
 
-    NSString* const SelectedSegmentChangedNotification = @"selectedSegmentChangedNotification";
+```objc
+NSString* const SelectedSegmentChangedNotification = @"selectedSegmentChangedNotification";
 
-    ...
+...
 
-    - (void)notifyAboutChanges
-    {
-       [[NSNotificationCenter defaultCenter] postNotificationName:SelectedSegmentChangedNotification object:self];
-    }
+- (void)notifyAboutChanges
+{
+   [[NSNotificationCenter defaultCenter] postNotificationName:SelectedSegmentChangedNotification object:self];
+}
+```
 
 Now, to subscribe to notifications, you do the following in your view
 controller:
 
-    - (void)setupPieChart
-    {
-      [[NSNotificationCenter defaultCenter] addObserver:self 
-                                               selector:@selector(segmentChanged:) 
-                                                   name:SelectedSegmentChangedNotification
-                                                 object:self.pieChart];
+```objc
+- (void)setupPieChart
+{
+  [[NSNotificationCenter defaultCenter] addObserver:self 
+                                           selector:@selector(segmentChanged:) 
+                                               name:SelectedSegmentChangedNotification
+                                             object:self.pieChart];
 
-    }
+}
+```
+
  
-    ...
-    
-    - (void)segmentChanged:(NSNotification*)note
-    {
-    }
+```objc
+...
+
+- (void)segmentChanged:(NSNotification*)note
+{
+}
+```
 
 When you add the observer, instead of passing in the pie chart as the `object`, you could
 also pass in `nil` and receive notifications from all pie chart objects.

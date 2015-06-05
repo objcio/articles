@@ -3,7 +3,11 @@ title:  "Mastering the iCloud Document Store"
 category: "10"
 date: "2014-03-07 09:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/hdrxs\">Friedrich Gräter</a> & <a href=\"http://twitter.com/macguru17\">Max Seelemann</a>"
+author:
+  - name: Friedrich Gräter
+    url: https://twitter.com/hdrxs
+  - name: Max Seelemann
+    url: http://twitter.com/macguru17
 ---
 
 Even three years after its introduction, the iCloud document store is still a topic full of myth, misunderstanding, and resentment. iCloud synching has often been criticized for being unreliable or slow. And while there were imminent bugs in the early days of iCloud, application developers had to learn their lessons about file synchronization, too. File synchronization is non-trivial and brings new aspects to application development — aspects which are often underestimated, such as the requirement to handle asynchronous file changes while being cooperative regarding synchronization services.
@@ -117,16 +121,18 @@ There are several situations where you need to be prepared in case file coordina
 
 Beyond that, there are also several issues on case-insensitive file systems. You should always make sure that you perform a case-insensitive comparison of filenames *if* the file system requires it. File coordination blocks and presenter notifications may deliver variants of the same URL using different casings. In particular, this an important issue when renaming files using file coordinators. To understand this issue, you need to recall how files are actually renamed:
 
-	[coordinator coordinateWritingItemAtURL:sourceURL 
-	                                options:NSFileCoordinatorWritingForMoving 
-	                       writingItemAtURL:destURL 
-	                                options:0 
-	                                  error:NULL 
-	                             byAccessor:^(NSURL *oldURL, NSURL *newURL) 
-	{
-		[NSFileManager.defaultManager moveItemAtURL:oldURL toURL:newURL error:NULL];
-		[coordinator itemAtURL:oldURL didMoveToURL:newURL];
-	}];
+```objc
+[coordinator coordinateWritingItemAtURL:sourceURL 
+                                options:NSFileCoordinatorWritingForMoving 
+                       writingItemAtURL:destURL 
+                                options:0 
+                                  error:NULL 
+                             byAccessor:^(NSURL *oldURL, NSURL *newURL) 
+{
+    [NSFileManager.defaultManager moveItemAtURL:oldURL toURL:newURL error:NULL];
+    [coordinator itemAtURL:oldURL didMoveToURL:newURL];
+}];
+```
 
 Assume `sourceURL` references a file named `~/Desktop/my text` and `destURL` references the new filename written in upper case: `~/Desktop/My Text`. By design, the coordination block will be passed the most recent version of both URLs in order to accommodate move operations that happened while waiting for file access. Now, unfortunately, when changing a filename’s case, the URL's validation performed by file coordination will find an existing valid file for both the old and the new URL, which is the lowercase variant `~/Desktop/my text`. The access block will receive the same *lowercase* URL as `oldURL` and `newURL`, leading to a failure of the move operation.
 
@@ -162,21 +168,25 @@ While there are already very extensive log files written to `~/Library/Logs/Ubiq
 
 For debugging file coordination issues, you can also directly retrieve lock status information from inside the file coordination daemon. This enables you to understand file coordination deadlocks that may occur inside your application or between multiple processes. To access this information you need to execute the following commands in Terminal:
 
-	sudo heap filecoordinationd -addresses NSFileAccessArbiter
-	sudo lldb -n filecoordinationd
-	po [<address> valueForKey: @"rootNode"]
+```
+sudo heap filecoordinationd -addresses NSFileAccessArbiter
+sudo lldb -n filecoordinationd
+po [<address> valueForKey: @"rootNode"]
+```
 
 The first command will return you the address of an internal singleton object of the file coordination daemon. Afterward, you attach *lldb* to the running daemon. By using the retrieved address from the first step, you will get an overview on the state of all active locks and file presenters. The debugger command will show you the entire tree of files that are currently being presented or coordinated. For example, if TextEdit is presenting a file called `example.txt` you will get the following trace:
 
-	example.txt
-		<NSFileAccessNode 0x…> parent: 0x…, name: "example.txt"
-		presenters:
-			<NSFilePresenterProxy …> client: TextEdit …>
-			location: 0x7f9f4060b940
-		access claims: <none>
-		progress subscribers: <none>
-		progress publishers: <none>
-		children: <none>
+```
+example.txt
+    <NSFileAccessNode 0x…> parent: 0x…, name: "example.txt"
+    presenters:
+        <NSFilePresenterProxy …> client: TextEdit …>
+        location: 0x7f9f4060b940
+    access claims: <none>
+    progress subscribers: <none>
+    progress publishers: <none>
+    children: <none>
+```
 
 If you create such traces while a file coordination is going on (e.g. by setting a break point inside a file coordination block), you will also get a list of all processes waiting for file coordinators.
 
@@ -199,19 +209,19 @@ For the past few months, Apple has also offered a safe server-side reset of iClo
 [1]: https://developer.apple.com/library/ios/documentation/General/Conceptual/iCloudDesignGuide/Chapters/DesigningForDocumentsIniCloud.html "Designing For Documents in the Cloud"
 [2]:http://www.ulyssesapp.com
 [3]:https://developer.apple.com/library/ios/documentation/General/Conceptual/iCloudDesignGuide/Chapters/iCloudFundametals.html#//apple_ref/doc/uid/TP40012094-CH6-SW13
-[4]:https://developer.apple.com/library/mac/documentation/cocoa/reference/foundation/classes/nsfilemanager_class/reference/reference.html#//apple_ref/occ/instm/NSFileManager/URLForUbiquityContainerIdentifier:
+[4]:https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSFileManager_Class/index.html#//apple_ref/occ/instm/NSFileManager/URLForUbiquityContainerIdentifier:
 [5]:https://developer.apple.com/library/ios/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileCoordinators/FileCoordinators.html#//apple_ref/doc/uid/TP40010672-CH11-SW1
 [6]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFileCoordinator_class/Reference/Reference.html
 [7]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFilePresenter_protocol/Reference/Reference.html
 [8]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFilePresenter_protocol/Reference/Reference.html#//apple_ref/occ/intfp/NSFilePresenter/presentedItemOperationQueue
 [9]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFilePresenter_protocol/Reference/Reference.html#//apple_ref/occ/intfm/NSFilePresenter/savePresentedItemChangesWithCompletionHandler:
 [10]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFilePresenter_protocol/Reference/Reference.html#//apple_ref/occ/intfm/NSFilePresenter/presentedItemDidGainVersion:
-[11]:https://developer.apple.com/library/mac/documentation/cocoa/reference/foundation/classes/nsfilemanager_class/reference/reference.html#//apple_ref/occ/instm/NSFileManager/startDownloadingUbiquitousItemAtURL:error:
+[11]:https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSFileManager_Class/index.html#//apple_ref/occ/instm/NSFileManager/URLForUbiquityContainerIdentifier:#//apple_ref/occ/instm/NSFileManager/startDownloadingUbiquitousItemAtURL:error:
 [12]:https://developer.apple.com/library/ios/documentation/General/Conceptual/iCloudDesignGuide/Chapters/DesigningForDocumentsIniCloud.html "Designing For Documents in the Cloud"
 [13]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFilePresenter_protocol/Reference/Reference.html#//apple_ref/occ/intfm/NSFilePresenter/savePresentedItemChangesWithCompletionHandler:
 [14]:https://developer.apple.com/library/mac/documentation/Foundation/Reference/NSFilePresenter_protocol/Reference/Reference.html#//apple_ref/occ/intfm/NSFilePresenter/relinquishPresentedItemToReader:
 [15]:https://github.com/hydrixos/DeadlockExample
-[16]:https://developer.apple.com/library/mac/documentation/cocoa/reference/foundation/classes/nsfilemanager_class/reference/reference.html#//apple_ref/occ/instm/NSFileManager/startDownloadingUbiquitousItemAtURL:error:
+[16]:https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSFileManager_Class/index.html#//apple_ref/occ/instm/NSFileManager/URLForUbiquityContainerIdentifier:#//apple_ref/occ/instm/NSFileManager/startDownloadingUbiquitousItemAtURL:error:
 [17]:https://developer.apple.com/downloads
 [18]:https://developer.icloud.com/
 [19]:http://support.apple.com/kb/HT5824

@@ -3,7 +3,9 @@ title: "Camera Capture on iOS"
 category: "21"
 date: "2015-02-10 09:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/matteo\">Matteo Caldari</a>"
+author:
+  - name: Matteo Caldari
+    url: https://twitter.com/matteo
 ---
 
 The iPhone has shipped with a camera since its first model. In the first SDKs, the only way to integrate the camera within an app was by using `UIImagePickerController`, but iOS 4 introduced the AVFoundation framework, which allowed more flexibility.
@@ -35,7 +37,7 @@ An image capture implemented with the AVFoundation framework is based on a few c
 
 Let's start building the capture. First we need an `AVCaptureSession` object:
 
-```
+```swift
 let session = AVCaptureSession()
 ```
 
@@ -161,7 +163,7 @@ However, if you need more control, the `AVCaptureDeviceFormat` class describes t
 
 ## Controlling the Camera
 
-The camera built into iPhones and iPads has more or less the same controls as other cameras, with some exceptions: parameters such as focus, exposure duration (the analog of the [shutter speed](/issue-21/how-your-camera-works.html#shutterspeed) on DSLR cameras), and ISO sensitivity can be adjusted, but the lens aperture is fixed. Since iOS 8, we have access to full manual control of all the adjustments.
+The camera built into iPhones and iPads has more or less the same controls as other cameras, with some exceptions: parameters such as focus, exposure duration (the analog of the [shutter speed](/issues/21-camera-and-photos/how-your-camera-works/#shutterspeed) on DSLR cameras), and ISO sensitivity can be adjusted, but the lens aperture is fixed. Since iOS 8, we have access to full manual control of all the adjustments.
 
 We'll look at the details later, but first, it's time to start the camera:
 
@@ -242,7 +244,7 @@ This means that the focus can be set with a `UISlider`, for example, which would
 
 ### Exposure
 
-On iOS devices, the aperture of the lens is fixed (at f/2.2 for iPhones after 5s, and at f/2.4 for previous models), so only the exposure duration and the sensor sensibility can be tweaked to accomplish the most appropriate image brightness. As for the focus, we can have continuous auto exposure, one-time auto exposure on the point of interest, or manual exposure. In addition to specifying a point of interest, we can modify the auto exposure by setting a compensation, known as *target bias*. The target bias is expressed in [*f-stops*](/issue-21/how-your-camera-works.html#stops), and its values range between `minExposureTargetBias` and `maxExposureTargetBias`, with 0 being the default (no compensation):
+On iOS devices, the aperture of the lens is fixed (at f/2.2 for iPhones after 5s, and at f/2.4 for previous models), so only the exposure duration and the sensor sensibility can be tweaked to accomplish the most appropriate image brightness. As for the focus, we can have continuous auto exposure, one-time auto exposure on the point of interest, or manual exposure. In addition to specifying a point of interest, we can modify the auto exposure by setting a compensation, known as *target bias*. The target bias is expressed in [*f-stops*](/issues/21-camera-and-photos/how-your-camera-works/#stops), and its values range between `minExposureTargetBias` and `maxExposureTargetBias`, with 0 being the default (no compensation):
 
 ```swift
 var exposureBias:Float = ... // a value between minExposureTargetBias and maxExposureTargetBias
@@ -268,7 +270,7 @@ How do we know that the picture is correctly exposed? We can observe the `exposu
 
 ### White Balance
 
-Digital cameras [need to compensate](/issue-21/how-your-camera-works.html#whiteisnotwhite) for different types of lighting. This means that the sensor should increase the red component, for example, in case of a cold light, and the blue component in case of a warm light. On an iPhone camera, the proper compensation can be automatically determined by the device, but sometimes, as it happens with any camera, it gets tricked by the colors in the scene. Luckily, iOS 8 made manual controls available for the white balance as well.
+Digital cameras [need to compensate](/issues/21-camera-and-photos/how-your-camera-works/#whiteisnotwhite) for different types of lighting. This means that the sensor should increase the red component, for example, in case of a cold light, and the blue component in case of a warm light. On an iPhone camera, the proper compensation can be automatically determined by the device, but sometimes, as it happens with any camera, it gets tricked by the colors in the scene. Luckily, iOS 8 made manual controls available for the white balance as well.
 
 The automatic modes work in the same way as the focus and exposure, but there's no point of interest; the whole image is considered. In manual mode, we can compensate for the temperature and the tint, with the [temperature](https://en.wikipedia.org/wiki/Color_temperature) expressed in [Kelvin](https://en.wikipedia.org/wiki/Kelvin). Typical color temperature values go from around 2000–3000 K (for a warm light source like a candle or light bulb) up to 8000 K (for a clear blue sky). The tint ranges from a minimum of −150 (shift to green) to a maximum of 150 (shift to magenta).
 
@@ -311,7 +313,7 @@ func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects met
     }
 ```
 
-Check out [Engin’s article in this issue](/issue-21/face-recognition-with-opencv.html) for more on face detection and recognition.
+Check out [Engin’s article in this issue](/issues/21-camera-and-photos/face-recognition-with-opencv/) for more on face detection and recognition.
 
 ### Capturing a Still Image
 

@@ -2,7 +2,9 @@
 title: Importing Large Data Sets
 category: "4"
 date: "2013-09-09 07:00:00"
-author: "<a href=\"http://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Florian Kugler
+    url: http://twitter.com/floriankugler
 tags: article
 ---
 
@@ -50,40 +52,43 @@ Using two independent Core Data stacks is the more simple and straightforward so
 
 If we want to ship a pre-populated SQLite file in the application bundle, we have to detect the first launch of a newly updated application and copy the database file out of the bundle into its target directory:
 
-    NSFileManager* fileManager = [NSFileManager defaultManager];
-    NSError *error;
+```objc
+NSFileManager* fileManager = [NSFileManager defaultManager];
+NSError *error;
 
-    if([fileManager fileExistsAtPath:self.storeURL.path]) {
-        NSURL *storeDirectory = [self.storeURL URLByDeletingLastPathComponent];
-        NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtURL:storeDirectory
-                                              includingPropertiesForKeys:nil
-                                                                 options:0
-                                                            errorHandler:NULL];
-        NSString *storeName = [self.storeURL.lastPathComponent stringByDeletingPathExtension];
-        for (NSURL *url in enumerator) {
-            if (![url.lastPathComponent hasPrefix:storeName]) continue;
-            [fileManager removeItemAtURL:url error:&error];
-        }
-        // handle error
+if([fileManager fileExistsAtPath:self.storeURL.path]) {
+    NSURL *storeDirectory = [self.storeURL URLByDeletingLastPathComponent];
+    NSDirectoryEnumerator *enumerator = [fileManager enumeratorAtURL:storeDirectory
+                                          includingPropertiesForKeys:nil
+                                                             options:0
+                                                        errorHandler:NULL];
+    NSString *storeName = [self.storeURL.lastPathComponent stringByDeletingPathExtension];
+    for (NSURL *url in enumerator) {
+        if (![url.lastPathComponent hasPrefix:storeName]) continue;
+        [fileManager removeItemAtURL:url error:&error];
     }
+    // handle error
+}
 
-    NSString* bundleDbPath = [[NSBundle mainBundle] pathForResource:@"seed" ofType:@"sqlite"];
-    [fileManager copyItemAtPath:bundleDbPath toPath:self.storeURL.path error:&error];
+NSString* bundleDbPath = [[NSBundle mainBundle] pathForResource:@"seed" ofType:@"sqlite"];
+[fileManager copyItemAtPath:bundleDbPath toPath:self.storeURL.path error:&error];
+```
 
-    
 Notice that we're first deleting the previous database files. This is not as straightforward as one may think though, because there can be different auxiliary files (e.g. journaling or write-ahead logging files) next to the main `.sqlite` file. Therefore we have to enumerate over the items in the directory and delete all files that match the store file name without its extension.
 
 However, we also need a way to make sure that we only do this once. An obvious solution would be to delete the seed database from the bundle. However, while this works on the simulator, it will fail as soon as you try this on a real device because of restricted permissions. There are many options to solve this problem though, like setting a key in the user defaults which contains information about the latest seed data version imported:
 
-    NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
-    NSString* bundleVersion = [infoDictionary objectForKey:(NSString *)kCFBundleVersionKey];
-    NSString *seedVersion = [[NSUserDefaults standardUserDefaults] objectForKey:@"SeedVersion"];
-    if (![seedVersion isEqualToString:bundleVersion]) {
-        // Copy the seed database
-    }
+```objc
+NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
+NSString* bundleVersion = [infoDictionary objectForKey:(NSString *)kCFBundleVersionKey];
+NSString *seedVersion = [[NSUserDefaults standardUserDefaults] objectForKey:@"SeedVersion"];
+if (![seedVersion isEqualToString:bundleVersion]) {
+    // Copy the seed database
+}
 
-    // ... after the import succeeded
-    [[NSUserDefaults standardUserDefaults] setObject:bundleVersion forKey:@"SeedVersion"];
+// ... after the import succeeded
+[[NSUserDefaults standardUserDefaults] setObject:bundleVersion forKey:@"SeedVersion"];
+```
 
 Alternatively for example, we could also copy the existing database file to a path including the seed version and detect its presence to avoid doing the same import twice. There are many practicable solutions which you can choose from, dependent on what makes the most sense for your case.
 
@@ -105,7 +110,7 @@ Finally, let's have a look at what we have to do in order to live import large a
 
 If we are importing different object types with relationships between them, then we will need to import all objects independently first before attempting to resolve the relationships between them. If we could guarantee on the server side that the client receives the objects in the correct order in order to resolve all relationships immediately, we wouldn't have to worry about this. But mostly this will not be the case.
 
-In order to perform the import without affecting user-interface responsiveness, we have to perform the import on a background thread. In a previous issue, Chris wrote about a simple way of [using Core Data in the background](/issue-2/common-background-practices.html). If we do this right, devices with multiple cores can perform the import in the background without affecting  the responsiveness of the user interface. Be aware though that using Core Data concurrently also creates the possibility of conflicts between different managed object contexts. You need to come up with a [policy](http://thermal-core.com/2013/09/07/in-defense-of-core-data-part-I.html) of how to prevent or handle these situations.
+In order to perform the import without affecting user-interface responsiveness, we have to perform the import on a background thread. In a previous issue, Chris wrote about a simple way of [using Core Data in the background](/issues/2-concurrency/common-background-practices/). If we do this right, devices with multiple cores can perform the import in the background without affecting  the responsiveness of the user interface. Be aware though that using Core Data concurrently also creates the possibility of conflicts between different managed object contexts. You need to come up with a [policy](http://thermal-core.com/2013/09/07/in-defense-of-core-data-part-I.html) of how to prevent or handle these situations.
 
 In this context, it is important to understand how concurrency works with Core Data. Just because we have set up two managed object contexts on two different threads does not mean that they both get to access the database at the same time. Each request issued from a managed object context will cause a lock on the objects from the context all the way down to the SQLite file. For example, if you trigger a fetch request in a child context of the main context, the main context, the persistent store coordinator, the persistent store, and ultimately the SQLite file will be locked in order to execute this request (although the [lock on the SQLite file will come and go faster](https://developer.apple.com/wwdc/videos/?id=211) than on the stack above). During this time, everybody else in the Core Data stack is stuck waiting for this request to finish.
 
@@ -136,22 +141,26 @@ A similar problem often arises when establishing relationships between the newly
 
 Resolving relationships in batches allows us to greatly reduce the number of fetch requests required by fetching many related objects at once. Don't worry about potentially long predicates like:
 
-    [NSPredicate predicateWithFormat:@"identifier IN %@", identifiersOfRelatedObjects];
-    
+```objc
+[NSPredicate predicateWithFormat:@"identifier IN %@", identifiersOfRelatedObjects];
+```
+
 Resolving a predicate with many identifiers in the `IN (...)` clause is always way more efficient than going to disk for each object independently. 
 
 However, there is also a way to avoid fetch requests altogether (at least if you only need to establish relationships between newly imported objects). If you cache the objectIDs of all imported objects (which is not a lot of data in most cases really), you can use them later to retrieve faults for related objects using `objectWithID:`.
 
-    // after a batch of objects has been imported and saved
-    for (MyManagedObject *object in importedObjects) {
-        objectIDCache[object.identifier] = object.objectID;
-    }
-    
-    // ... later during resolving relationships 
-    NSManagedObjectID objectID = objectIDCache[object.foreignKey];
-    MyManagedObject *relatedObject = [context objectWithID:objectId];
-    object.toOneRelation = relatedObject;
-    
+```objc
+// after a batch of objects has been imported and saved
+for (MyManagedObject *object in importedObjects) {
+    objectIDCache[object.identifier] = object.objectID;
+}
+
+// ... later during resolving relationships 
+NSManagedObjectID objectID = objectIDCache[object.foreignKey];
+MyManagedObject *relatedObject = [context objectWithID:objectId];
+object.toOneRelation = relatedObject;
+```
+
 Note that this example assumes that the `identifier` property is unique across all entity types, otherwise we would have to account for duplicate identifiers for different types in the way we cache the object IDs. 
 
 
@@ -161,26 +170,26 @@ When you face the challenge of having to import large data sets into Core Data, 
 
 
 
-[100]:/issue-4/importing-large-data-sets-into-core-data.html
-[110]:/issue-4/importing-large-data-sets-into-core-data.html#efficient-importing
-[120]:/issue-4/importing-large-data-sets-into-core-data.html#user-generated-data
+[100]:/issues/4-core-data/importing-large-data-sets-into-core-data/
+[110]:/issues/4-core-data/importing-large-data-sets-into-core-data/#efficient-importing
+[120]:/issues/4-core-data/importing-large-data-sets-into-core-data/#user-generated-data
 
-[200]:/issue-4/core-data-models-and-model-objects.html
-[210]:/issue-4/core-data-models-and-model-objects.html#managed-objects
-[220]:/issue-4/core-data-models-and-model-objects.html#validation
-[230]:/issue-4/core-data-models-and-model-objects.html#ivars-in-managed-object-classes
-[240]:/issue-4/core-data-models-and-model-objects.html#entity-vs-class-hierarchy
-[250]:/issue-4/core-data-models-and-model-objects.html#creating-objects
-[260]:/issue-4/core-data-models-and-model-objects.html#indexes
+[200]:/issues/4-core-data/core-data-models-and-model-objects/
+[210]:/issues/4-core-data/core-data-models-and-model-objects/#managed-objects
+[220]:/issues/4-core-data/core-data-models-and-model-objects/#validation
+[230]:/issues/4-core-data/core-data-models-and-model-objects/#ivars-in-managed-object-classes
+[240]:/issues/4-core-data/core-data-models-and-model-objects/#entity-vs-class-hierarchy
+[250]:/issues/4-core-data/core-data-models-and-model-objects/#creating-objects
+[260]:/issues/4-core-data/core-data-models-and-model-objects/#indexes
 
-[300]:/issue-4/core-data-overview.html
-[310]:/issue-4/core-data-overview.html#complicated-stacks
-[320]:/issue-4/core-data-overview.html#getting-to-objects
+[300]:/issues/4-core-data/core-data-overview/
+[310]:/issues/4-core-data/core-data-overview/#complicated-stacks
+[320]:/issues/4-core-data/core-data-overview/#getting-to-objects
 
-[400]:/issue-4/full-core-data-application.html
+[400]:/issues/4-core-data/full-core-data-application/
 
-[500]:/issue-4/SQLite-instead-of-core-data.html
+[500]:/issues/4-core-data/SQLite-instead-of-core-data/
 
-[600]:/issue-4/core-data-fetch-requests.html
+[600]:/issues/4-core-data/core-data-fetch-requests/
 
-[700]:/issue-4/core-data-migration.html
+[700]:/issues/4-core-data/core-data-migration/

@@ -2,7 +2,9 @@
 title:  "Snapshot Testing"
 category: "15"
 date: "2014-08-11 05:00:00"
-author: "<a href=\"https://orta.github.io\">Orta Therox</a>"
+author:
+  - name: Orta Therox
+    url: https://orta.github.io
 tags: article
 ---
 
@@ -20,7 +22,7 @@ View-based testing means verifying that what the user sees is what you want the 
 
 Here is an example of a failing test where we have less grid items than expected in a view controller:
 
-<img src="/images/issue-15/snapshots-reference.png" style="width:100%" alt="Snapshots examples"/>
+![Snapshots examples](/images/issue-15/snapshots-reference.png)
 
 It makes the comparison by drawing both the view or layer and the existing snapshot into two `CGContextRefs` and doing a memory comparison of them with the C function `memcmp()`. This makes it extremely quick, with my tests ranging from 0.013 to 0.086 seconds per image for fullscreen iPad and iPhone images on a MacBook Air.
 
@@ -34,22 +36,24 @@ Let's not beat around the bush here: you should be using [CocoaPods][cocoapods].
 
 The default behavior of Snapshots is to subclass `FBSnapshotTestCase` instead of `XCTestCase`, and to then use the macro `FBSnapshotVerifyView(viewOrLayer, "optional identifier")` to verify against an already recorded image. There is a boolean property on the subclass `recordMode` that, when set, will make the macro record a new screenshot rather than check the result against a reference image.
 
-    @interface ORSnapshotTestCase : FBSnapshotTestCase
-    @end
-  
-    @implementation ORSnapshotTestCase
-  
-    - (void)testHasARedSquare
-    {
-        // Removing this will verify instead of recording
-        self.recordMode = YES;
-        
-        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
-        view.backgroundColor = [UIColor redColor];
-        FBSnapshotVerifyView(view, nil);
-    }
-  
-    @end
+```objc
+@interface ORSnapshotTestCase : FBSnapshotTestCase
+@end
+
+@implementation ORSnapshotTestCase
+
+- (void)testHasARedSquare
+{
+    // Removing this will verify instead of recording
+    self.recordMode = YES;
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
+    view.backgroundColor = [UIColor redColor];
+    FBSnapshotVerifyView(view, nil);
+}
+
+@end
+```
 
 <a name="disadvantages"> </a>
 
@@ -77,31 +81,35 @@ Nothing's perfect. Let's start with the downsides.
 
 I don't use vanilla XCTest. I uses [Specta and Expecta][specta], which provide a more concise and readable test environment to work in. This is the default testing setup when you create a [new CocoaPod][newcocoapod]. I'm a contributor to the pod [Expecta+Snapshots][expmatchers], which provides an Expecta-like API to `FBSnapshotTestCase`. It will handle naming screenshots for you, and can optionally run view controllers through their view event lifecycle. This means my Podfile looks like:
 
-    target 'MyApp Tests', :exclusive => true do
-        pod 'Specta','~> 1.0'
-        pod 'Expecta', '~> 1.0'
-        pod 'Expecta+Snapshots', '~> 1.0'
-    end
+```
+target 'MyApp Tests', :exclusive => true do
+    pod 'Specta','~> 1.0'
+    pod 'Expecta', '~> 1.0'
+    pod 'Expecta+Snapshots', '~> 1.0'
+end
+```
 
 In turn, my tests look like:
 
-    SpecBegin(ORMusicViewController)
-    
-    it (@"notations in black and white look correct", ^{
-        UIView *notationView = [[ORMusicNotationView alloc] initWithFrame:CGRectMake(0, 0, 80, 320)];
-        notationView.style = ORMusicNotationViewStyleBlackWhite;
-    
-        expect(notationView).to.haveValidSnapshot();
-    });
-    
-    it (@"Initial music view controller looks corrects", ^{
-        id contoller = [[ORMusicViewController alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
-        controller.view.frame = [UIScreen mainScreen].bounds;
-    
-        expect(controller).to.haveValidSnapshot();
-    });
+```objc
+SpecBegin(ORMusicViewController)
 
-    SpecEnd
+it (@"notations in black and white look correct", ^{
+    UIView *notationView = [[ORMusicNotationView alloc] initWithFrame:CGRectMake(0, 0, 80, 320)];
+    notationView.style = ORMusicNotationViewStyleBlackWhite;
+
+    expect(notationView).to.haveValidSnapshot();
+});
+
+it (@"Initial music view controller looks corrects", ^{
+    id contoller = [[ORMusicViewController alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
+    controller.view.frame = [UIScreen mainScreen].bounds;
+
+    expect(controller).to.haveValidSnapshot();
+});
+
+SpecEnd
+```
 
 ### Snapshots Xcode Plugin
 

@@ -3,7 +3,9 @@ title:  "Subclassing"
 category: "13"
 date: "2014-06-09 08:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: https://twitter.com/chriseidhof
 ---
 
 This article is a little bit different from the usual articles I write. It's more a collection of thoughts and patterns than a guide. Almost all the patterns I will describe are found out the hard way: by making mistakes. By no means do I consider myself an authority on subclassing, but I did want to share a few things I've learned. Don't read this as a definitive guide, but rather as a collection of examples.
@@ -35,37 +37,40 @@ Luckily, if you find yourself in a deep hierarchy like that, there are lot of al
 
 Often, a reason to use subclassing is when you want to make sure that an object responds to certain messages. Consider an app where you have a player object, that can play videos. Now, if you want to add YouTube support, you want the same interface, but a different implementation. One way you can achieve this with subclassing is like this:
 
-    @interface Player : NSObject
+```objc
+@interface Player : NSObject
 
-    - (void)play;
-    - (void)pause;
+- (void)play;
+- (void)pause;
 
-    @end
+@end
 
 
-    @interface YouTubePlayer : Player
+@interface YouTubePlayer : Player
 
-    @end
-
+@end
+```
 
 Most likely, the two classes don't share a lot of code, just the same interface. When that's the case, it might be a good solution to use protocols instead. Using protocols, you would write the code like this:
 
-    @protocol VideoPlayer <NSObject>
+```objc
+@protocol VideoPlayer <NSObject>
 
-    - (void)play;
-    - (void)pause;
+- (void)play;
+- (void)pause;
 
-    @end
-
-
-    @interface Player : NSObject <VideoPlayer>
-
-    @end
+@end
 
 
-    @interface YouTubePlayer : NSObject <VideoPlayer>
+@interface Player : NSObject <VideoPlayer>
 
-    @end
+@end
+
+
+@interface YouTubePlayer : NSObject <VideoPlayer>
+
+@end
+```
 
 This way, the `YouTubePlayer` doesn't need to know about the `Player` internals.
 
@@ -74,23 +79,25 @@ This way, the `YouTubePlayer` doesn't need to know about the `Player` internals.
 
 Again, suppose you have a `Player` class like in the example above. Now, at one place, you might want to perform a custom action on play. Doing this is relatively easy: you can create a custom subclass, override the `play` method, call `[super play]`, and then do your custom work. This is one way to deal with it. Another way is to change your `Player` object and give it a delegate. For example:
 
-    @class Player;
+```objc
+@class Player;
 
-    @protocol PlayerDelegate
+@protocol PlayerDelegate
 
-    - (void)playerDidStartPlaying:(Player *)player;
+- (void)playerDidStartPlaying:(Player *)player;
 
-    @end
+@end
 
 
-    @interface Player : NSObject
+@interface Player : NSObject
 
-    @property (nonatomic,weak) id<PlayerDelegate> delegate;
+@property (nonatomic,weak) id<PlayerDelegate> delegate;
 
-    - (void)play;
-    - (void)pause;
+- (void)play;
+- (void)pause;
 
-    @end
+@end
+```
 
 Now, in the player's `play` method, the delegate gets sent the `playerDidStartPlaying:` message. Any consumers of this class can now just implement the delegate protocol instead of having to subclass, and the `Player` object can stay very generic. This is a very powerful technique, which Apple uses abundantly in its own frameworks. Think of classes like `UITextField`, but also `NSLayoutManager`. Sometimes you want to group different methods together in separate protocols, such as `UITableView` -- which has not only a delegate but also a data source -- does.
 
@@ -99,11 +106,13 @@ Now, in the player's `play` method, the delegate gets sent the `playerDidStartPl
 
 Sometimes, you might want to extend an object with a little bit of extra functionality. Suppose you want to extend `NSArray` by adding a method `arrayByRemovingFirstObject`. Instead of subclassing, you can put this into a category. It works like this:
 
-    @interface NSArray (OBJExtras)
+```objc
+@interface NSArray (OBJExtras)
 
-    - (void)obj_arrayByRemovingFirstObject;
+- (void)obj_arrayByRemovingFirstObject;
 
-    @end
+@end
+```
 
 When using categories and extending a class that's not your own, it's good practice to prefix your methods. If you don't, there is a chance that somebody else might implement the same method using the same technique. Then, if the behavior doesn't match, unexpected things could happen.
 
@@ -123,16 +132,20 @@ For example, a `ThemeConfiguration` class would have the `backgroundColor` and `
 
 The most powerful alternative to subclassing is composition. If you want to reuse existing code but you're not sharing the same interface, composition can be your weapon of choice. For example, suppose you are designing a caching class:
 
-    @interface OBJCache : NSObject
+```objc
+@interface OBJCache : NSObject
 
-    - (void)cacheValue:(id)value forKey:(NSString *)key;
-    - (void)removeCachedValueForKey:(NSString *)key;
+- (void)cacheValue:(id)value forKey:(NSString *)key;
+- (void)removeCachedValueForKey:(NSString *)key;
 
-    @end
+@end
+```
 
 One easy way to do this is by subclassing `NSDictionary` and implementing the two methods by calling to dictionary methods: 
 
-    @interface OBJCache : NSDictionary
+```objc
+@interface OBJCache : NSDictionary
+```
 
 However, there are a couple of drawbacks. The fact that it is implemented with a dictionary should be an implementation detail. Now, everywhere where you expect an `NSDictionary` parameter, you could provide an `OBJCache` value. If you would ever want to switch to something completely different (e.g. your own library), you might need to refactor a lot of code.
 

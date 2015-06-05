@@ -3,7 +3,11 @@ title: "Audio API Overview"
 category: "24"
 date: "2015-05-11 8:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/danielboedewadt\">Daniel Eggert</a> and <a href=\"https://twitter.com/floriankugler\">Florian Kugler</a>"
+author:
+  - name: Daniel Eggert
+    url: https://twitter.com/danielboedewadt
+  - name: Florian Kugler
+    url: https://twitter.com/floriankugler
 ---
 
 

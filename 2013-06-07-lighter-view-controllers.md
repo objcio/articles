@@ -2,7 +2,9 @@
 title:  "Lighter View Controllers"
 category: "1"
 date: "2013-06-07 11:00:00"
-author: "<a href=\"http://twitter.com/chriseidhof\">Chris Eidhof</a>"
+author:
+  - name: Chris Eidhof
+    url: http://twitter.com/chriseidhof
 tags: article
 ---
 
@@ -23,25 +25,28 @@ patterns and create reusable classes for this.
 For example, in our example project, there is a class
 `PhotosViewController` which had the following methods:
 
-    # pragma mark Pragma 
+```objc
+# pragma mark Pragma 
 
-    - (Photo*)photoAtIndexPath:(NSIndexPath*)indexPath {
-        return photos[(NSUInteger)indexPath.row];
-    }
-    
-    - (NSInteger)tableView:(UITableView*)tableView 
-     numberOfRowsInSection:(NSInteger)section {
-        return photos.count;
-    }
-    
-    - (UITableViewCell*)tableView:(UITableView*)tableView 
-            cellForRowAtIndexPath:(NSIndexPath*)indexPath {
-        PhotoCell* cell = [tableView dequeueReusableCellWithIdentifier:PhotoCellIdentifier 
-                                                          forIndexPath:indexPath];
-        Photo* photo = [self photoAtIndexPath:indexPath];
-        cell.label.text = photo.name;
-        return cell;
-    }
+- (Photo*)photoAtIndexPath:(NSIndexPath*)indexPath {
+    return photos[(NSUInteger)indexPath.row];
+}
+
+- (NSInteger)tableView:(UITableView*)tableView 
+ numberOfRowsInSection:(NSInteger)section {
+    return photos.count;
+}
+
+- (UITableViewCell*)tableView:(UITableView*)tableView 
+        cellForRowAtIndexPath:(NSIndexPath*)indexPath {
+    PhotoCell* cell = [tableView dequeueReusableCellWithIdentifier:PhotoCellIdentifier 
+                                                      forIndexPath:indexPath];
+    Photo* photo = [self photoAtIndexPath:indexPath];
+    cell.label.text = photo.name;
+    return cell;
+}
+```
+
 
 <a id="controllers"> </a>
 A lot of this code has to do with arrays, and some of it is
@@ -50,39 +55,43 @@ class](https://github.com/objcio/issue-1-lighter-view-controllers/blob/master/Ph
 We use a block for configuring the cell, but it might as well be
 a delegate, depending on your use-case and taste.
 
-    @implementation ArrayDataSource
+```objc
+@implementation ArrayDataSource
 
-    - (id)itemAtIndexPath:(NSIndexPath*)indexPath {
-        return items[(NSUInteger)indexPath.row];
-    }
-    
-    - (NSInteger)tableView:(UITableView*)tableView 
-     numberOfRowsInSection:(NSInteger)section {
-        return items.count;
-    }
-    
-    - (UITableViewCell*)tableView:(UITableView*)tableView 
-            cellForRowAtIndexPath:(NSIndexPath*)indexPath {
-        id cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier
-                                                  forIndexPath:indexPath];
-        id item = [self itemAtIndexPath:indexPath];
-        configureCellBlock(cell,item);
-        return cell;
-    }
+- (id)itemAtIndexPath:(NSIndexPath*)indexPath {
+    return items[(NSUInteger)indexPath.row];
+}
 
-    @end
+- (NSInteger)tableView:(UITableView*)tableView 
+ numberOfRowsInSection:(NSInteger)section {
+    return items.count;
+}
+
+- (UITableViewCell*)tableView:(UITableView*)tableView 
+        cellForRowAtIndexPath:(NSIndexPath*)indexPath {
+    id cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier
+                                              forIndexPath:indexPath];
+    id item = [self itemAtIndexPath:indexPath];
+    configureCellBlock(cell,item);
+    return cell;
+}
+
+@end
+```
 
 The three methods that were in your view controller can go, and instead
 you can create an instance of this object and set it as the table view's
 data source.
 
-    void (^configureCell)(PhotoCell*, Photo*) = ^(PhotoCell* cell, Photo* photo) {
-       cell.label.text = photo.name;
-    };
-    photosArrayDataSource = [[ArrayDataSource alloc] initWithItems:photos
-                                                    cellIdentifier:PhotoCellIdentifier
-                                                configureCellBlock:configureCell];
-    self.tableView.dataSource = photosArrayDataSource;
+```objc
+void (^configureCell)(PhotoCell*, Photo*) = ^(PhotoCell* cell, Photo* photo) {
+   cell.label.text = photo.name;
+};
+photosArrayDataSource = [[ArrayDataSource alloc] initWithItems:photos
+                                                cellIdentifier:PhotoCellIdentifier
+                                            configureCellBlock:configureCell];
+self.tableView.dataSource = photosArrayDataSource;
+```
 
 Now you don't have to worry about mapping an index path to a
 position in the array, and every time you want to display an
@@ -91,7 +100,7 @@ additional methods such as
 `tableView:commitEditingStyle:forRowAtIndexPath:` and share that code among
 all your table view controllers.
 
-The nice thing is that we can [test this class](/issue-1/testing-view-controllers.html#testing-datasource) separately,
+The nice thing is that we can [test this class](/issues/1-view-controllers/testing-view-controllers/#testing-a-data-source) separately,
 and never have to worry about writing it again. The same principle
 applies if you use something else other than arrays.
 
@@ -116,30 +125,36 @@ make your data source support both protocols.
 Here is an example of code in view controller (from another project) that is supposed to find a list of active
 priorities for a user:
 
-    - (void)loadPriorities {
-      NSDate* now = [NSDate date];
-      NSString* formatString = @"startDate <= %@ AND endDate >= %@";
-      NSPredicate* predicate = [NSPredicate predicateWithFormat:formatString, now, now];
-      NSSet* priorities = [self.user.priorities filteredSetUsingPredicate:predicate];
-      self.priorities = [priorities allObjects];
-    }
+```objc
+- (void)loadPriorities {
+  NSDate* now = [NSDate date];
+  NSString* formatString = @"startDate <= %@ AND endDate >= %@";
+  NSPredicate* predicate = [NSPredicate predicateWithFormat:formatString, now, now];
+  NSSet* priorities = [self.user.priorities filteredSetUsingPredicate:predicate];
+  self.priorities = [priorities allObjects];
+}
+```
 
 However, it is much cleaner to move this code to a category on the `User` class. Then
 it looks like this in `View Controller.m`:
 
-    - (void)loadPriorities {
-      self.priorities = [self.user currentPriorities];
-    }
+```objc
+- (void)loadPriorities {
+  self.priorities = [self.user currentPriorities];
+}
+```
 
 and in `User+Extensions.m`:
 
 
-    - (NSArray*)currentPriorities {
-      NSDate* now = [NSDate date];
-      NSString* formatString = @"startDate <= %@ AND endDate >= %@";
-      NSPredicate* predicate = [NSPredicate predicateWithFormat:formatString, now, now];
-      return [[self.priorities filteredSetUsingPredicate:predicate] allObjects];
-    }
+```objc
+- (NSArray*)currentPriorities {
+  NSDate* now = [NSDate date];
+  NSString* formatString = @"startDate <= %@ AND endDate >= %@";
+  NSPredicate* predicate = [NSPredicate predicateWithFormat:formatString, now, now];
+  return [[self.priorities filteredSetUsingPredicate:predicate] allObjects];
+}
+```
 
 Some code cannot be easily moved into a model object but is still
 clearly associated with model code, and for this, we can use a `Store`:
@@ -150,19 +165,21 @@ In the first version of our example application, we had some code to
 load data from a file and parse it. This code was in the view
 controller:
 
-    - (void)readArchive {
-        NSBundle* bundle = [NSBundle bundleForClass:[self class]];
-        NSURL *archiveURL = [bundle URLForResource:@"photodata"
-                                     withExtension:@"bin"];
-        NSAssert(archiveURL != nil, @"Unable to find archive in bundle.");
-        NSData *data = [NSData dataWithContentsOfURL:archiveURL
-                                             options:0
-                                               error:NULL];
-        NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-        _users = [unarchiver decodeObjectOfClass:[NSArray class] forKey:@"users"];
-        _photos = [unarchiver decodeObjectOfClass:[NSArray class] forKey:@"photos"];
-        [unarchiver finishDecoding];
-    }
+```objc
+- (void)readArchive {
+    NSBundle* bundle = [NSBundle bundleForClass:[self class]];
+    NSURL *archiveURL = [bundle URLForResource:@"photodata"
+                                 withExtension:@"bin"];
+    NSAssert(archiveURL != nil, @"Unable to find archive in bundle.");
+    NSData *data = [NSData dataWithContentsOfURL:archiveURL
+                                         options:0
+                                           error:NULL];
+    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+    _users = [unarchiver decodeObjectOfClass:[NSArray class] forKey:@"users"];
+    _photos = [unarchiver decodeObjectOfClass:[NSArray class] forKey:@"photos"];
+    [unarchiver finishDecoding];
+}
+```
 
 The view controller should not have to know about this.
 We created a *Store* object that does just this. By separating it
@@ -196,7 +213,7 @@ controllers, but you can also load separate nib files with your custom
 views. In our example app, we created a [`PhotoCell.xib`](https://github.com/objcio/issue-1-lighter-view-controllers/blob/master/PhotoData/PhotoCell.xib) that
 contains the layout for a photo cell:
 
-<img alt="PhotoCell.xib screenshot" src="/images/issue-1/photocell.png" style="width: 584px;"> 
+![PhotoCell.xib screenshot](/images/issue-1/photocell.png) 
 
 As you can see, we created properties on the view (we don't use the
 File's Owner object in this xib) and connect them to specific subviews.

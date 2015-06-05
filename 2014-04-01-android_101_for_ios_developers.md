@@ -3,7 +3,9 @@ title:  "Android 101 for iOS Developers"
 category: "11"
 date: "2014-04-01 11:00:00"
 tags: article
-author: "<a href=\"https://twitter.com/smbarne\">Stephen Barnes</a>"
+author:
+  - name: Stephen Barnes
+    url: https://twitter.com/smbarne
 ---
 
 
@@ -23,10 +25,9 @@ This article will not delve deeply into the user experience and design pattern d
 
 There are many differences between Objective-C and Java, and while it may be tempting to bring some of Objective-C's styling into Java, it can lead to a codebase that heavily clashes with the primary framework that drives it. In brief, here are a few gotchas to watch for:
 
-
 - Leave class prefixes at home on Objective-C. Java has actual namespacing and package management, so there is no need for class prefixes here.
 - Instance variables are prefixed with `m`, not `_`.
-   - Take advantage of JavaDoc to write method and class descriptions for as much of your code as possible. It will make your life and the lives of others better.
+- Take advantage of JavaDoc to write method and class descriptions for as much of your code as possible. It will make your life and the lives of others better.
 - Null check! Objective-C gracefully handles message sending to nil objects, but Java does not.
 - Say goodbye to properties. If you want setters and getters, you have to remember to actually create a getVariableName() method and call it explicitly. Referencing `this.object` will **not** call your custom getter. You must use `this.getObject`.
 - Similarly, prefix method names with `get` and `set` to indicate getters and setters. Java methods are typically written as actions or queries, such as `getCell()`, instead of `cellForRowAtIndexPath:`.
@@ -38,7 +39,8 @@ Android applications are primarily broken into two sections, the first of which 
 The second major section is the `res` folder, short for 'resource' folder. The `res` folder is a collection of images, XML layout files, and XML value files that make up the bulk of the non-code assets. On iOS, images are either `@2x` or not, but on Android there are a number of screen density folders to consider.[^2] Android uses folders to arrange images, strings, and other values for screen density. The `res` folder also contains XML layout files that can be thought of as `xib` files. Lastly, there are other XML files that store resources for string, integer, and style resources.
 
 One last correlation in project structure is the `AndroidManifest.xml` file. This file is the equivalent of the `Project-Info.plist` file on iOS, and it stores information for activities, application names, and set Intents[^3] (system-level events) that the application can handle.
- For more information about Intents, keep on reading, or head over to the [Intents](/issue-11/android-intents.html) article.
+
+For more information about Intents, keep on reading, or head over to the [Intents](/issues/11-android/android-intents/) article.
 
 ## Activities
 
@@ -55,46 +57,50 @@ Let's next look at one activity launching another activity, and also responding 
 
 ### Launching Another Activity for a Result
 
-    // A request code is a unique value for returning activities
-    private static final int REQUEST_CODE_NEXT_ACTIVITY = 1234;
-    
-    protected void startNextActivity() {
-        // Intents need a context, so give this current activity as the context
-        Intent nextActivityIntent = new Intent(this, NextActivity.class);
-           startActivityForResult(nextActivityResult, REQUEST_CODE_NEXT_ACTIVITY);
-    }
-    
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-        case REQUEST_CODE_NEXT_ACTIVITY:
-            if (resultCode == RESULT_OK) {
-                // This means our Activity returned successfully. For now, Toast this text.  
-                // This just creates a simple pop-up message on the screen.
-                    Toast.makeText(this, "Result OK!", Toast.LENGTH_SHORT).show();
-                }
-                return;
-            }    
-            super.onActivityResult(requestCode, resultCode, data);
-    }
+```java
+// A request code is a unique value for returning activities
+private static final int REQUEST_CODE_NEXT_ACTIVITY = 1234;
+
+protected void startNextActivity() {
+    // Intents need a context, so give this current activity as the context
+    Intent nextActivityIntent = new Intent(this, NextActivity.class);
+       startActivityForResult(nextActivityResult, REQUEST_CODE_NEXT_ACTIVITY);
+}
+
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    switch (requestCode) {
+    case REQUEST_CODE_NEXT_ACTIVITY:
+        if (resultCode == RESULT_OK) {
+            // This means our Activity returned successfully. For now, Toast this text.  
+            // This just creates a simple pop-up message on the screen.
+                Toast.makeText(this, "Result OK!", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }    
+        super.onActivityResult(requestCode, resultCode, data);
+}
+```
 
 ### Returning a Result on Activity Finish()
 
-    public static final String activityResultString = "activityResultString";
+```java
+public static final String activityResultString = "activityResultString";
+
+/*
+ * On completion, place the object ID in the intent and finish with OK.
+ * @param returnObject that was processed
+ */
+private void onActivityResult(Object returnObject) {
+        Intent data = new Intent();
+        if (returnObject != null) {
+            data.putExtra(activityResultString, returnObject.uniqueId);
+        }
     
-    /*
-     * On completion, place the object ID in the intent and finish with OK.
-     * @param returnObject that was processed
-     */
-    private void onActivityResult(Object returnObject) {
-            Intent data = new Intent();
-            if (returnObject != null) {
-                data.putExtra(activityResultString, returnObject.uniqueId);
-            }
-        
-            setResult(RESULT_OK, data);
-            finish();        
-    }
+        setResult(RESULT_OK, data);
+        finish();        
+}
+```
 
 ## Fragments
 
@@ -102,7 +108,7 @@ The [Fragment](http://developer.android.com/guide/components/fragments.html) con
 
 Tablets are a great fragment use case example: you can place a list fragment on the left and a detail fragment on the right.[^4] Fragments allow you to break up your UI and controller logic into smaller, reusable chunks. But beware! The fragment lifecycle, detailed below, is more nuanced.
 
-<img alt="A multi-pane activity with two fragments" src="/images/issue-11/multipane_view_tablet.png">
+![A multi-pane activity with two fragments](/images/issue-11/multipane_view_tablet.png)
  
 Fragments are the new way of structuring apps on Android, just like `UICollectionView` is the new way of structuring list data instead of `UITableview` for iOS.[^5]  While it is initially easier to avoid using fragments and instead use nothing but activities, you could regret this decision later on. That said, resist the urge to give up on activities entirely by swapping fragments on a single activity -- this can leave you in a bind when wanting to take advantage of intents and using multiple fragments on the same activity.
 
@@ -112,138 +118,141 @@ Let's look at a sample `UITableViewController` and a sample `ListFragment` that 
 
 &nbsp;
 
-<img alt="TripDetailsTableViewController" src="/images/issue-11/IMG_0095.PNG" width="50%">
+![TripDetailsTableViewController](/images/issue-11/IMG_0095.PNG)
 
 &nbsp;
 
-    @interface MBTASubwayTripTableTableViewController ()
-    
-    @property (assign, nonatomic) MBTATrip *trip;
-    
-    @end
-    
-    @implementation MBTASubwayTripTableTableViewController
-    
-    - (instancetype)initWithTrip:(MBTATrip *)trip
-    {
-        self = [super initWithStyle:UITableViewStylePlain];
-        if (self) {
-            _trip = trip;
-            [self setTitle:trip.destination];
-        }
-        return self;
-    }
-    
-    - (void)viewDidLoad
-    {
-        [super viewDidLoad];
-        
-        [self.tableView registerClass:[MBTAPredictionCell class] forCellReuseIdentifier:[MBTAPredictionCell reuseId]];
-        [self.tableView registerNib:[UINib nibWithNibName:NSStringFromClass([MBTATripHeaderView class]) bundle:nil] forHeaderFooterViewReuseIdentifier:[MBTATripHeaderView reuseId]];
-    }
-    
-    #pragma mark - UITableViewDataSource
-    
-    - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-    {
-        return 1;
-    }
-    
-    - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-    {
-        return [self.trip.predictions count];
-    }
-    
-    #pragma mark - UITableViewDelegate
-    
-    - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
-    {
-        return [MBTATripHeaderView heightWithTrip:self.trip];
-    }
-    
-    - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
-    {
-        MBTATripHeaderView *headerView = [self.tableView dequeueReusableHeaderFooterViewWithIdentifier:[MBTATripHeaderView reuseId]];
-        [headerView setFromTrip:self.trip];
-        return headerView;
-    }
-    
-    - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-    {
-        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:[MBTAPredictionCell reuseId] forIndexPath:indexPath];
-        
-        MBTAPrediction *prediction = [self.trip.predictions objectAtIndex:indexPath.row];
-        [(MBTAPredictionCell *)cell setFromPrediction:prediction];
-        
-        return cell;
-    }
-    
-    - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-    {
-        return NO;
-    }
-    
-    - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-    {
-        [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    }
-    
-    @end
+```objc
+@interface MBTASubwayTripTableTableViewController ()
 
+@property (assign, nonatomic) MBTATrip *trip;
+
+@end
+
+@implementation MBTASubwayTripTableTableViewController
+
+- (instancetype)initWithTrip:(MBTATrip *)trip
+{
+    self = [super initWithStyle:UITableViewStylePlain];
+    if (self) {
+        _trip = trip;
+        [self setTitle:trip.destination];
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    [self.tableView registerClass:[MBTAPredictionCell class] forCellReuseIdentifier:[MBTAPredictionCell reuseId]];
+    [self.tableView registerNib:[UINib nibWithNibName:NSStringFromClass([MBTATripHeaderView class]) bundle:nil] forHeaderFooterViewReuseIdentifier:[MBTATripHeaderView reuseId]];
+}
+
+#pragma mark - UITableViewDataSource
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [self.trip.predictions count];
+}
+
+#pragma mark - UITableViewDelegate
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return [MBTATripHeaderView heightWithTrip:self.trip];
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    MBTATripHeaderView *headerView = [self.tableView dequeueReusableHeaderFooterViewWithIdentifier:[MBTATripHeaderView reuseId]];
+    [headerView setFromTrip:self.trip];
+    return headerView;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:[MBTAPredictionCell reuseId] forIndexPath:indexPath];
+    
+    MBTAPrediction *prediction = [self.trip.predictions objectAtIndex:indexPath.row];
+    [(MBTAPredictionCell *)cell setFromPrediction:prediction];
+    
+    return cell;
+}
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return NO;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+@end
+```
 
 ### List Fragment Implementation
 
 &nbsp;
 
-<img alt="TripDetailFragment" src="/images/issue-11/Screenshot_2014-03-25-11-42-16.png" width="50%">
+![TripDetailFragment](/images/issue-11/Screenshot_2014-03-25-11-42-16.png)
 
 &nbsp;
 
-    public class TripDetailFragment extends ListFragment {
-    
-        /**
-         * The configuration flags for the Trip Detail Fragment.
-         */
-        public static final class TripDetailFragmentState {
-            public static final String KEY_FRAGMENT_TRIP_DETAIL = "KEY_FRAGMENT_TRIP_DETAIL";
-        }
-    
-        protected Trip mTrip;
-    
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param trip the trip to show details
-         * @return A new instance of fragment TripDetailFragment.
-         */
-        public static TripDetailFragment newInstance(Trip trip) {
-            TripDetailFragment fragment = new TripDetailFragment();
-            Bundle args = new Bundle();
-            args.putParcelable(TripDetailFragmentState.KEY_FRAGMENT_TRIP_DETAIL, trip);
-            fragment.setArguments(args);
-            return fragment;
-        }
-    
-        public TripDetailFragment() { }
-    
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            Prediction[] predictions= mTrip.predictions.toArray(new Prediction[mTrip.predictions.size()]);
-            PredictionArrayAdapter predictionArrayAdapter = new PredictionArrayAdapter(getActivity(), predictions);
-            setListAdapter(predictionArrayAdapter);
-            return super.onCreateView(inflater,container, savedInstanceState);
-        }
-    
-        @Override
-        public void onViewCreated(View view, Bundle savedInstanceState) {
-            super.onViewCreated(view, savedInstanceState);
-            TripDetailsView headerView = new TripDetailsView(getActivity());
-            headerView.updateFromTripObject(mTrip);
-            getListView().addHeaderView(headerView);
-        }
+```java
+public class TripDetailFragment extends ListFragment {
+
+    /**
+     * The configuration flags for the Trip Detail Fragment.
+     */
+    public static final class TripDetailFragmentState {
+        public static final String KEY_FRAGMENT_TRIP_DETAIL = "KEY_FRAGMENT_TRIP_DETAIL";
     }
+
+    protected Trip mTrip;
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param trip the trip to show details
+     * @return A new instance of fragment TripDetailFragment.
+     */
+    public static TripDetailFragment newInstance(Trip trip) {
+        TripDetailFragment fragment = new TripDetailFragment();
+        Bundle args = new Bundle();
+        args.putParcelable(TripDetailFragmentState.KEY_FRAGMENT_TRIP_DETAIL, trip);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public TripDetailFragment() { }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        Prediction[] predictions= mTrip.predictions.toArray(new Prediction[mTrip.predictions.size()]);
+        PredictionArrayAdapter predictionArrayAdapter = new PredictionArrayAdapter(getActivity(), predictions);
+        setListAdapter(predictionArrayAdapter);
+        return super.onCreateView(inflater,container, savedInstanceState);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        TripDetailsView headerView = new TripDetailsView(getActivity());
+        headerView.updateFromTripObject(mTrip);
+        getListView().addHeaderView(headerView);
+    }
+}
+```
 
 In the next section, let's decipher some of the unique Android components.
 
@@ -255,40 +264,42 @@ In the next section, let's decipher some of the unique Android components.
 
 Speaking of datasources, on Android we don't have datasources and delegates for `ListView`. Instead, we have adapters. Adapters come in many forms, but their primary goal is similar to a datasource and table view delegate all in one. Adapters take data and adapt it to populate a `ListView` by instantiating views the `ListView` will display. Let's have a look at the array adapter used above:
      
-    public class PredictionArrayAdapter extends ArrayAdapter<Prediction> {
-    
-        int LAYOUT_RESOURCE_ID = R.layout.view_three_item_list_view;
-    
-        public PredictionArrayAdapter(Context context) {
-            super(context, R.layout.view_three_item_list_view);
-        }
-    
-        public PredictionArrayAdapter(Context context, Prediction[] objects) {
-            super(context, R.layout.view_three_item_list_view, objects);
-        }
-    
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent)
-        {
-            Prediction prediction = this.getItem(position);
-            View inflatedView = convertView;
-            if(convertView==null)
-            {
-                LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                inflatedView = inflater.inflate(LAYOUT_RESOURCE_ID, parent, false);
-            }
-    
-            TextView stopNameTextView = (TextView)inflatedView.findViewById(R.id.view_three_item_list_view_left_text_view);
-            TextView middleTextView = (TextView)inflatedView.findViewById(R.id.view_three_item_list_view_middle_text_view);
-            TextView stopSecondsTextView = (TextView)inflatedView.findViewById(R.id.view_three_item_list_view_right_text_view);
-    
-            stopNameTextView.setText(prediction.stopName);
-            middleTextView.setText("");
-            stopSecondsTextView.setText(prediction.stopSeconds.toString());
-    
-            return inflatedView;
-        }
+```java
+public class PredictionArrayAdapter extends ArrayAdapter<Prediction> {
+
+    int LAYOUT_RESOURCE_ID = R.layout.view_three_item_list_view;
+
+    public PredictionArrayAdapter(Context context) {
+        super(context, R.layout.view_three_item_list_view);
     }
+
+    public PredictionArrayAdapter(Context context, Prediction[] objects) {
+        super(context, R.layout.view_three_item_list_view, objects);
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent)
+    {
+        Prediction prediction = this.getItem(position);
+        View inflatedView = convertView;
+        if(convertView==null)
+        {
+            LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            inflatedView = inflater.inflate(LAYOUT_RESOURCE_ID, parent, false);
+        }
+
+        TextView stopNameTextView = (TextView)inflatedView.findViewById(R.id.view_three_item_list_view_left_text_view);
+        TextView middleTextView = (TextView)inflatedView.findViewById(R.id.view_three_item_list_view_middle_text_view);
+        TextView stopSecondsTextView = (TextView)inflatedView.findViewById(R.id.view_three_item_list_view_right_text_view);
+
+        stopNameTextView.setText(prediction.stopName);
+        middleTextView.setText("");
+        stopSecondsTextView.setText(prediction.stopSeconds.toString());
+
+        return inflatedView;
+    }
+}
+```
 
 You'll note that the adapter has an important method named `getView`, which is very similar to `cellForRowAtIndexPath:`. Another similarity you'll notice is a pattern for reusing views, similar to iOS. Reusing views are just as important as on iOS, and this substantially helps performance! This adapter is rather simple, because it uses a built-in superclass, `ArrayAdapter<T>`, for adapters working with array data, but it illustrates how to populate a `ListView` from a dataset.
      
@@ -305,23 +316,25 @@ One of the primary things to watch out for coming from iOS development is the An
 In essence, the activity lifecycle is very similar to the UIViewController lifecycle. The primary difference is that the Android OS can be ruthless with destroying activities, and it is very important to make sure that the data and the state of the activity are saved, so that they can be restored from the saved state if they exist in the `onCreate()`. The best way to do this is by using bundled data and restoring from the savedInstanceState and/or Intents. For example, here is the part of the `TripListActivity` from our sample project that is keeping track of the currently shown subway line:
 
  
-    public static Intent getTripListActivityIntent(Context context, TripList.LineType lineType) {
-        Intent intent = new Intent(context, TripListActivity.class);
-        intent.putExtra(TripListActivityState.KEY_ACTIVITY_TRIP_LIST_LINE_TYPE, lineType.getLineName());
-        return intent;
-    }
+```java
+public static Intent getTripListActivityIntent(Context context, TripList.LineType lineType) {
+    Intent intent = new Intent(context, TripListActivity.class);
+    intent.putExtra(TripListActivityState.KEY_ACTIVITY_TRIP_LIST_LINE_TYPE, lineType.getLineName());
+    return intent;
+}
+
+public static final class TripListActivityState {
+    public static final String KEY_ACTIVITY_TRIP_LIST_LINE_TYPE = "KEY_ACTIVITY_TRIP_LIST_LINE_TYPE";
+}
     
-    public static final class TripListActivityState {
-        public static final String KEY_ACTIVITY_TRIP_LIST_LINE_TYPE = "KEY_ACTIVITY_TRIP_LIST_LINE_TYPE";
-    }
-        
-    TripList.LineType mLineType;    
-        
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-       super.onCreate(savedInstanceState);
-       mLineType = TripList.LineType.getLineType(getIntent().getStringExtra(TripListActivityState.KEY_ACTIVITY_TRIP_LIST_LINE_TYPE));
-    }    
+TripList.LineType mLineType;    
+    
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+   super.onCreate(savedInstanceState);
+   mLineType = TripList.LineType.getLineType(getIntent().getStringExtra(TripListActivityState.KEY_ACTIVITY_TRIP_LIST_LINE_TYPE));
+}    
+```
 
 A note on rotation: the lifecycle **completely** resets the view on rotation. That is, your activity will be destroyed and recreated when a rotation occurs. If data is properly saved in the saved instance state and the activity restores the state correctly after its creation, then the rotation will work seamlessly. Many app developers have issues with app stability when the app rotates, because an activity does not handle state changes properly. Beware! Do not lock your app's rotation to solve these issues, as this only hides the lifecycle bugs that will still occur at another point in time when the activity is destroyed by the OS.
 
@@ -335,48 +348,50 @@ One of the problems that can catch developers off guard is regarding issues comm
 
 Fragments are also created and destroyed aggressively by the needs of the operating system, and to keep their state, require the same amount of diligence as activities. Here is an example from our sample project, where the trip list fragment keeps track of the `TripList` data, as well as the subway line type:
  
-    /**
-     * The configuration flags for the Trip List Fragment.
-     */
-    public static final class TripListFragmentState {
-        public static final String KEY_FRAGMENT_TRIP_LIST_LINE_TYPE = "KEY_FRAGMENT_TRIP_LIST_LINE_TYPE";
-        public static final String KEY_FRAGMENT_TRIP_LIST_DATA = "KEY_FRAGMENT_TRIP_LIST_DATA";
+```java
+/**
+ * The configuration flags for the Trip List Fragment.
+ */
+public static final class TripListFragmentState {
+    public static final String KEY_FRAGMENT_TRIP_LIST_LINE_TYPE = "KEY_FRAGMENT_TRIP_LIST_LINE_TYPE";
+    public static final String KEY_FRAGMENT_TRIP_LIST_DATA = "KEY_FRAGMENT_TRIP_LIST_DATA";
+}
+
+/**
+ * Use this factory method to create a new instance of
+ * this fragment using the provided parameters.
+ *
+ * @param lineType the subway line to show trips for.
+ * @return A new instance of fragment TripListFragment.
+ */
+public static TripListFragment newInstance(TripList.LineType lineType) {
+    TripListFragment fragment = new TripListFragment();
+    Bundle args = new Bundle();
+    args.putString(TripListFragmentState.KEY_FRAGMENT_TRIP_LIST_LINE_TYPE, lineType.getLineName());
+    fragment.setArguments(args);
+    return fragment;
+}
+
+protected TripList mTripList;
+protected void setTripList(TripList tripList) {
+    Bundle arguments = this.getArguments();
+    arguments.putParcelable(TripListFragmentState.KEY_FRAGMENT_TRIP_LIST_DATA, tripList);
+    mTripList = tripList;
+    if (mTripArrayAdapter != null) {
+        mTripArrayAdapter.clear();
+        mTripArrayAdapter.addAll(mTripList.trips);
     }
-    
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param lineType the subway line to show trips for.
-     * @return A new instance of fragment TripListFragment.
-     */
-    public static TripListFragment newInstance(TripList.LineType lineType) {
-        TripListFragment fragment = new TripListFragment();
-        Bundle args = new Bundle();
-        args.putString(TripListFragmentState.KEY_FRAGMENT_TRIP_LIST_LINE_TYPE, lineType.getLineName());
-        fragment.setArguments(args);
-        return fragment;
+}
+
+@Override
+public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    if (getArguments() != null) {
+        mLineType = TripList.LineType.getLineType(getArguments().getString(TripListFragmentState.KEY_FRAGMENT_TRIP_LIST_LINE_TYPE));
+        mTripList = getArguments().getParcelable(TripListFragmentState.KEY_FRAGMENT_TRIP_LIST_DATA);
     }
-    
-    protected TripList mTripList;
-    protected void setTripList(TripList tripList) {
-        Bundle arguments = this.getArguments();
-        arguments.putParcelable(TripListFragmentState.KEY_FRAGMENT_TRIP_LIST_DATA, tripList);
-        mTripList = tripList;
-        if (mTripArrayAdapter != null) {
-            mTripArrayAdapter.clear();
-            mTripArrayAdapter.addAll(mTripList.trips);
-        }
-    }
-    
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mLineType = TripList.LineType.getLineType(getArguments().getString(TripListFragmentState.KEY_FRAGMENT_TRIP_LIST_LINE_TYPE));
-            mTripList = getArguments().getParcelable(TripListFragmentState.KEY_FRAGMENT_TRIP_LIST_DATA);
-        }
-    }    
+}    
+```
 
 Notice that the fragment always restores its state from the bundled arguments in `onCreate`, and that the custom setter for the `TripList` model object adds the object to the bundled arguments as well. This ensures that if the fragment is destroyed and recreated, such as when the device is rotated, the fragment always has the latest data to restore from.
 
@@ -387,36 +402,38 @@ Similar to other parts of Android development, there are pros and cons to specif
 
 ### Subway List View Layout
 
-<img alt="Subway ListView" src="/images/issue-11/Screenshot_2014-03-24-13-12-00.png" width="50%">
+![Subway ListView](/images/issue-11/Screenshot_2014-03-24-13-12-00.png)
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+```xml
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.androidforios.app.activities.MainActivity$PlaceholderFragment">
+
+    <ListView
+        android:id="@+id/fragment_subway_list_listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.example.androidforios.app.activities.MainActivity$PlaceholderFragment">
-    
-        <ListView
-            android:id="@+id/fragment_subway_list_listview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingBottom="@dimen/Button.Default.Height"/>
-    
-        <Button
-            android:id="@+id/fragment_subway_list_Button"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/Button.Default.Height"
-            android:minHeight="@dimen/Button.Default.Height"
-            android:background="@drawable/button_red_selector"
-            android:text="@string/hello_world"
-            android:textColor="@color/Button.Text"
-            android:layout_alignParentBottom="true"
-            android:gravity="center"/>
-    
-    </RelativeLayout>
+        android:paddingBottom="@dimen/Button.Default.Height"/>
+
+    <Button
+        android:id="@+id/fragment_subway_list_Button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/Button.Default.Height"
+        android:minHeight="@dimen/Button.Default.Height"
+        android:background="@drawable/button_red_selector"
+        android:text="@string/hello_world"
+        android:textColor="@color/Button.Text"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"/>
+
+</RelativeLayout>
+```
 
 Here is the same view on iOS with a `UITableView` and a `UIButton` pinned to the bottom via Auto Layout in Interface Builder:
 
-<img alt="iOS Subway Lines UIViewController" src="/images/issue-11/iOS_Screen1.png" width="50%">
+![iOS Subway Lines UIViewController](/images/issue-11/iOS_Screen1.png)
 
 ![Interface Builder Constraints](/images/issue-11/iOSConstraints.png)
 
@@ -428,11 +445,12 @@ A good example is the use of a `RelativeLayout` above. A relative layout allows 
 
 Lastly, to link layouts to fragments or activities, simply use that layout's resource ID during the `onCreateView`:
  
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_subway_listview, container, false);
-    }
-
+```java
+@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    return inflater.inflate(R.layout.fragment_subway_listview, container, false);
+}
+```
 
 ### Layout Tips
 
@@ -440,31 +458,31 @@ Lastly, to link layouts to fragments or activities, simply use that layout's res
 - Don't bother nudging items for layouts in the visual editor -- often the visual editor will put individual points of spacing on objects instead of adjusting the height and width as you might like. Your best bet is to adjust the XML directly.
 - If you ever see the `fill_parent` value for a layout height or width, this value was deprecated years ago in API 8 and replaced with `match_parent`.
 
-See the the [responsive android applications](/issue-11/responsive-android-applications.html) article for more tips on this.
+See the the [responsive android applications](/issues/11-android/responsive-android-applications/) article for more tips on this.
  
 
 ## Data
 
 The [Data Storage Options](http://developer.android.com/guide/topics/data/data-storage.html) available on Android are also very similar to what is available on iOS:
 
- - [Shared Preferences](http://developer.android.com/guide/topics/data/data-storage.html#pref) <-> NSUserDefaults
- - In-memory objects
- - Saving to and fetching from file structure via the [internal](http://developer.android.com/guide/topics/data/data-storage.html#filesInternal) or [external](http://developer.android.com/guide/topics/data/data-storage.html#filesExternal) file storage <-> saving to the documents directory
- - [SQLite](http://developer.android.com/guide/topics/data/data-storage.html#db) <-> Core Data
+- [Shared Preferences](http://developer.android.com/guide/topics/data/data-storage.html#pref) <-> NSUserDefaults
+- In-memory objects
+- Saving to and fetching from file structure via the [internal](http://developer.android.com/guide/topics/data/data-storage.html#filesInternal) or [external](http://developer.android.com/guide/topics/data/data-storage.html#filesExternal) file storage <-> saving to the documents directory
+- [SQLite](http://developer.android.com/guide/topics/data/data-storage.html#db) <-> Core Data
  
-The primary difference is the lack of Core Data. Instead, Android offers straight access to the SQLite database and returns [cursor](http://developer.android.com/reference/android/database/Cursor.html) objects for results. Head over to the article in this issue about [using SQLite on Android](/issue-11/sqlite-database-support-in-android.html) for more details.
+The primary difference is the lack of Core Data. Instead, Android offers straight access to the SQLite database and returns [cursor](http://developer.android.com/reference/android/database/Cursor.html) objects for results. Head over to the article in this issue about [using SQLite on Android](/issues/11-android/sqlite-database-support-in-android/) for more details.
 
 
 ## Android Homework
 
 What we've discussed so far barely scratches the surface. To really take advantage of some of the things that make Android special, I recommend checking out some of these features:
 
- - [Action Bar, Overflow Menu, and the Menu Button](http://developer.android.com/guide/topics/ui/actionbar.html)
- - [Cross-App Data Sharing](https://developer.android.com/training/sharing/index.html)
- - [Respond to common OS actions](http://developer.android.com/guide/components/intents-common.html)
- - Take advantage of Java's features: generics, virtual methods and classes, etc.
- - [Google Compatibility Libraries](http://developer.android.com/tools/support-library/index.html)
- - The Android Emulator: install the [x86 HAXM plugin](http://software.intel.com/en-us/android/articles/intel-hardware-accelerated-execution-manager) to make the emulator buttery smooth.
+- [Action Bar, Overflow Menu, and the Menu Button](http://developer.android.com/guide/topics/ui/actionbar.html)
+- [Cross-App Data Sharing](https://developer.android.com/training/sharing/index.html)
+- [Respond to common OS actions](http://developer.android.com/guide/components/intents-common.html)
+- Take advantage of Java's features: generics, virtual methods and classes, etc.
+- [Google Compatibility Libraries](http://developer.android.com/tools/support-library/index.html)
+- The Android Emulator: install the [x86 HAXM plugin](http://software.intel.com/en-us/android/articles/intel-hardware-accelerated-execution-manager) to make the emulator buttery smooth.
  
 ## Final Words
 
