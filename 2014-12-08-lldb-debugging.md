@@ -184,8 +184,8 @@ Now that you can print objects and simple types, and modify them in the debugger
 (lldb) p $a * 19
 38
 (lldb) e NSArray *$array = @[ @"Saturday", @"Sunday", @"Monday" ]
-(lldb) p [$array count]
-2
+(lldb) po [$array count]
+3
 (lldb) po [[$array objectAtIndex:0] uppercaseString]
 SATURDAY
 (lldb) p [[$array objectAtIndex:$a] characterAtIndex:0]
