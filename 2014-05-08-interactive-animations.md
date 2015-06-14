@@ -28,7 +28,7 @@ However, there are some apps out there that bring that aspect of always in contr
 
 ## Challenges of Truly Interactive Animations
 
-Using `UIView` or `CAAnimation` animations has two big problems when it comes to interactive animations: those animations separate what you see on the screen from what the actual spacial properties are on the layer, and they directly manipulate the spacial properties.
+Using `UIView` or `CAAnimation` animations has two big problems when it comes to interactive animations: those animations separate what you see on the screen from what the actual spatial properties are on the layer, and they directly manipulate the spatial properties.
 
 
 ### Separation of Model and Presentation
