@@ -10,7 +10,7 @@ author:
 
 
 When iOS 8 came out, Apple introduced extensions to the world, with
-[six extension points](https://developer.apple.com/library/prerelease/ios/documentation/General/Conceptual/ExtensibilityPG/index.html#//apple_ref/doc/uid/TP40014214-CH20-SW2)
+[six extension points](https://developer.apple.com/library/ios/documentation/General/Conceptual/ExtensibilityPG/index.html#//apple_ref/doc/uid/TP40014214-CH20-SW2)
 available. These offer unprecedented access to the operating system, with the
 Photo Editing extension allowing developers to build functionality into the
 system Photos app.

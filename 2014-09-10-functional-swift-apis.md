@@ -40,7 +40,7 @@ In the API we will develop in this chapter, we'll encapsulate the exact details 
 typealias Filter = CIImage -> CIImage
 ```
 
-Here we use the [`typealias`](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/TheBasics.html#//apple_ref/doc/uid/TP40014097-CH5-XID_479) keyword to define our own name for the type `CIImage -> CIImage`, which is the type of a function that takes a `CIImage` as its argument and returns a `CIImage`. This is the base type that we are going to build upon.
+Here we use the [`typealias`](https://developer.apple.com/library/ios/documentation/Swift/Conceptual/Swift_Programming_Language/TheBasics.html#//apple_ref/doc/uid/TP40014097-CH5-XID_479) keyword to define our own name for the type `CIImage -> CIImage`, which is the type of a function that takes a `CIImage` as its argument and returns a `CIImage`. This is the base type that we are going to build upon.
  
 If you're not used to functional programming, it may seem strange to use the name `Filter` for a function type. Usually, we'd use such a name for a class, and the temptation to somehow denote the function nature of this type is high. We could name it `FilterFunction` or something similar. However, we consciously chose the name `Filter`, since the key philosophy underlying functional programming is that functions are just values. They're no different from structs, integers, tuples, or classes. It took me some getting used to as well, but after a while, it started to make a lot of sense. 
 
@@ -55,7 +55,7 @@ func myFilter(/* parameters */) -> Filter
 
 Note that the return value, `Filter`, is a function as well. Later on, this will help us compose multiple filters to achieve the image effects we want.
 
-To make our lives a bit easier, we'll extend the `CIFilter` class with a [convenience initializer](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Initialization.html) and a computed property to retrieve the output image:
+To make our lives a bit easier, we'll extend the `CIFilter` class with a [convenience initializer](https://developer.apple.com/library/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Initialization.html) and a computed property to retrieve the output image:
 
 ```swift
 typealias Parameters = Dictionary<String, AnyObject>
@@ -77,7 +77,7 @@ extension CIFilter {
 
 The convenience initializer takes the name of the filter and a dictionary as parameters. The key-value pairs in the dictionary will be set as parameters on the new filter object. Our convenience initializer follows the Swift pattern of calling the designated initializer first.
 
-The [computed property](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Properties.html#//apple_ref/doc/uid/TP40014097-CH14-XID_329), `outputImage`, provides an easy way to retrieve the output image from the filter object. It looks up the value for the `kCIOutputImageKey` key and casts the result to a value of type `CIImage`. By providing this computed property of type `CIImage`, users of our API no longer need to cast the result of such a lookup operation themselves.
+The [computed property](https://developer.apple.com/library/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Properties.html#//apple_ref/doc/uid/TP40014097-CH14-XID_329), `outputImage`, provides an easy way to retrieve the output image from the filter object. It looks up the value for the `kCIOutputImageKey` key and casts the result to a value of type `CIImage`. By providing this computed property of type `CIImage`, users of our API no longer need to cast the result of such a lookup operation themselves.
 
 
 ### Blur
@@ -234,7 +234,7 @@ func >|> (filter1: Filter, filter2: Filter) -> Filter
 
 With this definition, we can only apply it to arguments of type `Filter`.
  
-However, we can leverage Swift's [generics](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Generics.html) feature to define a generic function composition operator:
+However, we can leverage Swift's [generics](https://developer.apple.com/library/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Generics.html) feature to define a generic function composition operator:
  
 ```swift
 func >|> <A, B, C>(lhs: A -> B, rhs: B -> C) -> A -> C {

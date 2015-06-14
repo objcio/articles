@@ -31,7 +31,7 @@ Although Objective-C has some strange-looking syntax compared to other programmi
 
 In contrast, while Swift syntax looks a lot more like other programming languages, it can also get a lot more complicated and confusing than Objective-C. 
 
-Before I continue, I want to clarify the difference between a Swift *method* and *function*, as I'll be using both terms throughout this article. Here is the definition of methods, according to Apple's [Swift Programming Language Book](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/Methods.html):
+Before I continue, I want to clarify the difference between a Swift *method* and *function*, as I'll be using both terms throughout this article. Here is the definition of methods, according to Apple's [Swift Programming Language Book](https://developer.apple.com/library/mac/documentation/Swift/Conceptual/Swift_Programming_Language/Methods.html):
 
 > Methods are functions that are associated with a particular type. Classes, structures, and enumerations can all define instance methods, which encapsulate specific tasks and functionality for working with an instance of a given type. Classes, structures, and enumerations can also define type methods, which are associated with the type itself. Type methods are similar to class methods in Objective-C.
 
@@ -237,7 +237,7 @@ class Person {
 Person(fromName: "Mr. Roboto")
 ```
 
-And of course, just like with other methods, you can add an `_` if you want your init method to skip the external parameter name. I love the readability and power of this initialization example from the [Swift Programming Language Book](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_306): 
+And of course, just like with other methods, you can add an `_` if you want your init method to skip the external parameter name. I love the readability and power of this initialization example from the [Swift Programming Language Book](https://developer.apple.com/library/mac/documentation/Swift/Conceptual/Swift_Programming_Language/Initialization.html#//apple_ref/doc/uid/TP40014097-CH18-XID_306): 
 
 ```swift
 struct Celsius {
@@ -312,7 +312,7 @@ Compared to Objective-C, Swift has a lot of extra options for what type of param
 
 ### Optional Parameter Types
 
-In Swift, there is a new concept of [optional types](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/TheBasics.html): 
+In Swift, there is a new concept of [optional types](https://developer.apple.com/library/mac/documentation/Swift/Conceptual/Swift_Programming_Language/TheBasics.html): 
 
 > Optionals say either “there is a value, and it equals x” or “there isn’t a value at all.” Optionals are similar to using nil with pointers in Objective-C, but they work for any type, not just classes. Optionals are safer and more expressive than nil pointers in Objective-C and are at the heart of many of Swift’s most powerful features.
 
@@ -362,7 +362,7 @@ hello()
 
 Note that a parameter with a default value automatically has an external parameter name. 
 
-And since parameters with a default value can be skipped when the function is called, it is best practice to put all your parameters with default values at the end of a function's parameter list. Here is a note from the [Swift Programming Language Book](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/Functions.html) on the topic:  
+And since parameters with a default value can be skipped when the function is called, it is best practice to put all your parameters with default values at the end of a function's parameter list. Here is a note from the [Swift Programming Language Book](https://developer.apple.com/library/mac/documentation/Swift/Conceptual/Swift_Programming_Language/Functions.html) on the topic:  
 
 > Place parameters with default values at the end of a function’s parameter list. This ensures that all calls to the function use the same order for their non-default arguments, and makes it clear that the same function is being called in each case.
 
@@ -478,7 +478,7 @@ number1 // 5
 number2 // 2
 ```
 
-For a lot more information on generics, I recommend taking a look at the [generics section](https://developer.apple.com/library/prerelease/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Generics.html) of the Swift Programming Language book. 
+For a lot more information on generics, I recommend taking a look at the [generics section](https://developer.apple.com/library/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Generics.html) of the Swift Programming Language book. 
 
 ### Variable Parameters
 
@@ -574,7 +574,7 @@ In Objective-C, using blocks as parameters is popular for completion and error h
 
 ## Access Controls
 
-Swift has three levels of [access controls](https://developer.apple.com/library/prerelease/mac/documentation/Swift/Conceptual/Swift_Programming_Language/AccessControl.html): 
+Swift has three levels of [access controls](https://developer.apple.com/library/mac/documentation/Swift/Conceptual/Swift_Programming_Language/AccessControl.html): 
 
 - **Public access** enables entities to be used within any source file from their defining module, and also in a source file from another module that imports the defining module. You typically use public access when specifying the public interface to a framework.
 - **Internal access** enables entities to be used within any source file from their defining module, but not in any source file outside of that module. You typically use internal access when defining an app’s or a framework’s internal structure.
