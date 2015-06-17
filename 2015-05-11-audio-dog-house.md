@@ -92,7 +92,7 @@ Most natural sounds and waveforms are _not_ pure sinusoids, but amalgamations of
 
 I like to think of sounds as compositions of spinning, circular forms. A sine wave can be described by a spinning circle, and more complex wave shapes can be created by chaining or summing together additional spinning circles.[^1d] Experiment with the visualization below by clicking on each of the four buttons to see how various compound waveforms can be composed using many individual sinusoids.
 
-<div id="phasorbuttons" class="buttonholder" style="margin-left: 200px; margin-bottom: 10px;"></div>
+<p id="phasorbuttons" class="buttonholder" style="text-align: center"></p>
 <svg id="phasorSum2" class="svgWithText" width="100%" height="300" style="margin-left: 10px"></svg>
 
 The blue spinning circle at the center of the diagram represents the _fundamental_, and the additional orbiting circles describe _overtones_ of the fundamental. It's important to notice that one rotation of the blue circle corresponds precisely to one cycle in the generated waveform. In other words, every full rotation of the fundamental generates a single cycle in the resulting waveform.[^1e]
