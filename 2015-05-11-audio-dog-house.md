@@ -109,8 +109,12 @@ In the next section, we'll revisit some university math, and then investigate an
 The _dot product_ is probably the most commonly performed operation in audio signal processing. The dot product of two signals is easily defined in pseudo-code using a simple _for_ loop. Given two signals (arrays) of equal length, their dot product can be expressed as follows:
 
 ```swift
-func dotProduct(signalA: [Float], signalB: [Float]) -> [Float] {
-    return map(zip(signalA, signalB), *)
+func dotProduct(signalA: [Float], signalB: [Float]) -> Float {
+	var sum:Float = 0.0
+    for v in map(zip(signalA, signalB), *) {
+		sum += v
+	}
+	return sum
 }
 ```
 
