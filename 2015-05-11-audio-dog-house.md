@@ -192,8 +192,6 @@ Philip McLeod's SNAC pitch detection algorithm is a clever refinement of the aut
 
 YIN was developed by Cheveigné and Kawahahara in the early 2000s, and remains a classic pitch estimation technique. It's often taught in graduate courses on audio signal processing. I'd definitely recommend reading <a href="http://audition.ens.fr/adc/pdf/2002_JASA_YIN.pdf">the original paper</a> if you find the topic of pitch estimation interesting. Implementing your own version of YIN is a fun weekend task.
 
-If you're interested in more advanced techniques for <i>polyphonic</i> fundamental frequency estimation, I suggest that you begin by reading Anssi Klapuri's excellent Ph.D. thesis on <a href="http://www.cs.tut.fi/sgn/arg/klap/phd/klap_phd.pdf">automatic music transcription</a>. In his paper, he outlines a number of approaches to multiple fundamental frequency estimation, and gives a great overview of the entire automatic music transcription landscape.
-
 If you're interested in more advanced techniques for _polyphonic_ fundamental frequency estimation, I suggest that you begin by reading Anssi Klapuri's excellent Ph.D. thesis on [automatic music transcription](http://www.cs.tut.fi/sgn/arg/klap/phd/klap_phd.pdf). In his paper, he outlines a number of approaches to multiple fundamental frequency estimation, and gives a great overview of the entire automatic music transcription landscape.
 
 If you're feeling inspired enough to start on your own dog house, feel free to [contact me](https://twitter.com/JackSchaedler) on Twitter with any questions, complaints, or comments about the content of this article. Happy building!
