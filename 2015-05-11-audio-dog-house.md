@@ -111,7 +111,7 @@ The _dot product_ is probably the most commonly performed operation in audio sig
 ```swift
 func dotProduct(signalA: [Float], signalB: [Float]) -> Float {
 	var sum:Float = 0.0
-    for v in map(zip(signalA, signalB), *) {
+	for v in map(zip(signalA, signalB), *) {
 		sum += v
 	}
 	return sum
