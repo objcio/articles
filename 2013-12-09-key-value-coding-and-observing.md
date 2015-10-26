@@ -624,12 +624,17 @@ static int32_t const primes[] = {
     1213, 683, 859, 1033, 1217, 691, 863, 1039, 1223, 1229,
 };
 
-- (NSUInteger)countOfPrimes;
+- (NSArray *)primes;
+{
+    return [self valueForKey:@"backingPrimes"];
+}
+
+- (NSUInteger)countOfBackingPrimes;
 {
     return (sizeof(primes) / sizeof(*primes));
 }
 
-- (id)objectInPrimesAtIndex:(NSUInteger)idx;
+- (id)objectInBackingPrimesAtIndex:(NSUInteger)idx;
 {
     NSParameterAssert(idx < sizeof(primes) / sizeof(*primes));
     return @(primes[idx]);
