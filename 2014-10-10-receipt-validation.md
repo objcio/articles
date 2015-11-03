@@ -449,7 +449,7 @@ On iOS, the device GUID is an alphanumeric string that uniquely identifies the d
 
 ```objc
 UIDevice *device = [UIDevice currentDevice];
-NSUUID *uuid = [device identifierForVendor];
+NSUUID *idintifier = [device identifierForVendor];
 uuid_t uuid;
 [identifier getUUIDBytes:uuid];
 NSData *guidData = [NSData dataWithBytes:(const void *)uuid length:16];
