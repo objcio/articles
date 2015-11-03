@@ -83,7 +83,7 @@ Data tasks can be created with either an `NSURL` or `NSURLRequest` (the former b
  [task resume];
 ```
 
-Upload tasks can also be created with a request and either an `NSData` object for a URL to a local file to upload:
+Upload tasks can also be created with a request and either an `NSData` object or a URL to a local file to upload:
 
 ```objc
  NSURL *URL = [NSURL URLWithString:@"http://example.com/upload"];
