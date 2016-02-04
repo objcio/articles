@@ -8,6 +8,8 @@ author:
     url: https://twitter.com/merowing_
 ---
 
+*Update*: There is [sample code](https://github.com/objcio/BehavioursExample) and a [follow-up blogpost](http://merowing.info/2014/06/behaviours-and-xcode-6/).
+
 As developers, we strive to write clean and well-structured code. There are many patterns we can use to make it happen, and one of the best ones is composition. Composition makes it easier to follow the Single Responsibility Principle and simplify our classes. 
 
 Instead of having a Massive View Controller that serves multiple different roles (like data sources and delegates), you separate those roles into different classes. The view controller can then just be responsible for configuring them and coordinating the work. After all, the less code we write, the less code we need to debug and maintain. 
