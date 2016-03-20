@@ -275,7 +275,9 @@ Localized file names are only for user interface purposes, and cannot be used to
 
 There is a huge variety of how numbers and dates are formatted in different languages. Luckily Apple has already done the heavy lifting for us, so that we only have to remember to always use the [`NSNumberFormatter`](https://developer.apple.com/library/mac/documentation/cocoa/reference/foundation/Classes/NSNumberFormatter_Class/Reference/Reference.html) or [`NSDateFormatter`](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Classes/NSDateFormatter_Class/Reference/Reference.html) classes whenever we want to display a number or date in the user interface.
 
-Keep in mind that number and date formatters are mutable objects and not thread-safe. 
+Keep in mind that number and date formatters are mutable objects and might not be thread-safe[^1]. 
+
+[^1]: On iOS 7 and later NSDateFormatter and NSNumberFormatter are thread safe. On OS X 10.9 and later NSDateFormatter and NSNumberFormatter are thread safe so long as you are using the modern behavior in a 64-bit app. On earlier versions of the operating system, or when using the legacy formatter behavior or running in 32-bit on OS X, NSDateFormatter and NSNumberFormatter are not thread safe, and you therefore must not mutate a formatter simultaneously from multiple threads.
 
 ### Formatting Numbers
 
