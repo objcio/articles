@@ -222,7 +222,7 @@ If you want more control and to maybe execute an asynchronous task within the op
 
 Notice that in this case, you have to manage the operation's state manually. In order for an operation queue to be able to pick up a such a change, the state properties have to be implemented in a KVO-compliant way. So make sure to send proper KVO messages in case you don't set them via default accessor methods.
 
-In order to benefit from the cancelation feature exposed by operation queues, you should regularly check the `isCancelled` property for longer-running operations:
+In order to benefit from the cancellation feature exposed by operation queues, you should regularly check the `isCancelled` property for longer-running operations:
 
 ```objc
 - (void)main
