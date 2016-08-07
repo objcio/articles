@@ -105,7 +105,7 @@ Storyboards allow you to manipulate only the discrete and discrete section of th
 
 But even starting in iOS 7, the sort of discrete modes are blurred a great deal. For example, being able to tap a table view cell and expand something beneath it — it's a very trivial example of something that storyboards would already have difficulty representing.
 
-**We would need more [Bret Victor](http://worrydream.com)s working on that problem.**
+**We would need more [Bret Victor](http://worrydream.com)'s working on that problem.**
 
 We do, and that's part of why I wish fewer people were making photo-sharing apps.
 
