@@ -237,6 +237,6 @@ This not only reduces the size and complexity of table view controllers, but it 
 
 ### Further Reading
 
-* [Blog: Skinnier Controllers using View Categories](http://www.sebastianrehnby.com/blog/2013/01/01/skinnier-controllers-using-view-categories/)
+* [Blog: Skinnier Controllers using View Categories](https://web.archive.org/web/20160423142402/http://www.sebastianrehnby.com/blog/2013/01/01/skinnier-controllers-using-view-categories/)
 * [Table View Programming Guide](http://developer.apple.com/library/ios/#documentation/userexperience/conceptual/tableview_iphone/AboutTableViewsiPhone/AboutTableViewsiPhone.html)
 * [Cocoa Core Competencies: Controller Object](http://developer.apple.com/library/mac/#documentation/General/Conceptual/DevPedia-CocoaCore/ControllerObject.html)
