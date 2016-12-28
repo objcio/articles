@@ -48,7 +48,7 @@ With regard to WatchKit, it's pretty simple at the moment, but the promise of it
 
 **If I recall correctly, you were disappointed about it initially, but then got really excited about it, right?**
 
-Yeah, it's missing a lot of features that were advertised. For example, there’s no API for the Digital Crown or the tactic feedback. It’s very basic. For showing a map, the system takes a picture of the map and sends it to the watch. However, we had a WatchKit hackathon, and it was pretty cool to see what people were able to do with just the basic stuff that's there already.
+Yeah, it's missing a lot of features that were advertised. For example, there’s no API for the Digital Crown or the taptic feedback. It’s very basic. For showing a map, the system takes a picture of the map and sends it to the watch. However, we had a WatchKit hackathon, and it was pretty cool to see what people were able to do with just the basic stuff that's there already.
 
 **When Swift came out, you suddenly became much more visible in the community. Was this a deliberate choice you made?**
 
