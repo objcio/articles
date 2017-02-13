@@ -29,7 +29,7 @@ The main utility to manage the X.509 infrastructure on OS X is the Keychain Acce
 
 ![iOS Developer Certificate in the OS X keychain](/images/issue-17/iphone-developer-keychain.png)
 
-To export a certificate from your keychain with the private key, Command-Click the certificate and choose 'Export "Your Certificate Name"' and choose the Personal Information Exchange format (.p12). You will be asked to enter a password to protect this file. Once you are done, anyone who has the p12 file and the password will be able to install the certificate and private key into their own keychain. 
+To export a certificate from your keychain with the private key, Control-Click the certificate and choose 'Export "Your Certificate Name"' and choose the Personal Information Exchange format (.p12). You will be asked to enter a password to protect this file. Once you are done, anyone who has the p12 file and the password will be able to install the certificate and private key into their own keychain. 
 
 Another way to quickly get a glance at the identities on your system that can be used for signing code is with the very versatile `security` command line tool:
 
