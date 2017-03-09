@@ -50,7 +50,7 @@ Further reading:
 
 Before doing anything concurrent with Core Data, it is important to get
 the basics right. We strongly recommend reading through Apple's [Concurrency
-with Core Data](https://developer.apple.com/library/mac/#documentation/cocoa/conceptual/CoreData/Articles/cdConcurrency.html) guide.
+with Core Data](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CoreData/Concurrency.html) guide.
 This document lays down the ground rules, such as never passing managed objects between
 threads. This doesn't just mean that you should never modify a managed object on another
 thread, but also that you should never read any properties from it. To pass around
