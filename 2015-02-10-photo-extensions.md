@@ -150,7 +150,7 @@ the features of UIKit to implement this. The sample project uses a Core Image
 filter chain to facilitate editing, so the UI is handled with a custom `GLKView`
 subclass to reduce the load on the CPU.
 
-### Cancelation
+### Cancellation
 
 To finish editing, users can select either the _Cancel_ or _Done_ buttons
 provided by the Photos UI. If the user decides to cancel with unsaved edits,
@@ -159,7 +159,7 @@ then the `shouldShowCancelConfirmation` property should be overridden to return
 
 ![Confirm Cancellation](/images/issue-21/confirm_cancel.png)
 
-If the cancelation is requested, then the `cancelContentEditing` method is
+If the cancellation is requested, then the `cancelContentEditing` method is
 called to allow you to clear up any temporary data that you've created.
 
 ### Commit Changes
