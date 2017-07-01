@@ -253,7 +253,7 @@ The downside of such an animator design is two-fold: it can only animate the ite
 
 Another approach, which is implemented in the accompanying demo project, relies on a few quirks of the `UICollectionViewFlowLayout`.
 
-The basic idea is that both the source and the destination collection views have valid flow layouts and the layout attributes of the source layout could act as the initial layout attributes for the items in the the destination collection view to drive the transition animation. Once this is set up, the collection view machinery would take care of keeping track of all items and animate them for us, even if they're not initially visible on the screen. Here is the core of the `animateTransition:` method of our animation controller:
+The basic idea is that both the source and the destination collection views have valid flow layouts and the layout attributes of the source layout could act as the initial layout attributes for the items in the destination collection view to drive the transition animation. Once this is set up, the collection view machinery would take care of keeping track of all items and animate them for us, even if they're not initially visible on the screen. Here is the core of the `animateTransition:` method of our animation controller:
 
 ```objc
 CGRect initialRect = [inView.window convertRect:_fromCollectionView.frame fromView:_fromCollectionView.superview];
