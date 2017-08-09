@@ -5,7 +5,7 @@ date: "2014-05-08 11:00:00"
 tags: article
 author:
   - name: Robert Böhnke
-    url: https://twitter.com/ceterum_censeo
+    url: https://twitter.com/dlx
 ---
 
 The applications we write are rarely a static experience, as they adapt to the user's needs and change states to perform a multitude of tasks.
