@@ -69,7 +69,7 @@ Let's first figure out what code is actually dismissing our view controller. The
 (lldb) 
 ```
 
-With LLDB's `bt` command, you can print the breakpoint. `bt all` will do the same, but it prints the state of all threads, and not just the current one.
+With LLDB's `bt` command, you can print the backtrace. `bt all` will do the same, but it prints the state of all threads, and not just the current one.
 
 Looking at the stack trace, we notice that the view controller is already dismissing, as we're called from a scheduled animation, so we need to add a breakpoint earlier. In this case, we are interested in calls to `-[UIViewController dismissViewControllerAnimated:completion:]`. We add a *symbolic breakpoint* to Xcode's breakpoint list and run the sample again. 
 
