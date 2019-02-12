@@ -196,7 +196,7 @@ configuration.HTTPAdditionalHeaders = @{@"Accept": @"application/json",
 
 #### Cookie Policies
 
-`HTTPCookieStorage` is the cookie storage used by the session. By default, `NSHTTPCookieShorage +sharedHTTPCookieStorage` is used, which is the same as `NSURLConnection`.
+`HTTPCookieStorage` is the cookie storage used by the session. By default, `NSHTTPCookieStorage +sharedHTTPCookieStorage` is used, which is the same as `NSURLConnection`.
 
 `HTTPCookieAcceptPolicy` determines the conditions in which the session should accept cookies sent from the server.
 
