@@ -75,7 +75,7 @@ What's happening internally for any property that's not manually implemented is 
 
 ```objc
 objc_setProperty_non_gc(self, _cmd, 
-  (ptrdiff_t)(&_userName) - (ptrdiff_t)(self), userName, NO, NO);`
+  (ptrdiff_t)(&_userName) - (ptrdiff_t)(self), userName, NO, NO);
 ```
 
 The ptrdiff_t might look weird to you, but in the end it's simple pointer arithmetic, since an Objective-C class is just another C struct.
