@@ -162,7 +162,7 @@ if (contents) {
 
 This would solve the issue here, but in most cases it's not that simple. Imagine that we also have a `textColor` property and we change both properties on one thread. Then our render thread could end up using the new content along with the old color value and we get a weird combination. This is one reason why Core Data binds model objects to one thread or queue. 
 
-There's no one-size-fits-all solution for this problem. Using [immutable models](http://www.cocoawithlove.com/2008/04/value-of-immutable-values.html) is a solution, but it has its own problems. Another way is to limit changes to existing objects to the main thread or a specific queue and to generate copies before using them on worker threads. I recommend Jonathan Sterling's article about [Lightweight Immutability in Objective-C](http://www.jonmsterling.com/posts/2012-12-27-a-pattern-for-immutability.html) for even more ideas on solving this problem.
+There's no one-size-fits-all solution for this problem. Using [immutable models](http://www.cocoawithlove.com/2008/04/value-of-immutable-values.html) is a solution, but it has its own problems. Another way is to limit changes to existing objects to the main thread or a specific queue and to generate copies before using them on worker threads. I recommend Jonathan Sterling's article about [Lightweight Immutability in Objective-C](https://web.archive.org/web/20160313092526/http://www.jonmsterling.com/posts/2012-12-27-a-pattern-for-immutability.html) for even more ideas on solving this problem.
 
 The simple solution is to use @synchronize. Anything else is very, very likely to get you into trouble. Way smarter people have failed again and again at doing so.
 
